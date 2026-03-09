@@ -1,5 +1,7 @@
 # BUS 411 — Fixed Income Security Analysis and Valuation
 
+**[View the course website →](https://aliboloor.github.io/BUS411/)**
+
 Course materials and lecture notes for **BUS 411: Fixed Income Security Analysis and Valuation**.
 
 ## Overview

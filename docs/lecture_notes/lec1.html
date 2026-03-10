@@ -73,6 +73,35 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -381,20 +410,18 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#course" id="toc-course" class="nav-link active" data-scroll-target="#course"><span class="header-section-number">1</span> Course</a></li>
-  <li><a href="#lecture" id="toc-lecture" class="nav-link" data-scroll-target="#lecture"><span class="header-section-number">2</span> Lecture</a></li>
-  <li><a href="#learning-objectives" id="toc-learning-objectives" class="nav-link" data-scroll-target="#learning-objectives"><span class="header-section-number">3</span> Learning Objectives</a></li>
-  <li><a href="#main-concepts" id="toc-main-concepts" class="nav-link" data-scroll-target="#main-concepts"><span class="header-section-number">4</span> Main Concepts</a></li>
-  <li><a href="#definitions" id="toc-definitions" class="nav-link" data-scroll-target="#definitions"><span class="header-section-number">5</span> Definitions</a></li>
-  <li><a href="#key-formulas" id="toc-key-formulas" class="nav-link" data-scroll-target="#key-formulas"><span class="header-section-number">6</span> Key Formulas</a></li>
-  <li><a href="#examples" id="toc-examples" class="nav-link" data-scroll-target="#examples"><span class="header-section-number">7</span> Examples</a>
+  <li><a href="#lecture-1-title-of-lecture" id="toc-lecture-1-title-of-lecture" class="nav-link active" data-scroll-target="#lecture-1-title-of-lecture"><span class="header-section-number">1</span> Lecture 1: title of lecture</a>
   <ul class="collapse">
-  <li><a href="#example-1" id="toc-example-1" class="nav-link" data-scroll-target="#example-1"><span class="header-section-number">7.1</span> Example 1</a></li>
-  <li><a href="#example-2" id="toc-example-2" class="nav-link" data-scroll-target="#example-2"><span class="header-section-number">7.2</span> Example 2</a></li>
+  <li><a href="#learning-objectives" id="toc-learning-objectives" class="nav-link" data-scroll-target="#learning-objectives"><span class="header-section-number">1.1</span> Learning Objectives</a></li>
+  <li><a href="#first-section" id="toc-first-section" class="nav-link" data-scroll-target="#first-section"><span class="header-section-number">1.2</span> 1. first section</a>
+  <ul class="collapse">
+  <li><a href="#first-subsection" id="toc-first-subsection" class="nav-link" data-scroll-target="#first-subsection"><span class="header-section-number">1.2.1</span> 1.1. first subsection</a></li>
   </ul></li>
-  <li><a href="#remarks-intuition" id="toc-remarks-intuition" class="nav-link" data-scroll-target="#remarks-intuition"><span class="header-section-number">8</span> Remarks / Intuition</a></li>
-  <li><a href="#suggested-readings" id="toc-suggested-readings" class="nav-link" data-scroll-target="#suggested-readings"><span class="header-section-number">9</span> Suggested Readings</a></li>
-  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises"><span class="header-section-number">10</span> Exercises</a></li>
+  <li><a href="#main-concepts" id="toc-main-concepts" class="nav-link" data-scroll-target="#main-concepts"><span class="header-section-number">1.3</span> Main Concepts</a></li>
+  <li><a href="#definitions" id="toc-definitions" class="nav-link" data-scroll-target="#definitions"><span class="header-section-number">1.4</span> Definitions</a></li>
+  <li><a href="#key-formulas" id="toc-key-formulas" class="nav-link" data-scroll-target="#key-formulas"><span class="header-section-number">1.5</span> Key Formulas</a></li>
+  <li><a href="#suggested-readings" id="toc-suggested-readings" class="nav-link" data-scroll-target="#suggested-readings"><span class="header-section-number">1.6</span> Suggested Readings</a></li>
+  </ul></li>
   </ul>
 <div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="lec1.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></nav>
 </nav>
@@ -425,30 +452,33 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="course" class="level2" data-number="1">
-<h2 data-number="1" class="anchored" data-anchor-id="course"><span class="header-section-number">1</span> Course</h2>
-<p>BUS 411 — Fixed Income Security Analysis and Valuation</p>
-</section>
-<section id="lecture" class="level2" data-number="2">
-<h2 data-number="2" class="anchored" data-anchor-id="lecture"><span class="header-section-number">2</span> Lecture</h2>
-<p>Lecture 1</p>
-</section>
-<section id="learning-objectives" class="level2" data-number="3">
-<h2 data-number="3" class="anchored" data-anchor-id="learning-objectives"><span class="header-section-number">3</span> Learning Objectives</h2>
+<section id="lecture-1-title-of-lecture" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Lecture 1: title of lecture</h1>
+<section id="learning-objectives" class="level2" data-number="1.1">
+<h2 data-number="1.1" class="anchored" data-anchor-id="learning-objectives"><span class="header-section-number">1.1</span> Learning Objectives</h2>
 <ul>
 <li><em>Add your learning objectives here.</em></li>
 </ul>
 </section>
-<section id="main-concepts" class="level2" data-number="4">
-<h2 data-number="4" class="anchored" data-anchor-id="main-concepts"><span class="header-section-number">4</span> Main Concepts</h2>
+<section id="first-section" class="level2" data-number="1.2">
+<h2 data-number="1.2" class="anchored" data-anchor-id="first-section"><span class="header-section-number">1.2</span> 1. first section</h2>
+<section id="first-subsection" class="level3" data-number="1.2.1">
+<h3 data-number="1.2.1" class="anchored" data-anchor-id="first-subsection"><span class="header-section-number">1.2.1</span> 1.1. first subsection</h3>
+<section id="first-subsubsection" class="level4" data-number="1.2.1.1">
+<h4 data-number="1.2.1.1" class="anchored" data-anchor-id="first-subsubsection"><span class="header-section-number">1.2.1.1</span> 1.1.1. first subsubsection</h4>
+</section>
+</section>
+</section>
+<section id="main-concepts" class="level2" data-number="1.3">
+<h2 data-number="1.3" class="anchored" data-anchor-id="main-concepts"><span class="header-section-number">1.3</span> Main Concepts</h2>
 <ul>
 <li><em>Main concept 1</em></li>
 <li><em>Main concept 2</em></li>
 <li><em>Main concept 3</em></li>
 </ul>
 </section>
-<section id="definitions" class="level2" data-number="5">
-<h2 data-number="5" class="anchored" data-anchor-id="definitions"><span class="header-section-number">5</span> Definitions</h2>
+<section id="definitions" class="level2" data-number="1.4">
+<h2 data-number="1.4" class="anchored" data-anchor-id="definitions"><span class="header-section-number">1.4</span> Definitions</h2>
 <div class="callout-definition">
 <p><strong>Term 1.</strong> <em>Definition placeholder.</em></p>
 </div>
@@ -456,52 +486,21 @@ ul.task-list li input[type="checkbox"] {
 <p><strong>Term 2.</strong> <em>Definition placeholder.</em></p>
 </div>
 </section>
-<section id="key-formulas" class="level2" data-number="6">
-<h2 data-number="6" class="anchored" data-anchor-id="key-formulas"><span class="header-section-number">6</span> Key Formulas</h2>
-<p>[ PV = ]</p>
+<section id="key-formulas" class="level2" data-number="1.5">
+<h2 data-number="1.5" class="anchored" data-anchor-id="key-formulas"><span class="header-section-number">1.5</span> Key Formulas</h2>
+<p><span class="math display">\[
+\text{Formula placeholder: } PV = \frac{F}{(1+r)^n}
+\]</span></p>
 </section>
-<section id="examples" class="level2" data-number="7">
-<h2 data-number="7" class="anchored" data-anchor-id="examples"><span class="header-section-number">7</span> Examples</h2>
-<section id="example-1" class="level3" data-number="7.1">
-<h3 data-number="7.1" class="anchored" data-anchor-id="example-1"><span class="header-section-number">7.1</span> Example 1</h3>
-<p><em>Worked example placeholder.</em></p>
-</section>
-<section id="example-2" class="level3" data-number="7.2">
-<h3 data-number="7.2" class="anchored" data-anchor-id="example-2"><span class="header-section-number">7.2</span> Example 2</h3>
-<p><em>Worked example placeholder.</em></p>
-</section>
-</section>
-<section id="remarks-intuition" class="level2" data-number="8">
-<h2 data-number="8" class="anchored" data-anchor-id="remarks-intuition"><span class="header-section-number">8</span> Remarks / Intuition</h2>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Note
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p><em>Key intuition and remarks for this lecture.</em></p>
-</div>
-</div>
-</section>
-<section id="suggested-readings" class="level2" data-number="9">
-<h2 data-number="9" class="anchored" data-anchor-id="suggested-readings"><span class="header-section-number">9</span> Suggested Readings</h2>
+<section id="suggested-readings" class="level2" data-number="1.6">
+<h2 data-number="1.6" class="anchored" data-anchor-id="suggested-readings"><span class="header-section-number">1.6</span> Suggested Readings</h2>
 <ul>
 <li><em>Textbook chapter or paper reference</em></li>
 <li><em>Supplementary material</em></li>
 </ul>
+
+
 </section>
-<section id="exercises" class="level2" data-number="10">
-<h2 data-number="10" class="anchored" data-anchor-id="exercises"><span class="header-section-number">10</span> Exercises</h2>
-<ol type="1">
-<li><em>Exercise 1 placeholder</em></li>
-<li><em>Exercise 2 placeholder</em></li>
-</ol>
-
-
 </section>
 
 </main> <!-- /main -->

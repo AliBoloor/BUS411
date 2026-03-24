@@ -1,0 +1,542 @@
+% Options for packages loaded elsewhere
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\PassOptionsToPackage{dvipsnames,svgnames,x11names}{xcolor}
+%
+\documentclass[
+  letterpaper,
+  DIV=11,
+  numbers=noendperiod]{scrartcl}
+\usepackage{xcolor}
+\usepackage{amsmath,amssymb}
+\setcounter{secnumdepth}{5}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+% Make \paragraph and \subparagraph free-standing
+\makeatletter
+\ifx\paragraph\undefined\else
+  \let\oldparagraph\paragraph
+  \renewcommand{\paragraph}{
+    \@ifstar
+      \xxxParagraphStar
+      \xxxParagraphNoStar
+  }
+  \newcommand{\xxxParagraphStar}[1]{\oldparagraph*{#1}\mbox{}}
+  \newcommand{\xxxParagraphNoStar}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+  \let\oldsubparagraph\subparagraph
+  \renewcommand{\subparagraph}{
+    \@ifstar
+      \xxxSubParagraphStar
+      \xxxSubParagraphNoStar
+  }
+  \newcommand{\xxxSubParagraphStar}[1]{\oldsubparagraph*{#1}\mbox{}}
+  \newcommand{\xxxSubParagraphNoStar}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+\makeatother
+
+
+\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\usepackage{graphicx}
+\makeatletter
+\newsavebox\pandoc@box
+\newcommand*\pandocbounded[1]{% scales image to fit in text height/width
+  \sbox\pandoc@box{#1}%
+  \Gscale@div\@tempa{\textheight}{\dimexpr\ht\pandoc@box+\dp\pandoc@box\relax}%
+  \Gscale@div\@tempb{\linewidth}{\wd\pandoc@box}%
+  \ifdim\@tempb\p@<\@tempa\p@\let\@tempa\@tempb\fi% select the smaller of both
+  \ifdim\@tempa\p@<\p@\scalebox{\@tempa}{\usebox\pandoc@box}%
+  \else\usebox{\pandoc@box}%
+  \fi%
+}
+% Set default figure placement to htbp
+\def\fps@figure{htbp}
+\makeatother
+
+
+
+
+
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+
+
+ 
+
+
+\KOMAoption{captions}{tableheading}
+\makeatletter
+\@ifpackageloaded{caption}{}{\usepackage{caption}}
+\AtBeginDocument{%
+\ifdefined\contentsname
+  \renewcommand*\contentsname{Table of contents}
+\else
+  \newcommand\contentsname{Table of contents}
+\fi
+\ifdefined\listfigurename
+  \renewcommand*\listfigurename{List of Figures}
+\else
+  \newcommand\listfigurename{List of Figures}
+\fi
+\ifdefined\listtablename
+  \renewcommand*\listtablename{List of Tables}
+\else
+  \newcommand\listtablename{List of Tables}
+\fi
+\ifdefined\figurename
+  \renewcommand*\figurename{Figure}
+\else
+  \newcommand\figurename{Figure}
+\fi
+\ifdefined\tablename
+  \renewcommand*\tablename{Table}
+\else
+  \newcommand\tablename{Table}
+\fi
+}
+\@ifpackageloaded{float}{}{\usepackage{float}}
+\floatstyle{ruled}
+\@ifundefined{c@chapter}{\newfloat{codelisting}{h}{lop}}{\newfloat{codelisting}{h}{lop}[chapter]}
+\floatname{codelisting}{Listing}
+\newcommand*\listoflistings{\listof{codelisting}{List of Listings}}
+\makeatother
+\makeatletter
+\makeatother
+\makeatletter
+\@ifpackageloaded{caption}{}{\usepackage{caption}}
+\@ifpackageloaded{subcaption}{}{\usepackage{subcaption}}
+\makeatother
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdftitle={Lecture 2: Measuring Yield},
+  colorlinks=true,
+  linkcolor={blue},
+  filecolor={Maroon},
+  citecolor={Blue},
+  urlcolor={Blue},
+  pdfcreator={LaTeX via pandoc}}
+
+
+\title{Lecture 2: Measuring Yield}
+\author{}
+\date{}
+\begin{document}
+\maketitle
+
+\renewcommand*\contentsname{Table of contents}
+{
+\hypersetup{linkcolor=}
+\setcounter{tocdepth}{3}
+\tableofcontents
+}
+
+\section{Learning Objectives}\label{learning-objectives}
+
+\begin{itemize}
+\tightlist
+\item
+  Compute the yield (internal rate of return) on any investment using
+  the present‑value equation that equates the price of the investment to
+  the present value of its cash‑flows【965351366966888†L3643-L3669】.
+\item
+  Calculate conventional yield measures---current yield, yield to
+  maturity, yield to call, yield to put, cash‑flow yield---and
+  understand how each is interpreted【965351366966888†L3896-L3973】.
+\item
+  Calculate the yield for a portfolio by discounting all portfolio
+  cash‑flows so that the present value equals the portfolio price.
+\item
+  Compute the discount margin for a floating‑rate security and recognise
+  why this measure differs from standard yield measures.
+\item
+  Identify the three potential sources of a bond's return (coupon
+  interest, reinvestment income and capital gain or loss) and explain
+  the concept of reinvestment risk.
+\item
+  Recognise the limitations of conventional yield measures and why total
+  return is a more realistic performance metric.
+\item
+  Calculate the total return on a bond for a specified investment
+  horizon under explicit reinvestment rate assumptions and a projected
+  sale price.
+\item
+  Use horizon analysis to assess how reinvestment assumptions and future
+  yield expectations influence bond returns.
+\item
+  Measure yield changes using both absolute (basis‑point) and relative
+  (percentage) conventions.
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{1~Computing the Yield or Internal Rate of
+Return}\label{computing-the-yield-or-internal-rate-of-return}
+
+\subsection{1.1~Yield on Any Investment}\label{yield-on-any-investment}
+
+The \textbf{yield} or \textbf{internal rate of return (IRR)} on an
+investment is the interest rate that makes the present value of the
+investment's cash‑flows equal to its price. Mathematically, for an
+investment with (N) future cash‑flows (CF\_t) and price (P), the yield
+(y) satisfies
+
+{[} P ;=; \sum\_\{t=1\}\^{}\{N\}\frac{CF_t}{(1+y)^t}. {]}
+
+Solving for (y) generally requires an iterative procedure because (y)
+appears in the denominator of each term【965351366966888†L3643-L3669】.
+A higher assumed yield lowers the present value; a lower assumed yield
+raises it. The objective is to find the yield for which the present
+value equals the price.
+
+\subsubsection{Special case: a single cash
+flow}\label{special-case-a-single-cash-flow}
+
+If the investment has just one future cash flow (CF\_N) in (N) periods,
+the yield can be solved algebraically: {[} y ;=;
+\left(\frac{CF_N}{P}\right)\^{}\{1/N\} - 1. {]}
+
+This formula eliminates the need for trial and error because there is
+only one cash‑flow term【965351366966888†L3643-L3669】.
+
+\subsection{1.2~Example: Computing Yield by Trial and
+Error}\label{example-computing-yield-by-trial-and-error}
+
+Suppose a financial instrument with price \$903.10 promises cash‑flows
+of \$100, \$100, \$100 and \$1,000 in years~1--4. To find its yield:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Compute the present value of cash‑flows at several interest rates.
+\item
+  Adjust the rate until the present value matches \$903.10.
+\end{enumerate}
+
+Using a 10~\% trial rate gives a present value of \$931.69. A 12~\%
+trial rate produces \$875.71. By interpolation, a rate of 11~\% equates
+the present value to the price【965351366966888†L3718-L3767】. The yield
+on this investment is therefore \textbf{11~\%}.
+
+\subsection{1.3~Periodic Cash Flows and
+Annualisation}\label{periodic-cash-flows-and-annualisation}
+
+Cash‑flows are often paid more than once per year---for example,
+semiannual coupons. If there are (n) compounding periods per year, the
+yield is the rate per period ((y)) that satisfies {[} P =
+\sum\_\{t=1\}\^{}\{nN\} \frac{CF_t}{(1+y)^t}. {]}
+
+For semiannual coupons, doubling (y) gives the \textbf{bond‑equivalent
+yield}; for other frequencies, multiply (y) by the number of periods in
+the year. To find the \textbf{effective annual yield} corresponding to a
+periodic rate (r\_p), compute {[} \text{Effective annual yield} ;=; (1 +
+r\_p)\^{}m - 1, {]} where (m) is the number of periods per year. For
+example, a quarterly periodic rate of 2~\% implies an effective annual
+yield of ((1.02)\^{}4-1\approx8.24\%).
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{2~Conventional Yield
+Measures}\label{conventional-yield-measures}
+
+Bonds are commonly quoted using several yield measures that summarise
+different aspects of return. Each measure uses the basic present‑value
+relationship but makes different assumptions about cash‑flows and
+reinvestment.
+
+\subsection{2.1~Current Yield}\label{current-yield}
+
+The \textbf{current yield} relates a bond's annual coupon to its market
+price: {[} \text{current yield} ;=;
+\frac{\text{annual coupon}}{\text{price}}. {]}
+
+For instance, a 15‑year bond with a 7~\% coupon and price \$769.42 has a
+current yield of (70/769.42 \approx 9.10\%). A 4.5~\% coupon bond priced
+at 99.531 (per \$100 par) has a current yield of (4.50/99.531
+\approx 4.52\%)【965351366966888†L3896-L3922】.
+
+The current yield ignores capital gains or losses and the time value of
+money. It only measures coupon income relative to price.
+
+\subsection{2.2~Yield to Maturity (YTM)}\label{yield-to-maturity-ytm}
+
+The \textbf{yield to maturity} is the internal rate of return assuming
+the bond is held to maturity and all coupon payments are reinvested at
+the same rate. For a bond with price (P), coupon payment (C), maturity
+value (M) and (n) semiannual periods, the present‑value equation is {[}
+P ;=; \sum\_\{t=1\}\^{}\{n\}\frac{C}{(1+y)^t} ;+; \frac{M}{(1+y)^n}. {]}
+
+Solving for (y) (a semiannual rate) generally requires trial and error;
+doubling (y) gives the bond‑equivalent
+YTM【965351366966888†L3896-L3973】. YTM incorporates coupon income,
+reinvestment income and any capital gain or loss realised at maturity.
+
+\subsection{2.3~Yield to Call, Yield to Put and Yield to
+Sinker}\label{yield-to-call-yield-to-put-and-yield-to-sinker}
+
+\textbf{Callable bonds} allow the issuer to redeem the bond at specified
+call dates for a predetermined price. The \textbf{yield to call} is the
+interest rate that equates the bond's price to the present value of the
+coupon payments up to the assumed call date plus the call price. Because
+multiple call dates may exist, investors often compute yields to first
+call, next call and to any refunding call.
+
+Similarly, \textbf{putable bonds} allow the investor to sell the bond
+back to the issuer on specified dates at a put price. The \textbf{yield
+to put} equates the price to the present value of cash‑flows up to the
+put date plus the put price. Bonds with sinking‑fund schedules retire
+portions of the issue over time. The \textbf{yield to sinker} uses the
+sinking‑fund date and price.
+
+The \textbf{yield to worst} is the lowest yield among the yield to
+maturity, all yields to call and all yields to put. It represents the
+minimum return an investor might realise if the issuer exercises
+embedded options.
+
+\subsection{2.4~Yield for a Portfolio}\label{yield-for-a-portfolio}
+
+The yield of a bond portfolio is not simply the average of the
+individual yields because each bond has a different pattern of
+cash‑flows. To compute a portfolio yield, aggregate the portfolio's
+cash‑flows and find the discount rate that makes the present value of
+all cash‑flows equal the portfolio's price. For instance, a portfolio of
+three bonds with differing maturities and coupon rates requires
+discounting the combined cash‑flow schedule to match the total market
+value.
+
+\subsection{2.5~Cash‑Flow Yield and Discount
+Margin}\label{cashflow-yield-and-discount-margin}
+
+For amortising securities such as mortgage‑backed or asset‑backed
+securities, investors receive principal repayments along with interest.
+The \textbf{cash‑flow yield} is the rate that equates the price to the
+projected cash‑flows, including scheduled and unscheduled principal
+repayments. Estimating the cash‑flow yield requires assumptions about
+prepayments and reinvestment.
+
+Floating‑rate securities pay interest linked to a reference rate (e.g.,
+LIBOR) plus a quoted margin. The cash‑flows depend on future reference
+rates, so a YTM cannot be calculated directly. Investors instead
+calculate the \textbf{discount margin}, the margin over the reference
+rate that equates the price to the present value of the projected
+cash‑flows assuming the reference rate remains constant. This measure
+estimates the average spread an investor can expect over the reference
+rate.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{3~Sources of a Bond's Return and Reinvestment
+Risk}\label{sources-of-a-bonds-return-and-reinvestment-risk}
+
+A bond's total dollar return comes from three sources:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \textbf{Coupon interest} -- the periodic coupon payments.
+\item
+  \textbf{Capital gain or loss} -- the difference between the sale price
+  (or maturity value) and the purchase price.
+\item
+  \textbf{Reinvestment income} -- interest earned from reinvesting the
+  coupon payments (and, for amortising bonds, reinvested principal).
+\end{enumerate}
+
+Conventional yields implicitly assume that coupon payments can be
+reinvested at the computed yield. The risk that future reinvestment
+rates will be lower than the yield at purchase is \textbf{reinvestment
+risk}. The longer the maturity and the higher the coupon, the more the
+bond's total return depends on the reinvestment of coupon payments, and
+therefore the greater the reinvestment risk.
+
+\subsection{3.1~Interest‐on‐Interest
+Component}\label{interestoninterest-component}
+
+For a non‑amortising bond paying semiannual coupon (C) over (n) periods
+and reinvestment rate (r), the future value of the coupon payments plus
+reinvestment income after (n) periods is {[} C,\frac{(1+r)^n - 1}{r}.
+{]}
+
+The interest‑on‑interest component is the difference between this amount
+and the sum of the coupon payments ((nC)). For long‑maturity,
+high‑coupon bonds, the interest‑on‑interest component may represent a
+significant portion of total return. Zero‑coupon bonds have no
+reinvestment risk because all return is realised at maturity.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{4~Total Return and Horizon
+Analysis}\label{total-return-and-horizon-analysis}
+
+The yield to maturity and other conventional yields are \textbf{promised
+yields}: they are realised only if the bond is held to the date used in
+the calculation and coupon payments can be reinvested at that yield. To
+evaluate a bond's performance over a specific \textbf{investment
+horizon}, investors compute the \textbf{total return}, which explicitly
+incorporates assumptions about reinvestment rates and the bond's sale
+price at the end of the horizon.
+
+\subsection{4.1~Computing Total Return}\label{computing-total-return}
+
+To compute the total return over a horizon of (h) semiannual periods:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \textbf{Reinvestment income} -- For each coupon payment received
+  before the horizon, compute its future value at the assumed
+  reinvestment rate until the horizon. Summing these gives the future
+  value of coupon payments plus reinvestment income.
+\item
+  \textbf{Projected sale price} -- Estimate the bond's price at the
+  horizon by discounting its remaining cash‑flows at the expected yield
+  to maturity prevailing at that time.
+\item
+  \textbf{Total future dollars} -- Add the future value of coupon
+  payments to the projected sale price. Subtract the initial purchase
+  price to obtain the dollar return.
+\item
+  \textbf{Total return} -- Solve for the interest rate that equates the
+  purchase price to the total future dollars; double the semiannual rate
+  to express as an annualised return.
+\end{enumerate}
+
+This procedure accommodates multiple reinvestment rates. For example,
+coupon payments received in early periods may be reinvested at one rate
+and later payments at another. The final projected price depends on
+expectations for the yield environment at the horizon.
+
+\subsection{4.2~Example: Total Return}\label{example-total-return}
+
+An investor with a three‑year horizon considers a 20‑year 8~\% bond
+priced at \$828.40 with YTM 10~\%. The investor expects to reinvest
+coupons at 6~\% and to sell the bond after three years at a yield of
+7~\% for then‑17‑year bonds. The calculation proceeds as follows:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  The bond pays \$40 every six months. Assuming 3~\% semiannual
+  reinvestment, the future value of coupon payments over six periods is
+  \$258.74.
+\item
+  The projected sale price in three years (with a 7~\% yield) is
+  \$1\,098.51.
+\item
+  Total future dollars are \$1\,357.25; dividing by the purchase price
+  and solving for the semiannual return gives 8.58~\% per half year.
+\item
+  Doubling yields an \textbf{annualised total return of 17.16~\%},
+  demonstrating how reinvestment and expected sale price affect realised
+  performance.
+\end{enumerate}
+
+Horizon analysis is also used in bond‑swap decisions. By calculating
+total returns under different reinvestment and yield scenarios,
+investors can determine whether swapping one bond for another improves
+projected performance.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{5~Measuring Yield Changes}\label{measuring-yield-changes}
+
+Yield changes can be measured in two ways:
+
+\begin{itemize}
+\item
+  \textbf{Absolute yield change} -- measured in basis points. It is the
+  absolute difference between two yields: {[}
+  \text{absolute change (bp)} ;=; \textbar y\_\{\text{new}\} -
+  y\_\{\text{old}\}\textbar{} \times 100. {]}
+\item
+  \textbf{Relative (percentage) yield change} -- calculated as the
+  natural logarithm of the ratio of the new yield to the old yield: {[}
+  \text{relative change (\%)} ;=; 100
+  \times \ln\left(\frac{y_{\text{new}}}{y_{\text{old}}}\right). {]}
+\end{itemize}
+
+For example, if yields rise from 4.45~\% to 5.11~\%, the absolute change
+is 66~bp and the relative change is (\ln(5.11/4.45)\times 100
+\approx 13.83\%). These measures are useful for comparing yield
+movements across different sectors and maturities.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{6~Key Points}\label{key-points}
+
+\begin{itemize}
+\tightlist
+\item
+  The yield on any investment is the internal rate of return that
+  equates the present value of cash‑flows to the
+  price【965351366966888†L3643-L3669】.
+\item
+  Conventional yield measures (current yield, yield to maturity, yield
+  to call, etc.) summarise different aspects of return and rely on
+  specific reinvestment and holding‑period
+  assumptions【965351366966888†L3896-L3973】.
+\item
+  A bond's total dollar return consists of coupon interest, reinvestment
+  income and any capital gain or loss; reinvestment risk arises because
+  future rates are uncertain.
+\item
+  Total return is a more comprehensive measure than yield to maturity
+  because it incorporates explicit reinvestment assumptions and a
+  horizon‑based sale price.
+\item
+  Horizon analysis uses the total return framework to compare bonds or
+  strategies over a specified holding period under alternative
+  interest‑rate scenarios.
+\end{itemize}
+
+
+
+
+\end{document}

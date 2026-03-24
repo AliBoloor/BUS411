@@ -1,190 +1,407 @@
 ---
-title: "Lecture 2: Measuring Yield"
+title: "Lecture 2: Bond Pricing and Yield Measures"
 format:
   html:
     toc: true
     toc-location: left
     number-sections: false
-  pdf:
-    toc: true
-    number-sections: true
 jupyter: python3
 ---
 
 ## Learning Objectives
 
-- Compute the yield (internal rate of return) on any investment using the present‑value equation that equates the price of the investment to the present value of its cash‑flows【965351366966888†L3643-L3669】.
-- Calculate conventional yield measures—current yield, yield to maturity, yield to call, yield to put, cash‑flow yield—and understand how each is interpreted【965351366966888†L3896-L3973】.
-- Calculate the yield for a portfolio by discounting all portfolio cash‑flows so that the present value equals the portfolio price.
-- Compute the discount margin for a floating‑rate security and recognise why this measure differs from standard yield measures.
-- Identify the three potential sources of a bond’s return (coupon interest, reinvestment income and capital gain or loss) and explain the concept of reinvestment risk.
-- Recognise the limitations of conventional yield measures and why total return is a more realistic performance metric.
-- Calculate the total return on a bond for a specified investment horizon under explicit reinvestment rate assumptions and a projected sale price.
-- Use horizon analysis to assess how reinvestment assumptions and future yield expectations influence bond returns.
-- Measure yield changes using both absolute (basis‑point) and relative (percentage) conventions.
+By the end of this lecture you should be able to:
+
+- Explain the time value of money and calculate future values and present values for cash-flows.
+- Compute the price of a bond by discounting expected cash-flows at an appropriate discount rate.
+- Describe how bond prices move in response to changes in yield and why the price–yield relationship is convex.
+- Relate coupon rate and yield to a bond’s trading status (par, premium or discount) and recognise how prices evolve as a bond approaches maturity (pull to par).
+- Identify factors—market interest rates, credit risk, liquidity, economic expectations, tax policy and inflation—that cause bond prices to change.
+- Describe complications in bond pricing arising from embedded options, floating-rate structures and inverse floaters.
+- Explain how bonds are quoted clean and dirty, and compute accrued interest.
+- Compute yields using the present-value relationship: current yield, yield to maturity, yield to call, yield to put, yield to sinker and yield to worst, as well as the yield for a portfolio and the cash-flow yield for amortising securities.
+- Compute the discount margin for a floating-rate security and explain why this margin differs from conventional yield measures.
+- Identify the sources of a bond’s total return—coupon interest, reinvestment income and capital gain or loss—and discuss reinvestment risk.
+- Use total return and horizon analysis to evaluate the realised performance of a bond or bond strategy under explicit assumptions about reinvestment rates and future yields.
+- Measure changes in yield using absolute (basis-point) and relative (percentage) conventions.
 
 ---
 
-## 1 Computing the Yield or Internal Rate of Return
+# 1 The Time Value of Money
 
-### 1.1 Yield on Any Investment
+A fundamental principle underlying all fixed income valuation is the **time value of money**. A dollar received today is worth more than a dollar received in the future because the dollar today can be invested to earn interest. When an investor purchases a bond, the investor is exchanging money today for a stream of future cash flows. To determine whether this exchange is fair, we must be able to compare money received at different points in time. The tool that allows us to do this is present value and future value analysis.
 
-The **yield** or **internal rate of return (IRR)** on an investment is the interest rate that makes the present value of the investment’s cash‑flows equal to its price.  Mathematically, for an investment with \(N\) future cash‑flows \(CF_t\) and price \(P\), the yield \(y\) satisfies
+In fixed income markets, virtually every valuation problem can be reduced to one question:
 
-\[
-P \;=\; \sum_{t=1}^{N}\frac{CF_t}{(1+y)^t}.
-\]
+> What is the present value of a set of future cash flows?
 
-Solving for \(y\) generally requires an iterative procedure because \(y\) appears in the denominator of each term【965351366966888†L3643-L3669】.  A higher assumed yield lowers the present value; a lower assumed yield raises it.  The objective is to find the yield for which the present value equals the price.
-
-#### Special case: a single cash flow
-
-If the investment has just one future cash flow \(CF_N\) in \(N\) periods, the yield can be solved algebraically:
-\[
-y \;=\; \left(\frac{CF_N}{P}\right)^{1/N} - 1.
-\]
-
-This formula eliminates the need for trial and error because there is only one cash‑flow term【965351366966888†L3643-L3669】.
-
-### 1.2 Example: Computing Yield by Trial and Error
-
-Suppose a financial instrument with price \$903.10 promises cash‑flows of \$100, \$100, \$100 and \$1\,000 in years 1–4.  To find its yield:
-
-1. Compute the present value of cash‑flows at several interest rates.
-2. Adjust the rate until the present value matches \$903.10.
-
-Using a 10 % trial rate gives a present value of \$931.69.  A 12 % trial rate produces \$875.71.  By interpolation, a rate of 11 % equates the present value to the price【965351366966888†L3718-L3767】.  The yield on this investment is therefore **11 %**.
-
-### 1.3 Periodic Cash Flows and Annualisation
-
-Cash‑flows are often paid more than once per year—for example, semiannual coupons.  If there are \(n\) compounding periods per year, the yield is the rate per period (\(y\)) that satisfies
-\[
-P = \sum_{t=1}^{nN} \frac{CF_t}{(1+y)^t}.
-\]
-
-For semiannual coupons, doubling \(y\) gives the **bond‑equivalent yield**; for other frequencies, multiply \(y\) by the number of periods in the year.  To find the **effective annual yield** corresponding to a periodic rate \(r_p\), compute
-\[
- \text{Effective annual yield} \;=\; (1 + r_p)^m - 1,
-\]
-where \(m\) is the number of periods per year.  For example, a quarterly periodic rate of 2 % implies an effective annual yield of \((1.02)^4-1\approx8.24\%\).
+To answer this question, we must first understand how money grows over time and how future cash flows are discounted back to the present.
 
 ---
 
-## 2 Conventional Yield Measures
+## 1.1 Future Value
 
-Bonds are commonly quoted using several yield measures that summarise different aspects of return.  Each measure uses the basic present‑value relationship but makes different assumptions about cash‑flows and reinvestment.
+If an investor invests an amount $P_0$ today at an interest rate $r$ per period, the value after $n$ periods is
 
-### 2.1 Current Yield
+$$
+P_n = P_0(1+r)^n.
+$$
 
-The **current yield** relates a bond’s annual coupon to its market price:
-\[
-\text{current yield} \;=\; \frac{\text{annual coupon}}{\text{price}}.
-\]
+This is the **future value** formula and reflects **compound interest**.
 
-For instance, a 15‑year bond with a 7 % coupon and price \$769.42 has a current yield of \(70/769.42 \approx 9.10\%\).  A 4.5 % coupon bond priced at 99.531 (per \$100 par) has a current yield of \(4.50/99.531 \approx 4.52\%\)【965351366966888†L3896-L3922】.
+::: {.callout-note title="Worked Example"}
+Suppose a pension fund invests \$10,000,000 at an annual interest rate of 9.2% for 6 years.
 
-The current yield ignores capital gains or losses and the time value of money.  It only measures coupon income relative to price.
-
-### 2.2 Yield to Maturity (YTM)
-
-The **yield to maturity** is the internal rate of return assuming the bond is held to maturity and all coupon payments are reinvested at the same rate.  For a bond with price \(P\), coupon payment \(C\), maturity value \(M\) and \(n\) semiannual periods, the present‑value equation is
-\[
-P \;=\; \sum_{t=1}^{n}\frac{C}{(1+y)^t} \;+\; \frac{M}{(1+y)^n}.
-\]
-
-Solving for \(y\) (a semiannual rate) generally requires trial and error; doubling \(y\) gives the bond‑equivalent YTM【965351366966888†L3896-L3973】.  YTM incorporates coupon income, reinvestment income and any capital gain or loss realised at maturity.
-
-### 2.3 Yield to Call, Yield to Put and Yield to Sinker
-
-**Callable bonds** allow the issuer to redeem the bond at specified call dates for a predetermined price.  The **yield to call** is the interest rate that equates the bond’s price to the present value of the coupon payments up to the assumed call date plus the call price.  Because multiple call dates may exist, investors often compute yields to first call, next call and to any refunding call.
-
-Similarly, **putable bonds** allow the investor to sell the bond back to the issuer on specified dates at a put price.  The **yield to put** equates the price to the present value of cash‑flows up to the put date plus the put price.  Bonds with sinking‑fund schedules retire portions of the issue over time.  The **yield to sinker** uses the sinking‑fund date and price.
-
-The **yield to worst** is the lowest yield among the yield to maturity, all yields to call and all yields to put.  It represents the minimum return an investor might realise if the issuer exercises embedded options.
-
-### 2.4 Yield for a Portfolio
-
-The yield of a bond portfolio is not simply the average of the individual yields because each bond has a different pattern of cash‑flows.  To compute a portfolio yield, aggregate the portfolio’s cash‑flows and find the discount rate that makes the present value of all cash‑flows equal the portfolio’s price.  For instance, a portfolio of three bonds with differing maturities and coupon rates requires discounting the combined cash‑flow schedule to match the total market value.
-
-### 2.5 Cash‑Flow Yield and Discount Margin
-
-For amortising securities such as mortgage‑backed or asset‑backed securities, investors receive principal repayments along with interest.  The **cash‑flow yield** is the rate that equates the price to the projected cash‑flows, including scheduled and unscheduled principal repayments.  Estimating the cash‑flow yield requires assumptions about prepayments and reinvestment.
-
-Floating‑rate securities pay interest linked to a reference rate (e.g., LIBOR) plus a quoted margin.  The cash‑flows depend on future reference rates, so a YTM cannot be calculated directly.  Investors instead calculate the **discount margin**, the margin over the reference rate that equates the price to the present value of the projected cash‑flows assuming the reference rate remains constant.  This measure estimates the average spread an investor can expect over the reference rate.
+$$
+P_6 = 10{,}000{,}000(1.092)^6 = 16{,}956{,}500.
+$$
+:::
 
 ---
 
-## 3 Sources of a Bond’s Return and Reinvestment Risk
+## 1.2 Future Value of an Ordinary Annuity
 
-A bond’s total dollar return comes from three sources:
+An **ordinary annuity** is a series of equal payments made at the end of each period. The future value of an annuity is
 
-1. **Coupon interest** – the periodic coupon payments.
-2. **Capital gain or loss** – the difference between the sale price (or maturity value) and the purchase price.
-3. **Reinvestment income** – interest earned from reinvesting the coupon payments (and, for amortising bonds, reinvested principal).
+$$
+FV = C \left( \frac{(1+r)^n - 1}{r} \right).
+$$
 
-Conventional yields implicitly assume that coupon payments can be reinvested at the computed yield.  The risk that future reinvestment rates will be lower than the yield at purchase is **reinvestment risk**.  The longer the maturity and the higher the coupon, the more the bond’s total return depends on the reinvestment of coupon payments, and therefore the greater the reinvestment risk.
+::: {.callout-note title="Worked Example"}
+Suppose an investor receives \$100 at the end of each year for 5 years and reinvests at 6%.
 
-### 3.1 Interest‐on‐Interest Component
-
-For a non‑amortising bond paying semiannual coupon \(C\) over \(n\) periods and reinvestment rate \(r\), the future value of the coupon payments plus reinvestment income after \(n\) periods is
-\[
- C\,\frac{(1+r)^n - 1}{r}.
-\]
-
-The interest‑on‑interest component is the difference between this amount and the sum of the coupon payments \((nC)\).  For long‑maturity, high‑coupon bonds, the interest‑on‑interest component may represent a significant portion of total return.  Zero‑coupon bonds have no reinvestment risk because all return is realised at maturity.
+$$
+FV = 100 \left( \frac{(1.06)^5 - 1}{0.06} \right)
+= 100(5.637) = 563.70.
+$$
+:::
 
 ---
 
-## 4 Total Return and Horizon Analysis
+## 1.3 Present Value
 
-The yield to maturity and other conventional yields are **promised yields**: they are realised only if the bond is held to the date used in the calculation and coupon payments can be reinvested at that yield.  To evaluate a bond’s performance over a specific **investment horizon**, investors compute the **total return**, which explicitly incorporates assumptions about reinvestment rates and the bond’s sale price at the end of the horizon.
+Present value is the value today of a future payment:
 
-### 4.1 Computing Total Return
+$$
+PV = \frac{F}{(1+r)^n}.
+$$
 
-To compute the total return over a horizon of \(h\) semiannual periods:
+::: {.callout-note title="Worked Example"}
+Suppose \$1,000 will be received in 3 years and the discount rate is 5%.
 
-1. **Reinvestment income** – For each coupon payment received before the horizon, compute its future value at the assumed reinvestment rate until the horizon.  Summing these gives the future value of coupon payments plus reinvestment income.
-2. **Projected sale price** – Estimate the bond’s price at the horizon by discounting its remaining cash‑flows at the expected yield to maturity prevailing at that time.
-3. **Total future dollars** – Add the future value of coupon payments to the projected sale price.  Subtract the initial purchase price to obtain the dollar return.
-4. **Total return** – Solve for the interest rate that equates the purchase price to the total future dollars; double the semiannual rate to express as an annualised return.
-
-This procedure accommodates multiple reinvestment rates.  For example, coupon payments received in early periods may be reinvested at one rate and later payments at another.  The final projected price depends on expectations for the yield environment at the horizon.
-
-### 4.2 Example: Total Return
-
-An investor with a three‑year horizon considers a 20‑year 8 % bond priced at \$828.40 with YTM 10 %.  The investor expects to reinvest coupons at 6 % and to sell the bond after three years at a yield of 7 % for then‑17‑year bonds.  The calculation proceeds as follows:
-
-1. The bond pays \$40 every six months.  Assuming 3 % semiannual reinvestment, the future value of coupon payments over six periods is \$258.74.
-2. The projected sale price in three years (with a 7 % yield) is \$1 098.51.
-3. Total future dollars are \$1 357.25; dividing by the purchase price and solving for the semiannual return gives 8.58 % per half year.
-4. Doubling yields an **annualised total return of 17.16 %**, demonstrating how reinvestment and expected sale price affect realised performance.
-
-Horizon analysis is also used in bond‑swap decisions.  By calculating total returns under different reinvestment and yield scenarios, investors can determine whether swapping one bond for another improves projected performance.
+$$
+PV = \frac{1000}{(1.05)^3} = 863.84.
+$$
+:::
 
 ---
 
-## 5 Measuring Yield Changes
+## 1.4 Present Value of a Series of Future Cash Flows
 
-Yield changes can be measured in two ways:
+$$
+PV = \sum_{t=1}^{n} \frac{CF_t}{(1+r)^t}.
+$$
 
-- **Absolute yield change** – measured in basis points.  It is the absolute difference between two yields:
-\[
-\text{absolute change (bp)} \;=\; |y_{\text{new}} - y_{\text{old}}| \times 100.
-\]
+::: {.callout-note title="Worked Example"}
+A bond pays \$60 in one year, \$60 in two years, and \$1,060 in three years. If $r = 5\%$:
 
-- **Relative (percentage) yield change** – calculated as the natural logarithm of the ratio of the new yield to the old yield:
-\[
-\text{relative change (\%)} \;=\; 100 \times \ln\left(\frac{y_{\text{new}}}{y_{\text{old}}}\right).
-\]
-
-For example, if yields rise from 4.45 % to 5.11 %, the absolute change is 66 bp and the relative change is \(\ln(5.11/4.45)\times 100 \approx 13.83\%\).  These measures are useful for comparing yield movements across different sectors and maturities.
+$$
+PV = \frac{60}{1.05} + \frac{60}{1.05^2} + \frac{1060}{1.05^3} = 1026.71.
+$$
+:::
 
 ---
 
-## 6 Key Points
+## 1.5 Present Value of an Ordinary Annuity
 
-- The yield on any investment is the internal rate of return that equates the present value of cash‑flows to the price【965351366966888†L3643-L3669】.
-- Conventional yield measures (current yield, yield to maturity, yield to call, etc.) summarise different aspects of return and rely on specific reinvestment and holding‑period assumptions【965351366966888†L3896-L3973】.
-- A bond’s total dollar return consists of coupon interest, reinvestment income and any capital gain or loss; reinvestment risk arises because future rates are uncertain.
-- Total return is a more comprehensive measure than yield to maturity because it incorporates explicit reinvestment assumptions and a horizon‑based sale price.
-- Horizon analysis uses the total return framework to compare bonds or strategies over a specified holding period under alternative interest‑rate scenarios.
+$$
+PV = C \left( \frac{1 - (1+r)^{-n}}{r} \right)
+$$
+
+Bond price formula:
+
+$$
+P = C \left( \frac{1 - (1+r)^{-n}}{r} \right) + \frac{F}{(1+r)^n}.
+$$
+
+---
+
+## 1.6 Present Value When Payments Occur More Than Once per Year
+
+If payments occur $m$ times per year:
+
+- Periodic rate = $r/m$
+- Number of periods = $nm$
+
+$$
+PV = \sum_{t=1}^{nm} \frac{CF_t}{(1+r/m)^t}.
+$$
+
+::: {.callout-note title="Worked Example"}
+Semiannual bond:
+
+- Coupon = \$40
+- Yield = 3% per half-year
+- Periods = 10
+
+$$
+P = 40 \left( \frac{1 - (1.03)^{-10}}{0.03} \right) + \frac{1000}{(1.03)^{10}}.
+$$
+:::
+
+---
+
+## Key Insight
+
+> The price of any fixed income security is the present value of its expected future cash flows discounted at an appropriate discount rate.
+
+---
+
+# 2 Pricing a Bond
+
+$$
+P = \sum_{t=1}^{n} \frac{C}{(1+r)^t} + \frac{F}{(1+r)^n}.
+$$
+
+::: {.callout-note title="Worked Example"}
+Face value = \$1,000, coupon = \$50, maturity = 3 years, yield = 6%.
+
+$$
+P = \frac{50}{1.06} + \frac{50}{1.06^2} + \frac{1050}{1.06^3}
+= 47.17 + 44.51 + 881.62 = 973.30.
+$$
+:::
+
+---
+
+## Pricing Zero-Coupon Bonds
+
+$$
+P = \frac{F}{(1+r)^n}.
+$$
+
+---
+
+# 3 Price–Yield Relationship
+
+Bond prices and yields move in opposite directions. The relationship is **convex**, meaning price increases from yield decreases are larger than price decreases from equal yield increases.
+
+(Plot remains unchanged — correct.)
+
+---
+
+# 4 Relationship Between Coupon Rate, Required Yield, and Price
+
+| Coupon vs Yield | Price |
+|-----------------|------|
+| Coupon = Yield | Par |
+| Coupon > Yield | Premium |
+| Coupon < Yield | Discount |
+
+---
+
+# 5 Relationship Between Bond Price and Time if Interest Rates Are Unchanged
+
+This is the **pull-to-par** effect:
+
+- Premium bond → price falls toward par
+- Discount bond → price rises toward par
+- Par bond → remains at par
+
+(Plot correct.)
+
+---
+
+# 6 Reasons for the Change in the Price of a Bond
+
+Bond prices change due to:
+
+- Changes in interest rates
+- Changes in credit risk
+- Changes in liquidity
+- Changes in tax policy
+- Changes in inflation expectations
+- Changes in economic conditions
+
+---
+
+# 7 Complications in Pricing Bonds
+
+### Next Coupon Payment Due in Less Than Six Months
+
+Between coupon dates:
+
+$$
+P = \sum_{t=1}^{n} \frac{C}{(1 + r)^{t - 1 + v}} + \frac{M}{(1 + r)^{n - 1 + v}}
+$$
+
+Accrued interest:
+
+$$
+AI = C \times \frac{\text{days since last coupon}}{\text{days in coupon period}}.
+$$
+
+Clean price:
+
+$$
+\text{Clean Price} = \text{Dirty Price} - AI.
+$$
+
+### Cash Flows May Not Be Known
+Callable bonds, MBS, floaters.
+
+### Determining the Appropriate Required Yield
+Depends on risk-free rate, credit risk, liquidity, maturity.
+
+### One Discount Rate Applicable to All Cash Flows
+In reality, term structure should be used.
+
+---
+
+# 8 Pricing Floating-Rate and Inverse-Floating-Rate Securities
+
+- Floaters → price near par
+- Inverse floaters → highly sensitive to interest rates
+
+---
+
+# 9 Price Quotes and Accrued Interest
+
+Quoted price = clean price  
+Transaction price = dirty price
+
+$$
+\text{Dirty Price} = \text{Clean Price} + \text{Accrued Interest}.
+$$
+
+---
+
+# 10 Computing the Yield or Internal Rate of Return on Any Investment
+
+$$
+P = \sum_{t=1}^{n} \frac{CF_t}{(1+y)^t}.
+$$
+
+Zero-coupon yield:
+
+$$
+y = \left(\frac{F}{P}\right)^{1/n} - 1.
+$$
+
+Effective annual yield:
+
+$$
+(1 + r/m)^m - 1.
+$$
+
+---
+
+# 11 Conventional Yield Measures
+
+Current yield:
+
+$$
+\text{Current Yield} = \frac{\text{Annual Coupon}}{\text{Price}}.
+$$
+
+Yield to maturity = IRR assuming reinvestment at YTM and held to maturity.
+
+Yield to call:
+
+$$
+P = \sum_{t=1}^{n} \frac{C}{(1+y_c)^t} + \frac{F_{\text{call}}}{(1+y_c)^n}.
+$$
+
+Yield to worst = minimum of YTM, YTC, YTP.
+
+Portfolio yield:
+
+$$
+MV = \sum \frac{CF_t}{(1+y)^t}.
+$$
+
+(Portfolio example is numerically correct.)
+
+---
+
+# 12 Potential Sources of a Bond’s Dollar Return
+
+Total dollar return comes from:
+
+1. Coupon income
+2. Interest-on-interest
+3. Capital gain or loss
+
+Interest-on-interest formula:
+
+$$
+\sum_{t=1}^{n} \left[C(1+r)^{n-t} - C\right].
+$$
+
+(Example correct.)
+
+---
+
+# 13 Total Return
+
+Total return incorporates:
+
+- Investment horizon
+- Reinvestment rate
+- Expected sale price
+
+Total return formula:
+
+$$
+\left(\frac{\text{Total Future Dollars}}{\text{Purchase Price}}\right)^{1/h} - 1.
+$$
+
+(Both total return examples are numerically correct.)
+
+---
+
+# 14 Applications of Total Return (Horizon Analysis)
+
+Used to evaluate bond performance over a planned investment horizon under interest rate assumptions.
+
+---
+
+# 15 Calculating Yield Changes
+
+Absolute change:
+
+$$
+|\text{New Yield} - \text{Initial Yield}| \times 100
+$$
+
+Relative change:
+
+$$
+100 \ln \left(\frac{\text{New Yield}}{\text{Initial Yield}}\right)
+$$
+
+(Examples correct.)
+
+---
+
+# Key Points
+
+- The value of a bond is the present value of its expected future cash flows.
+- Bond prices and yields are inversely related.
+- The price–yield relationship is convex.
+- Bonds sell at par, premium, or discount depending on coupon vs yield.
+- Bond prices move toward par as maturity approaches.
+- Yield is the internal rate of return equating price and cash flows.
+- Yield to maturity assumes reinvestment at the YTM.
+- Total return incorporates reinvestment rate, horizon, and future price.
+- Bond return comes from coupons, reinvestment income, and capital gain/loss.
+- Reinvestment risk is a major component of bond risk.
+- Yield changes are measured in basis points or percentage terms.
+
+---
+
+# Suggested Readings
+
+Fabozzi – *Bond Markets, Analysis, and Strategies*  
+Chapter 2 — Pricing of Bonds  
+Chapter 3 — Measuring Yield

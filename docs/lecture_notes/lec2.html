@@ -473,9 +473,15 @@ window.Quarto = {
   <li><a href="#total-return" id="toc-total-return" class="nav-link" data-scroll-target="#total-return">13 Total Return</a>
   <ul class="collapse">
   <li><a href="#computing-the-total-return-for-a-bond" id="toc-computing-the-total-return-for-a-bond" class="nav-link" data-scroll-target="#computing-the-total-return-for-a-bond">Computing the Total Return for a Bond</a></li>
+  <li><a href="#key-insight-1" id="toc-key-insight-1" class="nav-link" data-scroll-target="#key-insight-1">Key Insight</a></li>
   </ul></li>
   <li><a href="#applications-of-total-return-horizon-analysis" id="toc-applications-of-total-return-horizon-analysis" class="nav-link" data-scroll-target="#applications-of-total-return-horizon-analysis">14 Applications of Total Return (Horizon Analysis)</a></li>
-  <li><a href="#calculating-yield-changes" id="toc-calculating-yield-changes" class="nav-link" data-scroll-target="#calculating-yield-changes">15 Calculating Yield Changes</a></li>
+  <li><a href="#calculating-yield-changes" id="toc-calculating-yield-changes" class="nav-link" data-scroll-target="#calculating-yield-changes">15 Calculating Yield Changes</a>
+  <ul class="collapse">
+  <li><a href="#absolute-yield-change" id="toc-absolute-yield-change" class="nav-link" data-scroll-target="#absolute-yield-change">Absolute Yield Change</a></li>
+  <li><a href="#relative-percentage-yield-change" id="toc-relative-percentage-yield-change" class="nav-link" data-scroll-target="#relative-percentage-yield-change">Relative (Percentage) Yield Change</a></li>
+  <li><a href="#when-to-use-each-measure" id="toc-when-to-use-each-measure" class="nav-link" data-scroll-target="#when-to-use-each-measure">When to Use Each Measure</a></li>
+  </ul></li>
   <li><a href="#key-points" id="toc-key-points" class="nav-link" data-scroll-target="#key-points">Key Points</a></li>
   <li><a href="#suggested-readings" id="toc-suggested-readings" class="nav-link" data-scroll-target="#suggested-readings">Suggested Readings</a></li>
   </ul>
@@ -831,7 +837,7 @@ Figure&nbsp;1: Exaggerated illustration of a highly convex price–yield relatio
 </div>
 <div class="callout-body-container callout-body">
 <p>The figure below shows how the price of a 20-year 10% coupon bond moves toward par as it approaches maturity when market yields remain unchanged. A bond selling at a discount rises toward par, while a bond selling at a premium falls toward par.</p>
-<div id="2a52e405" class="cell" data-fig-height="3.15" data-fig-width="4.9" data-message="false" data-execution_count="2">
+<div id="fffdefaf" class="cell" data-fig-height="3.15" data-fig-width="4.9" data-message="false" data-execution_count="2">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -1125,10 +1131,69 @@ calcYTM();
 </section>
 <section id="yield-to-call" class="level2">
 <h2 class="anchored" data-anchor-id="yield-to-call">Yield to Call</h2>
-<p>Yield to call is the yield assuming the bond is called at the first call date:</p>
+<p>Many bonds give the issuer the right to redeem the bond before maturity at a specified <strong>call price</strong>. For such bonds, investors often compute the <strong>yield to call (YTC)</strong> instead of the yield to maturity.</p>
+<p>The <strong>yield to call</strong> is the yield assuming:</p>
+<ul>
+<li>The bond is called at the first call date</li>
+<li>All coupon payments are received until the call date</li>
+<li>The bond is redeemed at the call price</li>
+<li>Coupons are reinvested at the yield to call</li>
+</ul>
+<p>The yield to call is therefore the internal rate of return that equates the current price of the bond to the present value of the cash flows received until the call date.</p>
+<p>If the bond is callable in <span class="math inline">\(n\)</span> periods and the call price is <span class="math inline">\(F_{\text{call}}\)</span>, then the yield to call <span class="math inline">\(y_c\)</span> is the rate that satisfies</p>
 <p><span class="math display">\[
-P = \sum_{t=1}^{n} \frac{C}{(1+y)^t} + \frac{F_{\text{call}}}{(1+y)^n}.
+P = \sum_{t=1}^{n} \frac{C}{(1+y_c)^t} + \frac{F_{\text{call}}}{(1+y_c)^n}.
 \]</span></p>
+<p>The yield to call is calculated in the same way as yield to maturity, except that:</p>
+<ul>
+<li>The maturity date is replaced by the call date</li>
+<li>The face value is replaced by the call price</li>
+</ul>
+<p>Investors compute yield to call because if interest rates fall, the issuer may call the bond and refinance at a lower interest rate. In that case, the investor will earn the yield to call rather than the yield to maturity.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Worked Example">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Worked Example
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Yield to Call</strong></p>
+<p>Suppose a bond has</p>
+<ul>
+<li>Price = $1,080</li>
+<li>Face value = $1,000</li>
+<li>Annual coupon rate = 8%</li>
+<li>Annual coupon payment = $80</li>
+<li>First call date = 4 years from now</li>
+<li>Call price = $1,040</li>
+</ul>
+<p>The yield to call is the discount rate <span class="math inline">\(y_c\)</span> that solves</p>
+<p><span class="math display">\[
+1080 = \frac{80}{(1+y_c)} + \frac{80}{(1+y_c)^2} + \frac{80}{(1+y_c)^3} + \frac{1120}{(1+y_c)^4}.
+\]</span></p>
+<p>Trying <span class="math inline">\(y_c = 6\%\)</span> gives</p>
+<p><span class="math display">\[
+\frac{80}{1.06} + \frac{80}{1.06^2} + \frac{80}{1.06^3} + \frac{1120}{1.06^4}
+= 75.47 + 71.20 + 67.17 + 887.12
+= 1100.96
+\]</span></p>
+<p>This is too high, so the yield must be higher.</p>
+<p>Trying <span class="math inline">\(y_c = 6.5\%\)</span> gives</p>
+<p><span class="math display">\[
+\frac{80}{1.065} + \frac{80}{1.065^2} + \frac{80}{1.065^3} + \frac{1120}{1.065^4}
+= 75.12 + 70.53 + 66.23 + 868.63
+= 1080.51
+\]</span></p>
+<p>This is very close to the market price, so the yield to call is approximately</p>
+<p><span class="math display">\[
+y_c \approx 6.5\%.
+\]</span></p>
+<p>Thus, if the bond is called in 4 years at $1,040, the investor’s yield to call is about <strong>6.5%</strong>.</p>
+</div>
+</div>
 </section>
 <section id="yield-to-sinker" class="level2">
 <h2 class="anchored" data-anchor-id="yield-to-sinker">Yield to Sinker</h2>
@@ -1148,7 +1213,106 @@ P = \sum_{t=1}^{n} \frac{C}{(1+y)^t} + \frac{F_{\text{call}}}{(1+y)^n}.
 </section>
 <section id="yield-internal-rate-of-return-for-a-portfolio" class="level2">
 <h2 class="anchored" data-anchor-id="yield-internal-rate-of-return-for-a-portfolio">Yield (Internal Rate of Return) for a Portfolio</h2>
-<p>The yield for a portfolio is the internal rate of return that equates the total market value of the portfolio to the present value of the portfolio’s expected cash flows.</p>
+<p>The yield for a bond portfolio is the internal rate of return that equates the <strong>total market value of the portfolio</strong> to the <strong>present value of the expected cash flows</strong> from all bonds in the portfolio.</p>
+<p>In other words, the portfolio yield is the single discount rate that makes</p>
+<p><span class="math display">\[
+\text{Market Value of Portfolio}
+=
+\sum_{t=1}^{n}
+\frac{\text{Portfolio Cash Flow}_t}{(1+y)^t}.
+\]</span></p>
+<p>This yield measure treats the entire portfolio as if it were a single bond with cash flows equal to the sum of the cash flows from all bonds in the portfolio.</p>
+<p>The portfolio yield is useful because it provides a single summary measure of return for a portfolio containing many bonds with different coupons and maturities.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Worked Example">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Worked Example
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Portfolio Yield</strong></p>
+<p>Suppose a portfolio consists of two bonds:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Bond</th>
+<th>Market Value</th>
+<th>Cash Flow in 1 Year</th>
+<th>Cash Flow in 2 Years</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>A</td>
+<td>950</td>
+<td>60</td>
+<td>1,060</td>
+</tr>
+<tr class="even">
+<td>B</td>
+<td>980</td>
+<td>50</td>
+<td>1,050</td>
+</tr>
+</tbody>
+</table>
+<p>Total market value of the portfolio:</p>
+<p><span class="math display">\[
+950 + 980 = 1,930
+\]</span></p>
+<p>Total portfolio cash flows:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Year</th>
+<th>Cash Flow</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>60 + 50 = 110</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>1060 + 1050 = 2110</td>
+</tr>
+</tbody>
+</table>
+<p>The portfolio yield <span class="math inline">\(y\)</span> solves</p>
+<p><span class="math display">\[
+1930 = \frac{110}{(1+y)} + \frac{2110}{(1+y)^2}.
+\]</span></p>
+<p>Trying <span class="math inline">\(y = 6\%\)</span>:</p>
+<p><span class="math display">\[
+\frac{110}{1.06} + \frac{2110}{1.06^2}
+= 103.77 + 1877.34
+= 1981.11
+\]</span></p>
+<p>Too high → yield must be higher.</p>
+<p>Trying <span class="math inline">\(y = 8\%\)</span>:</p>
+<p><span class="math display">\[
+\frac{110}{1.08} + \frac{2110}{1.08^2}
+= 101.85 + 1808.45
+= 1910.30
+\]</span></p>
+<p>Too low → yield must be between 6% and 8%.</p>
+<p>Trying <span class="math inline">\(y = 7\%\)</span>:</p>
+<p><span class="math display">\[
+\frac{110}{1.07} + \frac{2110}{1.07^2}
+= 102.80 + 1843.68
+= 1946.48
+\]</span></p>
+<p>Close to the market value, so the portfolio yield is approximately</p>
+<p><span class="math display">\[
+y \approx 7\%.
+\]</span></p>
+<p>Thus, the internal rate of return for the portfolio is approximately <strong>7%</strong>.</p>
+</div>
+</div>
 </section>
 <section id="yield-spread-measures-for-floating-rate-securities" class="level2">
 <h2 class="anchored" data-anchor-id="yield-spread-measures-for-floating-rate-securities">Yield Spread Measures for Floating-Rate Securities</h2>
@@ -1172,7 +1336,71 @@ P = \sum_{t=1}^{n} \frac{C}{(1+y)^t} + \frac{F_{\text{call}}}{(1+y)^n}.
 </ol>
 <section id="determining-the-interest-on-interest-dollar-return" class="level2">
 <h2 class="anchored" data-anchor-id="determining-the-interest-on-interest-dollar-return">Determining the Interest-on-Interest Dollar Return</h2>
-<p>If coupon payments are reinvested, the investor earns interest on those reinvested coupons. This component of return can be significant, especially for long-term bonds.</p>
+<p>When a bond pays periodic coupons, investors typically reinvest those coupon payments until the end of the investment horizon. The interest earned on reinvested coupons is called <strong>interest-on-interest</strong>. This component of return can be significant, especially for long-term bonds, and it is an important part of the total return of a bond investment.</p>
+<p>If a coupon payment <span class="math inline">\(C\)</span> is received and reinvested for <span class="math inline">\(k\)</span> periods at a reinvestment rate <span class="math inline">\(r\)</span>, the future value of that coupon at the end of the horizon is</p>
+<p><span class="math display">\[
+C(1+r)^k.
+\]</span></p>
+<p>The <strong>interest-on-interest</strong> is the future value of the reinvested coupon minus the coupon itself:</p>
+<p><span class="math display">\[
+\text{Interest-on-Interest} = C(1+r)^k - C.
+\]</span></p>
+<p>For a bond that pays coupons over multiple periods, the total interest-on-interest is the sum of the interest earned on each reinvested coupon:</p>
+<p><span class="math display">\[
+\text{Total Interest-on-Interest}
+=
+\sum_{t=1}^{n}
+\left[
+C(1+r)^{n-t} - C
+\right].
+\]</span></p>
+<p>This formula shows that earlier coupon payments earn interest for a longer period of time and therefore contribute more to the total return than later coupon payments.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Worked Example">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Worked Example
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Interest-on-Interest Return</strong></p>
+<p>Suppose an investor buys a bond that pays $80 per year in coupons for 3 years. Each coupon is reinvested at an interest rate of 5% until the end of year 3.</p>
+<p>Future value of each coupon at the end of year 3:</p>
+<ul>
+<li>Coupon at end of year 1 grows for 2 years:</li>
+</ul>
+<p><span class="math display">\[
+80(1.05)^2 = 88.20
+\]</span></p>
+<ul>
+<li>Coupon at end of year 2 grows for 1 year:</li>
+</ul>
+<p><span class="math display">\[
+80(1.05) = 84.00
+\]</span></p>
+<ul>
+<li>Coupon at end of year 3 is received at the horizon:</li>
+</ul>
+<p><span class="math display">\[
+80
+\]</span></p>
+<p>Total future value of coupons:</p>
+<p><span class="math display">\[
+88.20 + 84.00 + 80 = 252.20
+\]</span></p>
+<p>Total coupons received:</p>
+<p><span class="math display">\[
+80 + 80 + 80 = 240
+\]</span></p>
+<p>Interest-on-interest:</p>
+<p><span class="math display">\[
+252.20 - 240 = 12.20
+\]</span></p>
+<p>Thus, $12.20 of the investor’s return comes from <strong>interest earned on reinvested coupons</strong>.</p>
+</div>
+</div>
 </section>
 <section id="yield-to-maturity-and-reinvestment-risk" class="level2">
 <h2 class="anchored" data-anchor-id="yield-to-maturity-and-reinvestment-risk">Yield to Maturity and Reinvestment Risk</h2>
@@ -1186,63 +1414,167 @@ P = \sum_{t=1}^{n} \frac{C}{(1+y)^t} + \frac{F_{\text{call}}}{(1+y)^n}.
 </section>
 <section id="total-return" class="level1">
 <h1>13 Total Return</h1>
-<p>Total return measures the actual return earned over a specified holding period.</p>
-<p>The total return depends on:</p>
+<p>In the preceding sections, we explained that the yield to maturity is a <strong>promised yield</strong>. At the time of purchase, an investor is promised the yield to maturity if both of the following conditions are satisfied:</p>
+<ol type="1">
+<li>The bond is held to maturity.</li>
+<li>All coupon payments are reinvested at the yield to maturity.</li>
+</ol>
+<p>In reality, these assumptions are often unrealistic. Investors may sell the bond before maturity, and coupon payments may be reinvested at interest rates different from the yield to maturity. Therefore, the yield to maturity may not represent the investor’s actual return.</p>
+<p>To address this issue, investors use a measure called <strong>total return</strong>, which incorporates:</p>
 <ul>
-<li>Coupon income</li>
-<li>Reinvestment income</li>
-<li>Price change of the bond</li>
-<li>Time horizon</li>
+<li>The investor’s <strong>investment horizon</strong></li>
+<li>The <strong>reinvestment rate</strong> for coupon payments</li>
+<li>The <strong>expected yield</strong> when the bond is sold at the end of the investment horizon</li>
 </ul>
-<p>The total return can be computed by calculating the future value of all cash flows at the horizon date and comparing it to the initial investment.</p>
-<p><span class="math display">\[
-\text{Total Return} =
-\frac{\text{Future Value of All Cash Flows}}{\text{Initial Price}} - 1.
-\]</span></p>
+<p>The total return is therefore a more realistic measure of the return on a bond investment.</p>
+<hr>
 <section id="computing-the-total-return-for-a-bond" class="level2">
 <h2 class="anchored" data-anchor-id="computing-the-total-return-for-a-bond">Computing the Total Return for a Bond</h2>
-<p>To compute total return:</p>
-<ol type="1">
-<li>Reinvest all coupon payments to the horizon date.</li>
-<li>Estimate the bond price at the horizon date.</li>
-<li>Add reinvested coupons and horizon price.</li>
-<li>Compare with initial price.</li>
-</ol>
-<div class="callout callout-style-default callout-note callout-titled" title="Worked Example">
+<p>The idea underlying total return is simple. We first compute the <strong>total future dollars</strong> that will be available at the end of the investment horizon. Then we compute the interest rate that makes the initial investment grow to this future value.</p>
+<p>The steps are as follows:</p>
+<p><strong>Step 1:</strong> Compute the total coupon payments plus interest-on-interest based on the assumed reinvestment rate.</p>
+<p><strong>Step 2:</strong> Determine the projected sale price at the end of the investment horizon. This depends on the expected yield at that time.</p>
+<p><strong>Step 3:</strong> Add the reinvested coupons and the projected sale price. This gives the <strong>total future dollars</strong>.</p>
+<p><strong>Step 4:</strong> Compute the rate of return that makes the purchase price grow to the total future dollars.</p>
+<p>If the investment horizon is <span class="math inline">\(h\)</span> semiannual periods, the semiannual total return <span class="math inline">\(r\)</span> is found from</p>
+<p><span class="math display">\[
+\left(\frac{\text{Total Future Dollars}}{\text{Purchase Price}}\right)^{1/h} - 1.
+\]</span></p>
+<p>The annual total return is approximately</p>
+<p><span class="math display">\[
+\text{Total Return} = 2r
+\]</span></p>
+<p>because interest is compounded semiannually.</p>
+<hr>
+<div class="callout callout-style-default callout-note callout-titled" title="Worked Example 1: Total Return with Constant Reinvestment Rate">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Worked Example
+<span class="screen-reader-only">Note</span>Worked Example 1: Total Return with Constant Reinvestment Rate
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><strong>Total Return Example</strong></p>
-<p>An investor buys a bond for $950, receives $60 coupons for two years, and sells the bond for $980. Coupons are reinvested at 5%.</p>
-<p>The total return includes coupon income, reinvestment income, and price change.</p>
-</div>
-</div>
-<div class="callout callout-style-default callout-note callout-titled" title="Worked Example">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Worked Example
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p><strong>Total Return Example (Horizon Analysis)</strong></p>
-<p>An investor plans to hold a bond for 3 years. The total return depends on:</p>
+<p>Suppose an investor with a <strong>3-year investment horizon</strong> is considering purchasing a <strong>20-year 8% coupon bond</strong> for <strong>$828.40</strong>. The yield to maturity is <strong>10%</strong>. The investor expects:</p>
 <ul>
-<li>Reinvestment rate</li>
-<li>Yield at the time the bond is sold</li>
-<li>Coupon income</li>
+<li>Reinvestment rate = 6% annually (3% per six months)</li>
+<li>Yield at end of horizon = 7%</li>
+<li>Coupons = $40 every six months</li>
+<li>Investment horizon = 6 semiannual periods</li>
 </ul>
-<p>This type of analysis is called <strong>horizon analysis</strong>.</p>
+<section id="step-1-reinvest-coupons" class="level3">
+<h3 class="anchored" data-anchor-id="step-1-reinvest-coupons">Step 1: Reinvest Coupons</h3>
+<p>The total coupon interest plus interest-on-interest is</p>
+<p><span class="math display">\[
+40 \left( \frac{(1.03)^6 - 1}{0.03} \right)
+= 40(6.4684)
+= 258.74
+\]</span></p>
+</section>
+<section id="step-2-projected-sale-price" class="level3">
+<h3 class="anchored" data-anchor-id="step-2-projected-sale-price">Step 2: Projected Sale Price</h3>
+<p>At the end of 3 years, the bond will have 17 years remaining to maturity (34 periods). The projected sale price is the present value of remaining cash flows discounted at 7% annual yield (3.5% per period):</p>
+<p>Projected sale price = <strong>$1,098.51</strong></p>
+</section>
+<section id="step-3-total-future-dollars" class="level3">
+<h3 class="anchored" data-anchor-id="step-3-total-future-dollars">Step 3: Total Future Dollars</h3>
+<p><span class="math display">\[
+\text{Total Future Dollars} = 258.74 + 1,098.51 = 1,357.25
+\]</span></p>
+</section>
+<section id="step-4-compute-total-return" class="level3">
+<h3 class="anchored" data-anchor-id="step-4-compute-total-return">Step 4: Compute Total Return</h3>
+<p><span class="math display">\[
+\left(\frac{1357.25}{828.40}\right)^{1/6} - 1
+= (1.6384)^{0.1667} - 1
+= 0.0858
+\]</span></p>
+<p>Semiannual return = 8.58%</p>
+<p>Annual total return:</p>
+<p><span class="math display">\[
+2 \times 8.58\% = 17.16\%
+\]</span></p>
+<p>Thus, the investor’s <strong>total return is 17.16%</strong>.</p>
+</section>
 </div>
 </div>
+<hr>
+<div class="callout callout-style-default callout-note callout-titled" title="Worked Example 2: Total Return with Multiple Reinvestment Rates">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Worked Example 2: Total Return with Multiple Reinvestment Rates
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Suppose an investor has a <strong>6-year investment horizon</strong> and purchases a <strong>13-year 9% bond selling at par</strong>. The investor expects:</p>
+<ol type="1">
+<li>First four coupon payments reinvested at 8% annually (4% per period)</li>
+<li>Remaining eight coupon payments reinvested at 10% annually (5% per period)</li>
+<li>Yield at end of horizon = 10.6%</li>
+</ol>
+<p>Coupons are $45 every six months for 12 periods.</p>
+<section id="step-1-reinvest-first-four-coupons" class="level3">
+<h3 class="anchored" data-anchor-id="step-1-reinvest-first-four-coupons">Step 1: Reinvest First Four Coupons</h3>
+<p>Future value at end of year 2:</p>
+<p><span class="math display">\[
+45 \left( \frac{(1.04)^4 - 1}{0.04} \right) = 191.09
+\]</span></p>
+<p>Reinvest this amount for 8 more periods at 5%:</p>
+<p><span class="math display">\[
+191.09(1.05)^8 = 282.32
+\]</span></p>
+</section>
+<section id="step-2-reinvest-remaining-eight-coupons" class="level3">
+<h3 class="anchored" data-anchor-id="step-2-reinvest-remaining-eight-coupons">Step 2: Reinvest Remaining Eight Coupons</h3>
+<p><span class="math display">\[
+45 \left( \frac{(1.05)^8 - 1}{0.05} \right) = 429.71
+\]</span></p>
+<p>Total reinvested coupons:</p>
+<p><span class="math display">\[
+282.32 + 429.71 = 712.03
+\]</span></p>
+</section>
+<section id="step-3-projected-sale-price" class="level3">
+<h3 class="anchored" data-anchor-id="step-3-projected-sale-price">Step 3: Projected Sale Price</h3>
+<p>Discount remaining cash flows at 10.6% yield:</p>
+<p>Projected sale price = <strong>$922.31</strong></p>
+</section>
+<section id="step-4-total-future-dollars" class="level3">
+<h3 class="anchored" data-anchor-id="step-4-total-future-dollars">Step 4: Total Future Dollars</h3>
+<p><span class="math display">\[
+712.03 + 922.31 = 1,634.34
+\]</span></p>
+</section>
+<section id="step-5-total-return" class="level3">
+<h3 class="anchored" data-anchor-id="step-5-total-return">Step 5: Total Return</h3>
+<p><span class="math display">\[
+\left(\frac{1634.34}{1000}\right)^{1/12} - 1
+= 0.0418
+\]</span></p>
+<p>Semiannual return = 4.18%</p>
+<p>Annual total return:</p>
+<p><span class="math display">\[
+2 \times 4.18\% = 8.36\%
+\]</span></p>
+<p>Thus, the investor’s <strong>total return is 8.36%</strong>.</p>
+</section>
+</div>
+</div>
+<hr>
+</section>
+<section id="key-insight-1" class="level2">
+<h2 class="anchored" data-anchor-id="key-insight-1">Key Insight</h2>
+<p>Total return depends on three key factors:</p>
+<ol type="1">
+<li>Reinvestment rate</li>
+<li>Yield at the end of the investment horizon</li>
+<li>Investment horizon</li>
+</ol>
+<p>Therefore, the total return measure allows investors to compare bonds with different maturities and coupon rates based on their own expectations about future interest rates and reinvestment opportunities.</p>
 <hr>
 </section>
 </section>
@@ -1260,19 +1592,221 @@ P = \sum_{t=1}^{n} \frac{C}{(1+y)^t} + \frac{F_{\text{call}}}{(1+y)^n}.
 </section>
 <section id="calculating-yield-changes" class="level1">
 <h1>15 Calculating Yield Changes</h1>
-<p>When interest rates change, bond prices change, and therefore yields change. The relationship between price and yield is nonlinear, which is why duration and convexity are used to estimate yield changes and price changes.</p>
-<p>This topic will be studied in detail in the risk management section of the course.</p>
+<p>When interest rates or yields change between two time periods, there are two common ways to measure the change:</p>
+<ol type="1">
+<li>Absolute yield change</li>
+<li>Relative (percentage) yield change</li>
+</ol>
+<p>These two measures are used in fixed income markets because yields are often reported in basis points and percentage changes.</p>
 <hr>
+<section id="absolute-yield-change" class="level2">
+<h2 class="anchored" data-anchor-id="absolute-yield-change">Absolute Yield Change</h2>
+<p>The <strong>absolute yield change</strong> (also called the absolute rate change) is measured in <strong>basis points</strong> and is simply the absolute difference between two yields.</p>
+<p><span class="math display">\[
+\text{Absolute yield change (in basis points)}
+=
+| \text{Initial yield} - \text{New yield} | \times 100
+\]</span></p>
+<p>Recall:</p>
+<p><span class="math display">\[
+1\% = 100 \text{ basis points}
+\]</span></p>
+<div class="callout callout-style-default callout-note callout-titled" title="Worked Example">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Worked Example
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Suppose yields over three months are:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Month</th>
+<th>Yield</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Month 1</td>
+<td>4.45%</td>
+</tr>
+<tr class="even">
+<td>Month 2</td>
+<td>5.11%</td>
+</tr>
+<tr class="odd">
+<td>Month 3</td>
+<td>4.82%</td>
+</tr>
+</tbody>
+</table>
+<p>Absolute yield change from Month 1 to Month 2:</p>
+<p><span class="math display">\[
+|4.45\% - 5.11\%| \times 100 = 0.66\% \times 100 = 66 \text{ basis points}
+\]</span></p>
+<p>Absolute yield change from Month 2 to Month 3:</p>
+<p><span class="math display">\[
+|5.11\% - 4.82\%| \times 100 = 0.29\% \times 100 = 29 \text{ basis points}
+\]</span></p>
+</div>
+</div>
+<p>Absolute changes are the most commonly used measure in bond markets because traders and portfolio managers typically discuss yield changes in basis points.</p>
+<hr>
+</section>
+<section id="relative-percentage-yield-change" class="level2">
+<h2 class="anchored" data-anchor-id="relative-percentage-yield-change">Relative (Percentage) Yield Change</h2>
+<p>The <strong>relative yield change</strong> measures the percentage change in yield and is computed using the natural logarithm:</p>
+<p><span class="math display">\[
+\text{Relative yield change} =
+100 \times \ln \left(\frac{\text{New yield}}{\text{Initial yield}}\right)
+\]</span></p>
+<p>This measure is often used in financial modeling because log changes are additive over time and are commonly used in statistical analysis and interest rate modeling.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Worked Example">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Worked Example
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Using the same yields:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Month</th>
+<th>Yield</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Month 1</td>
+<td>4.45%</td>
+</tr>
+<tr class="even">
+<td>Month 2</td>
+<td>5.11%</td>
+</tr>
+<tr class="odd">
+<td>Month 3</td>
+<td>4.82%</td>
+</tr>
+</tbody>
+</table>
+<p>Relative yield change from Month 1 to Month 2:</p>
+<p><span class="math display">\[
+100 \times \ln\left(\frac{5.11}{4.45}\right)
+=
+100 \times \ln(1.1483)
+=
+100 \times 0.1383
+=
+13.83\%
+\]</span></p>
+<p>Relative yield change from Month 2 to Month 3:</p>
+<p><span class="math display">\[
+100 \times \ln\left(\frac{4.82}{5.11}\right)
+=
+100 \times \ln(0.9433)
+=
+100 \times (-0.0584)
+=
+-5.84\%
+\]</span></p>
+</div>
+</div>
+<hr>
+</section>
+<section id="when-to-use-each-measure" class="level2">
+<h2 class="anchored" data-anchor-id="when-to-use-each-measure">When to Use Each Measure</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 47%">
+<col style="width: 52%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Measure</th>
+<th>Used For</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Absolute change (basis points)</td>
+<td>Bond markets, trading, duration/convexity</td>
+</tr>
+<tr class="even">
+<td>Relative change (log change)</td>
+<td>Interest rate modeling, statistics, econometrics</td>
+</tr>
+</tbody>
+</table>
+<p>In practice, bond traders typically think in <strong>basis points</strong>, while researchers and risk modelers often use <strong>relative (log) yield changes</strong>.</p>
+<hr>
+</section>
 </section>
 <section id="key-points" class="level1">
 <h1>Key Points</h1>
 <ul>
-<li>The yield of a bond is the internal rate of return that equates price and present value of cash flows.</li>
-<li>Yield to maturity assumes reinvestment at the same yield.</li>
-<li>Total return depends on reinvestment income and price changes.</li>
-<li>Reinvestment risk is a major component of bond risk.</li>
-<li>Horizon analysis is used to estimate returns over a specific holding period.</li>
-<li>Different yield measures are used for bonds with embedded options.</li>
+<li><p>The foundation of bond valuation is the <strong>time value of money</strong>: the value of any fixed income security is the present value of its expected future cash flows.</p></li>
+<li><p>Future value formulas show how a single payment or a sequence of payments grows over time through compounding, while present value formulas show how future cash flows are discounted back to the present.</p></li>
+<li><p>A bond can be viewed as the sum of two components:</p>
+<ol type="1">
+<li>the present value of its coupon payments<br>
+</li>
+<li>the present value of its principal repayment at maturity</li>
+</ol></li>
+<li><p>A <strong>zero-coupon bond</strong> is the simplest bond pricing case because it has only one cash flow at maturity.</p></li>
+<li><p>Bond prices and yields move in <strong>opposite directions</strong>. When required yields rise, bond prices fall; when required yields fall, bond prices rise.</p></li>
+<li><p>The price–yield relationship is <strong>convex</strong>, not linear. This means that price gains from falling yields are larger than price losses from equally sized yield increases.</p></li>
+<li><p>The relationship between a bond’s coupon rate and its required yield determines whether it sells at <strong>par</strong>, at a <strong>premium</strong>, or at a <strong>discount</strong>.</p></li>
+<li><p>If interest rates remain unchanged, a bond’s price moves toward its face value as maturity approaches. This is the <strong>pull-to-par</strong> effect.</p></li>
+<li><p>Bond prices can change because of changes in market interest rates, credit risk, liquidity, inflation expectations, tax treatment, and general economic conditions.</p></li>
+<li><p>In practice, bond pricing is more complicated when the next coupon date is less than a full period away, when cash flows are uncertain, when the correct discount rate is difficult to determine, or when different cash flows should be discounted at different rates.</p></li>
+<li><p>Floating-rate securities and inverse floaters require special treatment because their coupon payments depend on future interest rates.</p></li>
+<li><p>Bonds are usually quoted using <strong>clean prices</strong>, while the actual transaction price is the <strong>dirty price</strong>, which includes accrued interest.</p></li>
+<li><p>The yield on any investment is the <strong>internal rate of return</strong> that equates the price of the investment to the present value of its cash flows.</p></li>
+<li><p>When there is only one future cash flow, yield can be computed directly. When there are multiple cash flows, yield usually must be solved numerically.</p></li>
+<li><p>Conventional yield measures include <strong>current yield</strong>, <strong>yield to maturity</strong>, <strong>yield to call</strong>, <strong>yield to sinker</strong>, <strong>yield to put</strong>, <strong>yield to worst</strong>, <strong>cash flow yield</strong>, and the <strong>yield for a portfolio</strong>.</p></li>
+<li><p><strong>Current yield</strong> considers only coupon income and ignores both capital gains or losses and reinvestment income.</p></li>
+<li><p><strong>Yield to maturity</strong> assumes that the bond is held to maturity and that all coupon payments are reinvested at the yield to maturity. For this reason, it is a promised yield, not necessarily the realized yield.</p></li>
+<li><p><strong>Yield to call</strong>, <strong>yield to put</strong>, and <strong>yield to sinker</strong> are computed in the same general way as yield to maturity, but they assume that the bond is redeemed on the relevant call, put, or sinking-fund date.</p></li>
+<li><p><strong>Yield to worst</strong> is the lowest yield among the relevant yield measures and is commonly used as a conservative measure of return.</p></li>
+<li><p>The yield for a portfolio is not simply an average of the yields of the individual bonds. It is the internal rate of return that equates the market value of the portfolio to the present value of the portfolio cash flows.</p></li>
+<li><p>For floating-rate securities, investors often use spread measures such as the <strong>discount margin</strong> rather than conventional yield measures.</p></li>
+<li><p>A bond’s dollar return comes from three sources:</p>
+<ol type="1">
+<li>coupon income<br>
+</li>
+<li>reinvestment income<br>
+</li>
+<li>capital gain or loss</li>
+</ol></li>
+<li><p>The <strong>interest-on-interest</strong> component can represent a large share of total return, especially for long-term coupon bonds.</p></li>
+<li><p>Because yield to maturity assumes reinvestment at the same yield, investors face <strong>reinvestment risk</strong> when actual reinvestment rates differ from the assumed rate.</p></li>
+<li><p>Reinvestment risk is especially important for high-coupon bonds, long-maturity bonds, and amortizing securities.</p></li>
+<li><p><strong>Total return</strong> is a more realistic measure of performance than conventional yield measures because it explicitly incorporates the investor’s holding period, reinvestment assumptions, and expected sale price.</p></li>
+<li><p>To compute total return, one must determine:</p>
+<ol type="1">
+<li>the future value of reinvested coupon payments<br>
+</li>
+<li>the projected sale price at the end of the investment horizon<br>
+</li>
+<li>the rate of return that equates the initial purchase price to total future dollars</li>
+</ol></li>
+<li><p><strong>Horizon analysis</strong> applies the total return framework to a specific investment horizon and is widely used in fixed income portfolio management.</p></li>
+<li><p>Yield changes can be measured in two common ways:</p>
+<ol type="1">
+<li><strong>absolute yield changes</strong>, usually expressed in basis points<br>
+</li>
+<li><strong>relative yield changes</strong>, often computed using logarithms</li>
+</ol></li>
+<li><p>In practice, traders usually focus on <strong>basis-point changes</strong>, while relative yield changes are often more useful in modeling and statistical analysis.</p></li>
 </ul>
 <hr>
 </section>

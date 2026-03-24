@@ -1,0 +1,918 @@
+% Options for packages loaded elsewhere
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\PassOptionsToPackage{dvipsnames,svgnames,x11names}{xcolor}
+%
+\documentclass[
+  letterpaper,
+  DIV=11,
+  numbers=noendperiod]{scrartcl}
+\usepackage{xcolor}
+\usepackage{amsmath,amssymb}
+\setcounter{secnumdepth}{5}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+% Make \paragraph and \subparagraph free-standing
+\makeatletter
+\ifx\paragraph\undefined\else
+  \let\oldparagraph\paragraph
+  \renewcommand{\paragraph}{
+    \@ifstar
+      \xxxParagraphStar
+      \xxxParagraphNoStar
+  }
+  \newcommand{\xxxParagraphStar}[1]{\oldparagraph*{#1}\mbox{}}
+  \newcommand{\xxxParagraphNoStar}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+  \let\oldsubparagraph\subparagraph
+  \renewcommand{\subparagraph}{
+    \@ifstar
+      \xxxSubParagraphStar
+      \xxxSubParagraphNoStar
+  }
+  \newcommand{\xxxSubParagraphStar}[1]{\oldsubparagraph*{#1}\mbox{}}
+  \newcommand{\xxxSubParagraphNoStar}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+\makeatother
+
+
+\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\usepackage{graphicx}
+\makeatletter
+\newsavebox\pandoc@box
+\newcommand*\pandocbounded[1]{% scales image to fit in text height/width
+  \sbox\pandoc@box{#1}%
+  \Gscale@div\@tempa{\textheight}{\dimexpr\ht\pandoc@box+\dp\pandoc@box\relax}%
+  \Gscale@div\@tempb{\linewidth}{\wd\pandoc@box}%
+  \ifdim\@tempb\p@<\@tempa\p@\let\@tempa\@tempb\fi% select the smaller of both
+  \ifdim\@tempa\p@<\p@\scalebox{\@tempa}{\usebox\pandoc@box}%
+  \else\usebox{\pandoc@box}%
+  \fi%
+}
+% Set default figure placement to htbp
+\def\fps@figure{htbp}
+\makeatother
+
+
+
+
+
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+
+
+ 
+
+
+\KOMAoption{captions}{tableheading}
+\makeatletter
+\@ifpackageloaded{caption}{}{\usepackage{caption}}
+\AtBeginDocument{%
+\ifdefined\contentsname
+  \renewcommand*\contentsname{Table of contents}
+\else
+  \newcommand\contentsname{Table of contents}
+\fi
+\ifdefined\listfigurename
+  \renewcommand*\listfigurename{List of Figures}
+\else
+  \newcommand\listfigurename{List of Figures}
+\fi
+\ifdefined\listtablename
+  \renewcommand*\listtablename{List of Tables}
+\else
+  \newcommand\listtablename{List of Tables}
+\fi
+\ifdefined\figurename
+  \renewcommand*\figurename{Figure}
+\else
+  \newcommand\figurename{Figure}
+\fi
+\ifdefined\tablename
+  \renewcommand*\tablename{Table}
+\else
+  \newcommand\tablename{Table}
+\fi
+}
+\@ifpackageloaded{float}{}{\usepackage{float}}
+\floatstyle{ruled}
+\@ifundefined{c@chapter}{\newfloat{codelisting}{h}{lop}}{\newfloat{codelisting}{h}{lop}[chapter]}
+\floatname{codelisting}{Listing}
+\newcommand*\listoflistings{\listof{codelisting}{List of Listings}}
+\makeatother
+\makeatletter
+\makeatother
+\makeatletter
+\@ifpackageloaded{caption}{}{\usepackage{caption}}
+\@ifpackageloaded{subcaption}{}{\usepackage{subcaption}}
+\makeatother
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdftitle={Lecture 2: Bond Pricing and Yield Measures},
+  colorlinks=true,
+  linkcolor={blue},
+  filecolor={Maroon},
+  citecolor={Blue},
+  urlcolor={Blue},
+  pdfcreator={LaTeX via pandoc}}
+
+
+\title{Lecture 2: Bond Pricing and Yield Measures}
+\author{}
+\date{}
+\begin{document}
+\maketitle
+
+\renewcommand*\contentsname{Table of contents}
+{
+\hypersetup{linkcolor=}
+\setcounter{tocdepth}{3}
+\tableofcontents
+}
+
+\subsection{Learning Objectives}\label{learning-objectives}
+
+By the end of this lecture you should be able to:
+
+\begin{itemize}
+\tightlist
+\item
+  Explain the time value of money and calculate future values and
+  present values for cash‑flows.
+\item
+  Compute the price of a bond by discounting expected cash‑flows at an
+  appropriate discount rate.
+\item
+  Describe how bond prices move in response to changes in yield and why
+  the price--yield relationship is convex.
+\item
+  Relate coupon rate and yield to a bond's trading status (par, premium
+  or discount) and recognise how prices evolve as a bond approaches
+  maturity (pull to par).
+\item
+  Identify factors---market interest rates, credit risk, liquidity,
+  economic expectations, tax policy and inflation---that cause bond
+  prices to change.
+\item
+  Describe complications in bond pricing arising from embedded options,
+  floating‑rate structures and inverse floaters.
+\item
+  Explain how bonds are quoted clean and dirty, and compute accrued
+  interest.
+\item
+  Compute yields using the present‑value relationship: current yield,
+  yield to maturity, yield to call, yield to put, yield to sinker and
+  yield to worst, as well as the yield for a portfolio and the cash‑flow
+  yield for amortising securities.
+\item
+  Compute the discount margin for a floating‑rate security and explain
+  why this margin differs from conventional yield measures.
+\item
+  Identify the sources of a bond's total return---coupon interest,
+  reinvestment income and capital gain or loss---and discuss
+  reinvestment risk.
+\item
+  Use total return and horizon analysis to evaluate the realised
+  performance of a bond or bond strategy under explicit assumptions
+  about reinvestment rates and future yields.
+\item
+  Measure changes in yield using absolute (basis‑point) and relative
+  (percentage) conventions.
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{1~The Time Value of Money}\label{the-time-value-of-money}
+
+A fundamental concept underlying all fixed income valuation is the
+\textbf{time value of money}. The idea is simple: a dollar today is
+worth more than a dollar received in the future because the dollar
+available today can be invested to earn interest.
+
+When an investor lends money by purchasing a bond, the investor gives up
+the opportunity to use that money elsewhere. In return, the issuer
+promises to compensate the investor by paying interest and eventually
+repaying the principal.
+
+Because future payments occur at different points in time, they must be
+\textbf{discounted} to determine their value today.
+
+\subsection{1.1~Future Value}\label{future-value}
+
+Suppose an investor invests an amount of money today and earns an
+interest rate (r) for (n) periods. The value of that investment after
+(n) periods is called the \textbf{future value}.
+
+\[
+P_n = P_0 (1+r)^n
+\]
+
+where
+
+\begin{itemize}
+\tightlist
+\item
+  (P\_0)~= initial investment\\
+\item
+  (P\_n)~= value after (n)~periods\\
+\item
+  (r)~= interest rate per period\\
+\item
+  (n)~= number of periods
+\end{itemize}
+
+This formula represents the process of \textbf{compound interest}, where
+interest earned in each period itself earns interest in subsequent
+periods.
+
+\subsubsection{Worked Example}\label{worked-example}
+
+Suppose a pension fund invests \$10,000,000 at an annual interest rate
+of 9.2~\% for 6~years.
+
+\[
+P_6 = 10{,}000{,}000 (1.092)^6 = 16{,}956{,}500
+\]
+
+The investment grows to approximately \$16.96~million after six~years.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{2~Bond Pricing}\label{bond-pricing}
+
+A bond can be viewed as a series of future cash‑flows consisting of:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Periodic coupon payments}
+\item
+  \textbf{Repayment of principal at maturity}
+\end{itemize}
+
+The price of a bond equals the \textbf{present value of its expected
+future cash‑flows}. If a bond has:
+
+\begin{itemize}
+\tightlist
+\item
+  coupon payment (C)\\
+\item
+  face value (F)\\
+\item
+  maturity (T)\\
+\item
+  required yield (r)
+\end{itemize}
+
+then the price is
+
+\[
+P = \sum_{t=1}^{T} \frac{C}{(1+r)^t} + \frac{F}{(1+r)^T}.
+\]
+
+Each cash‑flow is discounted using the market's required yield.
+
+\subsubsection{Worked Example}\label{worked-example-1}
+
+\textbf{Pricing a Coupon Bond}
+
+Suppose a bond has
+
+\begin{itemize}
+\tightlist
+\item
+  Face value~= \$1,000\\
+\item
+  Coupon rate~= 6~\%\\
+\item
+  Maturity~= 3~years\\
+\item
+  Required yield~= 5~\%
+\end{itemize}
+
+Coupon payment:
+
+\[
+C = 0.06 \times 1000 = 60.
+\]
+
+Bond price:
+
+\[
+P = \frac{60}{1.05} + \frac{60}{1.05^2} + \frac{1060}{1.05^3} = 1026.71.
+\]
+
+Because the coupon rate exceeds the required yield, the bond sells
+\textbf{above par}.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{3~Price--Yield Relationship}\label{priceyield-relationship}
+
+One of the most important relationships in fixed income markets is the
+\textbf{inverse relationship between bond prices and yields}. When
+required yields rise, the present value of future cash‑flows falls, and
+the bond's price declines. When required yields fall, the present value
+of the cash‑flows increases, and the bond price rises.
+
+This inverse relationship exists because the bond's coupon payments are
+fixed while market interest rates fluctuate.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{4~Convexity of the Price--Yield
+Relationship}\label{convexity-of-the-priceyield-relationship}
+
+The relationship between bond price and yield is not linear. Instead, it
+is \textbf{convex}. Convexity means that price increases accelerate as
+yields fall, and price decreases slow as yields rise. This curvature has
+important implications for risk management and will be studied later
+when discussing \textbf{duration and convexity}.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{5~Coupon Rate, Yield and Bond
+Price}\label{coupon-rate-yield-and-bond-price}
+
+The relationship between coupon rate and yield determines whether a bond
+trades:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{at par}\\
+\item
+  \textbf{at a premium}\\
+\item
+  \textbf{at a discount}
+\end{itemize}
+
+\begin{longtable}[]{@{}ll@{}}
+\toprule\noalign{}
+Relationship & Price \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+coupon rate = yield & bond trades at par \\
+coupon rate \textgreater{} yield & bond trades at premium \\
+coupon rate \textless{} yield & bond trades at discount \\
+\end{longtable}
+
+\subsubsection{Worked Example}\label{worked-example-2}
+
+\textbf{Premium vs Discount Bond}
+
+Consider two bonds with face value \$1,000.
+
+\begin{longtable}[]{@{}llll@{}}
+\toprule\noalign{}
+Bond & Coupon & Yield & Price \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+A & 7~\% & 5~\% & above \$1,000 \\
+B & 4~\% & 5~\% & below \$1,000 \\
+\end{longtable}
+
+Bond~A pays a coupon above the market rate, so investors are willing to
+pay more than par. Bond~B pays a coupon below the market rate, so
+investors demand a discount.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{6~Bond Price Behaviour Over
+Time}\label{bond-price-behaviour-over-time}
+
+As a bond approaches maturity, its price tends to move toward its
+\textbf{face value}. Premium bonds gradually decline toward par, and
+discount bonds gradually rise toward par. At maturity, all bonds redeem
+at their principal value (assuming no default). This process is known as
+\textbf{pull to par}.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{7~Why Bond Prices Change}\label{why-bond-prices-change}
+
+Bond prices change for several reasons. The most important factor is
+\textbf{changes in market interest rates}. However, other factors can
+also affect bond prices, including:
+
+\begin{itemize}
+\tightlist
+\item
+  changes in credit risk
+\item
+  changes in market liquidity
+\item
+  changes in economic expectations
+\item
+  changes in tax policy
+\item
+  inflation expectations
+\end{itemize}
+
+Understanding these factors is essential for managing fixed income
+portfolios.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{8~Complications in Bond
+Pricing}\label{complications-in-bond-pricing}
+
+In practice, bond pricing can be more complex than the simple present
+value formula suggests. Several factors may complicate valuation:
+
+\begin{itemize}
+\tightlist
+\item
+  bonds with \textbf{embedded options} (callable, putable or
+  convertible)
+\item
+  securities backed by pools of assets (mortgage‑backed and asset‑backed
+  securities)
+\item
+  floating‑rate and inverse floating‑rate bonds
+\end{itemize}
+
+These instruments may have cash‑flows that change depending on interest
+rates or other economic variables.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{9~Floating‑Rate and Inverse‑Floating‑Rate
+Securities}\label{floatingrate-and-inversefloatingrate-securities}
+
+Some bonds do not have fixed coupons. Instead, the coupon rate is
+periodically reset based on a reference interest rate such as LIBOR or a
+Treasury rate. These are known as \textbf{floating‑rate securities}.
+Inverse floating‑rate securities pay coupons that move in the opposite
+direction of the reference rate. Such structures introduce additional
+complexity into bond valuation because future cash‑flows depend on
+future interest rates.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{10~Accrued Interest and Bond Price
+Quotation}\label{accrued-interest-and-bond-price-quotation}
+
+In most bond markets, bonds trade \textbf{between coupon payment dates}.
+When a bond is purchased between coupon payments, the buyer must
+compensate the seller for the interest that has accumulated since the
+last payment. This amount is called \textbf{accrued interest}.
+
+Bond prices are therefore quoted in two ways:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{clean price} -- price excluding accrued interest\\
+\item
+  \textbf{dirty price} -- price including accrued interest
+\end{itemize}
+
+The dirty price represents the actual amount paid in a transaction.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{11~Computing the Yield or Internal Rate of
+Return}\label{computing-the-yield-or-internal-rate-of-return}
+
+\subsection{11.1~Yield on Any Investment}\label{yield-on-any-investment}
+
+The \textbf{yield} or \textbf{internal rate of return (IRR)} on an
+investment is the interest rate that makes the present value of the
+investment's cash‑flows equal to its price. Mathematically, for an
+investment with (N) future cash‑flows (CF\_t) and price (P), the yield
+(y) satisfies
+
+\[
+P = \sum_{t=1}^{N} \frac{CF_t}{(1+y)^t}.
+\]
+
+Solving for (y) generally requires an iterative procedure because (y)
+appears in the denominator of each term【965351366966888†L3643-L3669】.
+A higher assumed yield lowers the present value; a lower assumed yield
+raises it. The objective is to find the yield for which the present
+value equals the price.
+
+\subsubsection{Special case: a single cash
+flow}\label{special-case-a-single-cash-flow}
+
+If the investment has just one future cash flow (CF\_N) in (N) periods,
+the yield can be solved algebraically:
+
+\[
+y = \left(\frac{CF_N}{P}\right)^{1/N} - 1.
+\]
+
+This formula eliminates the need for trial and error because there is
+only one cash‑flow term【965351366966888†L3643-L3669】.
+
+\subsection{11.2~Example: Computing Yield by Trial and
+Error}\label{example-computing-yield-by-trial-and-error}
+
+Suppose a financial instrument with price \$903.10 promises cash‑flows
+of \$100, \$100, \$100 and \$1,000 in years~1--4. To find its yield:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Compute the present value of cash‑flows at several interest rates.
+\item
+  Adjust the rate until the present value matches \$903.10.
+\end{enumerate}
+
+Using a 10~\% trial rate gives a present value of \$931.69. A 12~\%
+trial rate produces \$875.71. By interpolation, a rate of 11~\% equates
+the present value to the price【965351366966888†L3718-L3767】. The yield
+on this investment is therefore \textbf{11~\%}.
+
+\subsection{11.3~Periodic Cash~Flows and
+Annualisation}\label{periodic-cash-flows-and-annualisation}
+
+Cash‑flows are often paid more than once per year---for example,
+semiannual coupons. If there are (n) compounding periods per year, the
+yield is the rate per period ((y)) that satisfies
+
+\[
+P = \sum_{t=1}^{nN} \frac{CF_t}{(1+y)^t}.
+\]
+
+For semiannual coupons, doubling (y) gives the \textbf{bond‑equivalent
+yield}; for other frequencies, multiply (y) by the number of periods in
+the year. To find the \textbf{effective annual yield} corresponding to a
+periodic rate (r\_p), compute
+
+\[
+\text{Effective annual yield} = (1 + r_p)^m - 1,
+\]
+
+where (m) is the number of periods per year. For example, a quarterly
+periodic rate of 2~\% implies an effective annual yield of ((1.02)\^{}4
+- 1 \approx 8.24,\%).
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{12~Conventional Yield
+Measures}\label{conventional-yield-measures}
+
+Bonds are commonly quoted using several yield measures that summarise
+different aspects of return. Each measure uses the basic present‑value
+relationship but makes different assumptions about cash‑flows and
+reinvestment.
+
+\subsection{12.1~Current Yield}\label{current-yield}
+
+The \textbf{current yield} relates a bond's annual coupon to its market
+price:
+
+\[
+\text{current yield} = \frac{\text{annual coupon}}{\text{price}}.
+\]
+
+For instance, a 15‑year bond with a 7~\% coupon and price \$769.42 has a
+current yield of (70/769.42 \approx 9.10,\%). A 4.5~\% coupon bond
+priced at 99.531 (per \$100 par) has a current yield of (4.50/99.531
+\approx 4.52,\%)【965351366966888†L3896-L3922】. The current yield
+ignores capital gains or losses and the time value of money; it measures
+coupon income relative to price.
+
+\subsection{12.2~Yield to Maturity (YTM)}\label{yield-to-maturity-ytm}
+
+The \textbf{yield to maturity} is the internal rate of return assuming
+the bond is held to maturity and all coupon payments are reinvested at
+the same rate. For a bond with price (P), coupon payment (C), maturity
+value (M) and (n) semiannual periods, the present‑value equation is
+
+\[
+P = \sum_{t=1}^{n} \frac{C}{(1+y)^t} + \frac{M}{(1+y)^n}.
+\]
+
+Solving for (y) (a semiannual rate) generally requires trial and error;
+doubling (y) gives the bond‑equivalent
+YTM【965351366966888†L3896-L3973】. YTM incorporates coupon income,
+reinvestment income and any capital gain or loss realised at maturity.
+
+\subsection{12.3~Yield to Call, Yield to Put and Yield to
+Sinker}\label{yield-to-call-yield-to-put-and-yield-to-sinker}
+
+\textbf{Callable bonds} allow the issuer to redeem the bond at specified
+call dates for a predetermined price. The \textbf{yield to call} is the
+interest rate that equates the bond's price to the present value of the
+coupon payments up to the assumed call date plus the call price. Because
+multiple call dates may exist, investors often compute yields to first
+call, next call and to any refunding call.
+
+Similarly, \textbf{putable bonds} allow the investor to sell the bond
+back to the issuer on specified dates at a put price. The \textbf{yield
+to put} equates the price to the present value of cash‑flows up to the
+put date plus the put price. Bonds with sinking‑fund schedules retire
+portions of the issue over time. The \textbf{yield to sinker} uses the
+sinking‑fund date and price.
+
+The \textbf{yield to worst} is the lowest yield among the yield to
+maturity, all yields to call and all yields to put. It represents the
+minimum return an investor might realise if the issuer exercises
+embedded options.
+
+\subsection{12.4~Yield for a Portfolio}\label{yield-for-a-portfolio}
+
+The yield of a bond portfolio is not simply the average of the
+individual yields because each bond has a different pattern of
+cash‑flows. To compute a portfolio yield, aggregate the portfolio's
+cash‑flows and find the discount rate that makes the present value of
+all cash‑flows equal the portfolio's price. For example, a portfolio
+containing bonds of different maturities and coupon rates requires
+discounting the combined cash‑flow schedule to match the total market
+value.
+
+\subsection{12.5~Cash‑Flow Yield and Discount
+Margin}\label{cashflow-yield-and-discount-margin}
+
+For amortising securities such as mortgage‑backed or asset‑backed
+securities, investors receive principal repayments along with interest.
+The \textbf{cash‑flow yield} is the rate that equates the price to the
+projected cash‑flows, including scheduled and unscheduled principal
+repayments. Estimating the cash‑flow yield requires assumptions about
+prepayments and reinvestment.
+
+Floating‑rate securities pay interest linked to a reference rate (e.g.,
+LIBOR) plus a quoted margin. The cash‑flows depend on future reference
+rates, so a conventional YTM cannot be calculated directly. Investors
+instead calculate the \textbf{discount margin}, the margin over the
+reference rate that equates the price to the present value of the
+projected cash‑flows assuming the reference rate remains constant. This
+measure estimates the average spread an investor can expect over the
+reference rate.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{13~Sources of a Bond's Return and Reinvestment
+Risk}\label{sources-of-a-bonds-return-and-reinvestment-risk}
+
+A bond's total dollar return comes from three sources:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \textbf{Coupon interest} -- the periodic coupon payments.
+\item
+  \textbf{Capital gain or loss} -- the difference between the sale price
+  (or maturity value) and the purchase price.
+\item
+  \textbf{Reinvestment income} -- interest earned from reinvesting the
+  coupon payments (and, for amortising bonds, reinvested principal).
+\end{enumerate}
+
+Conventional yields implicitly assume that coupon payments can be
+reinvested at the computed yield. The risk that future reinvestment
+rates will be lower than the yield at purchase is \textbf{reinvestment
+risk}. The longer the maturity and the higher the coupon, the more the
+bond's total return depends on the reinvestment of coupon payments, and
+therefore the greater the reinvestment risk. Zero‑coupon bonds have no
+reinvestment risk because all return is realised at maturity.
+
+\subsection{13.1~Interest‑on‑Interest
+Component}\label{interestoninterest-component}
+
+For a non‑amortising bond paying semiannual coupon (C) over (n) periods
+and reinvestment rate (r), the future value of the coupon payments plus
+reinvestment income after (n) periods is
+
+\[
+ C \frac{(1+r)^n - 1}{r}.
+\]
+
+The interest‑on‑interest component is the difference between this amount
+and the sum of the coupon payments ((nC)). For long‑maturity,
+high‑coupon bonds, the interest‑on‑interest component may represent a
+significant portion of total return.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{14~Total Return and Horizon
+Analysis}\label{total-return-and-horizon-analysis}
+
+The yield to maturity and other conventional yields are \textbf{promised
+yields}: they are realised only if the bond is held to the date used in
+the calculation and coupon payments can be reinvested at that yield. To
+evaluate a bond's performance over a specific \textbf{investment
+horizon}, investors compute the \textbf{total return}, which explicitly
+incorporates assumptions about reinvestment rates and the bond's sale
+price at the end of the horizon.
+
+\subsection{14.1~Computing Total Return}\label{computing-total-return}
+
+To compute the total return over a horizon of (h) semiannual periods:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \textbf{Reinvestment income} -- For each coupon payment received
+  before the horizon, compute its future value at the assumed
+  reinvestment rate until the horizon. Summing these gives the future
+  value of coupon payments plus reinvestment income.
+\item
+  \textbf{Projected sale price} -- Estimate the bond's price at the
+  horizon by discounting its remaining cash‑flows at the expected yield
+  to maturity prevailing at that time.
+\item
+  \textbf{Total future dollars} -- Add the future value of coupon
+  payments to the projected sale price. Subtract the initial purchase
+  price to obtain the dollar return.
+\item
+  \textbf{Total return} -- Solve for the interest rate that equates the
+  purchase price to the total future dollars; double the semiannual rate
+  to express as an annualised return.
+\end{enumerate}
+
+This procedure accommodates multiple reinvestment rates. For example,
+coupon payments received in early periods may be reinvested at one rate
+and later payments at another. The final projected price depends on
+expectations for the yield environment at the horizon.
+
+\subsection{14.2~Example: Total Return}\label{example-total-return}
+
+An investor with a three‑year horizon considers a 20‑year 8~\% bond
+priced at \$828.40 with a yield to maturity of 10~\%. The investor
+expects to reinvest coupons at 6~\% and to sell the bond after three
+years at a yield of 7~\% for then‑17‑year bonds. The calculation
+proceeds as follows:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  The bond pays \$40 every six months. Assuming 3~\% semiannual
+  reinvestment, the future value of coupon payments over six periods is
+  \$258.74.
+\item
+  The projected sale price in three years (with a 7~\% yield) is
+  \$1,098.51.
+\item
+  Total future dollars are \$1,357.25; dividing by the purchase price
+  and solving for the semiannual return gives 8.58~\% per half year.
+\item
+  Doubling yields an \textbf{annualised total return of 17.16~\%},
+  demonstrating how reinvestment and expected sale price affect realised
+  performance.
+\end{enumerate}
+
+Horizon analysis is also used in bond‑swap decisions. By calculating
+total returns under different reinvestment and yield scenarios,
+investors can determine whether swapping one bond for another improves
+projected performance.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{15~Measuring Yield Changes}\label{measuring-yield-changes}
+
+Yield changes can be measured in two ways:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Absolute yield change} -- measured in basis points. It is the
+  absolute difference between two yields:
+\end{itemize}
+
+\[
+\text{absolute change (bp)} = |y_{\text{new}} - y_{\text{old}}| \times 100.
+\]
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Relative (percentage) yield change} -- calculated as the
+  natural logarithm of the ratio of the new yield to the old yield:
+\end{itemize}
+
+\[
+\text{relative change (\%)} = 100 \times \ln\left(\frac{y_{\text{new}}}{y_{\text{old}}}\right).
+\]
+
+For example, if yields rise from 4.45~\% to 5.11~\%, the absolute change
+is 66~bp and the relative change is (\ln(5.11/4.45) \times 100
+\approx 13.83,\%). These measures are useful for comparing yield
+movements across different sectors and maturities.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{Key Points}\label{key-points}
+
+\begin{itemize}
+\tightlist
+\item
+  Bond prices are determined by discounting expected future cash‑flows
+  at a required yield; the time value of money is fundamental to this
+  process.
+\item
+  Bond prices move inversely to yields and the price--yield relationship
+  is convex; premium bonds decline toward par and discount bonds rise
+  toward par as maturity approaches.
+\item
+  A bond's trading status (par, premium or discount) depends on the
+  relationship between its coupon rate and required yield.
+\item
+  Bond prices change primarily due to movements in market interest
+  rates, but credit risk, liquidity, economic expectations, tax policy
+  and inflation also play important roles.
+\item
+  Bond valuation becomes more complex when securities have embedded
+  options, floating or inverse floating coupons, or amortising
+  structures; quoted prices may exclude (clean) or include (dirty)
+  accrued interest.
+\item
+  The internal rate of return equates the present value of cash‑flows to
+  the price and can be computed for any investment; special cases
+  (single cash‑flow) have closed‑form
+  solutions【965351366966888†L3643-L3669】.
+\item
+  Conventional yield measures---current yield, yield to maturity, yield
+  to call, yield to put, yield to sinker and yield to worst---summarise
+  different aspects of return and rely on assumptions about holding
+  periods and reinvestment【965351366966888†L3896-L3973】.
+\item
+  Portfolio yield is obtained by discounting the combined cash‑flows of
+  the portfolio; cash‑flow yield and discount margin adapt the yield
+  concept to amortising and floating‑rate securities.
+\item
+  A bond's total return comprises coupon interest, reinvestment income
+  and capital gain or loss; reinvestment risk arises when future rates
+  differ from the original yield.
+\item
+  Total return and horizon analysis provide more realistic performance
+  measures than yield to maturity because they incorporate explicit
+  reinvestment assumptions and projected sale prices.
+\item
+  Yield changes can be measured in absolute (basis‑point) or relative
+  (percentage) terms; both measures are useful for analysing
+  interest‑rate movements.
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{Suggested Readings}\label{suggested-readings}
+
+Fabozzi -- \emph{Bond Markets, Analysis, and Strategies}:\\
+\textbf{Chapter~2: Pricing of Bonds} -- covers time value of money, bond
+pricing, price--yield relationship, convexity, coupon versus yield,
+price behaviour, and complications in pricing.\\
+\textbf{Chapter~3: Measuring Yield} -- explains how to compute yields,
+describe various yield measures, discuss sources of return and
+reinvestment risk, and introduce total return and horizon analysis.
+
+
+
+
+\end{document}

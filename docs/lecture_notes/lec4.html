@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Lecture 4 – BUS 411 — Fixed Income Security Analysis and Valuation</title>
+<title>Lecture 2: Bond Pricing and Yield Measures – BUS 411 — Fixed Income Security Analysis and Valuation</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -73,6 +73,35 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -381,22 +410,76 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#course" id="toc-course" class="nav-link active" data-scroll-target="#course"><span class="header-section-number">1</span> Course</a></li>
-  <li><a href="#lecture" id="toc-lecture" class="nav-link" data-scroll-target="#lecture"><span class="header-section-number">2</span> Lecture</a></li>
-  <li><a href="#learning-objectives" id="toc-learning-objectives" class="nav-link" data-scroll-target="#learning-objectives"><span class="header-section-number">3</span> Learning Objectives</a></li>
-  <li><a href="#main-concepts" id="toc-main-concepts" class="nav-link" data-scroll-target="#main-concepts"><span class="header-section-number">4</span> Main Concepts</a></li>
-  <li><a href="#definitions" id="toc-definitions" class="nav-link" data-scroll-target="#definitions"><span class="header-section-number">5</span> Definitions</a></li>
-  <li><a href="#key-formulas" id="toc-key-formulas" class="nav-link" data-scroll-target="#key-formulas"><span class="header-section-number">6</span> Key Formulas</a></li>
-  <li><a href="#examples" id="toc-examples" class="nav-link" data-scroll-target="#examples"><span class="header-section-number">7</span> Examples</a>
+  <li><a href="#learning-objectives" id="toc-learning-objectives" class="nav-link active" data-scroll-target="#learning-objectives">Learning Objectives</a></li>
+  <li><a href="#the-time-value-of-money" id="toc-the-time-value-of-money" class="nav-link" data-scroll-target="#the-time-value-of-money">1 The Time Value of Money</a>
   <ul class="collapse">
-  <li><a href="#example-1" id="toc-example-1" class="nav-link" data-scroll-target="#example-1"><span class="header-section-number">7.1</span> Example 1</a></li>
-  <li><a href="#example-2" id="toc-example-2" class="nav-link" data-scroll-target="#example-2"><span class="header-section-number">7.2</span> Example 2</a></li>
+  <li><a href="#future-value" id="toc-future-value" class="nav-link" data-scroll-target="#future-value">1.1 Future Value</a></li>
+  <li><a href="#future-value-of-an-ordinary-annuity" id="toc-future-value-of-an-ordinary-annuity" class="nav-link" data-scroll-target="#future-value-of-an-ordinary-annuity">1.2 Future Value of an Ordinary Annuity</a></li>
+  <li><a href="#present-value" id="toc-present-value" class="nav-link" data-scroll-target="#present-value">1.3 Present Value</a></li>
+  <li><a href="#present-value-of-a-series-of-future-cash-flows" id="toc-present-value-of-a-series-of-future-cash-flows" class="nav-link" data-scroll-target="#present-value-of-a-series-of-future-cash-flows">1.4 Present Value of a Series of Future Cash Flows</a></li>
+  <li><a href="#present-value-of-an-ordinary-annuity" id="toc-present-value-of-an-ordinary-annuity" class="nav-link" data-scroll-target="#present-value-of-an-ordinary-annuity">1.5 Present Value of an Ordinary Annuity</a></li>
+  <li><a href="#present-value-when-payments-occur-more-than-once-per-year" id="toc-present-value-when-payments-occur-more-than-once-per-year" class="nav-link" data-scroll-target="#present-value-when-payments-occur-more-than-once-per-year">1.6 Present Value When Payments Occur More Than Once per Year</a></li>
+  <li><a href="#key-insight" id="toc-key-insight" class="nav-link" data-scroll-target="#key-insight">Key Insight</a></li>
   </ul></li>
-  <li><a href="#remarks-intuition" id="toc-remarks-intuition" class="nav-link" data-scroll-target="#remarks-intuition"><span class="header-section-number">8</span> Remarks / Intuition</a></li>
-  <li><a href="#suggested-readings" id="toc-suggested-readings" class="nav-link" data-scroll-target="#suggested-readings"><span class="header-section-number">9</span> Suggested Readings</a></li>
-  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises"><span class="header-section-number">10</span> Exercises</a></li>
+  <li><a href="#pricing-a-bond" id="toc-pricing-a-bond" class="nav-link" data-scroll-target="#pricing-a-bond">2 Pricing a Bond</a>
+  <ul class="collapse">
+  <li><a href="#pricing-zero-coupon-bonds" id="toc-pricing-zero-coupon-bonds" class="nav-link" data-scroll-target="#pricing-zero-coupon-bonds">Pricing Zero-Coupon Bonds</a></li>
+  </ul></li>
+  <li><a href="#priceyield-relationship" id="toc-priceyield-relationship" class="nav-link" data-scroll-target="#priceyield-relationship">3 Price–Yield Relationship</a></li>
+  <li><a href="#relationship-between-coupon-rate-required-yield-and-price" id="toc-relationship-between-coupon-rate-required-yield-and-price" class="nav-link" data-scroll-target="#relationship-between-coupon-rate-required-yield-and-price">4 Relationship Between Coupon Rate, Required Yield, and Price</a></li>
+  <li><a href="#relationship-between-bond-price-and-time-if-interest-rates-are-unchanged" id="toc-relationship-between-bond-price-and-time-if-interest-rates-are-unchanged" class="nav-link" data-scroll-target="#relationship-between-bond-price-and-time-if-interest-rates-are-unchanged">5 Relationship Between Bond Price and Time if Interest Rates Are Unchanged</a></li>
+  <li><a href="#reasons-for-the-change-in-the-price-of-a-bond" id="toc-reasons-for-the-change-in-the-price-of-a-bond" class="nav-link" data-scroll-target="#reasons-for-the-change-in-the-price-of-a-bond">6 Reasons for the Change in the Price of a Bond</a></li>
+  <li><a href="#complications-in-pricing-bonds" id="toc-complications-in-pricing-bonds" class="nav-link" data-scroll-target="#complications-in-pricing-bonds">7 Complications in Pricing Bonds</a>
+  <ul class="collapse">
+  <li><a href="#next-coupon-payment-due-in-less-than-six-months" id="toc-next-coupon-payment-due-in-less-than-six-months" class="nav-link" data-scroll-target="#next-coupon-payment-due-in-less-than-six-months">Next Coupon Payment Due in Less Than Six Months</a></li>
+  <li><a href="#cash-flows-may-not-be-known" id="toc-cash-flows-may-not-be-known" class="nav-link" data-scroll-target="#cash-flows-may-not-be-known">Cash Flows May Not Be Known</a></li>
+  <li><a href="#determining-the-appropriate-required-yield" id="toc-determining-the-appropriate-required-yield" class="nav-link" data-scroll-target="#determining-the-appropriate-required-yield">Determining the Appropriate Required Yield</a></li>
+  <li><a href="#one-discount-rate-applicable-to-all-cash-flows" id="toc-one-discount-rate-applicable-to-all-cash-flows" class="nav-link" data-scroll-target="#one-discount-rate-applicable-to-all-cash-flows">One Discount Rate Applicable to All Cash Flows</a></li>
+  </ul></li>
+  <li><a href="#pricing-floating-rate-and-inverse-floating-rate-securities" id="toc-pricing-floating-rate-and-inverse-floating-rate-securities" class="nav-link" data-scroll-target="#pricing-floating-rate-and-inverse-floating-rate-securities">8 Pricing Floating-Rate and Inverse-Floating-Rate Securities</a>
+  <ul class="collapse">
+  <li><a href="#price-of-a-floater" id="toc-price-of-a-floater" class="nav-link" data-scroll-target="#price-of-a-floater">Price of a Floater</a></li>
+  <li><a href="#price-of-an-inverse-floater" id="toc-price-of-an-inverse-floater" class="nav-link" data-scroll-target="#price-of-an-inverse-floater">Price of an Inverse Floater</a></li>
+  </ul></li>
+  <li><a href="#price-quotes-and-accrued-interest" id="toc-price-quotes-and-accrued-interest" class="nav-link" data-scroll-target="#price-quotes-and-accrued-interest">9 Price Quotes and Accrued Interest</a>
+  <ul class="collapse">
+  <li><a href="#price-quotes" id="toc-price-quotes" class="nav-link" data-scroll-target="#price-quotes">Price Quotes</a></li>
+  <li><a href="#accrued-interest" id="toc-accrued-interest" class="nav-link" data-scroll-target="#accrued-interest">Accrued Interest</a></li>
+  </ul></li>
+  <li><a href="#computing-the-yield-or-internal-rate-of-return-on-any-investment" id="toc-computing-the-yield-or-internal-rate-of-return-on-any-investment" class="nav-link" data-scroll-target="#computing-the-yield-or-internal-rate-of-return-on-any-investment">10 Computing the Yield or Internal Rate of Return on Any Investment</a>
+  <ul class="collapse">
+  <li><a href="#special-case-investment-with-only-one-future-cash-flow" id="toc-special-case-investment-with-only-one-future-cash-flow" class="nav-link" data-scroll-target="#special-case-investment-with-only-one-future-cash-flow">Special Case: Investment with Only One Future Cash Flow</a></li>
+  <li><a href="#annualizing-yields" id="toc-annualizing-yields" class="nav-link" data-scroll-target="#annualizing-yields">Annualizing Yields</a></li>
+  </ul></li>
+  <li><a href="#conventional-yield-measures" id="toc-conventional-yield-measures" class="nav-link" data-scroll-target="#conventional-yield-measures">11 Conventional Yield Measures</a>
+  <ul class="collapse">
+  <li><a href="#current-yield" id="toc-current-yield" class="nav-link" data-scroll-target="#current-yield">Current Yield</a></li>
+  <li><a href="#yield-to-maturity" id="toc-yield-to-maturity" class="nav-link" data-scroll-target="#yield-to-maturity">Yield to Maturity</a></li>
+  <li><a href="#bond-calculators" id="toc-bond-calculators" class="nav-link" data-scroll-target="#bond-calculators">Bond Calculators</a></li>
+  <li><a href="#yield-to-call" id="toc-yield-to-call" class="nav-link" data-scroll-target="#yield-to-call">Yield to Call</a></li>
+  <li><a href="#yield-to-sinker" id="toc-yield-to-sinker" class="nav-link" data-scroll-target="#yield-to-sinker">Yield to Sinker</a></li>
+  <li><a href="#yield-to-put" id="toc-yield-to-put" class="nav-link" data-scroll-target="#yield-to-put">Yield to Put</a></li>
+  <li><a href="#yield-to-worst" id="toc-yield-to-worst" class="nav-link" data-scroll-target="#yield-to-worst">Yield to Worst</a></li>
+  <li><a href="#cash-flow-yield" id="toc-cash-flow-yield" class="nav-link" data-scroll-target="#cash-flow-yield">Cash Flow Yield</a></li>
+  <li><a href="#yield-internal-rate-of-return-for-a-portfolio" id="toc-yield-internal-rate-of-return-for-a-portfolio" class="nav-link" data-scroll-target="#yield-internal-rate-of-return-for-a-portfolio">Yield (Internal Rate of Return) for a Portfolio</a></li>
+  <li><a href="#yield-spread-measures-for-floating-rate-securities" id="toc-yield-spread-measures-for-floating-rate-securities" class="nav-link" data-scroll-target="#yield-spread-measures-for-floating-rate-securities">Yield Spread Measures for Floating-Rate Securities</a></li>
+  </ul></li>
+  <li><a href="#potential-sources-of-a-bonds-dollar-return" id="toc-potential-sources-of-a-bonds-dollar-return" class="nav-link" data-scroll-target="#potential-sources-of-a-bonds-dollar-return">12 Potential Sources of a Bond’s Dollar Return</a>
+  <ul class="collapse">
+  <li><a href="#determining-the-interest-on-interest-dollar-return" id="toc-determining-the-interest-on-interest-dollar-return" class="nav-link" data-scroll-target="#determining-the-interest-on-interest-dollar-return">Determining the Interest-on-Interest Dollar Return</a></li>
+  <li><a href="#yield-to-maturity-and-reinvestment-risk" id="toc-yield-to-maturity-and-reinvestment-risk" class="nav-link" data-scroll-target="#yield-to-maturity-and-reinvestment-risk">Yield to Maturity and Reinvestment Risk</a></li>
+  <li><a href="#cash-flow-yield-and-reinvestment-risk" id="toc-cash-flow-yield-and-reinvestment-risk" class="nav-link" data-scroll-target="#cash-flow-yield-and-reinvestment-risk">Cash Flow Yield and Reinvestment Risk</a></li>
+  </ul></li>
+  <li><a href="#total-return" id="toc-total-return" class="nav-link" data-scroll-target="#total-return">13 Total Return</a>
+  <ul class="collapse">
+  <li><a href="#computing-the-total-return-for-a-bond" id="toc-computing-the-total-return-for-a-bond" class="nav-link" data-scroll-target="#computing-the-total-return-for-a-bond">Computing the Total Return for a Bond</a></li>
+  </ul></li>
+  <li><a href="#applications-of-total-return-horizon-analysis" id="toc-applications-of-total-return-horizon-analysis" class="nav-link" data-scroll-target="#applications-of-total-return-horizon-analysis">14 Applications of Total Return (Horizon Analysis)</a></li>
+  <li><a href="#calculating-yield-changes" id="toc-calculating-yield-changes" class="nav-link" data-scroll-target="#calculating-yield-changes">15 Calculating Yield Changes</a></li>
+  <li><a href="#key-points" id="toc-key-points" class="nav-link" data-scroll-target="#key-points">Key Points</a></li>
+  <li><a href="#suggested-readings" id="toc-suggested-readings" class="nav-link" data-scroll-target="#suggested-readings">Suggested Readings</a></li>
   </ul>
-<div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="lec4.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></nav>
+</nav>
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
@@ -408,7 +491,7 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Lecture 4</h1>
+<h1 class="title">Lecture 2: Bond Pricing and Yield Measures</h1>
 </div>
 
 
@@ -425,81 +508,582 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="course" class="level2" data-number="1">
-<h2 data-number="1" class="anchored" data-anchor-id="course"><span class="header-section-number">1</span> Course</h2>
-<p>BUS 411 — Fixed Income Security Analysis and Valuation</p>
-</section>
-<section id="lecture" class="level2" data-number="2">
-<h2 data-number="2" class="anchored" data-anchor-id="lecture"><span class="header-section-number">2</span> Lecture</h2>
-<p>Lecture 4</p>
-</section>
-<section id="learning-objectives" class="level2" data-number="3">
-<h2 data-number="3" class="anchored" data-anchor-id="learning-objectives"><span class="header-section-number">3</span> Learning Objectives</h2>
+<section id="learning-objectives" class="level2">
+<h2 class="anchored" data-anchor-id="learning-objectives">Learning Objectives</h2>
+<p>By the end of this lecture you should be able to:</p>
 <ul>
-<li><em>Add your learning objectives here.</em></li>
+<li>Explain the time value of money and calculate future values and present values for cash‑flows.</li>
+<li>Compute the price of a bond by discounting expected cash‑flows at an appropriate discount rate.</li>
+<li>Describe how bond prices move in response to changes in yield and why the price–yield relationship is convex.</li>
+<li>Relate coupon rate and yield to a bond’s trading status (par, premium or discount) and recognise how prices evolve as a bond approaches maturity (pull to par).</li>
+<li>Identify factors—market interest rates, credit risk, liquidity, economic expectations, tax policy and inflation—that cause bond prices to change.</li>
+<li>Describe complications in bond pricing arising from embedded options, floating‑rate structures and inverse floaters.</li>
+<li>Explain how bonds are quoted clean and dirty, and compute accrued interest.</li>
+<li>Compute yields using the present‑value relationship: current yield, yield to maturity, yield to call, yield to put, yield to sinker and yield to worst, as well as the yield for a portfolio and the cash‑flow yield for amortising securities.</li>
+<li>Compute the discount margin for a floating‑rate security and explain why this margin differs from conventional yield measures.</li>
+<li>Identify the sources of a bond’s total return—coupon interest, reinvestment income and capital gain or loss—and discuss reinvestment risk.</li>
+<li>Use total return and horizon analysis to evaluate the realised performance of a bond or bond strategy under explicit assumptions about reinvestment rates and future yields.</li>
+<li>Measure changes in yield using absolute (basis‑point) and relative (percentage) conventions.</li>
 </ul>
+<hr>
 </section>
-<section id="main-concepts" class="level2" data-number="4">
-<h2 data-number="4" class="anchored" data-anchor-id="main-concepts"><span class="header-section-number">4</span> Main Concepts</h2>
-<ul>
-<li><em>Main concept 1</em></li>
-<li><em>Main concept 2</em></li>
-<li><em>Main concept 3</em></li>
-</ul>
-</section>
-<section id="definitions" class="level2" data-number="5">
-<h2 data-number="5" class="anchored" data-anchor-id="definitions"><span class="header-section-number">5</span> Definitions</h2>
-<div class="callout-definition">
-<p><strong>Term 1.</strong> <em>Definition placeholder.</em></p>
-</div>
-<div class="callout-definition">
-<p><strong>Term 2.</strong> <em>Definition placeholder.</em></p>
-</div>
-</section>
-<section id="key-formulas" class="level2" data-number="6">
-<h2 data-number="6" class="anchored" data-anchor-id="key-formulas"><span class="header-section-number">6</span> Key Formulas</h2>
-<p>[ ]</p>
-</section>
-<section id="examples" class="level2" data-number="7">
-<h2 data-number="7" class="anchored" data-anchor-id="examples"><span class="header-section-number">7</span> Examples</h2>
-<section id="example-1" class="level3" data-number="7.1">
-<h3 data-number="7.1" class="anchored" data-anchor-id="example-1"><span class="header-section-number">7.1</span> Example 1</h3>
-<p><em>Worked example placeholder.</em></p>
-</section>
-<section id="example-2" class="level3" data-number="7.2">
-<h3 data-number="7.2" class="anchored" data-anchor-id="example-2"><span class="header-section-number">7.2</span> Example 2</h3>
-<p><em>Worked example placeholder.</em></p>
-</section>
-</section>
-<section id="remarks-intuition" class="level2" data-number="8">
-<h2 data-number="8" class="anchored" data-anchor-id="remarks-intuition"><span class="header-section-number">8</span> Remarks / Intuition</h2>
-<div class="callout callout-style-default callout-note callout-titled">
+<section id="the-time-value-of-money" class="level1">
+<h1>1 The Time Value of Money</h1>
+<p>A fundamental principle underlying all fixed income valuation is the <strong>time value of money</strong>. A dollar received today is worth more than a dollar received in the future because the dollar today can be invested to earn interest. When an investor purchases a bond, the investor is exchanging money today for a stream of future cash flows. To determine whether this exchange is fair, we must be able to compare money received at different points in time. The tool that allows us to do this is present value and future value analysis.</p>
+<p>In fixed income markets, virtually every valuation problem can be reduced to one question:</p>
+<blockquote class="blockquote">
+<p>What is the present value of a set of future cash flows?</p>
+</blockquote>
+<p>To answer this question, we must first understand how money grows over time and how future cash flows are discounted back to the present.</p>
+<hr>
+<section id="future-value" class="level2">
+<h2 class="anchored" data-anchor-id="future-value">1.1 Future Value</h2>
+<p>Suppose an investor invests an amount <span class="math inline">\(P_0\)</span> today at an interest rate <span class="math inline">\(r\)</span> per period. After one period, the investment grows to</p>
+<p><span class="math display">\[
+P_1 = P_0(1+r).
+\]</span></p>
+<p>After two periods, the investment grows to</p>
+<p><span class="math display">\[
+P_2 = P_0(1+r)^2.
+\]</span></p>
+<p>After <span class="math inline">\(n\)</span> periods, the investment grows to</p>
+<p><span class="math display">\[
+P_n = P_0(1+r)^n.
+\]</span></p>
+<p>This is the <strong>future value</strong> of the investment. The key idea behind this formula is <strong>compound interest</strong>: interest earned each period is reinvested and itself earns interest in future periods. In fixed income markets, compounding plays a central role because coupon payments are often reinvested, and the return on a bond depends not only on coupon payments but also on the interest earned on reinvested coupons.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Worked Example">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Note
+<span class="screen-reader-only">Note</span>Worked Example
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><em>Key intuition and remarks for this lecture.</em></p>
+<p><strong>Future Value</strong></p>
+<p>Suppose a pension fund invests $10,000,000 at an annual interest rate of 9.2% for 6 years.</p>
+<p><span class="math display">\[
+P_6 = 10{,}000{,}000(1.092)^6 = 16{,}956{,}500.
+\]</span></p>
+<p>The investment grows to approximately $16.96 million after six years.</p>
 </div>
 </div>
+<hr>
 </section>
-<section id="suggested-readings" class="level2" data-number="9">
-<h2 data-number="9" class="anchored" data-anchor-id="suggested-readings"><span class="header-section-number">9</span> Suggested Readings</h2>
+<section id="future-value-of-an-ordinary-annuity" class="level2">
+<h2 class="anchored" data-anchor-id="future-value-of-an-ordinary-annuity">1.2 Future Value of an Ordinary Annuity</h2>
+<p>An <strong>ordinary annuity</strong> is a series of equal payments made at the <strong>end</strong> of each period. Coupon payments on most bonds are an example of an ordinary annuity.</p>
+<p>Suppose a payment <span class="math inline">\(C\)</span> is made at the end of each period for <span class="math inline">\(n\)</span> periods, and the interest rate is <span class="math inline">\(r\)</span>. The future value of these payments at time <span class="math inline">\(n\)</span> is</p>
+<p><span class="math display">\[
+FV = C \left( \frac{(1+r)^n - 1}{r} \right).
+\]</span></p>
+<p>This formula shows that the future value of an annuity depends on both the number of payments and the interest rate at which the payments are reinvested. This is important in fixed income because the total return from a bond depends heavily on the reinvestment of coupon payments.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Worked Example">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Worked Example
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Future Value of an Annuity</strong></p>
+<p>Suppose an investor receives $100 at the end of each year for 5 years and can reinvest each payment at 6%.</p>
+<p><span class="math display">\[
+FV = 100 \left( \frac{(1.06)^5 - 1}{0.06} \right)
+= 100(5.637) = 563.70.
+\]</span></p>
+<p>The future value of the payments at the end of 5 years is $563.70.</p>
+</div>
+</div>
+<hr>
+</section>
+<section id="present-value" class="level2">
+<h2 class="anchored" data-anchor-id="present-value">1.3 Present Value</h2>
+<p>Present value is the reverse of future value. Instead of asking how much an investment today will grow to in the future, we ask:</p>
+<blockquote class="blockquote">
+<p>How much is a future cash flow worth today?</p>
+</blockquote>
+<p>If a payment of <span class="math inline">\(F\)</span> will be received in <span class="math inline">\(n\)</span> periods and the interest rate is <span class="math inline">\(r\)</span>, the present value is</p>
+<p><span class="math display">\[
+PV = \frac{F}{(1+r)^n}.
+\]</span></p>
+<p>This formula is called <strong>discounting</strong>, and the interest rate <span class="math inline">\(r\)</span> is called the <strong>discount rate</strong>. In fixed income markets, the discount rate reflects the required yield on a bond, which depends on interest rates, credit risk, liquidity, and other factors.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Worked Example">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Worked Example
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Present Value</strong></p>
+<p>Suppose an investor will receive $1,000 in 3 years and the discount rate is 5%.</p>
+<p><span class="math display">\[
+PV = \frac{1000}{(1.05)^3} = 863.84.
+\]</span></p>
+<p>The present value of $1,000 received in three years is $863.84.</p>
+</div>
+</div>
+<hr>
+</section>
+<section id="present-value-of-a-series-of-future-cash-flows" class="level2">
+<h2 class="anchored" data-anchor-id="present-value-of-a-series-of-future-cash-flows">1.4 Present Value of a Series of Future Cash Flows</h2>
+<p>Most bonds pay multiple cash flows: periodic coupon payments and the principal at maturity. The present value of a series of future cash flows is simply the sum of the present values of each individual cash flow.</p>
+<p>If the cash flows are <span class="math inline">\(CF_1, CF_2, \dots, CF_n\)</span>, then</p>
+<p><span class="math display">\[
+PV = \sum_{t=1}^{n} \frac{CF_t}{(1+r)^t}.
+\]</span></p>
+<p>This is the fundamental bond pricing formula. Every bond pricing problem is an application of this equation.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Worked Example">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Worked Example
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Present Value of Multiple Cash Flows</strong></p>
+<p>Suppose a bond pays $60 in one year, $60 in two years, and $1,060 in three years. If the discount rate is 5%:</p>
+<p><span class="math display">\[
+PV = \frac{60}{1.05} + \frac{60}{1.05^2} + \frac{1060}{1.05^3} = 1026.71.
+\]</span></p>
+<p>This is the price of the bond.</p>
+</div>
+</div>
+<hr>
+</section>
+<section id="present-value-of-an-ordinary-annuity" class="level2">
+<h2 class="anchored" data-anchor-id="present-value-of-an-ordinary-annuity">1.5 Present Value of an Ordinary Annuity</h2>
+<p>If a bond pays a fixed coupon <span class="math inline">\(C\)</span> each period for <span class="math inline">\(n\)</span> periods, the present value of the coupon payments is the present value of an ordinary annuity:</p>
+<p><span class="math display">\[
+PV = C \left( \frac{1 - (1+r)^{-n}}{r} \right).
+\]</span></p>
+<p>The price of a bond can therefore be written as</p>
+<p><span class="math display">\[
+P = C \left( \frac{1 - (1+r)^{-n}}{r} \right) + \frac{F}{(1+r)^n}.
+\]</span></p>
+<p>This formula shows that a bond is simply the present value of an annuity (coupon payments) plus the present value of a single payment (principal).</p>
+<hr>
+</section>
+<section id="present-value-when-payments-occur-more-than-once-per-year" class="level2">
+<h2 class="anchored" data-anchor-id="present-value-when-payments-occur-more-than-once-per-year">1.6 Present Value When Payments Occur More Than Once per Year</h2>
+<p>In many bond markets, coupon payments are made <strong>semiannually</strong>, meaning twice per year. Some securities pay quarterly or monthly.</p>
+<p>When payments occur more than once per year, we must adjust both the interest rate and the number of periods.</p>
+<p>If the annual interest rate is <span class="math inline">\(r\)</span> and there are <span class="math inline">\(m\)</span> payments per year, then:</p>
 <ul>
-<li><em>Textbook chapter or paper reference</em></li>
-<li><em>Supplementary material</em></li>
+<li>Interest rate per period = <span class="math inline">\(\frac{r}{m}\)</span></li>
+<li>Number of periods = <span class="math inline">\(n \times m\)</span></li>
+</ul>
+<p>The present value formula becomes</p>
+<p><span class="math display">\[
+PV = \sum_{t=1}^{nm} \frac{CF_t}{\left(1+\frac{r}{m}\right)^t}.
+\]</span></p>
+<div class="callout callout-style-default callout-note callout-titled" title="Worked Example">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Worked Example
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Semiannual Bond Pricing</strong></p>
+<p>Suppose a bond pays $80 per year in coupons, paid semiannually, for 5 years. The required yield is 6%.</p>
+<ul>
+<li>Semiannual coupon = $40</li>
+<li>Semiannual yield = 3%</li>
+<li>Number of periods = 10</li>
+</ul>
+<p><span class="math display">\[
+P = 40 \left( \frac{1 - (1.03)^{-10}}{0.03} \right) + \frac{1000}{(1.03)^{10}}.
+\]</span></p>
+<p>This gives the price of the bond.</p>
+</div>
+</div>
+<hr>
+</section>
+<section id="key-insight" class="level2">
+<h2 class="anchored" data-anchor-id="key-insight">Key Insight</h2>
+<p>The most important idea in fixed income valuation is:</p>
+<blockquote class="blockquote">
+<p>The price of any fixed income security is the present value of its expected future cash flows discounted at an appropriate discount rate.</p>
+</blockquote>
+<hr>
+</section>
+</section>
+<section id="pricing-a-bond" class="level1">
+<h1>2 Pricing a Bond</h1>
+<p>The price of a bond is equal to the present value of its expected future cash flows. These cash flows consist of periodic coupon payments and the repayment of principal at maturity. Therefore, a bond can be viewed as a financial instrument that converts a series of future payments into a present value.</p>
+<p>If a bond has coupon payment <span class="math inline">\(C\)</span>, face value <span class="math inline">\(F\)</span>, maturity <span class="math inline">\(n\)</span>, and required yield <span class="math inline">\(r\)</span>, the price of the bond is</p>
+<p><span class="math display">\[
+P = \sum_{t=1}^{n} \frac{C}{(1+r)^t} + \frac{F}{(1+r)^n}.
+\]</span></p>
+<p>This formula shows that bond pricing is simply an application of present value. The required yield used to discount the cash flows reflects market interest rates, credit risk, liquidity, and other factors.</p>
+<section id="pricing-zero-coupon-bonds" class="level2">
+<h2 class="anchored" data-anchor-id="pricing-zero-coupon-bonds">Pricing Zero-Coupon Bonds</h2>
+<p>A zero-coupon bond makes only one payment at maturity and does not pay periodic coupons. Therefore, its price is simply the present value of the maturity value.</p>
+<p><span class="math display">\[
+P = \frac{F}{(1+r)^n}.
+\]</span></p>
+<p>Zero-coupon bonds are particularly useful for understanding the relationship between interest rates and bond prices because there is only one cash flow.</p>
+<hr>
+</section>
+</section>
+<section id="priceyield-relationship" class="level1">
+<h1>3 Price–Yield Relationship</h1>
+<p>One of the most important relationships in fixed income markets is the inverse relationship between bond prices and yields. When required yields increase, the present value of future cash flows decreases, and therefore the bond price falls. When required yields decrease, the present value of future cash flows increases, and therefore the bond price rises.</p>
+<p>This inverse relationship exists because the bond’s cash flows are fixed while the discount rate changes.</p>
+<p>The relationship between bond price and yield is not linear; it is curved. This curvature is called <strong>convexity</strong>, and it means that bond prices increase at an increasing rate when yields fall and decrease at a decreasing rate when yields rise.</p>
+<hr>
+</section>
+<section id="relationship-between-coupon-rate-required-yield-and-price" class="level1">
+<h1>4 Relationship Between Coupon Rate, Required Yield, and Price</h1>
+<p>The relationship between the coupon rate and the required yield determines whether a bond sells at par, at a premium, or at a discount.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Coupon Rate vs Yield</th>
+<th>Bond Price</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Coupon rate = Yield</td>
+<td>Price = Par</td>
+</tr>
+<tr class="even">
+<td>Coupon rate &gt; Yield</td>
+<td>Price &gt; Par (Premium)</td>
+</tr>
+<tr class="odd">
+<td>Coupon rate &lt; Yield</td>
+<td>Price &lt; Par (Discount)</td>
+</tr>
+</tbody>
+</table>
+<p>If the coupon rate is higher than the market yield, the bond pays more interest than comparable bonds, so investors are willing to pay more than par. If the coupon rate is lower than the market yield, the bond pays less interest than comparable bonds, so investors will only buy it at a discount.</p>
+<hr>
+</section>
+<section id="relationship-between-bond-price-and-time-if-interest-rates-are-unchanged" class="level1">
+<h1>5 Relationship Between Bond Price and Time if Interest Rates Are Unchanged</h1>
+<p>If interest rates remain unchanged, the price of a bond will move toward its face value as it approaches maturity. This is known as <strong>pull to par</strong>.</p>
+<ul>
+<li>A premium bond will decline in price over time.</li>
+<li>A discount bond will increase in price over time.</li>
+<li>A bond selling at par will remain at par.</li>
+</ul>
+<p>This occurs because the present value of the principal repayment becomes less sensitive to discounting as the bond approaches maturity.</p>
+<hr>
+</section>
+<section id="reasons-for-the-change-in-the-price-of-a-bond" class="level1">
+<h1>6 Reasons for the Change in the Price of a Bond</h1>
+<p>Bond prices change for several reasons. The most important factor is changes in market interest rates, but other factors also affect bond prices:</p>
+<ul>
+<li>Changes in the level of interest rates</li>
+<li>Changes in credit risk of the issuer</li>
+<li>Changes in liquidity of the bond</li>
+<li>Changes in tax treatment</li>
+<li>Changes in inflation expectations</li>
+<li>Changes in economic conditions</li>
+</ul>
+<p>Understanding these factors is essential for fixed income portfolio management because bond prices can change even if interest rates remain constant.</p>
+<hr>
+</section>
+<section id="complications-in-pricing-bonds" class="level1">
+<h1>7 Complications in Pricing Bonds</h1>
+<p>In practice, bond pricing is more complicated than the basic present value formula suggests. Several issues arise in real-world bond pricing.</p>
+<section id="next-coupon-payment-due-in-less-than-six-months" class="level2">
+<h2 class="anchored" data-anchor-id="next-coupon-payment-due-in-less-than-six-months">Next Coupon Payment Due in Less Than Six Months</h2>
+<p>Bonds often trade between coupon payment dates. When this happens, the buyer must compensate the seller for the interest earned since the last coupon payment. Therefore, the pricing formula must account for fractional periods.</p>
+</section>
+<section id="cash-flows-may-not-be-known" class="level2">
+<h2 class="anchored" data-anchor-id="cash-flows-may-not-be-known">Cash Flows May Not Be Known</h2>
+<p>For some bonds, the future cash flows are uncertain. Examples include:</p>
+<ul>
+<li>Callable bonds</li>
+<li>Putable bonds</li>
+<li>Mortgage-backed securities</li>
+<li>Floating-rate securities</li>
+</ul>
+<p>In these cases, cash flows depend on future interest rates or borrower behavior.</p>
+</section>
+<section id="determining-the-appropriate-required-yield" class="level2">
+<h2 class="anchored" data-anchor-id="determining-the-appropriate-required-yield">Determining the Appropriate Required Yield</h2>
+<p>The required yield depends on several factors:</p>
+<ul>
+<li>Risk-free rate</li>
+<li>Credit risk</li>
+<li>Liquidity risk</li>
+<li>Time to maturity</li>
+<li>Tax considerations</li>
+</ul>
+<p>Choosing the correct discount rate is often the most difficult part of bond valuation.</p>
+</section>
+<section id="one-discount-rate-applicable-to-all-cash-flows" class="level2">
+<h2 class="anchored" data-anchor-id="one-discount-rate-applicable-to-all-cash-flows">One Discount Rate Applicable to All Cash Flows</h2>
+<p>The basic bond pricing formula assumes that all cash flows are discounted at the same interest rate. In reality, different cash flows should be discounted using different interest rates based on their maturity. This leads to the concept of the <strong>term structure of interest rates</strong>, which will be discussed later in the course.</p>
+<hr>
+</section>
+</section>
+<section id="pricing-floating-rate-and-inverse-floating-rate-securities" class="level1">
+<h1>8 Pricing Floating-Rate and Inverse-Floating-Rate Securities</h1>
+<p>Some bonds do not pay fixed coupons. Instead, their coupon payments are linked to a reference rate such as LIBOR or Treasury rates.</p>
+<section id="price-of-a-floater" class="level2">
+<h2 class="anchored" data-anchor-id="price-of-a-floater">Price of a Floater</h2>
+<p>A floating-rate bond has a coupon that resets periodically based on a reference rate plus a fixed spread. Because the coupon adjusts to market interest rates, the price of a floating-rate bond typically remains close to its par value.</p>
+<p>The price of a floating-rate bond can be expressed as the present value of its expected future cash flows, where the coupon payments depend on future interest rates.</p>
+</section>
+<section id="price-of-an-inverse-floater" class="level2">
+<h2 class="anchored" data-anchor-id="price-of-an-inverse-floater">Price of an Inverse Floater</h2>
+<p>An inverse floating-rate bond has a coupon that moves in the opposite direction of interest rates. When interest rates rise, the coupon decreases; when interest rates fall, the coupon increases. Because of this structure, inverse floaters are highly sensitive to interest rate changes and can be very volatile.</p>
+<hr>
+</section>
+</section>
+<section id="price-quotes-and-accrued-interest" class="level1">
+<h1>9 Price Quotes and Accrued Interest</h1>
+<section id="price-quotes" class="level2">
+<h2 class="anchored" data-anchor-id="price-quotes">Price Quotes</h2>
+<p>Bond prices are typically quoted as a percentage of par value. For example, a price quote of 98.50 means the bond is selling for 98.50% of its face value.</p>
+<p>If the face value is $1,000, the price is</p>
+<p><span class="math display">\[
+0.985 \times 1000 = 985.
+\]</span></p>
+<p>Bond prices are quoted as <strong>clean prices</strong>, which do not include accrued interest.</p>
+</section>
+<section id="accrued-interest" class="level2">
+<h2 class="anchored" data-anchor-id="accrued-interest">Accrued Interest</h2>
+<p>When a bond is purchased between coupon payments, the buyer must pay the seller the interest that has accrued since the last coupon payment. This is called <strong>accrued interest</strong>.</p>
+<p>The actual amount paid for a bond is called the <strong>dirty price</strong>:</p>
+<p><span class="math display">\[
+\text{Dirty Price} = \text{Clean Price} + \text{Accrued Interest}.
+\]</span></p>
+<p>Accrued interest is calculated as</p>
+<p><span class="math display">\[
+\text{Accrued Interest} =
+\text{Coupon Payment} \times
+\frac{\text{Number of Days Since Last Coupon}}{\text{Number of Days in Coupon Period}}.
+\]</span></p>
+</section>
+</section>
+<section id="computing-the-yield-or-internal-rate-of-return-on-any-investment" class="level1">
+<h1>10 Computing the Yield or Internal Rate of Return on Any Investment</h1>
+<p>The yield of a bond is the discount rate that equates the present value of the bond’s expected cash flows to its market price. In other words, the yield is the <strong>internal rate of return (IRR)</strong> on the bond if the bond is held to maturity and all coupon payments are reinvested at the same rate.</p>
+<p>Mathematically, the yield <span class="math inline">\(y\)</span> is the rate that solves</p>
+<p><span class="math display">\[
+P = \sum_{t=1}^{n} \frac{CF_t}{(1+y)^t}.
+\]</span></p>
+<p>This equation generally cannot be solved algebraically and must be solved using numerical methods or financial calculators.</p>
+<section id="special-case-investment-with-only-one-future-cash-flow" class="level2">
+<h2 class="anchored" data-anchor-id="special-case-investment-with-only-one-future-cash-flow">Special Case: Investment with Only One Future Cash Flow</h2>
+<p>For a zero-coupon bond, there is only one future cash flow. The yield can therefore be calculated directly:</p>
+<p><span class="math display">\[
+P = \frac{F}{(1+y)^n}
+\]</span></p>
+<p>Solving for <span class="math inline">\(y\)</span>:</p>
+<p><span class="math display">\[
+y = \left(\frac{F}{P}\right)^{1/n} - 1.
+\]</span></p>
+</section>
+<section id="annualizing-yields" class="level2">
+<h2 class="anchored" data-anchor-id="annualizing-yields">Annualizing Yields</h2>
+<p>If interest is compounded more than once per year, the annual yield must be adjusted. If the periodic rate is <span class="math inline">\(r/m\)</span>, then the effective annual rate is</p>
+<p><span class="math display">\[
+(1 + r/m)^m - 1.
+\]</span></p>
+<p>This is called the <strong>effective annual yield</strong>.</p>
+<hr>
+</section>
+</section>
+<section id="conventional-yield-measures" class="level1">
+<h1>11 Conventional Yield Measures</h1>
+<p>There are several different yield measures used in fixed income markets. Each yield measure answers a slightly different question.</p>
+<section id="current-yield" class="level2">
+<h2 class="anchored" data-anchor-id="current-yield">Current Yield</h2>
+<p>The current yield measures the annual coupon income relative to the bond’s price:</p>
+<p><span class="math display">\[
+\text{Current Yield} = \frac{\text{Annual Coupon}}{\text{Bond Price}}.
+\]</span></p>
+<p>Current yield ignores capital gains and reinvestment income, so it is an incomplete measure of return.</p>
+</section>
+<section id="yield-to-maturity" class="level2">
+<h2 class="anchored" data-anchor-id="yield-to-maturity">Yield to Maturity</h2>
+<p>Yield to maturity (YTM) is the internal rate of return assuming:</p>
+<ul>
+<li>The bond is held to maturity</li>
+<li>All coupon payments are reinvested at the YTM</li>
+<li>All payments are made as promised</li>
+</ul>
+<p>YTM is the most commonly quoted yield measure.</p>
+</section>
+<section id="bond-calculators" class="level2">
+<h2 class="anchored" data-anchor-id="bond-calculators">Bond Calculators</h2>
+<p>Because the yield to maturity must be solved numerically, it is typically computed using financial calculators, spreadsheet software, or numerical algorithms.</p>
+</section>
+<section id="yield-to-call" class="level2">
+<h2 class="anchored" data-anchor-id="yield-to-call">Yield to Call</h2>
+<p>Yield to call is the yield assuming the bond is called at the first call date:</p>
+<p><span class="math display">\[
+P = \sum_{t=1}^{n} \frac{C}{(1+y)^t} + \frac{F_{\text{call}}}{(1+y)^n}.
+\]</span></p>
+</section>
+<section id="yield-to-sinker" class="level2">
+<h2 class="anchored" data-anchor-id="yield-to-sinker">Yield to Sinker</h2>
+<p>Yield to sinker is the yield assuming the bond is retired through a sinking fund.</p>
+</section>
+<section id="yield-to-put" class="level2">
+<h2 class="anchored" data-anchor-id="yield-to-put">Yield to Put</h2>
+<p>Yield to put is the yield assuming the investor exercises the put option and sells the bond back to the issuer at the put price.</p>
+</section>
+<section id="yield-to-worst" class="level2">
+<h2 class="anchored" data-anchor-id="yield-to-worst">Yield to Worst</h2>
+<p>Yield to worst is the lowest yield among all possible yield measures (YTM, YTC, YTP, etc.). This is often used as a conservative measure of return.</p>
+</section>
+<section id="cash-flow-yield" class="level2">
+<h2 class="anchored" data-anchor-id="cash-flow-yield">Cash Flow Yield</h2>
+<p>Cash flow yield is the internal rate of return based on the expected cash flows, which may differ from the promised cash flows due to embedded options or prepayments.</p>
+</section>
+<section id="yield-internal-rate-of-return-for-a-portfolio" class="level2">
+<h2 class="anchored" data-anchor-id="yield-internal-rate-of-return-for-a-portfolio">Yield (Internal Rate of Return) for a Portfolio</h2>
+<p>The yield for a portfolio is the internal rate of return that equates the total market value of the portfolio to the present value of the portfolio’s expected cash flows.</p>
+</section>
+<section id="yield-spread-measures-for-floating-rate-securities" class="level2">
+<h2 class="anchored" data-anchor-id="yield-spread-measures-for-floating-rate-securities">Yield Spread Measures for Floating-Rate Securities</h2>
+<p>Floating-rate securities are quoted using spread measures such as:</p>
+<ul>
+<li>Discount margin</li>
+<li>Quoted margin</li>
+<li>Spread over reference rate</li>
+</ul>
+<p>These spreads measure the compensation investors receive above the reference rate.</p>
+<hr>
+</section>
+</section>
+<section id="potential-sources-of-a-bonds-dollar-return" class="level1">
+<h1>12 Potential Sources of a Bond’s Dollar Return</h1>
+<p>The total dollar return from a bond comes from three sources:</p>
+<ol type="1">
+<li>Coupon income</li>
+<li>Interest earned from reinvesting coupons (interest-on-interest)</li>
+<li>Capital gain or loss if the bond price changes</li>
+</ol>
+<section id="determining-the-interest-on-interest-dollar-return" class="level2">
+<h2 class="anchored" data-anchor-id="determining-the-interest-on-interest-dollar-return">Determining the Interest-on-Interest Dollar Return</h2>
+<p>If coupon payments are reinvested, the investor earns interest on those reinvested coupons. This component of return can be significant, especially for long-term bonds.</p>
+</section>
+<section id="yield-to-maturity-and-reinvestment-risk" class="level2">
+<h2 class="anchored" data-anchor-id="yield-to-maturity-and-reinvestment-risk">Yield to Maturity and Reinvestment Risk</h2>
+<p>Yield to maturity assumes that coupons are reinvested at the YTM. If reinvestment rates are lower than the YTM, the investor’s actual return will be lower. This is called <strong>reinvestment risk</strong>.</p>
+</section>
+<section id="cash-flow-yield-and-reinvestment-risk" class="level2">
+<h2 class="anchored" data-anchor-id="cash-flow-yield-and-reinvestment-risk">Cash Flow Yield and Reinvestment Risk</h2>
+<p>Cash flow yield incorporates expected cash flows and reinvestment assumptions and is therefore often a more realistic measure of return.</p>
+<hr>
+</section>
+</section>
+<section id="total-return" class="level1">
+<h1>13 Total Return</h1>
+<p>Total return measures the actual return earned over a specified holding period.</p>
+<p>The total return depends on:</p>
+<ul>
+<li>Coupon income</li>
+<li>Reinvestment income</li>
+<li>Price change of the bond</li>
+<li>Time horizon</li>
+</ul>
+<p>The total return can be computed by calculating the future value of all cash flows at the horizon date and comparing it to the initial investment.</p>
+<p><span class="math display">\[
+\text{Total Return} =
+\frac{\text{Future Value of All Cash Flows}}{\text{Initial Price}} - 1.
+\]</span></p>
+<section id="computing-the-total-return-for-a-bond" class="level2">
+<h2 class="anchored" data-anchor-id="computing-the-total-return-for-a-bond">Computing the Total Return for a Bond</h2>
+<p>To compute total return:</p>
+<ol type="1">
+<li>Reinvest all coupon payments to the horizon date.</li>
+<li>Estimate the bond price at the horizon date.</li>
+<li>Add reinvested coupons and horizon price.</li>
+<li>Compare with initial price.</li>
+</ol>
+<div class="callout callout-style-default callout-note callout-titled" title="Worked Example">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Worked Example
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Total Return Example</strong></p>
+<p>An investor buys a bond for $950, receives $60 coupons for two years, and sells the bond for $980. Coupons are reinvested at 5%.</p>
+<p>The total return includes coupon income, reinvestment income, and price change.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Worked Example">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Worked Example
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Total Return Example (Horizon Analysis)</strong></p>
+<p>An investor plans to hold a bond for 3 years. The total return depends on:</p>
+<ul>
+<li>Reinvestment rate</li>
+<li>Yield at the time the bond is sold</li>
+<li>Coupon income</li>
+</ul>
+<p>This type of analysis is called <strong>horizon analysis</strong>.</p>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="applications-of-total-return-horizon-analysis" class="level1">
+<h1>14 Applications of Total Return (Horizon Analysis)</h1>
+<p>Horizon analysis is used by portfolio managers to estimate the return of a bond over a specific investment horizon.</p>
+<p>It allows investors to analyze how returns change if:</p>
+<ul>
+<li>Interest rates change</li>
+<li>Reinvestment rates change</li>
+<li>The bond is sold before maturity</li>
+</ul>
+<p>This approach is widely used in fixed income portfolio management.</p>
+<hr>
+</section>
+<section id="calculating-yield-changes" class="level1">
+<h1>15 Calculating Yield Changes</h1>
+<p>When interest rates change, bond prices change, and therefore yields change. The relationship between price and yield is nonlinear, which is why duration and convexity are used to estimate yield changes and price changes.</p>
+<p>This topic will be studied in detail in the risk management section of the course.</p>
+<hr>
+</section>
+<section id="key-points" class="level1">
+<h1>Key Points</h1>
+<ul>
+<li>The yield of a bond is the internal rate of return that equates price and present value of cash flows.</li>
+<li>Yield to maturity assumes reinvestment at the same yield.</li>
+<li>Total return depends on reinvestment income and price changes.</li>
+<li>Reinvestment risk is a major component of bond risk.</li>
+<li>Horizon analysis is used to estimate returns over a specific holding period.</li>
+<li><h2 id="different-yield-measures-are-used-for-bonds-with-embedded-options." class="anchored" data-anchor-id="key-points">Different yield measures are used for bonds with embedded options.</h2></li>
 </ul>
 </section>
-<section id="exercises" class="level2" data-number="10">
-<h2 data-number="10" class="anchored" data-anchor-id="exercises"><span class="header-section-number">10</span> Exercises</h2>
-<ol type="1">
-<li><em>Exercise 1 placeholder</em></li>
-<li><em>Exercise 2 placeholder</em></li>
-</ol>
+<section id="suggested-readings" class="level1">
+<h1>Suggested Readings</h1>
+<p>Fabozzi – <em>Bond Markets, Analysis, and Strategies</em>:<br>
+<strong>Chapter&nbsp;2: Pricing of Bonds</strong> – covers time value of money, bond pricing, price–yield relationship, convexity, coupon versus yield, price behaviour, and complications in pricing.<br>
+<strong>Chapter&nbsp;3: Measuring Yield</strong> – explains how to compute yields, describe various yield measures, discuss sources of return and reinvestment risk, and introduce total return and horizon analysis.</p>
 
 
 </section>

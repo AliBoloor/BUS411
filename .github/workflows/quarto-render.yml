@@ -7,15 +7,33 @@ on:
 jobs:
   render:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    if: github.actor != 'github-actions[bot]'
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Quarto
         uses: quarto-dev/quarto-actions/setup@v2
         with:
           version: latest
           tinytex: true
+
+      - name: Setup Python for Quarto execution
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install numpy matplotlib ipykernel jupyter
+          # Ensure the "python3" kernel name referenced by `jupyter: python3` is available.
+          python -m ipykernel install --user --name python3 --display-name "Python 3"
 
       - name: Render website
         run: quarto render
@@ -26,4 +44,5 @@ jobs:
           git config --local user.name "GitHub Action"
           git add docs/
           git diff --staged --quiet || git commit -m "Render Quarto website to docs/"
+          git remote set-url origin "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
           git push

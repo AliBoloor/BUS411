@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Lecture 2: Bond Pricing and Yield Measures – BUS 411 — Fixed Income Security Analysis and Valuation</title>
+<title>Lecture 3: Bond Price Volatility, Duration, Convexity, and Bond Portfolio Strategies – BUS 411 — Fixed Income Security Analysis and Valuation</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -411,41 +411,86 @@ window.Quarto = {
    
   <ul>
   <li><a href="#learning-objectives" id="toc-learning-objectives" class="nav-link active" data-scroll-target="#learning-objectives">Learning Objectives</a></li>
-  <li><a href="#the-time-value-of-money" id="toc-the-time-value-of-money" class="nav-link" data-scroll-target="#the-time-value-of-money">1 The Time Value of Money</a>
+  <li><a href="#review-of-the-priceyield-relationship-for-option-free-bonds" id="toc-review-of-the-priceyield-relationship-for-option-free-bonds" class="nav-link" data-scroll-target="#review-of-the-priceyield-relationship-for-option-free-bonds">1 Review of the Price–Yield Relationship for Option-Free Bonds</a></li>
+  <li><a href="#price-volatility-characteristics-of-option-free-bonds" id="toc-price-volatility-characteristics-of-option-free-bonds" class="nav-link" data-scroll-target="#price-volatility-characteristics-of-option-free-bonds">2 Price-Volatility Characteristics of Option-Free Bonds</a>
   <ul class="collapse">
-  <li><a href="#future-value" id="toc-future-value" class="nav-link" data-scroll-target="#future-value">1.1 Future Value</a></li>
-  <li><a href="#future-value-of-an-ordinary-annuity" id="toc-future-value-of-an-ordinary-annuity" class="nav-link" data-scroll-target="#future-value-of-an-ordinary-annuity">1.2 Future Value of an Ordinary Annuity</a></li>
-  <li><a href="#present-value" id="toc-present-value" class="nav-link" data-scroll-target="#present-value">1.3 Present Value</a></li>
-  <li><a href="#present-value-of-a-series-of-future-cash-flows" id="toc-present-value-of-a-series-of-future-cash-flows" class="nav-link" data-scroll-target="#present-value-of-a-series-of-future-cash-flows">1.4 Present Value of a Series of Future Cash Flows</a></li>
-  <li><a href="#present-value-of-an-ordinary-annuity" id="toc-present-value-of-an-ordinary-annuity" class="nav-link" data-scroll-target="#present-value-of-an-ordinary-annuity">1.5 Present Value of an Ordinary Annuity</a></li>
-  <li><a href="#present-value-when-payments-occur-more-than-once-per-year" id="toc-present-value-when-payments-occur-more-than-once-per-year" class="nav-link" data-scroll-target="#present-value-when-payments-occur-more-than-once-per-year">1.6 Present Value When Payments Occur More Than Once per Year</a></li>
-  <li><a href="#key-insight" id="toc-key-insight" class="nav-link" data-scroll-target="#key-insight">Key Insight</a></li>
+  <li><a href="#property-1" id="toc-property-1" class="nav-link" data-scroll-target="#property-1">Property 1</a></li>
+  <li><a href="#property-2" id="toc-property-2" class="nav-link" data-scroll-target="#property-2">Property 2</a></li>
+  <li><a href="#property-3" id="toc-property-3" class="nav-link" data-scroll-target="#property-3">Property 3</a></li>
+  <li><a href="#property-4" id="toc-property-4" class="nav-link" data-scroll-target="#property-4">Property 4</a></li>
+  <li><a href="#characteristics-of-a-bond-that-affect-its-price-volatility" id="toc-characteristics-of-a-bond-that-affect-its-price-volatility" class="nav-link" data-scroll-target="#characteristics-of-a-bond-that-affect-its-price-volatility">Characteristics of a Bond That Affect Its Price Volatility</a></li>
+  <li><a href="#effects-of-yield-to-maturity" id="toc-effects-of-yield-to-maturity" class="nav-link" data-scroll-target="#effects-of-yield-to-maturity">Effects of Yield to Maturity</a></li>
   </ul></li>
-  <li><a href="#pricing-a-bond" id="toc-pricing-a-bond" class="nav-link" data-scroll-target="#pricing-a-bond">2 Pricing a Bond</a>
+  <li><a href="#measures-of-bond-price-volatility" id="toc-measures-of-bond-price-volatility" class="nav-link" data-scroll-target="#measures-of-bond-price-volatility">3 Measures of Bond Price Volatility</a>
   <ul class="collapse">
-  <li><a href="#pricing-zero-coupon-bonds" id="toc-pricing-zero-coupon-bonds" class="nav-link" data-scroll-target="#pricing-zero-coupon-bonds">Pricing Zero-Coupon Bonds</a></li>
-  </ul></li>
-  <li><a href="#priceyield-relationship" id="toc-priceyield-relationship" class="nav-link" data-scroll-target="#priceyield-relationship">3 Price–Yield Relationship</a></li>
-  <li><a href="#relationship-between-coupon-rate-required-yield-and-price" id="toc-relationship-between-coupon-rate-required-yield-and-price" class="nav-link" data-scroll-target="#relationship-between-coupon-rate-required-yield-and-price">4 Relationship Between Coupon Rate, Required Yield, and Price</a></li>
-  <li><a href="#relationship-between-bond-price-and-time-if-interest-rates-are-unchanged" id="toc-relationship-between-bond-price-and-time-if-interest-rates-are-unchanged" class="nav-link" data-scroll-target="#relationship-between-bond-price-and-time-if-interest-rates-are-unchanged">5 Relationship Between Bond Price and Time if Interest Rates Are Unchanged</a></li>
-  <li><a href="#reasons-for-the-change-in-the-price-of-a-bond" id="toc-reasons-for-the-change-in-the-price-of-a-bond" class="nav-link" data-scroll-target="#reasons-for-the-change-in-the-price-of-a-bond">6 Reasons for the Change in the Price of a Bond</a></li>
-  <li><a href="#complications-in-pricing-bonds" id="toc-complications-in-pricing-bonds" class="nav-link" data-scroll-target="#complications-in-pricing-bonds">7 Complications in Pricing Bonds</a>
+  <li><a href="#price-value-of-a-basis-point" id="toc-price-value-of-a-basis-point" class="nav-link" data-scroll-target="#price-value-of-a-basis-point">Price Value of a Basis Point</a></li>
+  <li><a href="#yield-value-of-a-price-change" id="toc-yield-value-of-a-price-change" class="nav-link" data-scroll-target="#yield-value-of-a-price-change">Yield Value of a Price Change</a></li>
+  <li><a href="#duration" id="toc-duration" class="nav-link" data-scroll-target="#duration">Duration</a>
   <ul class="collapse">
-  <li><a href="#next-coupon-payment-due-in-less-than-six-months" id="toc-next-coupon-payment-due-in-less-than-six-months" class="nav-link" data-scroll-target="#next-coupon-payment-due-in-less-than-six-months">Next Coupon Payment Due in Less Than Six Months</a></li>
-  <li><a href="#cash-flows-may-not-be-known" id="toc-cash-flows-may-not-be-known" class="nav-link" data-scroll-target="#cash-flows-may-not-be-known">Cash Flows May Not Be Known</a></li>
-  <li><a href="#determining-the-appropriate-required-yield" id="toc-determining-the-appropriate-required-yield" class="nav-link" data-scroll-target="#determining-the-appropriate-required-yield">Determining the Appropriate Required Yield</a></li>
-  <li><a href="#one-discount-rate-applicable-to-all-cash-flows" id="toc-one-discount-rate-applicable-to-all-cash-flows" class="nav-link" data-scroll-target="#one-discount-rate-applicable-to-all-cash-flows">One Discount Rate Applicable to All Cash Flows</a></li>
+  <li><a href="#macaulay-duration" id="toc-macaulay-duration" class="nav-link" data-scroll-target="#macaulay-duration">Macaulay Duration</a></li>
+  <li><a href="#modified-duration" id="toc-modified-duration" class="nav-link" data-scroll-target="#modified-duration">Modified Duration</a></li>
+  <li><a href="#derivation-of-the-duration-approximation" id="toc-derivation-of-the-duration-approximation" class="nav-link" data-scroll-target="#derivation-of-the-duration-approximation">Derivation of the Duration Approximation</a></li>
   </ul></li>
-  <li><a href="#pricing-floating-rate-and-inverse-floating-rate-securities" id="toc-pricing-floating-rate-and-inverse-floating-rate-securities" class="nav-link" data-scroll-target="#pricing-floating-rate-and-inverse-floating-rate-securities">8 Pricing Floating-Rate and Inverse-Floating-Rate Securities</a></li>
-  <li><a href="#price-quotes-and-accrued-interest" id="toc-price-quotes-and-accrued-interest" class="nav-link" data-scroll-target="#price-quotes-and-accrued-interest">9 Price Quotes and Accrued Interest</a></li>
-  <li><a href="#computing-the-yield-or-internal-rate-of-return-on-any-investment" id="toc-computing-the-yield-or-internal-rate-of-return-on-any-investment" class="nav-link" data-scroll-target="#computing-the-yield-or-internal-rate-of-return-on-any-investment">10 Computing the Yield or Internal Rate of Return on Any Investment</a></li>
-  <li><a href="#conventional-yield-measures" id="toc-conventional-yield-measures" class="nav-link" data-scroll-target="#conventional-yield-measures">11 Conventional Yield Measures</a></li>
-  <li><a href="#potential-sources-of-a-bonds-dollar-return" id="toc-potential-sources-of-a-bonds-dollar-return" class="nav-link" data-scroll-target="#potential-sources-of-a-bonds-dollar-return">12 Potential Sources of a Bond’s Dollar Return</a></li>
-  <li><a href="#total-return" id="toc-total-return" class="nav-link" data-scroll-target="#total-return">13 Total Return</a></li>
-  <li><a href="#applications-of-total-return-horizon-analysis" id="toc-applications-of-total-return-horizon-analysis" class="nav-link" data-scroll-target="#applications-of-total-return-horizon-analysis">14 Applications of Total Return (Horizon Analysis)</a></li>
-  <li><a href="#calculating-yield-changes" id="toc-calculating-yield-changes" class="nav-link" data-scroll-target="#calculating-yield-changes">15 Calculating Yield Changes</a></li>
+  <li><a href="#properties-of-duration" id="toc-properties-of-duration" class="nav-link" data-scroll-target="#properties-of-duration">Properties of Duration</a></li>
+  <li><a href="#approximating-the-percentage-price-change" id="toc-approximating-the-percentage-price-change" class="nav-link" data-scroll-target="#approximating-the-percentage-price-change">Approximating the Percentage Price Change</a></li>
+  <li><a href="#approximating-the-dollar-price-change" id="toc-approximating-the-dollar-price-change" class="nav-link" data-scroll-target="#approximating-the-dollar-price-change">Approximating the Dollar Price Change</a></li>
+  <li><a href="#spread-duration" id="toc-spread-duration" class="nav-link" data-scroll-target="#spread-duration">Spread Duration</a></li>
+  <li><a href="#portfolio-duration" id="toc-portfolio-duration" class="nav-link" data-scroll-target="#portfolio-duration">Portfolio Duration</a></li>
+  <li><a href="#analytical-versus-empirical-duration" id="toc-analytical-versus-empirical-duration" class="nav-link" data-scroll-target="#analytical-versus-empirical-duration">Analytical versus Empirical Duration</a></li>
+  </ul></li>
+  <li><a href="#convexity" id="toc-convexity" class="nav-link" data-scroll-target="#convexity">4 Convexity</a>
+  <ul class="collapse">
+  <li><a href="#intuition-and-formula" id="toc-intuition-and-formula" class="nav-link" data-scroll-target="#intuition-and-formula">Intuition and Formula</a></li>
+  <li><a href="#measuring-convexity" id="toc-measuring-convexity" class="nav-link" data-scroll-target="#measuring-convexity">Measuring Convexity</a></li>
+  <li><a href="#approximating-percentage-price-change-using-duration-and-convexity" id="toc-approximating-percentage-price-change-using-duration-and-convexity" class="nav-link" data-scroll-target="#approximating-percentage-price-change-using-duration-and-convexity">Approximating Percentage Price Change Using Duration and Convexity</a></li>
+  <li><a href="#value-of-convexity" id="toc-value-of-convexity" class="nav-link" data-scroll-target="#value-of-convexity">Value of Convexity</a></li>
+  <li><a href="#properties-of-convexity" id="toc-properties-of-convexity" class="nav-link" data-scroll-target="#properties-of-convexity">Properties of Convexity</a></li>
+  </ul></li>
+  <li><a href="#additional-concerns-when-using-duration" id="toc-additional-concerns-when-using-duration" class="nav-link" data-scroll-target="#additional-concerns-when-using-duration">5 Additional Concerns When Using Duration</a></li>
+  <li><a href="#do-not-think-of-duration-as-a-measure-of-time" id="toc-do-not-think-of-duration-as-a-measure-of-time" class="nav-link" data-scroll-target="#do-not-think-of-duration-as-a-measure-of-time">6 Do Not Think of Duration as a Measure of Time</a></li>
+  <li><a href="#approximating-a-bonds-duration-and-convexity-measure" id="toc-approximating-a-bonds-duration-and-convexity-measure" class="nav-link" data-scroll-target="#approximating-a-bonds-duration-and-convexity-measure">7 Approximating a Bond’s Duration and Convexity Measure</a>
+  <ul class="collapse">
+  <li><a href="#duration-of-an-inverse-floater" id="toc-duration-of-an-inverse-floater" class="nav-link" data-scroll-target="#duration-of-an-inverse-floater">Duration of an Inverse Floater</a></li>
+  <li><a href="#key-rate-duration" id="toc-key-rate-duration" class="nav-link" data-scroll-target="#key-rate-duration">Key Rate Duration</a></li>
+  </ul></li>
+  <li><a href="#measuring-a-bond-portfolios-responsiveness-to-nonparallel-changes-in-interest-rates" id="toc-measuring-a-bond-portfolios-responsiveness-to-nonparallel-changes-in-interest-rates" class="nav-link" data-scroll-target="#measuring-a-bond-portfolios-responsiveness-to-nonparallel-changes-in-interest-rates">8 Measuring a Bond Portfolio’s Responsiveness to Nonparallel Changes in Interest Rates</a>
+  <ul class="collapse">
+  <li><a href="#yield-curve-reshaping-duration" id="toc-yield-curve-reshaping-duration" class="nav-link" data-scroll-target="#yield-curve-reshaping-duration">Yield Curve Reshaping Duration</a></li>
+  </ul></li>
+  <li><a href="#the-asset-allocation-decision" id="toc-the-asset-allocation-decision" class="nav-link" data-scroll-target="#the-asset-allocation-decision">9 The Asset Allocation Decision</a>
+  <ul class="collapse">
+  <li><a href="#how-much-should-be-allocated-to-bonds" id="toc-how-much-should-be-allocated-to-bonds" class="nav-link" data-scroll-target="#how-much-should-be-allocated-to-bonds">How Much Should Be Allocated to Bonds?</a></li>
+  <li><a href="#who-should-manage-the-bond-portfolio" id="toc-who-should-manage-the-bond-portfolio" class="nav-link" data-scroll-target="#who-should-manage-the-bond-portfolio">Who Should Manage the Bond Portfolio?</a></li>
+  </ul></li>
+  <li><a href="#portfolio-management-team" id="toc-portfolio-management-team" class="nav-link" data-scroll-target="#portfolio-management-team">10 Portfolio Management Team</a></li>
+  <li><a href="#spectrum-of-bond-portfolio-strategies" id="toc-spectrum-of-bond-portfolio-strategies" class="nav-link" data-scroll-target="#spectrum-of-bond-portfolio-strategies">11 Spectrum of Bond Portfolio Strategies</a>
+  <ul class="collapse">
+  <li><a href="#bond-benchmark-based-strategies" id="toc-bond-benchmark-based-strategies" class="nav-link" data-scroll-target="#bond-benchmark-based-strategies">Bond Benchmark-Based Strategies</a></li>
+  <li><a href="#absolute-return-strategies" id="toc-absolute-return-strategies" class="nav-link" data-scroll-target="#absolute-return-strategies">Absolute Return Strategies</a></li>
+  <li><a href="#liability-driven-strategies" id="toc-liability-driven-strategies" class="nav-link" data-scroll-target="#liability-driven-strategies">Liability-Driven Strategies</a></li>
+  </ul></li>
+  <li><a href="#bond-benchmarks" id="toc-bond-benchmarks" class="nav-link" data-scroll-target="#bond-benchmarks">12 Bond Benchmarks</a>
+  <ul class="collapse">
+  <li><a href="#bond-market-indexes" id="toc-bond-market-indexes" class="nav-link" data-scroll-target="#bond-market-indexes">Bond Market Indexes</a></li>
+  <li><a href="#market-capitalization-weighted-bond-indexes" id="toc-market-capitalization-weighted-bond-indexes" class="nav-link" data-scroll-target="#market-capitalization-weighted-bond-indexes">Market-Capitalization-Weighted Bond Indexes</a></li>
+  <li><a href="#commonly-used-bond-market-indexes" id="toc-commonly-used-bond-market-indexes" class="nav-link" data-scroll-target="#commonly-used-bond-market-indexes">Commonly Used Bond Market Indexes</a></li>
+  <li><a href="#problems-associated-with-market-cap-weighted-bond-indexes" id="toc-problems-associated-with-market-cap-weighted-bond-indexes" class="nav-link" data-scroll-target="#problems-associated-with-market-cap-weighted-bond-indexes">Problems Associated with Market-Cap-Weighted Bond Indexes</a></li>
+  <li><a href="#customized-bond-indexes" id="toc-customized-bond-indexes" class="nav-link" data-scroll-target="#customized-bond-indexes">Customized Bond Indexes</a></li>
+  <li><a href="#alternative-bond-indexes" id="toc-alternative-bond-indexes" class="nav-link" data-scroll-target="#alternative-bond-indexes">Alternative Bond Indexes</a></li>
+  <li><a href="#ad-hoc-weighted-index" id="toc-ad-hoc-weighted-index" class="nav-link" data-scroll-target="#ad-hoc-weighted-index">Ad Hoc Weighted Index</a></li>
+  <li><a href="#risk-based-schemes" id="toc-risk-based-schemes" class="nav-link" data-scroll-target="#risk-based-schemes">Risk-Based Schemes</a></li>
+  </ul></li>
+  <li><a href="#the-primary-risk-factors" id="toc-the-primary-risk-factors" class="nav-link" data-scroll-target="#the-primary-risk-factors">13 The Primary Risk Factors</a></li>
+  <li><a href="#top-down-versus-bottom-up-portfolio-construction-and-management" id="toc-top-down-versus-bottom-up-portfolio-construction-and-management" class="nav-link" data-scroll-target="#top-down-versus-bottom-up-portfolio-construction-and-management">14 Top-Down versus Bottom-Up Portfolio Construction and Management</a>
+  <ul class="collapse">
+  <li><a href="#manager-expectations-versus-the-market-consensus" id="toc-manager-expectations-versus-the-market-consensus" class="nav-link" data-scroll-target="#manager-expectations-versus-the-market-consensus">Manager Expectations versus the Market Consensus</a></li>
+  <li><a href="#interest-rate-expectations-strategies" id="toc-interest-rate-expectations-strategies" class="nav-link" data-scroll-target="#interest-rate-expectations-strategies">Interest-Rate Expectations Strategies</a></li>
+  <li><a href="#yield-curve-strategies" id="toc-yield-curve-strategies" class="nav-link" data-scroll-target="#yield-curve-strategies">Yield Curve Strategies</a></li>
+  </ul></li>
+  <li><a href="#active-portfolio-strategies" id="toc-active-portfolio-strategies" class="nav-link" data-scroll-target="#active-portfolio-strategies">15 Active Portfolio Strategies</a></li>
+  <li><a href="#smart-beta-bond-strategies" id="toc-smart-beta-bond-strategies" class="nav-link" data-scroll-target="#smart-beta-bond-strategies">16 Smart Beta Bond Strategies</a></li>
+  <li><a href="#the-use-of-leverage" id="toc-the-use-of-leverage" class="nav-link" data-scroll-target="#the-use-of-leverage">17 The Use of Leverage</a></li>
   <li><a href="#key-points" id="toc-key-points" class="nav-link" data-scroll-target="#key-points">Key Points</a></li>
-  <li><a href="#suggested-readings" id="toc-suggested-readings" class="nav-link" data-scroll-target="#suggested-readings">Suggested Readings</a></li>
   </ul>
 </nav>
 </nav>
@@ -459,7 +504,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Lecture 2: Bond Pricing and Yield Measures</h1>
+<h1 class="title">Lecture 3: Bond Price Volatility, Duration, Convexity, and Bond Portfolio Strategies</h1>
 </div>
 
 
@@ -480,37 +525,32 @@ window.Quarto = {
 <h2 class="anchored" data-anchor-id="learning-objectives">Learning Objectives</h2>
 <p>By the end of this lecture you should be able to:</p>
 <ul>
-<li>Explain the time value of money and calculate future values and present values for cash-flows.</li>
-<li>Compute the price of a bond by discounting expected cash-flows at an appropriate discount rate.</li>
-<li>Describe how bond prices move in response to changes in yield and why the price–yield relationship is convex.</li>
-<li>Relate coupon rate and yield to a bond’s trading status (par, premium or discount) and recognise how prices evolve as a bond approaches maturity (pull to par).</li>
-<li>Identify factors—market interest rates, credit risk, liquidity, economic expectations, tax policy and inflation—that cause bond prices to change.</li>
-<li>Describe complications in bond pricing arising from embedded options, floating-rate structures and inverse floaters.</li>
-<li>Explain how bonds are quoted clean and dirty, and compute accrued interest.</li>
-<li>Compute yields using the present-value relationship: current yield, yield to maturity, yield to call, yield to put, yield to sinker and yield to worst, as well as the yield for a portfolio and the cash-flow yield for amortising securities.</li>
-<li>Compute the discount margin for a floating-rate security and explain why this margin differs from conventional yield measures.</li>
-<li>Identify the sources of a bond’s total return—coupon interest, reinvestment income and capital gain or loss—and discuss reinvestment risk.</li>
-<li>Use total return and horizon analysis to evaluate the realised performance of a bond or bond strategy under explicit assumptions about reinvestment rates and future yields.</li>
-<li>Measure changes in yield using absolute (basis-point) and relative (percentage) conventions.</li>
+<li>Review and interpret the price–yield relationship for option-free bonds.</li>
+<li>Explain the main price-volatility properties of option-free bonds.</li>
+<li>Identify the bond characteristics that affect price volatility.</li>
+<li>Compute and interpret price value of a basis point, yield value of a price change, duration, and convexity.</li>
+<li>Use duration and convexity to approximate percentage and dollar price changes.</li>
+<li>Distinguish between analytical duration and empirical duration.</li>
+<li>Explain spread duration, portfolio duration, key rate duration, and yield curve reshaping duration.</li>
+<li>Understand practical limitations of duration as a risk measure.</li>
+<li>Explain why duration is not simply a measure of time.</li>
+<li>Interpret the duration of inverse floaters.</li>
+<li>Describe how bond portfolio responsiveness changes under nonparallel shifts in the yield curve.</li>
+<li>Explain the main bond portfolio strategy frameworks, including benchmark-based, absolute return, and liability-driven strategies.</li>
+<li>Understand the role of bond benchmarks and the limitations of market-cap-weighted bond indexes.</li>
+<li>Distinguish between top-down and bottom-up portfolio construction.</li>
+<li>Explain active strategies, smart beta approaches, and the use of leverage in bond portfolio management.</li>
 </ul>
 <hr>
 </section>
-<section id="the-time-value-of-money" class="level1">
-<h1>1 The Time Value of Money</h1>
-<p>A fundamental principle underlying all fixed income valuation is the <strong>time value of money</strong>. A dollar received today is worth more than a dollar received in the future because the dollar today can be invested to earn interest. When an investor purchases a bond, the investor is exchanging money today for a stream of future cash flows. To determine whether this exchange is fair, we must be able to compare money received at different points in time. The tool that allows us to do this is present value and future value analysis.</p>
-<p>In fixed income markets, virtually every valuation problem can be reduced to one question:</p>
-<blockquote class="blockquote">
-<p>What is the present value of a set of future cash flows?</p>
-</blockquote>
-<p>To answer this question, we must first understand how money grows over time and how future cash flows are discounted back to the present.</p>
-<hr>
-<section id="future-value" class="level2">
-<h2 class="anchored" data-anchor-id="future-value">1.1 Future Value</h2>
-<p>If an investor invests an amount <span class="math inline">\(P_0\)</span> today at an interest rate <span class="math inline">\(r\)</span> per period, the value after <span class="math inline">\(n\)</span> periods is</p>
+<section id="review-of-the-priceyield-relationship-for-option-free-bonds" class="level1">
+<h1>1 Review of the Price–Yield Relationship for Option-Free Bonds</h1>
+<p>For an option-free bond, price and yield move in opposite directions. When the required yield rises, the bond price falls. When the required yield falls, the bond price rises. This inverse relationship follows directly from the bond pricing formula because future cash flows are discounted at the required yield.</p>
+<p>For a bond with coupon payment <span class="math inline">\(C\)</span>, face value <span class="math inline">\(F\)</span>, maturity <span class="math inline">\(n\)</span>, and required yield <span class="math inline">\(y\)</span>, the price is</p>
 <p><span class="math display">\[
-P_n = P_0(1+r)^n.
+P = \sum_{t=1}^{n} \frac{C}{(1+y)^t} + \frac{F}{(1+y)^n}.
 \]</span></p>
-<p>This is the <strong>future value</strong> formula and reflects <strong>compound interest</strong>.</p>
+<p>Because the denominator increases when <span class="math inline">\(y\)</span> increases, the present value of each cash flow falls, and therefore the bond price falls.</p>
 <div class="callout callout-style-default callout-note callout-titled" title="Worked Example">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -521,377 +561,457 @@ P_n = P_0(1+r)^n.
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Suppose a pension fund invests $10,000,000 at an annual interest rate of 9.2% for 6 years.</p>
-<p><span class="math display">\[
-P_6 = 10{,}000{,}000(1.092)^6 = 16{,}956{,}500.
-\]</span></p>
-</div>
-</div>
-<hr>
-</section>
-<section id="future-value-of-an-ordinary-annuity" class="level2">
-<h2 class="anchored" data-anchor-id="future-value-of-an-ordinary-annuity">1.2 Future Value of an Ordinary Annuity</h2>
-<p>An <strong>ordinary annuity</strong> is a series of equal payments made at the end of each period. The future value of an annuity is</p>
-<p><span class="math display">\[
-FV = C \left( \frac{(1+r)^n - 1}{r} \right).
-\]</span></p>
-<div class="callout callout-style-default callout-note callout-titled" title="Worked Example">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Worked Example
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>Suppose an investor receives $100 at the end of each year for 5 years and reinvests at 6%.</p>
-<p><span class="math display">\[
-FV = 100 \left( \frac{(1.06)^5 - 1}{0.06} \right)
-= 100(5.637) = 563.70.
-\]</span></p>
-</div>
-</div>
-<hr>
-</section>
-<section id="present-value" class="level2">
-<h2 class="anchored" data-anchor-id="present-value">1.3 Present Value</h2>
-<p>Present value is the value today of a future payment:</p>
-<p><span class="math display">\[
-PV = \frac{F}{(1+r)^n}.
-\]</span></p>
-<div class="callout callout-style-default callout-note callout-titled" title="Worked Example">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Worked Example
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>Suppose $1,000 will be received in 3 years and the discount rate is 5%.</p>
-<p><span class="math display">\[
-PV = \frac{1000}{(1.05)^3} = 863.84.
-\]</span></p>
-</div>
-</div>
-<hr>
-</section>
-<section id="present-value-of-a-series-of-future-cash-flows" class="level2">
-<h2 class="anchored" data-anchor-id="present-value-of-a-series-of-future-cash-flows">1.4 Present Value of a Series of Future Cash Flows</h2>
-<p><span class="math display">\[
-PV = \sum_{t=1}^{n} \frac{CF_t}{(1+r)^t}.
-\]</span></p>
-<div class="callout callout-style-default callout-note callout-titled" title="Worked Example">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Worked Example
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>A bond pays $60 in one year, $60 in two years, and $1,060 in three years. If <span class="math inline">\(r = 5\%\)</span>:</p>
-<p><span class="math display">\[
-PV = \frac{60}{1.05} + \frac{60}{1.05^2} + \frac{1060}{1.05^3} = 1026.71.
-\]</span></p>
-</div>
-</div>
-<hr>
-</section>
-<section id="present-value-of-an-ordinary-annuity" class="level2">
-<h2 class="anchored" data-anchor-id="present-value-of-an-ordinary-annuity">1.5 Present Value of an Ordinary Annuity</h2>
-<p><span class="math display">\[
-PV = C \left( \frac{1 - (1+r)^{-n}}{r} \right)
-\]</span></p>
-<p>Bond price formula:</p>
-<p><span class="math display">\[
-P = C \left( \frac{1 - (1+r)^{-n}}{r} \right) + \frac{F}{(1+r)^n}.
-\]</span></p>
-<hr>
-</section>
-<section id="present-value-when-payments-occur-more-than-once-per-year" class="level2">
-<h2 class="anchored" data-anchor-id="present-value-when-payments-occur-more-than-once-per-year">1.6 Present Value When Payments Occur More Than Once per Year</h2>
-<p>If payments occur <span class="math inline">\(m\)</span> times per year:</p>
+<p><strong>Review of the Price–Yield Relationship</strong></p>
+<p>Suppose a 3-year bond has:</p>
 <ul>
-<li>Periodic rate = <span class="math inline">\(r/m\)</span></li>
-<li>Number of periods = <span class="math inline">\(nm\)</span></li>
+<li>Face value = $1,000</li>
+<li>Annual coupon = $60</li>
+<li>Required yield = 5%</li>
 </ul>
+<p>Its price is</p>
 <p><span class="math display">\[
-PV = \sum_{t=1}^{nm} \frac{CF_t}{(1+r/m)^t}.
+P = \frac{60}{1.05} + \frac{60}{1.05^2} + \frac{1060}{1.05^3}
+= 57.14 + 54.42 + 915.91
+= 1027.47.
 \]</span></p>
-<div class="callout callout-style-default callout-note callout-titled" title="Worked Example">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
+<p>If the required yield rises to 7%, the new price is</p>
+<p><span class="math display">\[
+P = \frac{60}{1.07} + \frac{60}{1.07^2} + \frac{1060}{1.07^3}
+= 56.07 + 52.40 + 865.38
+= 973.85.
+\]</span></p>
+<p>The bond price falls from $1,027.47 to $973.85 when the required yield rises from 5% to 7%.</p>
 </div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Worked Example
 </div>
-</div>
-<div class="callout-body-container callout-body">
-<p>Semiannual bond:</p>
+<hr>
+</section>
+<section id="price-volatility-characteristics-of-option-free-bonds" class="level1">
+<h1>2 Price-Volatility Characteristics of Option-Free Bonds</h1>
+<p>The price-volatility properties of option-free bonds describe how different bonds respond to changes in required yield.</p>
+<section id="property-1" class="level2">
+<h2 class="anchored" data-anchor-id="property-1">Property 1</h2>
+<p>Although the prices of all option-free bonds move in the opposite direction from the change in required yield, the <strong>percentage price change is not the same for all bonds</strong>.</p>
+<p>Some bonds are more sensitive to changes in yield than others. Longer maturity bonds and lower coupon bonds tend to experience greater percentage price changes for a given change in yield.</p>
+</section>
+<section id="property-2" class="level2">
+<h2 class="anchored" data-anchor-id="property-2">Property 2</h2>
+<p>For <strong>very small changes</strong> in the required yield, the percentage price change for a given bond is roughly the same whether the required yield increases or decreases.</p>
+<p>This is the local linear approximation behind duration.</p>
+</section>
+<section id="property-3" class="level2">
+<h2 class="anchored" data-anchor-id="property-3">Property 3</h2>
+<p>For <strong>large changes</strong> in the required yield, the percentage price change is not the same for an increase in the required yield as it is for a decrease in the required yield.</p>
+<p>This occurs because the price–yield relationship is curved rather than linear.</p>
+</section>
+<section id="property-4" class="level2">
+<h2 class="anchored" data-anchor-id="property-4">Property 4</h2>
+<p>For a given large change in basis points, the <strong>percentage price increase is greater than the percentage price decrease</strong>.</p>
+<p>This is the practical consequence of convexity. The curvature of the price–yield relationship makes price gains from falling yields larger than price losses from equally sized yield increases.</p>
+</section>
+<section id="characteristics-of-a-bond-that-affect-its-price-volatility" class="level2">
+<h2 class="anchored" data-anchor-id="characteristics-of-a-bond-that-affect-its-price-volatility">Characteristics of a Bond That Affect Its Price Volatility</h2>
+<p>The main bond characteristics affecting price volatility are:</p>
 <ul>
-<li>Coupon = $40</li>
-<li>Yield = 3% per half-year</li>
-<li>Periods = 10</li>
+<li>Time to maturity</li>
+<li>Coupon rate</li>
+<li>Yield to maturity</li>
+<li>Embedded options</li>
 </ul>
-<p><span class="math display">\[
-P = 40 \left( \frac{1 - (1.03)^{-10}}{0.03} \right) + \frac{1000}{(1.03)^{10}}.
-\]</span></p>
-</div>
-</div>
-<hr>
-</section>
-<section id="key-insight" class="level2">
-<h2 class="anchored" data-anchor-id="key-insight">Key Insight</h2>
-<blockquote class="blockquote">
-<p>The price of any fixed income security is the present value of its expected future cash flows discounted at an appropriate discount rate.</p>
-</blockquote>
-<hr>
-</section>
-</section>
-<section id="pricing-a-bond" class="level1">
-<h1>2 Pricing a Bond</h1>
-<p><span class="math display">\[
-P = \sum_{t=1}^{n} \frac{C}{(1+r)^t} + \frac{F}{(1+r)^n}.
-\]</span></p>
-<div class="callout callout-style-default callout-note callout-titled" title="Worked Example">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Worked Example
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>Face value = $1,000, coupon = $50, maturity = 3 years, yield = 6%.</p>
-<p><span class="math display">\[
-P = \frac{50}{1.06} + \frac{50}{1.06^2} + \frac{1050}{1.06^3}
-= 47.17 + 44.51 + 881.62 = 973.30.
-\]</span></p>
-</div>
-</div>
-<hr>
-<section id="pricing-zero-coupon-bonds" class="level2">
-<h2 class="anchored" data-anchor-id="pricing-zero-coupon-bonds">Pricing Zero-Coupon Bonds</h2>
-<p><span class="math display">\[
-P = \frac{F}{(1+r)^n}.
-\]</span></p>
-<hr>
-</section>
-</section>
-<section id="priceyield-relationship" class="level1">
-<h1>3 Price–Yield Relationship</h1>
-<p>Bond prices and yields move in opposite directions. The relationship is <strong>convex</strong>, meaning price increases from yield decreases are larger than price decreases from equal yield increases.</p>
-<p>(Plot remains unchanged — correct.)</p>
-<hr>
-</section>
-<section id="relationship-between-coupon-rate-required-yield-and-price" class="level1">
-<h1>4 Relationship Between Coupon Rate, Required Yield, and Price</h1>
-<table class="caption-top table">
-<thead>
-<tr class="header">
-<th>Coupon vs Yield</th>
-<th>Price</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Coupon = Yield</td>
-<td>Par</td>
-</tr>
-<tr class="even">
-<td>Coupon &gt; Yield</td>
-<td>Premium</td>
-</tr>
-<tr class="odd">
-<td>Coupon &lt; Yield</td>
-<td>Discount</td>
-</tr>
-</tbody>
-</table>
-<hr>
-</section>
-<section id="relationship-between-bond-price-and-time-if-interest-rates-are-unchanged" class="level1">
-<h1>5 Relationship Between Bond Price and Time if Interest Rates Are Unchanged</h1>
-<p>This is the <strong>pull-to-par</strong> effect:</p>
+<p>For option-free bonds:</p>
 <ul>
-<li>Premium bond → price falls toward par</li>
-<li>Discount bond → price rises toward par</li>
-<li>Par bond → remains at par</li>
+<li>Longer maturity generally means greater price volatility.</li>
+<li>Lower coupon generally means greater price volatility.</li>
+<li>Lower yield generally implies greater price volatility.</li>
 </ul>
-<p>(Plot correct.)</p>
+</section>
+<section id="effects-of-yield-to-maturity" class="level2">
+<h2 class="anchored" data-anchor-id="effects-of-yield-to-maturity">Effects of Yield to Maturity</h2>
+<p>For two otherwise identical option-free bonds, the bond with the lower yield to maturity will exhibit greater percentage price volatility for a given change in yield. This effect is related to the curvature of the present value function.</p>
 <hr>
 </section>
-<section id="reasons-for-the-change-in-the-price-of-a-bond" class="level1">
-<h1>6 Reasons for the Change in the Price of a Bond</h1>
-<p>Bond prices change due to:</p>
+</section>
+<section id="measures-of-bond-price-volatility" class="level1">
+<h1>3 Measures of Bond Price Volatility</h1>
+<p>Several measures are used to summarize how sensitive a bond’s price is to changes in yield.</p>
+<section id="price-value-of-a-basis-point" class="level2">
+<h2 class="anchored" data-anchor-id="price-value-of-a-basis-point">Price Value of a Basis Point</h2>
+<p>The <strong>price value of a basis point (PVBP)</strong> measures the change in the price of a bond for a one-basis-point change in yield.</p>
+<p>A basis point is</p>
+<p><span class="math display">\[
+0.01\% = 0.0001.
+\]</span></p>
+<p>PVBP is often approximated by repricing the bond at yields <span class="math inline">\(y\)</span> and <span class="math inline">\(y+0.0001\)</span> and taking the difference.</p>
+<p><span class="math display">\[
+PVBP \approx P(y) - P(y+0.0001).
+\]</span></p>
+<p>It is a dollar measure of interest-rate sensitivity.</p>
+</section>
+<section id="yield-value-of-a-price-change" class="level2">
+<h2 class="anchored" data-anchor-id="yield-value-of-a-price-change">Yield Value of a Price Change</h2>
+<p>The <strong>yield value of a price change (YVPC)</strong> is the change in yield associated with a specified change in price. It is the inverse way of thinking about price sensitivity.</p>
+</section>
+<section id="duration" class="level2">
+<h2 class="anchored" data-anchor-id="duration">Duration</h2>
+<p>Duration is one of the most important measures of bond price sensitivity.</p>
+<section id="macaulay-duration" class="level3">
+<h3 class="anchored" data-anchor-id="macaulay-duration">Macaulay Duration</h3>
+<p>The <strong>Macaulay duration</strong> is the weighted average time to receipt of the bond’s cash flows, where the weights are the present values of the cash flows as a proportion of the bond price.</p>
+<p><span class="math display">\[
+D_M = \frac{\sum_{t=1}^{n} t \cdot \frac{CF_t}{(1+y)^t}}{P}
+\]</span></p>
+<p>For bonds with semiannual coupons, duration is first computed in periods and then divided by the number of periods per year.</p>
+</section>
+<section id="modified-duration" class="level3">
+<h3 class="anchored" data-anchor-id="modified-duration">Modified Duration</h3>
+<p>The <strong>modified duration</strong> converts Macaulay duration into a direct measure of price sensitivity:</p>
+<p><span class="math display">\[
+D^* = \frac{D_M}{1+y}
+\]</span></p>
+<p>for annual compounding, or more generally</p>
+<p><span class="math display">\[
+D^* = \frac{D_M}{1+y/m}
+\]</span></p>
+<p>when payments occur <span class="math inline">\(m\)</span> times per year.</p>
+<p>Modified duration gives the approximate percentage price change for a small change in yield:</p>
+<p><span class="math display">\[
+\frac{\Delta P}{P} \approx -D^* \Delta y
+\]</span></p>
+</section>
+<section id="derivation-of-the-duration-approximation" class="level3">
+<h3 class="anchored" data-anchor-id="derivation-of-the-duration-approximation">Derivation of the Duration Approximation</h3>
+<p>Start with the bond price formula:</p>
+<p><span class="math display">\[
+P(y) = \sum_{t=1}^{n} \frac{CF_t}{(1+y)^t}
+\]</span></p>
+<p>Differentiate with respect to <span class="math inline">\(y\)</span>:</p>
+<p><span class="math display">\[
+\frac{dP}{dy} = \sum_{t=1}^{n} -t \frac{CF_t}{(1+y)^{t+1}}
+\]</span></p>
+<p>Divide by <span class="math inline">\(P\)</span>:</p>
+<p><span class="math display">\[
+\frac{1}{P}\frac{dP}{dy} = -\frac{1}{1+y}
+\cdot
+\frac{\sum_{t=1}^{n} t \frac{CF_t}{(1+y)^t}}{P}
+\]</span></p>
+<p>This yields</p>
+<p><span class="math display">\[
+\frac{1}{P}\frac{dP}{dy} = -D^*
+\]</span></p>
+<p>which leads to the approximation</p>
+<p><span class="math display">\[
+\frac{\Delta P}{P} \approx -D^* \Delta y.
+\]</span></p>
+</section>
+</section>
+<section id="properties-of-duration" class="level2">
+<h2 class="anchored" data-anchor-id="properties-of-duration">Properties of Duration</h2>
+<p>For option-free bonds:</p>
 <ul>
-<li>Changes in interest rates</li>
-<li>Changes in credit risk</li>
-<li>Changes in liquidity</li>
-<li>Changes in tax policy</li>
-<li>Changes in inflation expectations</li>
-<li>Changes in economic conditions</li>
+<li>Duration is less than maturity for coupon bonds.</li>
+<li>Zero-coupon bond duration equals its maturity.</li>
+<li>Duration increases with maturity, but at a decreasing rate.</li>
+<li>Duration decreases as coupon rate increases.</li>
+<li>Duration decreases as yield increases.</li>
 </ul>
-<hr>
 </section>
-<section id="complications-in-pricing-bonds" class="level1">
-<h1>7 Complications in Pricing Bonds</h1>
-<section id="next-coupon-payment-due-in-less-than-six-months" class="level3">
-<h3 class="anchored" data-anchor-id="next-coupon-payment-due-in-less-than-six-months">Next Coupon Payment Due in Less Than Six Months</h3>
-<p>Between coupon dates:</p>
+<section id="approximating-the-percentage-price-change" class="level2">
+<h2 class="anchored" data-anchor-id="approximating-the-percentage-price-change">Approximating the Percentage Price Change</h2>
+<p>Modified duration gives the first-order approximation:</p>
 <p><span class="math display">\[
-P = \sum_{t=1}^{n} \frac{C}{(1 + r)^{t - 1 + v}} + \frac{M}{(1 + r)^{n - 1 + v}}
-\]</span></p>
-<p>Accrued interest:</p>
-<p><span class="math display">\[
-AI = C \times \frac{\text{days since last coupon}}{\text{days in coupon period}}.
-\]</span></p>
-<p>Clean price:</p>
-<p><span class="math display">\[
-\text{Clean Price} = \text{Dirty Price} - AI.
+\frac{\Delta P}{P} \approx -D^* \Delta y
 \]</span></p>
 </section>
-<section id="cash-flows-may-not-be-known" class="level3">
-<h3 class="anchored" data-anchor-id="cash-flows-may-not-be-known">Cash Flows May Not Be Known</h3>
-<p>Callable bonds, MBS, floaters.</p>
+<section id="approximating-the-dollar-price-change" class="level2">
+<h2 class="anchored" data-anchor-id="approximating-the-dollar-price-change">Approximating the Dollar Price Change</h2>
+<p>Multiply the percentage change by the bond price:</p>
+<p><span class="math display">\[
+\Delta P \approx -D^* P \Delta y
+\]</span></p>
 </section>
-<section id="determining-the-appropriate-required-yield" class="level3">
-<h3 class="anchored" data-anchor-id="determining-the-appropriate-required-yield">Determining the Appropriate Required Yield</h3>
-<p>Depends on risk-free rate, credit risk, liquidity, maturity.</p>
+<section id="spread-duration" class="level2">
+<h2 class="anchored" data-anchor-id="spread-duration">Spread Duration</h2>
+<p><strong>Spread duration</strong> measures the sensitivity of a bond’s price to a change in its credit spread, holding the benchmark yield curve fixed.</p>
+<p>It is especially important for corporate bonds, high-yield bonds, and structured products.</p>
 </section>
-<section id="one-discount-rate-applicable-to-all-cash-flows" class="level3">
-<h3 class="anchored" data-anchor-id="one-discount-rate-applicable-to-all-cash-flows">One Discount Rate Applicable to All Cash Flows</h3>
-<p>In reality, term structure should be used.</p>
-<hr>
+<section id="portfolio-duration" class="level2">
+<h2 class="anchored" data-anchor-id="portfolio-duration">Portfolio Duration</h2>
+<p>Portfolio duration is the weighted average duration of the holdings when weights are based on market value:</p>
+<p><span class="math display">\[
+D_P = \sum_{i=1}^{N} w_i D_i
+\]</span></p>
+<p>where</p>
+<p><span class="math display">\[
+w_i = \frac{\text{Market Value of Bond } i}{\text{Total Portfolio Market Value}}.
+\]</span></p>
 </section>
-</section>
-<section id="pricing-floating-rate-and-inverse-floating-rate-securities" class="level1">
-<h1>8 Pricing Floating-Rate and Inverse-Floating-Rate Securities</h1>
+<section id="analytical-versus-empirical-duration" class="level2">
+<h2 class="anchored" data-anchor-id="analytical-versus-empirical-duration">Analytical versus Empirical Duration</h2>
 <ul>
-<li>Floaters → price near par</li>
-<li>Inverse floaters → highly sensitive to interest rates</li>
+<li><strong>Analytical duration</strong> is computed from a pricing formula.</li>
+<li><strong>Empirical duration</strong> is estimated by repricing the bond under shifted yields and observing the resulting price change.</li>
+</ul>
+<p>Empirical duration is often necessary for bonds with uncertain cash flows or embedded options.</p>
+<hr>
+</section>
+</section>
+<section id="convexity" class="level1">
+<h1>4 Convexity</h1>
+<p>Duration gives a linear approximation, but the price–yield relationship is curved. Convexity captures that curvature.</p>
+<section id="intuition-and-formula" class="level2">
+<h2 class="anchored" data-anchor-id="intuition-and-formula">Intuition and Formula</h2>
+<p>Convexity measures the rate at which duration itself changes as yield changes. It is the second derivative effect in the price–yield relationship.</p>
+<p>A common convexity measure for an option-free bond is</p>
+<p><span class="math display">\[
+\text{Convexity}
+=
+\frac{1}{P}
+\sum_{t=1}^{n}
+\frac{CF_t \, t(t+1)}{(1+y)^{t+2}}
+\]</span></p>
+<p>for annual periods, with adjustments as needed for more frequent compounding.</p>
+</section>
+<section id="measuring-convexity" class="level2">
+<h2 class="anchored" data-anchor-id="measuring-convexity">Measuring Convexity</h2>
+<p>Convexity can also be estimated empirically by repricing the bond at yields above and below the current yield.</p>
+</section>
+<section id="approximating-percentage-price-change-using-duration-and-convexity" class="level2">
+<h2 class="anchored" data-anchor-id="approximating-percentage-price-change-using-duration-and-convexity">Approximating Percentage Price Change Using Duration and Convexity</h2>
+<p>A better approximation than duration alone is</p>
+<p><span class="math display">\[
+\frac{\Delta P}{P}
+\approx
+-D^* \Delta y
++
+\frac{1}{2} \text{Convexity} (\Delta y)^2
+\]</span></p>
+</section>
+<section id="value-of-convexity" class="level2">
+<h2 class="anchored" data-anchor-id="value-of-convexity">Value of Convexity</h2>
+<p>Convexity improves approximation accuracy for large changes in yield. It also explains why price gains from falling yields exceed price losses from equal yield increases.</p>
+</section>
+<section id="properties-of-convexity" class="level2">
+<h2 class="anchored" data-anchor-id="properties-of-convexity">Properties of Convexity</h2>
+<p>For option-free bonds:</p>
+<ul>
+<li>Convexity is positive.</li>
+<li>Convexity increases with maturity.</li>
+<li>Convexity tends to be greater for lower coupon bonds.</li>
+<li>Convexity tends to be greater at lower yields.</li>
 </ul>
 <hr>
 </section>
-<section id="price-quotes-and-accrued-interest" class="level1">
-<h1>9 Price Quotes and Accrued Interest</h1>
-<p>Quoted price = clean price<br>
-Transaction price = dirty price</p>
-<p><span class="math display">\[
-\text{Dirty Price} = \text{Clean Price} + \text{Accrued Interest}.
-\]</span></p>
-<hr>
 </section>
-<section id="computing-the-yield-or-internal-rate-of-return-on-any-investment" class="level1">
-<h1>10 Computing the Yield or Internal Rate of Return on Any Investment</h1>
-<p><span class="math display">\[
-P = \sum_{t=1}^{n} \frac{CF_t}{(1+y)^t}.
-\]</span></p>
-<p>Zero-coupon yield:</p>
-<p><span class="math display">\[
-y = \left(\frac{F}{P}\right)^{1/n} - 1.
-\]</span></p>
-<p>Effective annual yield:</p>
-<p><span class="math display">\[
-(1 + r/m)^m - 1.
-\]</span></p>
-<hr>
-</section>
-<section id="conventional-yield-measures" class="level1">
-<h1>11 Conventional Yield Measures</h1>
-<p>Current yield:</p>
-<p><span class="math display">\[
-\text{Current Yield} = \frac{\text{Annual Coupon}}{\text{Price}}.
-\]</span></p>
-<p>Yield to maturity = IRR assuming reinvestment at YTM and held to maturity.</p>
-<p>Yield to call:</p>
-<p><span class="math display">\[
-P = \sum_{t=1}^{n} \frac{C}{(1+y_c)^t} + \frac{F_{\text{call}}}{(1+y_c)^n}.
-\]</span></p>
-<p>Yield to worst = minimum of YTM, YTC, YTP.</p>
-<p>Portfolio yield:</p>
-<p><span class="math display">\[
-MV = \sum \frac{CF_t}{(1+y)^t}.
-\]</span></p>
-<p>(Portfolio example is numerically correct.)</p>
-<hr>
-</section>
-<section id="potential-sources-of-a-bonds-dollar-return" class="level1">
-<h1>12 Potential Sources of a Bond’s Dollar Return</h1>
-<p>Total dollar return comes from:</p>
-<ol type="1">
-<li>Coupon income</li>
-<li>Interest-on-interest</li>
-<li>Capital gain or loss</li>
-</ol>
-<p>Interest-on-interest formula:</p>
-<p><span class="math display">\[
-\sum_{t=1}^{n} \left[C(1+r)^{n-t} - C\right].
-\]</span></p>
-<p>(Example correct.)</p>
-<hr>
-</section>
-<section id="total-return" class="level1">
-<h1>13 Total Return</h1>
-<p>Total return incorporates:</p>
+<section id="additional-concerns-when-using-duration" class="level1">
+<h1>5 Additional Concerns When Using Duration</h1>
+<p>Duration is useful, but it has limitations:</p>
 <ul>
+<li>It is a local approximation and works best for small yield changes.</li>
+<li>It assumes parallel shifts in the yield curve unless modified.</li>
+<li>For bonds with embedded options, duration can change sharply when yields change.</li>
+<li>It does not capture curvature unless convexity is added.</li>
+</ul>
+<hr>
+</section>
+<section id="do-not-think-of-duration-as-a-measure-of-time" class="level1">
+<h1>6 Do Not Think of Duration as a Measure of Time</h1>
+<p>Although Macaulay duration has units of time, duration should not be interpreted simply as “time to maturity” or “average life” in a casual sense.</p>
+<p>For risk management purposes, duration is best understood as a <strong>measure of price sensitivity to yield changes</strong>, not merely as a measure of time.</p>
+<hr>
+</section>
+<section id="approximating-a-bonds-duration-and-convexity-measure" class="level1">
+<h1>7 Approximating a Bond’s Duration and Convexity Measure</h1>
+<p>In practice, duration and convexity are often approximated numerically by repricing the bond at yields above and below the current yield.</p>
+<p>An empirical approximation to duration is</p>
+<p><span class="math display">\[
+D^* \approx \frac{P_- - P_+}{2P_0 \Delta y}
+\]</span></p>
+<p>where:</p>
+<ul>
+<li><span class="math inline">\(P_-\)</span> = price if yield decreases</li>
+<li><span class="math inline">\(P_+\)</span> = price if yield increases</li>
+<li><span class="math inline">\(P_0\)</span> = current price</li>
+</ul>
+<p>An empirical approximation to convexity is</p>
+<p><span class="math display">\[
+\text{Convexity} \approx \frac{P_- + P_+ - 2P_0}{P_0 (\Delta y)^2}
+\]</span></p>
+<section id="duration-of-an-inverse-floater" class="level2">
+<h2 class="anchored" data-anchor-id="duration-of-an-inverse-floater">Duration of an Inverse Floater</h2>
+<p>The duration of an inverse floater can be very large because its coupon moves inversely with rates. The bond’s cash flows become more favorable when rates fall and less favorable when rates rise, increasing price sensitivity.</p>
+</section>
+<section id="key-rate-duration" class="level2">
+<h2 class="anchored" data-anchor-id="key-rate-duration">Key Rate Duration</h2>
+<p><strong>Key rate duration</strong> measures the sensitivity of a bond’s price to changes in a specific maturity point on the yield curve, holding other points constant.</p>
+<p>This is essential when yield curve shifts are not parallel.</p>
+<hr>
+</section>
+</section>
+<section id="measuring-a-bond-portfolios-responsiveness-to-nonparallel-changes-in-interest-rates" class="level1">
+<h1>8 Measuring a Bond Portfolio’s Responsiveness to Nonparallel Changes in Interest Rates</h1>
+<p>When the yield curve changes in a nonparallel way, standard duration is not enough. A portfolio can be exposed differently to short-, intermediate-, and long-term rates.</p>
+<section id="yield-curve-reshaping-duration" class="level2">
+<h2 class="anchored" data-anchor-id="yield-curve-reshaping-duration">Yield Curve Reshaping Duration</h2>
+<p><strong>Yield curve reshaping duration</strong> measures the responsiveness of a portfolio to twists, steepenings, flattenings, and other nonparallel curve movements.</p>
+<p>This is especially important for active bond portfolio management.</p>
+<hr>
+</section>
+</section>
+<section id="the-asset-allocation-decision" class="level1">
+<h1>9 The Asset Allocation Decision</h1>
+<p>Bond portfolio management begins with the asset allocation decision.</p>
+<section id="how-much-should-be-allocated-to-bonds" class="level2">
+<h2 class="anchored" data-anchor-id="how-much-should-be-allocated-to-bonds">How Much Should Be Allocated to Bonds?</h2>
+<p>The allocation to bonds depends on:</p>
+<ul>
+<li>Risk tolerance</li>
 <li>Investment horizon</li>
-<li>Reinvestment rate</li>
-<li>Expected sale price</li>
+<li>Liability structure</li>
+<li>Return objectives</li>
+<li>Regulatory and institutional constraints</li>
 </ul>
-<p>Total return formula:</p>
-<p><span class="math display">\[
-\left(\frac{\text{Total Future Dollars}}{\text{Purchase Price}}\right)^{1/h} - 1.
-\]</span></p>
-<p>(Both total return examples are numerically correct.)</p>
+</section>
+<section id="who-should-manage-the-bond-portfolio" class="level2">
+<h2 class="anchored" data-anchor-id="who-should-manage-the-bond-portfolio">Who Should Manage the Bond Portfolio?</h2>
+<p>Management may be internal or external, depending on institutional size, expertise, and governance structure.</p>
 <hr>
 </section>
-<section id="applications-of-total-return-horizon-analysis" class="level1">
-<h1>14 Applications of Total Return (Horizon Analysis)</h1>
-<p>Used to evaluate bond performance over a planned investment horizon under interest rate assumptions.</p>
+</section>
+<section id="portfolio-management-team" class="level1">
+<h1>10 Portfolio Management Team</h1>
+<p>A bond portfolio management team may include:</p>
+<ul>
+<li>Chief investment officer</li>
+<li>Portfolio managers</li>
+<li>Credit analysts</li>
+<li>Quantitative analysts</li>
+<li>Traders</li>
+<li>Risk managers</li>
+</ul>
+<p>Effective bond portfolio management requires both macro views and security-level analysis.</p>
 <hr>
 </section>
-<section id="calculating-yield-changes" class="level1">
-<h1>15 Calculating Yield Changes</h1>
-<p>Absolute change:</p>
-<p><span class="math display">\[
-|\text{New Yield} - \text{Initial Yield}| \times 100
-\]</span></p>
-<p>Relative change:</p>
-<p><span class="math display">\[
-100 \ln \left(\frac{\text{New Yield}}{\text{Initial Yield}}\right)
-\]</span></p>
-<p>(Examples correct.)</p>
+<section id="spectrum-of-bond-portfolio-strategies" class="level1">
+<h1>11 Spectrum of Bond Portfolio Strategies</h1>
+<p>Bond strategies span a wide spectrum.</p>
+<section id="bond-benchmark-based-strategies" class="level2">
+<h2 class="anchored" data-anchor-id="bond-benchmark-based-strategies">Bond Benchmark-Based Strategies</h2>
+<p>These strategies seek to outperform or closely track a benchmark index.</p>
+</section>
+<section id="absolute-return-strategies" class="level2">
+<h2 class="anchored" data-anchor-id="absolute-return-strategies">Absolute Return Strategies</h2>
+<p>These strategies focus on achieving a target return regardless of benchmark composition.</p>
+</section>
+<section id="liability-driven-strategies" class="level2">
+<h2 class="anchored" data-anchor-id="liability-driven-strategies">Liability-Driven Strategies</h2>
+<p>These strategies are designed to match assets to the behavior of liabilities, especially for pension funds and insurance companies.</p>
+<hr>
+</section>
+</section>
+<section id="bond-benchmarks" class="level1">
+<h1>12 Bond Benchmarks</h1>
+<p>Bond benchmarks play a central role in performance measurement and portfolio construction.</p>
+<section id="bond-market-indexes" class="level2">
+<h2 class="anchored" data-anchor-id="bond-market-indexes">Bond Market Indexes</h2>
+<p>Bond market indexes summarize the performance of broad segments of the bond market.</p>
+</section>
+<section id="market-capitalization-weighted-bond-indexes" class="level2">
+<h2 class="anchored" data-anchor-id="market-capitalization-weighted-bond-indexes">Market-Capitalization-Weighted Bond Indexes</h2>
+<p>These indexes weight securities by the amount of debt outstanding.</p>
+</section>
+<section id="commonly-used-bond-market-indexes" class="level2">
+<h2 class="anchored" data-anchor-id="commonly-used-bond-market-indexes">Commonly Used Bond Market Indexes</h2>
+<p>Examples include major government, corporate, aggregate, and global bond indexes.</p>
+</section>
+<section id="problems-associated-with-market-cap-weighted-bond-indexes" class="level2">
+<h2 class="anchored" data-anchor-id="problems-associated-with-market-cap-weighted-bond-indexes">Problems Associated with Market-Cap-Weighted Bond Indexes</h2>
+<p>A major criticism is that the largest borrowers receive the largest weights, which may not be desirable from a risk-adjusted perspective.</p>
+</section>
+<section id="customized-bond-indexes" class="level2">
+<h2 class="anchored" data-anchor-id="customized-bond-indexes">Customized Bond Indexes</h2>
+<p>Institutions often build custom indexes tailored to liabilities, risk limits, or mandate constraints.</p>
+</section>
+<section id="alternative-bond-indexes" class="level2">
+<h2 class="anchored" data-anchor-id="alternative-bond-indexes">Alternative Bond Indexes</h2>
+<p>Alternative weighting methods seek to avoid weaknesses of market-cap weighting.</p>
+</section>
+<section id="ad-hoc-weighted-index" class="level2">
+<h2 class="anchored" data-anchor-id="ad-hoc-weighted-index">Ad Hoc Weighted Index</h2>
+<p>Some indexes use judgment-based or rule-based weighting schemes.</p>
+</section>
+<section id="risk-based-schemes" class="level2">
+<h2 class="anchored" data-anchor-id="risk-based-schemes">Risk-Based Schemes</h2>
+<p>Risk-based weighting allocates more deliberately with respect to duration, volatility, spread, or other risk factors.</p>
+<hr>
+</section>
+</section>
+<section id="the-primary-risk-factors" class="level1">
+<h1>13 The Primary Risk Factors</h1>
+<p>Important bond portfolio risk factors include:</p>
+<ul>
+<li>Level of interest rates</li>
+<li>Shape of the yield curve</li>
+<li>Credit spreads</li>
+<li>Liquidity</li>
+<li>Inflation</li>
+<li>Currency risk for global portfolios</li>
+</ul>
+<hr>
+</section>
+<section id="top-down-versus-bottom-up-portfolio-construction-and-management" class="level1">
+<h1>14 Top-Down versus Bottom-Up Portfolio Construction and Management</h1>
+<p>Bond portfolios may be built using different philosophies.</p>
+<section id="manager-expectations-versus-the-market-consensus" class="level2">
+<h2 class="anchored" data-anchor-id="manager-expectations-versus-the-market-consensus">Manager Expectations versus the Market Consensus</h2>
+<p>Active management depends on views that differ from what is already reflected in market prices.</p>
+</section>
+<section id="interest-rate-expectations-strategies" class="level2">
+<h2 class="anchored" data-anchor-id="interest-rate-expectations-strategies">Interest-Rate Expectations Strategies</h2>
+<p>Managers may position portfolios based on expected changes in the level of rates.</p>
+</section>
+<section id="yield-curve-strategies" class="level2">
+<h2 class="anchored" data-anchor-id="yield-curve-strategies">Yield Curve Strategies</h2>
+<p>Managers may position portfolios for steepening, flattening, or curvature changes in the yield curve.</p>
+<hr>
+</section>
+</section>
+<section id="active-portfolio-strategies" class="level1">
+<h1>15 Active Portfolio Strategies</h1>
+<p>Active strategies attempt to add value through:</p>
+<ul>
+<li>Duration positioning</li>
+<li>Yield curve positioning</li>
+<li>Sector rotation</li>
+<li>Credit selection</li>
+<li>Security selection</li>
+</ul>
+<hr>
+</section>
+<section id="smart-beta-bond-strategies" class="level1">
+<h1>16 Smart Beta Bond Strategies</h1>
+<p>Smart beta bond strategies apply systematic, rule-based approaches that deviate from traditional market-cap weighting. They may tilt toward value, carry, quality, low volatility, or other characteristics.</p>
+<hr>
+</section>
+<section id="the-use-of-leverage" class="level1">
+<h1>17 The Use of Leverage</h1>
+<p>Leverage can increase exposure to return opportunities, but it also magnifies risk. In bond portfolios, leverage may be obtained through borrowing, derivatives, or repo transactions.</p>
 <hr>
 </section>
 <section id="key-points" class="level1">
 <h1>Key Points</h1>
 <ul>
-<li>The value of a bond is the present value of its expected future cash flows.</li>
-<li>Bond prices and yields are inversely related.</li>
-<li>The price–yield relationship is convex.</li>
-<li>Bonds sell at par, premium, or discount depending on coupon vs yield.</li>
-<li>Bond prices move toward par as maturity approaches.</li>
-<li>Yield is the internal rate of return equating price and cash flows.</li>
-<li>Yield to maturity assumes reinvestment at the YTM.</li>
-<li>Total return incorporates reinvestment rate, horizon, and future price.</li>
-<li>Bond return comes from coupons, reinvestment income, and capital gain/loss.</li>
-<li>Reinvestment risk is a major component of bond risk.</li>
-<li>Yield changes are measured in basis points or percentage terms.</li>
+<li>Bond prices move inversely with yields, and the price–yield relationship for option-free bonds is convex.</li>
+<li>Different option-free bonds do not have the same price volatility. Maturity, coupon rate, and yield level all affect sensitivity to changes in yield.</li>
+<li>Duration is the primary first-order measure of bond price sensitivity, while convexity captures second-order effects.</li>
+<li>Duration provides a good approximation for small yield changes; duration plus convexity provides a better approximation for larger changes.</li>
+<li>Duration should be interpreted mainly as a measure of price sensitivity, not merely as a measure of time.</li>
+<li>Key rate duration and yield curve reshaping duration are needed when yield curve shifts are not parallel.</li>
+<li>Spread duration is important for spread products such as corporate bonds and structured products.</li>
+<li>Bond portfolio management involves asset allocation, benchmark choice, strategy selection, and risk management.</li>
+<li>Benchmark-based, absolute return, and liability-driven approaches represent different portfolio management frameworks.</li>
+<li>Bond indexes are useful but imperfect; market-cap-weighted indexes have important limitations.</li>
+<li>Active strategies require views that differ from market consensus.</li>
+<li>Smart beta and leveraged strategies extend the range of bond portfolio approaches.</li>
 </ul>
-<hr>
-</section>
-<section id="suggested-readings" class="level1">
-<h1>Suggested Readings</h1>
-<p>Fabozzi – <em>Bond Markets, Analysis, and Strategies</em><br>
-Chapter 2 — Pricing of Bonds<br>
-Chapter 3 — Measuring Yield</p>
 
 
 </section>

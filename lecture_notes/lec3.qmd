@@ -1,5 +1,5 @@
 ---
-title: "Lecture 2: Bond Pricing and Yield Measures"
+title: "Lecture 3: Bond Price Volatility, Duration, Convexity, and Bond Portfolio Strategies"
 format:
   html:
     toc: true
@@ -12,396 +12,539 @@ jupyter: python3
 
 By the end of this lecture you should be able to:
 
-- Explain the time value of money and calculate future values and present values for cash-flows.
-- Compute the price of a bond by discounting expected cash-flows at an appropriate discount rate.
-- Describe how bond prices move in response to changes in yield and why the price–yield relationship is convex.
-- Relate coupon rate and yield to a bond’s trading status (par, premium or discount) and recognise how prices evolve as a bond approaches maturity (pull to par).
-- Identify factors—market interest rates, credit risk, liquidity, economic expectations, tax policy and inflation—that cause bond prices to change.
-- Describe complications in bond pricing arising from embedded options, floating-rate structures and inverse floaters.
-- Explain how bonds are quoted clean and dirty, and compute accrued interest.
-- Compute yields using the present-value relationship: current yield, yield to maturity, yield to call, yield to put, yield to sinker and yield to worst, as well as the yield for a portfolio and the cash-flow yield for amortising securities.
-- Compute the discount margin for a floating-rate security and explain why this margin differs from conventional yield measures.
-- Identify the sources of a bond’s total return—coupon interest, reinvestment income and capital gain or loss—and discuss reinvestment risk.
-- Use total return and horizon analysis to evaluate the realised performance of a bond or bond strategy under explicit assumptions about reinvestment rates and future yields.
-- Measure changes in yield using absolute (basis-point) and relative (percentage) conventions.
+- Review and interpret the price–yield relationship for option-free bonds.
+- Explain the main price-volatility properties of option-free bonds.
+- Identify the bond characteristics that affect price volatility.
+- Compute and interpret price value of a basis point, yield value of a price change, duration, and convexity.
+- Use duration and convexity to approximate percentage and dollar price changes.
+- Distinguish between analytical duration and empirical duration.
+- Explain spread duration, portfolio duration, key rate duration, and yield curve reshaping duration.
+- Understand practical limitations of duration as a risk measure.
+- Explain why duration is not simply a measure of time.
+- Interpret the duration of inverse floaters.
+- Describe how bond portfolio responsiveness changes under nonparallel shifts in the yield curve.
+- Explain the main bond portfolio strategy frameworks, including benchmark-based, absolute return, and liability-driven strategies.
+- Understand the role of bond benchmarks and the limitations of market-cap-weighted bond indexes.
+- Distinguish between top-down and bottom-up portfolio construction.
+- Explain active strategies, smart beta approaches, and the use of leverage in bond portfolio management.
 
 ---
 
-# 1 The Time Value of Money
+# 1 Review of the Price–Yield Relationship for Option-Free Bonds
 
-A fundamental principle underlying all fixed income valuation is the **time value of money**. A dollar received today is worth more than a dollar received in the future because the dollar today can be invested to earn interest. When an investor purchases a bond, the investor is exchanging money today for a stream of future cash flows. To determine whether this exchange is fair, we must be able to compare money received at different points in time. The tool that allows us to do this is present value and future value analysis.
+For an option-free bond, price and yield move in opposite directions. When the required yield rises, the bond price falls. When the required yield falls, the bond price rises. This inverse relationship follows directly from the bond pricing formula because future cash flows are discounted at the required yield.
 
-In fixed income markets, virtually every valuation problem can be reduced to one question:
-
-> What is the present value of a set of future cash flows?
-
-To answer this question, we must first understand how money grows over time and how future cash flows are discounted back to the present.
-
----
-
-## 1.1 Future Value
-
-If an investor invests an amount $P_0$ today at an interest rate $r$ per period, the value after $n$ periods is
+For a bond with coupon payment $C$, face value $F$, maturity $n$, and required yield $y$, the price is
 
 $$
-P_n = P_0(1+r)^n.
+P = \sum_{t=1}^{n} \frac{C}{(1+y)^t} + \frac{F}{(1+y)^n}.
 $$
 
-This is the **future value** formula and reflects **compound interest**.
+Because the denominator increases when $y$ increases, the present value of each cash flow falls, and therefore the bond price falls.
 
 ::: {.callout-note title="Worked Example"}
-Suppose a pension fund invests \$10,000,000 at an annual interest rate of 9.2% for 6 years.
+**Review of the Price–Yield Relationship**
+
+Suppose a 3-year bond has:
+
+- Face value = \$1,000
+- Annual coupon = \$60
+- Required yield = 5%
+
+Its price is
 
 $$
-P_6 = 10{,}000{,}000(1.092)^6 = 16{,}956{,}500.
+P = \frac{60}{1.05} + \frac{60}{1.05^2} + \frac{1060}{1.05^3}
+= 57.14 + 54.42 + 915.91
+= 1027.47.
 $$
+
+If the required yield rises to 7%, the new price is
+
+$$
+P = \frac{60}{1.07} + \frac{60}{1.07^2} + \frac{1060}{1.07^3}
+= 56.07 + 52.40 + 865.38
+= 973.85.
+$$
+
+The bond price falls from \$1,027.47 to \$973.85 when the required yield rises from 5% to 7%.
 :::
 
 ---
 
-## 1.2 Future Value of an Ordinary Annuity
+# 2 Price-Volatility Characteristics of Option-Free Bonds
 
-An **ordinary annuity** is a series of equal payments made at the end of each period. The future value of an annuity is
+The price-volatility properties of option-free bonds describe how different bonds respond to changes in required yield.
 
-$$
-FV = C \left( \frac{(1+r)^n - 1}{r} \right).
-$$
+## Property 1
 
-::: {.callout-note title="Worked Example"}
-Suppose an investor receives \$100 at the end of each year for 5 years and reinvests at 6%.
+Although the prices of all option-free bonds move in the opposite direction from the change in required yield, the **percentage price change is not the same for all bonds**.
 
-$$
-FV = 100 \left( \frac{(1.06)^5 - 1}{0.06} \right)
-= 100(5.637) = 563.70.
-$$
-:::
+Some bonds are more sensitive to changes in yield than others. Longer maturity bonds and lower coupon bonds tend to experience greater percentage price changes for a given change in yield.
 
----
+## Property 2
 
-## 1.3 Present Value
+For **very small changes** in the required yield, the percentage price change for a given bond is roughly the same whether the required yield increases or decreases.
 
-Present value is the value today of a future payment:
+This is the local linear approximation behind duration.
 
-$$
-PV = \frac{F}{(1+r)^n}.
-$$
+## Property 3
 
-::: {.callout-note title="Worked Example"}
-Suppose \$1,000 will be received in 3 years and the discount rate is 5%.
+For **large changes** in the required yield, the percentage price change is not the same for an increase in the required yield as it is for a decrease in the required yield.
 
-$$
-PV = \frac{1000}{(1.05)^3} = 863.84.
-$$
-:::
+This occurs because the price–yield relationship is curved rather than linear.
 
----
+## Property 4
 
-## 1.4 Present Value of a Series of Future Cash Flows
+For a given large change in basis points, the **percentage price increase is greater than the percentage price decrease**.
 
-$$
-PV = \sum_{t=1}^{n} \frac{CF_t}{(1+r)^t}.
-$$
+This is the practical consequence of convexity. The curvature of the price–yield relationship makes price gains from falling yields larger than price losses from equally sized yield increases.
 
-::: {.callout-note title="Worked Example"}
-A bond pays \$60 in one year, \$60 in two years, and \$1,060 in three years. If $r = 5\%$:
+## Characteristics of a Bond That Affect Its Price Volatility
 
-$$
-PV = \frac{60}{1.05} + \frac{60}{1.05^2} + \frac{1060}{1.05^3} = 1026.71.
-$$
-:::
+The main bond characteristics affecting price volatility are:
+
+- Time to maturity
+- Coupon rate
+- Yield to maturity
+- Embedded options
+
+For option-free bonds:
+
+- Longer maturity generally means greater price volatility.
+- Lower coupon generally means greater price volatility.
+- Lower yield generally implies greater price volatility.
+
+## Effects of Yield to Maturity
+
+For two otherwise identical option-free bonds, the bond with the lower yield to maturity will exhibit greater percentage price volatility for a given change in yield. This effect is related to the curvature of the present value function.
 
 ---
 
-## 1.5 Present Value of an Ordinary Annuity
+# 3 Measures of Bond Price Volatility
+
+Several measures are used to summarize how sensitive a bond’s price is to changes in yield.
+
+## Price Value of a Basis Point
+
+The **price value of a basis point (PVBP)** measures the change in the price of a bond for a one-basis-point change in yield.
+
+A basis point is
 
 $$
-PV = C \left( \frac{1 - (1+r)^{-n}}{r} \right)
+0.01\% = 0.0001.
 $$
 
-Bond price formula:
+PVBP is often approximated by repricing the bond at yields $y$ and $y+0.0001$ and taking the difference.
 
 $$
-P = C \left( \frac{1 - (1+r)^{-n}}{r} \right) + \frac{F}{(1+r)^n}.
+PVBP \approx P(y) - P(y+0.0001).
 $$
+
+It is a dollar measure of interest-rate sensitivity.
+
+## Yield Value of a Price Change
+
+The **yield value of a price change (YVPC)** is the change in yield associated with a specified change in price. It is the inverse way of thinking about price sensitivity.
+
+## Duration
+
+Duration is one of the most important measures of bond price sensitivity.
+
+### Macaulay Duration
+
+The **Macaulay duration** is the weighted average time to receipt of the bond’s cash flows, where the weights are the present values of the cash flows as a proportion of the bond price.
+
+$$
+D_M = \frac{\sum_{t=1}^{n} t \cdot \frac{CF_t}{(1+y)^t}}{P}
+$$
+
+For bonds with semiannual coupons, duration is first computed in periods and then divided by the number of periods per year.
+
+### Modified Duration
+
+The **modified duration** converts Macaulay duration into a direct measure of price sensitivity:
+
+$$
+D^* = \frac{D_M}{1+y}
+$$
+
+for annual compounding, or more generally
+
+$$
+D^* = \frac{D_M}{1+y/m}
+$$
+
+when payments occur $m$ times per year.
+
+Modified duration gives the approximate percentage price change for a small change in yield:
+
+$$
+\frac{\Delta P}{P} \approx -D^* \Delta y
+$$
+
+### Derivation of the Duration Approximation
+
+Start with the bond price formula:
+
+$$
+P(y) = \sum_{t=1}^{n} \frac{CF_t}{(1+y)^t}
+$$
+
+Differentiate with respect to $y$:
+
+$$
+\frac{dP}{dy} = \sum_{t=1}^{n} -t \frac{CF_t}{(1+y)^{t+1}}
+$$
+
+Divide by $P$:
+
+$$
+\frac{1}{P}\frac{dP}{dy} = -\frac{1}{1+y}
+\cdot
+\frac{\sum_{t=1}^{n} t \frac{CF_t}{(1+y)^t}}{P}
+$$
+
+This yields
+
+$$
+\frac{1}{P}\frac{dP}{dy} = -D^*
+$$
+
+which leads to the approximation
+
+$$
+\frac{\Delta P}{P} \approx -D^* \Delta y.
+$$
+
+## Properties of Duration
+
+For option-free bonds:
+
+- Duration is less than maturity for coupon bonds.
+- Zero-coupon bond duration equals its maturity.
+- Duration increases with maturity, but at a decreasing rate.
+- Duration decreases as coupon rate increases.
+- Duration decreases as yield increases.
+
+## Approximating the Percentage Price Change
+
+Modified duration gives the first-order approximation:
+
+$$
+\frac{\Delta P}{P} \approx -D^* \Delta y
+$$
+
+## Approximating the Dollar Price Change
+
+Multiply the percentage change by the bond price:
+
+$$
+\Delta P \approx -D^* P \Delta y
+$$
+
+## Spread Duration
+
+**Spread duration** measures the sensitivity of a bond’s price to a change in its credit spread, holding the benchmark yield curve fixed.
+
+It is especially important for corporate bonds, high-yield bonds, and structured products.
+
+## Portfolio Duration
+
+Portfolio duration is the weighted average duration of the holdings when weights are based on market value:
+
+$$
+D_P = \sum_{i=1}^{N} w_i D_i
+$$
+
+where
+
+$$
+w_i = \frac{\text{Market Value of Bond } i}{\text{Total Portfolio Market Value}}.
+$$
+
+## Analytical versus Empirical Duration
+
+- **Analytical duration** is computed from a pricing formula.
+- **Empirical duration** is estimated by repricing the bond under shifted yields and observing the resulting price change.
+
+Empirical duration is often necessary for bonds with uncertain cash flows or embedded options.
 
 ---
 
-## 1.6 Present Value When Payments Occur More Than Once per Year
+# 4 Convexity
 
-If payments occur $m$ times per year:
+Duration gives a linear approximation, but the price–yield relationship is curved. Convexity captures that curvature.
 
-- Periodic rate = $r/m$
-- Number of periods = $nm$
+## Intuition and Formula
 
-$$
-PV = \sum_{t=1}^{nm} \frac{CF_t}{(1+r/m)^t}.
-$$
+Convexity measures the rate at which duration itself changes as yield changes. It is the second derivative effect in the price–yield relationship.
 
-::: {.callout-note title="Worked Example"}
-Semiannual bond:
-
-- Coupon = \$40
-- Yield = 3% per half-year
-- Periods = 10
+A common convexity measure for an option-free bond is
 
 $$
-P = 40 \left( \frac{1 - (1.03)^{-10}}{0.03} \right) + \frac{1000}{(1.03)^{10}}.
+\text{Convexity}
+=
+\frac{1}{P}
+\sum_{t=1}^{n}
+\frac{CF_t \, t(t+1)}{(1+y)^{t+2}}
 $$
-:::
+
+for annual periods, with adjustments as needed for more frequent compounding.
+
+## Measuring Convexity
+
+Convexity can also be estimated empirically by repricing the bond at yields above and below the current yield.
+
+## Approximating Percentage Price Change Using Duration and Convexity
+
+A better approximation than duration alone is
+
+$$
+\frac{\Delta P}{P}
+\approx
+-D^* \Delta y
++
+\frac{1}{2} \text{Convexity} (\Delta y)^2
+$$
+
+## Value of Convexity
+
+Convexity improves approximation accuracy for large changes in yield. It also explains why price gains from falling yields exceed price losses from equal yield increases.
+
+## Properties of Convexity
+
+For option-free bonds:
+
+- Convexity is positive.
+- Convexity increases with maturity.
+- Convexity tends to be greater for lower coupon bonds.
+- Convexity tends to be greater at lower yields.
 
 ---
 
-## Key Insight
+# 5 Additional Concerns When Using Duration
 
-> The price of any fixed income security is the present value of its expected future cash flows discounted at an appropriate discount rate.
+Duration is useful, but it has limitations:
 
----
-
-# 2 Pricing a Bond
-
-$$
-P = \sum_{t=1}^{n} \frac{C}{(1+r)^t} + \frac{F}{(1+r)^n}.
-$$
-
-::: {.callout-note title="Worked Example"}
-Face value = \$1,000, coupon = \$50, maturity = 3 years, yield = 6%.
-
-$$
-P = \frac{50}{1.06} + \frac{50}{1.06^2} + \frac{1050}{1.06^3}
-= 47.17 + 44.51 + 881.62 = 973.30.
-$$
-:::
+- It is a local approximation and works best for small yield changes.
+- It assumes parallel shifts in the yield curve unless modified.
+- For bonds with embedded options, duration can change sharply when yields change.
+- It does not capture curvature unless convexity is added.
 
 ---
 
-## Pricing Zero-Coupon Bonds
+# 6 Do Not Think of Duration as a Measure of Time
 
-$$
-P = \frac{F}{(1+r)^n}.
-$$
+Although Macaulay duration has units of time, duration should not be interpreted simply as “time to maturity” or “average life” in a casual sense.
 
----
-
-# 3 Price–Yield Relationship
-
-Bond prices and yields move in opposite directions. The relationship is **convex**, meaning price increases from yield decreases are larger than price decreases from equal yield increases.
-
-(Plot remains unchanged — correct.)
+For risk management purposes, duration is best understood as a **measure of price sensitivity to yield changes**, not merely as a measure of time.
 
 ---
 
-# 4 Relationship Between Coupon Rate, Required Yield, and Price
+# 7 Approximating a Bond’s Duration and Convexity Measure
 
-| Coupon vs Yield | Price |
-|-----------------|------|
-| Coupon = Yield | Par |
-| Coupon > Yield | Premium |
-| Coupon < Yield | Discount |
+In practice, duration and convexity are often approximated numerically by repricing the bond at yields above and below the current yield.
+
+An empirical approximation to duration is
+
+$$
+D^* \approx \frac{P_- - P_+}{2P_0 \Delta y}
+$$
+
+where:
+
+- $P_-$ = price if yield decreases
+- $P_+$ = price if yield increases
+- $P_0$ = current price
+
+An empirical approximation to convexity is
+
+$$
+\text{Convexity} \approx \frac{P_- + P_+ - 2P_0}{P_0 (\Delta y)^2}
+$$
+
+## Duration of an Inverse Floater
+
+The duration of an inverse floater can be very large because its coupon moves inversely with rates. The bond’s cash flows become more favorable when rates fall and less favorable when rates rise, increasing price sensitivity.
+
+## Key Rate Duration
+
+**Key rate duration** measures the sensitivity of a bond’s price to changes in a specific maturity point on the yield curve, holding other points constant.
+
+This is essential when yield curve shifts are not parallel.
 
 ---
 
-# 5 Relationship Between Bond Price and Time if Interest Rates Are Unchanged
+# 8 Measuring a Bond Portfolio’s Responsiveness to Nonparallel Changes in Interest Rates
 
-This is the **pull-to-par** effect:
+When the yield curve changes in a nonparallel way, standard duration is not enough. A portfolio can be exposed differently to short-, intermediate-, and long-term rates.
 
-- Premium bond → price falls toward par
-- Discount bond → price rises toward par
-- Par bond → remains at par
+## Yield Curve Reshaping Duration
 
-(Plot correct.)
+**Yield curve reshaping duration** measures the responsiveness of a portfolio to twists, steepenings, flattenings, and other nonparallel curve movements.
 
----
-
-# 6 Reasons for the Change in the Price of a Bond
-
-Bond prices change due to:
-
-- Changes in interest rates
-- Changes in credit risk
-- Changes in liquidity
-- Changes in tax policy
-- Changes in inflation expectations
-- Changes in economic conditions
+This is especially important for active bond portfolio management.
 
 ---
 
-# 7 Complications in Pricing Bonds
+# 9 The Asset Allocation Decision
 
-### Next Coupon Payment Due in Less Than Six Months
+Bond portfolio management begins with the asset allocation decision.
 
-Between coupon dates:
+## How Much Should Be Allocated to Bonds?
 
-$$
-P = \sum_{t=1}^{n} \frac{C}{(1 + r)^{t - 1 + v}} + \frac{M}{(1 + r)^{n - 1 + v}}
-$$
+The allocation to bonds depends on:
 
-Accrued interest:
-
-$$
-AI = C \times \frac{\text{days since last coupon}}{\text{days in coupon period}}.
-$$
-
-Clean price:
-
-$$
-\text{Clean Price} = \text{Dirty Price} - AI.
-$$
-
-### Cash Flows May Not Be Known
-Callable bonds, MBS, floaters.
-
-### Determining the Appropriate Required Yield
-Depends on risk-free rate, credit risk, liquidity, maturity.
-
-### One Discount Rate Applicable to All Cash Flows
-In reality, term structure should be used.
-
----
-
-# 8 Pricing Floating-Rate and Inverse-Floating-Rate Securities
-
-- Floaters → price near par
-- Inverse floaters → highly sensitive to interest rates
-
----
-
-# 9 Price Quotes and Accrued Interest
-
-Quoted price = clean price  
-Transaction price = dirty price
-
-$$
-\text{Dirty Price} = \text{Clean Price} + \text{Accrued Interest}.
-$$
-
----
-
-# 10 Computing the Yield or Internal Rate of Return on Any Investment
-
-$$
-P = \sum_{t=1}^{n} \frac{CF_t}{(1+y)^t}.
-$$
-
-Zero-coupon yield:
-
-$$
-y = \left(\frac{F}{P}\right)^{1/n} - 1.
-$$
-
-Effective annual yield:
-
-$$
-(1 + r/m)^m - 1.
-$$
-
----
-
-# 11 Conventional Yield Measures
-
-Current yield:
-
-$$
-\text{Current Yield} = \frac{\text{Annual Coupon}}{\text{Price}}.
-$$
-
-Yield to maturity = IRR assuming reinvestment at YTM and held to maturity.
-
-Yield to call:
-
-$$
-P = \sum_{t=1}^{n} \frac{C}{(1+y_c)^t} + \frac{F_{\text{call}}}{(1+y_c)^n}.
-$$
-
-Yield to worst = minimum of YTM, YTC, YTP.
-
-Portfolio yield:
-
-$$
-MV = \sum \frac{CF_t}{(1+y)^t}.
-$$
-
-(Portfolio example is numerically correct.)
-
----
-
-# 12 Potential Sources of a Bond’s Dollar Return
-
-Total dollar return comes from:
-
-1. Coupon income
-2. Interest-on-interest
-3. Capital gain or loss
-
-Interest-on-interest formula:
-
-$$
-\sum_{t=1}^{n} \left[C(1+r)^{n-t} - C\right].
-$$
-
-(Example correct.)
-
----
-
-# 13 Total Return
-
-Total return incorporates:
-
+- Risk tolerance
 - Investment horizon
-- Reinvestment rate
-- Expected sale price
+- Liability structure
+- Return objectives
+- Regulatory and institutional constraints
 
-Total return formula:
+## Who Should Manage the Bond Portfolio?
 
-$$
-\left(\frac{\text{Total Future Dollars}}{\text{Purchase Price}}\right)^{1/h} - 1.
-$$
-
-(Both total return examples are numerically correct.)
+Management may be internal or external, depending on institutional size, expertise, and governance structure.
 
 ---
 
-# 14 Applications of Total Return (Horizon Analysis)
+# 10 Portfolio Management Team
 
-Used to evaluate bond performance over a planned investment horizon under interest rate assumptions.
+A bond portfolio management team may include:
+
+- Chief investment officer
+- Portfolio managers
+- Credit analysts
+- Quantitative analysts
+- Traders
+- Risk managers
+
+Effective bond portfolio management requires both macro views and security-level analysis.
 
 ---
 
-# 15 Calculating Yield Changes
+# 11 Spectrum of Bond Portfolio Strategies
 
-Absolute change:
+Bond strategies span a wide spectrum.
 
-$$
-|\text{New Yield} - \text{Initial Yield}| \times 100
-$$
+## Bond Benchmark-Based Strategies
 
-Relative change:
+These strategies seek to outperform or closely track a benchmark index.
 
-$$
-100 \ln \left(\frac{\text{New Yield}}{\text{Initial Yield}}\right)
-$$
+## Absolute Return Strategies
 
-(Examples correct.)
+These strategies focus on achieving a target return regardless of benchmark composition.
+
+## Liability-Driven Strategies
+
+These strategies are designed to match assets to the behavior of liabilities, especially for pension funds and insurance companies.
+
+---
+
+# 12 Bond Benchmarks
+
+Bond benchmarks play a central role in performance measurement and portfolio construction.
+
+## Bond Market Indexes
+
+Bond market indexes summarize the performance of broad segments of the bond market.
+
+## Market-Capitalization-Weighted Bond Indexes
+
+These indexes weight securities by the amount of debt outstanding.
+
+## Commonly Used Bond Market Indexes
+
+Examples include major government, corporate, aggregate, and global bond indexes.
+
+## Problems Associated with Market-Cap-Weighted Bond Indexes
+
+A major criticism is that the largest borrowers receive the largest weights, which may not be desirable from a risk-adjusted perspective.
+
+## Customized Bond Indexes
+
+Institutions often build custom indexes tailored to liabilities, risk limits, or mandate constraints.
+
+## Alternative Bond Indexes
+
+Alternative weighting methods seek to avoid weaknesses of market-cap weighting.
+
+## Ad Hoc Weighted Index
+
+Some indexes use judgment-based or rule-based weighting schemes.
+
+## Risk-Based Schemes
+
+Risk-based weighting allocates more deliberately with respect to duration, volatility, spread, or other risk factors.
+
+---
+
+# 13 The Primary Risk Factors
+
+Important bond portfolio risk factors include:
+
+- Level of interest rates
+- Shape of the yield curve
+- Credit spreads
+- Liquidity
+- Inflation
+- Currency risk for global portfolios
+
+---
+
+# 14 Top-Down versus Bottom-Up Portfolio Construction and Management
+
+Bond portfolios may be built using different philosophies.
+
+## Manager Expectations versus the Market Consensus
+
+Active management depends on views that differ from what is already reflected in market prices.
+
+## Interest-Rate Expectations Strategies
+
+Managers may position portfolios based on expected changes in the level of rates.
+
+## Yield Curve Strategies
+
+Managers may position portfolios for steepening, flattening, or curvature changes in the yield curve.
+
+---
+
+# 15 Active Portfolio Strategies
+
+Active strategies attempt to add value through:
+
+- Duration positioning
+- Yield curve positioning
+- Sector rotation
+- Credit selection
+- Security selection
+
+---
+
+# 16 Smart Beta Bond Strategies
+
+Smart beta bond strategies apply systematic, rule-based approaches that deviate from traditional market-cap weighting. They may tilt toward value, carry, quality, low volatility, or other characteristics.
+
+---
+
+# 17 The Use of Leverage
+
+Leverage can increase exposure to return opportunities, but it also magnifies risk. In bond portfolios, leverage may be obtained through borrowing, derivatives, or repo transactions.
 
 ---
 
 # Key Points
 
-- The value of a bond is the present value of its expected future cash flows.
-- Bond prices and yields are inversely related.
-- The price–yield relationship is convex.
-- Bonds sell at par, premium, or discount depending on coupon vs yield.
-- Bond prices move toward par as maturity approaches.
-- Yield is the internal rate of return equating price and cash flows.
-- Yield to maturity assumes reinvestment at the YTM.
-- Total return incorporates reinvestment rate, horizon, and future price.
-- Bond return comes from coupons, reinvestment income, and capital gain/loss.
-- Reinvestment risk is a major component of bond risk.
-- Yield changes are measured in basis points or percentage terms.
-
----
-
-# Suggested Readings
-
-Fabozzi – *Bond Markets, Analysis, and Strategies*  
-Chapter 2 — Pricing of Bonds  
-Chapter 3 — Measuring Yield
+- Bond prices move inversely with yields, and the price–yield relationship for option-free bonds is convex.
+- Different option-free bonds do not have the same price volatility. Maturity, coupon rate, and yield level all affect sensitivity to changes in yield.
+- Duration is the primary first-order measure of bond price sensitivity, while convexity captures second-order effects.
+- Duration provides a good approximation for small yield changes; duration plus convexity provides a better approximation for larger changes.
+- Duration should be interpreted mainly as a measure of price sensitivity, not merely as a measure of time.
+- Key rate duration and yield curve reshaping duration are needed when yield curve shifts are not parallel.
+- Spread duration is important for spread products such as corporate bonds and structured products.
+- Bond portfolio management involves asset allocation, benchmark choice, strategy selection, and risk management.
+- Benchmark-based, absolute return, and liability-driven approaches represent different portfolio management frameworks.
+- Bond indexes are useful but imperfect; market-cap-weighted indexes have important limitations.
+- Active strategies require views that differ from market consensus.
+- Smart beta and leveraged strategies extend the range of bond portfolio approaches.

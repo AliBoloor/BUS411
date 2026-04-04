@@ -30,7 +30,7 @@ An **interest‑rate model** is a probabilistic description of how interest rate
 
 ### 1.1 A basic continuous‑time stochastic process
 
-In a basic one‑factor model, the short rate \(r_t\) is assumed to follow a **stochastic differential equation (SDE)** of the form
+In a basic one‑factor model, the short rate $r_t$ is assumed to follow a **stochastic differential equation (SDE)** of the form
 
 $$
 \mathrm{d}r_t = b\,\mathrm{d}t + \sigma\,\mathrm{d}z_t,
@@ -38,31 +38,31 @@ $$
 
 where:
 
-- \(b\) is the **drift** term representing the expected direction of the change in the short rate.
-- \(\sigma\) is the **volatility** term representing the magnitude of random shocks.
-- \(z_t\) is a standard Wiener process (Brownian motion).
+- $b$ is the **drift** term representing the expected direction of the change in the short rate.
+- $\sigma$ is the **volatility** term representing the magnitude of random shocks.
+- $z_t$ is a standard Wiener process (Brownian motion).
 
-The drift and volatility are constants in this simplest model. If \(b=0\), the expected change in \(r\) is zero and the variance of the change over a time interval of length \(T\) is \(\sigma^2 T\). Models of this type are sometimes called **normal models** because rate changes are independent of the current level.
+The drift and volatility are constants in this simplest model. If $b=0$, the expected change in $r$ is zero and the variance of the change over a time interval of length $T$ is $\sigma^2 T$. Models of this type are sometimes called **normal models** because rate changes are independent of the current level.
 
 ### 1.2 Itô process
 
-In reality, drift and volatility are not constant; they can depend on the current level of the short rate \(r\) and time \(t\). An **Itô process** allows this by writing
+In reality, drift and volatility are not constant; they can depend on the current level of the short rate $r$ and time $t$. An **Itô process** allows this by writing
 
 $$
 \mathrm{d}r_t = b(r_t,t)\,\mathrm{d}t + \sigma(r_t,t)\,\mathrm{d}z_t.
 $$
 
-Here, \(b(r_t,t)\) and \(\sigma(r_t,t)\) can be functions of \(r_t\) and \(t\). Itô processes are the building block of most one‑factor term‑structure models.
+Here, $b(r_t,t)$ and $\sigma(r_t,t)$ can be functions of $r_t$ and $t$. Itô processes are the building block of most one‑factor term‑structure models.
 
 ### 1.3 Specifying the dynamics of the drift term
 
-A common specification for the drift is **mean reversion**. The idea is that interest rates tend to revert toward a long‑run average \(\bar{r}\). The **speed of mean reversion** is measured by a parameter \(\alpha>0\). The drift becomes
+A common specification for the drift is **mean reversion**. The idea is that interest rates tend to revert toward a long‑run average $\bar{r}$. The **speed of mean reversion** is measured by a parameter $\alpha>0$. The drift becomes
 
 $$
  b(r_t,t) = -\alpha\bigl(r_t - \bar{r}\bigr).
 $$
 
-When \(r_t\) is above the long‑run mean, the drift is negative; when below, it is positive. The speed \(\alpha\) controls how quickly \(r_t\) moves back toward \(\bar{r}\).
+When $r_t$ is above the long‑run mean, the drift is negative; when below, it is positive. The speed $\alpha$ controls how quickly $r_t$ moves back toward $\bar{r}$.
 
 ### 1.4 Specifying the dynamics of the volatility term
 
@@ -72,11 +72,11 @@ $$
  \sigma(r_t,t) = \sigma_0\,r_t^{\gamma},
 $$
 
-where \(\sigma_0>0\) is a scale parameter and \(\gamma\) controls how volatility depends on \(r_t\). Special cases include:
+where $\sigma_0>0$ is a scale parameter and $\gamma$ controls how volatility depends on $r_t$. Special cases include:
 
-- \(\gamma=0\) (**Vasicek model**): volatility is constant and independent of \(r_t\). This is a **normal model**.
-- \(\gamma=1\) (**Dothan model**): volatility is proportional to \(r_t\). This is a **lognormal model** (changes are proportional to the level).
-- \(\gamma=\tfrac{1}{2}\) (**Cox–Ingersoll–Ross model**): volatility is proportional to \(\sqrt{r_t}\). This avoids negative rates because \(\sigma_0 r_t^{1/2}\) goes to zero as \(r_t\) approaches zero.
+- $\gamma=0$ (**Vasicek model**): volatility is constant and independent of $r_t$. This is a **normal model**.
+- $\gamma=1$ (**Dothan model**): volatility is proportional to $r_t$. This is a **lognormal model** (changes are proportional to the level).
+- $\gamma=\tfrac{1}{2}$ (**Cox–Ingersoll–Ross model**): volatility is proportional to $\sqrt{r_t}$. This avoids negative rates because $\sigma_0 r_t^{1/2}$ goes to zero as $r_t$ approaches zero.
 
 Combining mean reversion in drift with square‑root volatility yields the **mean‑reverting square‑root** model:
 
@@ -190,13 +190,13 @@ Volatility is an important input for any rate model. Two common methods are **hi
 
 ### 5.1 Historical volatility
 
-Historical volatility uses past interest‑rate observations to estimate the standard deviation of rate changes. Suppose \(r_t\) is a series of weekly interest rates and \(\Delta r_t\) is the change from one week to the next. The sample standard deviation of \(\Delta r_t\) provides a weekly volatility. To annualize, multiply by \(\sqrt{52}\) (assuming 52 weeks per year). For daily data, multiply the daily standard deviation by \(\sqrt{n}\), where \(n\) is the number of trading days in a year (commonly 250 or 260).
+Historical volatility uses past interest‑rate observations to estimate the standard deviation of rate changes. Suppose $r_t$ is a series of weekly interest rates and $\Delta r_t$ is the change from one week to the next. The sample standard deviation of $\Delta r_t$ provides a weekly volatility. To annualize, multiply by $\sqrt{52}$ (assuming 52 weeks per year). For daily data, multiply the daily standard deviation by $\sqrt{n}$, where $n$ is the number of trading days in a year (commonly 250 or 260).
 
 #### Numerical example (artificial data)
 
 Consider a hypothetical sequence of weekly short rates (in percent) over 10 weeks:
 
-| Week | Rate (%) | Weekly change (\(\Delta r_t\), bps) |
+| Week | Rate (%) | Weekly change ($\Delta r_t$, bps) |
 |----|------|------------------|
 | 1  | 2.00 | – |
 | 2  | 2.05 | +5 |
@@ -211,10 +211,10 @@ Consider a hypothetical sequence of weekly short rates (in percent) over 10 week
 
 To compute the sample standard deviation of the changes, convert basis points to decimal form (e.g., +5 bps = 0.0005). Using the eight non‑missing changes (+5, −1, +4, −6, +8, −1, +3, +3, −1) we find:
 
-1. Mean change = \(\frac{5 - 1 + 4 - 6 + 8 - 1 + 3 + 3 - 1}{9} = \frac{14}{9} \approx 1.556\) bps.
-2. Variance = \(\frac{1}{8}\sum_{i=1}^{9} (\Delta r_i - \text{mean})^2\).  Calculating each squared deviation and summing yields \(\approx 94.22\) (bp)\(^2\). The sample variance is \(94.22/8 \approx 11.78\) (bp)\(^2\).
-3. Standard deviation = \(\sqrt{11.78} \approx 3.43\) bps per week.
-4. Annualized volatility = \(3.43 \times \sqrt{52} \approx 24.7\) bps per year.
+1. Mean change = $\frac{5 - 1 + 4 - 6 + 8 - 1 + 3 + 3 - 1}{9} = \frac{14}{9} \approx 1.556$ bps.
+2. Variance = $\frac{1}{8}\sum_{i=1}^{9} (\Delta r_i - \text{mean})^2$.  Calculating each squared deviation and summing yields $\approx 94.22$ (bp)$^2$. The sample variance is $94.22/8 \approx 11.78$ (bp)$^2$.
+3. Standard deviation = $\sqrt{11.78} \approx 3.43$ bps per week.
+4. Annualized volatility = $3.43 \times \sqrt{52} \approx 24.7$ bps per year.
 
 Thus, this simplified data set implies an annual volatility of about 25 basis points.
 

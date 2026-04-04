@@ -2,16 +2,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.9.36">
+<meta name="generator" content="quarto-1.8.27">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
 <title>Lecture 7: Interest‑Rate Models – BUS 411 — Fixed Income Security Analysis and Valuation</title>
 <style>
-/* Default styles provided by pandoc.
-** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
-*/
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
 div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -70,18 +67,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <meta name="quarto:offset" content="../">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-f418161beb48e0141c760e455f12af2c.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-4d9afe2b8d18ee9fa5d0d57b5ed4214d.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-35055af491ae9bec22723d1d6a17de1f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-8d42348b5579d11811fad83cd13baaee.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../site_libs/bootstrap/bootstrap-35055af491ae9bec22723d1d6a17de1f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-97afdd19a946a7800d02dd55b4e8b647.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-aeaf3e155c33cdd5728541c7b417a725.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-97afdd19a946a7800d02dd55b4e8b647.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -520,33 +518,33 @@ window.Quarto = {
 <p>An <strong>interest‑rate model</strong> is a probabilistic description of how interest rates evolve over time. In fixed‑income portfolio management, models help value bonds and derivatives and simulate future yield curves. Models must specify how the short‑term rate evolves and how that short rate determines the rest of the term structure.</p>
 <section id="a-basic-continuoustime-stochastic-process" class="level3">
 <h3 class="anchored" data-anchor-id="a-basic-continuoustime-stochastic-process">1.1 A basic continuous‑time stochastic process</h3>
-<p>In a basic one‑factor model, the short rate (r_t) is assumed to follow a <strong>stochastic differential equation (SDE)</strong> of the form</p>
+<p>In a basic one‑factor model, the short rate <span class="math inline">\(r_t\)</span> is assumed to follow a <strong>stochastic differential equation (SDE)</strong> of the form</p>
 <p><span class="math display">\[
 \mathrm{d}r_t = b\,\mathrm{d}t + \sigma\,\mathrm{d}z_t,
 \]</span></p>
 <p>where:</p>
 <ul>
-<li>(b) is the <strong>drift</strong> term representing the expected direction of the change in the short rate.</li>
-<li>() is the <strong>volatility</strong> term representing the magnitude of random shocks.</li>
-<li>(z_t) is a standard Wiener process (Brownian motion).</li>
+<li><span class="math inline">\(b\)</span> is the <strong>drift</strong> term representing the expected direction of the change in the short rate.</li>
+<li><span class="math inline">\(\sigma\)</span> is the <strong>volatility</strong> term representing the magnitude of random shocks.</li>
+<li><span class="math inline">\(z_t\)</span> is a standard Wiener process (Brownian motion).</li>
 </ul>
-<p>The drift and volatility are constants in this simplest model. If (b=0), the expected change in (r) is zero and the variance of the change over a time interval of length (T) is (^2 T). Models of this type are sometimes called <strong>normal models</strong> because rate changes are independent of the current level.</p>
+<p>The drift and volatility are constants in this simplest model. If <span class="math inline">\(b=0\)</span>, the expected change in <span class="math inline">\(r\)</span> is zero and the variance of the change over a time interval of length <span class="math inline">\(T\)</span> is <span class="math inline">\(\sigma^2 T\)</span>. Models of this type are sometimes called <strong>normal models</strong> because rate changes are independent of the current level.</p>
 </section>
 <section id="itô-process" class="level3">
 <h3 class="anchored" data-anchor-id="itô-process">1.2 Itô process</h3>
-<p>In reality, drift and volatility are not constant; they can depend on the current level of the short rate (r) and time (t). An <strong>Itô process</strong> allows this by writing</p>
+<p>In reality, drift and volatility are not constant; they can depend on the current level of the short rate <span class="math inline">\(r\)</span> and time <span class="math inline">\(t\)</span>. An <strong>Itô process</strong> allows this by writing</p>
 <p><span class="math display">\[
 \mathrm{d}r_t = b(r_t,t)\,\mathrm{d}t + \sigma(r_t,t)\,\mathrm{d}z_t.
 \]</span></p>
-<p>Here, (b(r_t,t)) and ((r_t,t)) can be functions of (r_t) and (t). Itô processes are the building block of most one‑factor term‑structure models.</p>
+<p>Here, <span class="math inline">\(b(r_t,t)\)</span> and <span class="math inline">\(\sigma(r_t,t)\)</span> can be functions of <span class="math inline">\(r_t\)</span> and <span class="math inline">\(t\)</span>. Itô processes are the building block of most one‑factor term‑structure models.</p>
 </section>
 <section id="specifying-the-dynamics-of-the-drift-term" class="level3">
 <h3 class="anchored" data-anchor-id="specifying-the-dynamics-of-the-drift-term">1.3 Specifying the dynamics of the drift term</h3>
-<p>A common specification for the drift is <strong>mean reversion</strong>. The idea is that interest rates tend to revert toward a long‑run average ({r}). The <strong>speed of mean reversion</strong> is measured by a parameter (&gt;0). The drift becomes</p>
+<p>A common specification for the drift is <strong>mean reversion</strong>. The idea is that interest rates tend to revert toward a long‑run average <span class="math inline">\(\bar{r}\)</span>. The <strong>speed of mean reversion</strong> is measured by a parameter <span class="math inline">\(\alpha&gt;0\)</span>. The drift becomes</p>
 <p><span class="math display">\[
 b(r_t,t) = -\alpha\bigl(r_t - \bar{r}\bigr).
 \]</span></p>
-<p>When (r_t) is above the long‑run mean, the drift is negative; when below, it is positive. The speed () controls how quickly (r_t) moves back toward ({r}).</p>
+<p>When <span class="math inline">\(r_t\)</span> is above the long‑run mean, the drift is negative; when below, it is positive. The speed <span class="math inline">\(\alpha\)</span> controls how quickly <span class="math inline">\(r_t\)</span> moves back toward <span class="math inline">\(\bar{r}\)</span>.</p>
 </section>
 <section id="specifying-the-dynamics-of-the-volatility-term" class="level3">
 <h3 class="anchored" data-anchor-id="specifying-the-dynamics-of-the-volatility-term">1.4 Specifying the dynamics of the volatility term</h3>
@@ -554,11 +552,11 @@ b(r_t,t) = -\alpha\bigl(r_t - \bar{r}\bigr).
 <p><span class="math display">\[
 \sigma(r_t,t) = \sigma_0\,r_t^{\gamma},
 \]</span></p>
-<p>where (_0&gt;0) is a scale parameter and () controls how volatility depends on (r_t). Special cases include:</p>
+<p>where <span class="math inline">\(\sigma_0&gt;0\)</span> is a scale parameter and <span class="math inline">\(\gamma\)</span> controls how volatility depends on <span class="math inline">\(r_t\)</span>. Special cases include:</p>
 <ul>
-<li>() (<strong>Vasicek model</strong>): volatility is constant and independent of (r_t). This is a <strong>normal model</strong>.</li>
-<li>() (<strong>Dothan model</strong>): volatility is proportional to (r_t). This is a <strong>lognormal model</strong> (changes are proportional to the level).</li>
-<li>(=) (<strong>Cox–Ingersoll–Ross model</strong>): volatility is proportional to (). This avoids negative rates because (_0 r_t^{1/2}) goes to zero as (r_t) approaches zero.</li>
+<li><span class="math inline">\(\gamma=0\)</span> (<strong>Vasicek model</strong>): volatility is constant and independent of <span class="math inline">\(r_t\)</span>. This is a <strong>normal model</strong>.</li>
+<li><span class="math inline">\(\gamma=1\)</span> (<strong>Dothan model</strong>): volatility is proportional to <span class="math inline">\(r_t\)</span>. This is a <strong>lognormal model</strong> (changes are proportional to the level).</li>
+<li><span class="math inline">\(\gamma=\tfrac{1}{2}\)</span> (<strong>Cox–Ingersoll–Ross model</strong>): volatility is proportional to <span class="math inline">\(\sqrt{r_t}\)</span>. This avoids negative rates because <span class="math inline">\(\sigma_0 r_t^{1/2}\)</span> goes to zero as <span class="math inline">\(r_t\)</span> approaches zero.</li>
 </ul>
 <p>Combining mean reversion in drift with square‑root volatility yields the <strong>mean‑reverting square‑root</strong> model:</p>
 <p><span class="math display">\[
@@ -678,7 +676,7 @@ Figure&nbsp;1: Simulated short‑rate paths following an Ornstein–Uhlenbeck pr
 <p>Volatility is an important input for any rate model. Two common methods are <strong>historical volatility</strong> and <strong>implied volatility</strong>.</p>
 <section id="historical-volatility" class="level3">
 <h3 class="anchored" data-anchor-id="historical-volatility">5.1 Historical volatility</h3>
-<p>Historical volatility uses past interest‑rate observations to estimate the standard deviation of rate changes. Suppose (r_t) is a series of weekly interest rates and (r_t) is the change from one week to the next. The sample standard deviation of (r_t) provides a weekly volatility. To annualize, multiply by () (assuming 52 weeks per year). For daily data, multiply the daily standard deviation by (), where (n) is the number of trading days in a year (commonly 250 or 260).</p>
+<p>Historical volatility uses past interest‑rate observations to estimate the standard deviation of rate changes. Suppose <span class="math inline">\(r_t\)</span> is a series of weekly interest rates and <span class="math inline">\(\Delta r_t\)</span> is the change from one week to the next. The sample standard deviation of <span class="math inline">\(\Delta r_t\)</span> provides a weekly volatility. To annualize, multiply by <span class="math inline">\(\sqrt{52}\)</span> (assuming 52 weeks per year). For daily data, multiply the daily standard deviation by <span class="math inline">\(\sqrt{n}\)</span>, where <span class="math inline">\(n\)</span> is the number of trading days in a year (commonly 250 or 260).</p>
 <section id="numerical-example-artificial-data" class="level4">
 <h4 class="anchored" data-anchor-id="numerical-example-artificial-data">Numerical example (artificial data)</h4>
 <p>Consider a hypothetical sequence of weekly short rates (in percent) over 10 weeks:</p>
@@ -687,7 +685,7 @@ Figure&nbsp;1: Simulated short‑rate paths following an Ornstein–Uhlenbeck pr
 <tr class="header">
 <th>Week</th>
 <th>Rate (%)</th>
-<th>Weekly change ((r_t), bps)</th>
+<th>Weekly change (<span class="math inline">\(\Delta r_t\)</span>, bps)</th>
 </tr>
 </thead>
 <tbody>
@@ -745,10 +743,10 @@ Figure&nbsp;1: Simulated short‑rate paths following an Ornstein–Uhlenbeck pr
 </table>
 <p>To compute the sample standard deviation of the changes, convert basis points to decimal form (e.g., +5&nbsp;bps = 0.0005). Using the eight non‑missing changes (+5, −1, +4, −6, +8, −1, +3, +3, −1) we find:</p>
 <ol type="1">
-<li>Mean change = ( = )&nbsp;bps.</li>
-<li>Variance = (_{i=1}^{9} (r_i - )^2). Calculating each squared deviation and summing yields ()&nbsp;(bp)(^2). The sample variance is (94.22/8 )&nbsp;(bp)(^2).</li>
-<li>Standard deviation = ( )&nbsp;bps per week.</li>
-<li>Annualized volatility = (3.43 )&nbsp;bps per year.</li>
+<li>Mean change = <span class="math inline">\(\frac{5 - 1 + 4 - 6 + 8 - 1 + 3 + 3 - 1}{9} = \frac{14}{9} \approx 1.556\)</span>&nbsp;bps.</li>
+<li>Variance = <span class="math inline">\(\frac{1}{8}\sum_{i=1}^{9} (\Delta r_i - \text{mean})^2\)</span>. Calculating each squared deviation and summing yields <span class="math inline">\(\approx 94.22\)</span>&nbsp;(bp)<span class="math inline">\(^2\)</span>. The sample variance is <span class="math inline">\(94.22/8 \approx 11.78\)</span>&nbsp;(bp)<span class="math inline">\(^2\)</span>.</li>
+<li>Standard deviation = <span class="math inline">\(\sqrt{11.78} \approx 3.43\)</span>&nbsp;bps per week.</li>
+<li>Annualized volatility = <span class="math inline">\(3.43 \times \sqrt{52} \approx 24.7\)</span>&nbsp;bps per year.</li>
 </ol>
 <p>Thus, this simplified data set implies an annual volatility of about 25&nbsp;basis points.</p>
 <p>The calculation can also be performed programmatically. Below we generate a synthetic time series and compute the historical volatility:</p>

@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Lecture 7 – BUS 411 — Fixed Income Security Analysis and Valuation</title>
+<title>Lecture 7: Interest‑Rate Models – BUS 411 — Fixed Income Security Analysis and Valuation</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -22,6 +22,41 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -75,6 +110,35 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -383,20 +447,31 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#course" id="toc-course" class="nav-link active" data-scroll-target="#course"><span class="header-section-number">1</span> Course</a></li>
-  <li><a href="#lecture" id="toc-lecture" class="nav-link" data-scroll-target="#lecture"><span class="header-section-number">2</span> Lecture</a></li>
-  <li><a href="#learning-objectives" id="toc-learning-objectives" class="nav-link" data-scroll-target="#learning-objectives"><span class="header-section-number">3</span> Learning Objectives</a></li>
-  <li><a href="#main-concepts" id="toc-main-concepts" class="nav-link" data-scroll-target="#main-concepts"><span class="header-section-number">4</span> Main Concepts</a></li>
-  <li><a href="#definitions" id="toc-definitions" class="nav-link" data-scroll-target="#definitions"><span class="header-section-number">5</span> Definitions</a></li>
-  <li><a href="#key-formulas" id="toc-key-formulas" class="nav-link" data-scroll-target="#key-formulas"><span class="header-section-number">6</span> Key Formulas</a></li>
-  <li><a href="#examples" id="toc-examples" class="nav-link" data-scroll-target="#examples"><span class="header-section-number">7</span> Examples</a>
+  <li><a href="#learning-objectives" id="toc-learning-objectives" class="nav-link active" data-scroll-target="#learning-objectives">Learning Objectives</a></li>
+  <li><a href="#mathematical-description-of-onefactor-interestrate-models" id="toc-mathematical-description-of-onefactor-interestrate-models" class="nav-link" data-scroll-target="#mathematical-description-of-onefactor-interestrate-models">1 Mathematical Description of One‑Factor Interest‑Rate Models</a>
   <ul class="collapse">
-  <li><a href="#example-1" id="toc-example-1" class="nav-link" data-scroll-target="#example-1"><span class="header-section-number">7.1</span> Example 1</a></li>
-  <li><a href="#example-2" id="toc-example-2" class="nav-link" data-scroll-target="#example-2"><span class="header-section-number">7.2</span> Example 2</a></li>
+  <li><a href="#a-basic-continuoustime-stochastic-process" id="toc-a-basic-continuoustime-stochastic-process" class="nav-link" data-scroll-target="#a-basic-continuoustime-stochastic-process">1.1 A basic continuous‑time stochastic process</a></li>
+  <li><a href="#itô-process" id="toc-itô-process" class="nav-link" data-scroll-target="#itô-process">1.2 Itô process</a></li>
+  <li><a href="#specifying-the-dynamics-of-the-drift-term" id="toc-specifying-the-dynamics-of-the-drift-term" class="nav-link" data-scroll-target="#specifying-the-dynamics-of-the-drift-term">1.3 Specifying the dynamics of the drift term</a></li>
+  <li><a href="#specifying-the-dynamics-of-the-volatility-term" id="toc-specifying-the-dynamics-of-the-volatility-term" class="nav-link" data-scroll-target="#specifying-the-dynamics-of-the-volatility-term">1.4 Specifying the dynamics of the volatility term</a></li>
   </ul></li>
-  <li><a href="#remarks-intuition" id="toc-remarks-intuition" class="nav-link" data-scroll-target="#remarks-intuition"><span class="header-section-number">8</span> Remarks / Intuition</a></li>
-  <li><a href="#suggested-readings" id="toc-suggested-readings" class="nav-link" data-scroll-target="#suggested-readings"><span class="header-section-number">9</span> Suggested Readings</a></li>
-  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises"><span class="header-section-number">10</span> Exercises</a></li>
+  <li><a href="#arbitragefree-versus-equilibrium-models" id="toc-arbitragefree-versus-equilibrium-models" class="nav-link" data-scroll-target="#arbitragefree-versus-equilibrium-models">2 Arbitrage‑Free versus Equilibrium Models</a>
+  <ul class="collapse">
+  <li><a href="#arbitragefree-models" id="toc-arbitragefree-models" class="nav-link" data-scroll-target="#arbitragefree-models">2.1 Arbitrage‑free models</a></li>
+  <li><a href="#equilibrium-models" id="toc-equilibrium-models" class="nav-link" data-scroll-target="#equilibrium-models">2.2 Equilibrium models</a></li>
+  </ul></li>
+  <li><a href="#empirical-evidence-on-interestrate-changes" id="toc-empirical-evidence-on-interestrate-changes" class="nav-link" data-scroll-target="#empirical-evidence-on-interestrate-changes">3 Empirical Evidence on Interest‑Rate Changes</a>
+  <ul class="collapse">
+  <li><a href="#volatility-of-rates-and-the-level-of-interest-rates" id="toc-volatility-of-rates-and-the-level-of-interest-rates" class="nav-link" data-scroll-target="#volatility-of-rates-and-the-level-of-interest-rates">3.1 Volatility of rates and the level of interest rates</a></li>
+  <li><a href="#negative-interest-rates" id="toc-negative-interest-rates" class="nav-link" data-scroll-target="#negative-interest-rates">3.2 Negative interest rates</a></li>
+  </ul></li>
+  <li><a href="#selecting-an-interestrate-model" id="toc-selecting-an-interestrate-model" class="nav-link" data-scroll-target="#selecting-an-interestrate-model">4 Selecting an Interest‑Rate Model</a></li>
+  <li><a href="#estimating-interestrate-volatility-using-historical-data" id="toc-estimating-interestrate-volatility-using-historical-data" class="nav-link" data-scroll-target="#estimating-interestrate-volatility-using-historical-data">5 Estimating Interest‑Rate Volatility Using Historical Data</a>
+  <ul class="collapse">
+  <li><a href="#historical-volatility" id="toc-historical-volatility" class="nav-link" data-scroll-target="#historical-volatility">5.1 Historical volatility</a></li>
+  <li><a href="#implied-volatility" id="toc-implied-volatility" class="nav-link" data-scroll-target="#implied-volatility">5.2 Implied volatility</a></li>
+  </ul></li>
+  <li><a href="#key-points" id="toc-key-points" class="nav-link" data-scroll-target="#key-points">6 Key Points</a></li>
   </ul>
 <div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="lec7.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></nav>
 </nav>
@@ -410,7 +485,7 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Lecture 7</h1>
+<h1 class="title">Lecture 7: Interest‑Rate Models</h1>
 </div>
 
 
@@ -427,81 +502,297 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="course" class="level2" data-number="1">
-<h2 data-number="1" class="anchored" data-anchor-id="course"><span class="header-section-number">1</span> Course</h2>
-<p>BUS 411 — Fixed Income Security Analysis and Valuation</p>
-</section>
-<section id="lecture" class="level2" data-number="2">
-<h2 data-number="2" class="anchored" data-anchor-id="lecture"><span class="header-section-number">2</span> Lecture</h2>
-<p>Lecture 7</p>
-</section>
-<section id="learning-objectives" class="level2" data-number="3">
-<h2 data-number="3" class="anchored" data-anchor-id="learning-objectives"><span class="header-section-number">3</span> Learning Objectives</h2>
+<section id="learning-objectives" class="level2">
+<h2 class="anchored" data-anchor-id="learning-objectives">Learning Objectives</h2>
+<p>After completing this lecture you will be able to:</p>
 <ul>
-<li><em>Add your learning objectives here.</em></li>
+<li>Define an interest‑rate model and interpret its key components (drift, volatility and mean reversion).</li>
+<li>Explain the mathematics behind one‑factor stochastic processes used to model interest rates.</li>
+<li>Distinguish between <strong>arbitrage‑free</strong> and <strong>equilibrium</strong> interest‑rate models and understand the purpose of each.</li>
+<li>Discuss empirical evidence on interest‑rate changes, including how volatility relates to rate levels and the possibility of negative rates.</li>
+<li>Describe criteria for selecting an interest‑rate model in practice.</li>
+<li>Compute historical interest‑rate volatility using real or simulated data.</li>
 </ul>
+<hr>
 </section>
-<section id="main-concepts" class="level2" data-number="4">
-<h2 data-number="4" class="anchored" data-anchor-id="main-concepts"><span class="header-section-number">4</span> Main Concepts</h2>
+<section id="mathematical-description-of-onefactor-interestrate-models" class="level1">
+<h1>1 Mathematical Description of One‑Factor Interest‑Rate Models</h1>
+<p>An <strong>interest‑rate model</strong> is a probabilistic description of how interest rates evolve over time. In fixed‑income portfolio management, models help value bonds and derivatives and simulate future yield curves. Models must specify how the short‑term rate evolves and how that short rate determines the rest of the term structure.</p>
+<section id="a-basic-continuoustime-stochastic-process" class="level3">
+<h3 class="anchored" data-anchor-id="a-basic-continuoustime-stochastic-process">1.1 A basic continuous‑time stochastic process</h3>
+<p>In a basic one‑factor model, the short rate (r_t) is assumed to follow a <strong>stochastic differential equation (SDE)</strong> of the form</p>
+<p><span class="math display">\[
+\mathrm{d}r_t = b\,\mathrm{d}t + \sigma\,\mathrm{d}z_t,
+\]</span></p>
+<p>where:</p>
 <ul>
-<li><em>Main concept 1</em></li>
-<li><em>Main concept 2</em></li>
-<li><em>Main concept 3</em></li>
+<li>(b) is the <strong>drift</strong> term representing the expected direction of the change in the short rate.</li>
+<li>() is the <strong>volatility</strong> term representing the magnitude of random shocks.</li>
+<li>(z_t) is a standard Wiener process (Brownian motion).</li>
 </ul>
+<p>The drift and volatility are constants in this simplest model. If (b=0), the expected change in (r) is zero and the variance of the change over a time interval of length (T) is (^2 T). Models of this type are sometimes called <strong>normal models</strong> because rate changes are independent of the current level.</p>
 </section>
-<section id="definitions" class="level2" data-number="5">
-<h2 data-number="5" class="anchored" data-anchor-id="definitions"><span class="header-section-number">5</span> Definitions</h2>
-<div class="callout-definition">
-<p><strong>Term 1.</strong> <em>Definition placeholder.</em></p>
-</div>
-<div class="callout-definition">
-<p><strong>Term 2.</strong> <em>Definition placeholder.</em></p>
-</div>
+<section id="itô-process" class="level3">
+<h3 class="anchored" data-anchor-id="itô-process">1.2 Itô process</h3>
+<p>In reality, drift and volatility are not constant; they can depend on the current level of the short rate (r) and time (t). An <strong>Itô process</strong> allows this by writing</p>
+<p><span class="math display">\[
+\mathrm{d}r_t = b(r_t,t)\,\mathrm{d}t + \sigma(r_t,t)\,\mathrm{d}z_t.
+\]</span></p>
+<p>Here, (b(r_t,t)) and ((r_t,t)) can be functions of (r_t) and (t). Itô processes are the building block of most one‑factor term‑structure models.</p>
 </section>
-<section id="key-formulas" class="level2" data-number="6">
-<h2 data-number="6" class="anchored" data-anchor-id="key-formulas"><span class="header-section-number">6</span> Key Formulas</h2>
-<p>[ ]</p>
+<section id="specifying-the-dynamics-of-the-drift-term" class="level3">
+<h3 class="anchored" data-anchor-id="specifying-the-dynamics-of-the-drift-term">1.3 Specifying the dynamics of the drift term</h3>
+<p>A common specification for the drift is <strong>mean reversion</strong>. The idea is that interest rates tend to revert toward a long‑run average ({r}). The <strong>speed of mean reversion</strong> is measured by a parameter (&gt;0). The drift becomes</p>
+<p><span class="math display">\[
+b(r_t,t) = -\alpha\bigl(r_t - \bar{r}\bigr).
+\]</span></p>
+<p>When (r_t) is above the long‑run mean, the drift is negative; when below, it is positive. The speed () controls how quickly (r_t) moves back toward ({r}).</p>
 </section>
-<section id="examples" class="level2" data-number="7">
-<h2 data-number="7" class="anchored" data-anchor-id="examples"><span class="header-section-number">7</span> Examples</h2>
-<section id="example-1" class="level3" data-number="7.1">
-<h3 data-number="7.1" class="anchored" data-anchor-id="example-1"><span class="header-section-number">7.1</span> Example 1</h3>
-<p><em>Worked example placeholder.</em></p>
-</section>
-<section id="example-2" class="level3" data-number="7.2">
-<h3 data-number="7.2" class="anchored" data-anchor-id="example-2"><span class="header-section-number">7.2</span> Example 2</h3>
-<p><em>Worked example placeholder.</em></p>
-</section>
-</section>
-<section id="remarks-intuition" class="level2" data-number="8">
-<h2 data-number="8" class="anchored" data-anchor-id="remarks-intuition"><span class="header-section-number">8</span> Remarks / Intuition</h2>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Note
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p><em>Key intuition and remarks for this lecture.</em></p>
-</div>
-</div>
-</section>
-<section id="suggested-readings" class="level2" data-number="9">
-<h2 data-number="9" class="anchored" data-anchor-id="suggested-readings"><span class="header-section-number">9</span> Suggested Readings</h2>
+<section id="specifying-the-dynamics-of-the-volatility-term" class="level3">
+<h3 class="anchored" data-anchor-id="specifying-the-dynamics-of-the-volatility-term">1.4 Specifying the dynamics of the volatility term</h3>
+<p>Volatility can depend on the level of rates. A flexible specification is the <strong>constant‑elasticity‑of‑variance (CEV)</strong> model, which sets</p>
+<p><span class="math display">\[
+\sigma(r_t,t) = \sigma_0\,r_t^{\gamma},
+\]</span></p>
+<p>where (_0&gt;0) is a scale parameter and () controls how volatility depends on (r_t). Special cases include:</p>
 <ul>
-<li><em>Textbook chapter or paper reference</em></li>
-<li><em>Supplementary material</em></li>
+<li>() (<strong>Vasicek model</strong>): volatility is constant and independent of (r_t). This is a <strong>normal model</strong>.</li>
+<li>() (<strong>Dothan model</strong>): volatility is proportional to (r_t). This is a <strong>lognormal model</strong> (changes are proportional to the level).</li>
+<li>(=) (<strong>Cox–Ingersoll–Ross model</strong>): volatility is proportional to (). This avoids negative rates because (_0 r_t^{1/2}) goes to zero as (r_t) approaches zero.</li>
 </ul>
+<p>Combining mean reversion in drift with square‑root volatility yields the <strong>mean‑reverting square‑root</strong> model:</p>
+<p><span class="math display">\[
+\mathrm{d}r_t = -\alpha(r_t-\bar{r})\,\mathrm{d}t + \sigma_0\sqrt{r_t}\,\mathrm{d}z_t.
+\]</span></p>
+<section id="example-simulating-an-ornsteinuhlenbeck-process" class="level4">
+<h4 class="anchored" data-anchor-id="example-simulating-an-ornsteinuhlenbeck-process">🧮 <em>Example:</em> Simulating an Ornstein–Uhlenbeck process</h4>
+<p>An Ornstein–Uhlenbeck (Vasicek) process has constant volatility and mean‑reverting drift. The following Python code simulates sample paths:</p>
+<div id="cell-fig-ou-simulation" class="cell" data-execution_count="1">
+<div class="cell-output cell-output-display">
+<div id="fig-ou-simulation" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ou-simulation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lec7_files/figure-html/fig-ou-simulation-output-1.png" width="672" height="449" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ou-simulation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Simulated short‑rate paths following an Ornstein–Uhlenbeck process
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>This graph shows sample short‑rate paths reverting toward the long‑run mean.</p>
+<hr>
 </section>
-<section id="exercises" class="level2" data-number="10">
-<h2 data-number="10" class="anchored" data-anchor-id="exercises"><span class="header-section-number">10</span> Exercises</h2>
+</section>
+</section>
+<section id="arbitragefree-versus-equilibrium-models" class="level1">
+<h1>2 Arbitrage‑Free versus Equilibrium Models</h1>
+<p>Interest‑rate models can be classified by how they determine the term‑structure evolution.</p>
+<section id="arbitragefree-models" class="level3">
+<h3 class="anchored" data-anchor-id="arbitragefree-models">2.1 Arbitrage‑free models</h3>
+<p><strong>Arbitrage‑free</strong> or <strong>no‑arbitrage models</strong> start with observed market prices of a set of benchmark instruments (Treasury bonds, swaps, etc.). The model assumes a random process for the short rate with unknown drift. Parameters are calibrated so that the model exactly reproduces the current term structure and prices of benchmark instruments. Once calibrated, the model can value other instruments consistently.</p>
+<p><strong>Common arbitrage‑free models</strong> include:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 23%">
+<col style="width: 23%">
+<col style="width: 53%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Model</th>
+<th>Type</th>
+<th>Key features</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Ho–Lee</strong></td>
+<td>Normal</td>
+<td>Constant volatility; no mean reversion. Produces normally distributed rate changes.</td>
+</tr>
+<tr class="even">
+<td><strong>Hull–White</strong></td>
+<td>Normal</td>
+<td>Adds mean reversion to the Ho–Lee model. Useful for pricing callable bonds.</td>
+</tr>
+<tr class="odd">
+<td><strong>Kalotay–Williams–Fabozzi (KWF)</strong></td>
+<td>Lognormal</td>
+<td>Models the logarithm of the short rate; no mean reversion.</td>
+</tr>
+<tr class="even">
+<td><strong>Black–Karasinski</strong></td>
+<td>Lognormal</td>
+<td>Lognormal model with mean reversion.</td>
+</tr>
+<tr class="odd">
+<td><strong>Black–Derman–Toy</strong></td>
+<td>Lognormal</td>
+<td>Lognormal with endogenous mean reversion; calibrates to caps and floors.</td>
+</tr>
+<tr class="even">
+<td><strong>Heath–Jarrow–Morton (HJM)</strong></td>
+<td>General</td>
+<td>Multi‑factor model specifying the volatility structure of forward rates. Many models (Ho–Lee, Hull–White, KWF, etc.) are special cases.</td>
+</tr>
+</tbody>
+</table>
+<p>Because these models match observed prices, arbitrage opportunities are eliminated by construction. They are widely used in practice for pricing complex derivatives and bonds with embedded options.</p>
+</section>
+<section id="equilibrium-models" class="level3">
+<h3 class="anchored" data-anchor-id="equilibrium-models">2.2 Equilibrium models</h3>
+<p><strong>Equilibrium models</strong> explain the term structure by appealing to economic fundamentals and investor preferences. They assume a particular utility function and derive the stochastic process for rates from equilibrium conditions. Parameters are estimated from historical data rather than calibrated to market prices. Examples include the <strong>Vasicek</strong> and <strong>Cox–Ingersoll–Ross (CIR)</strong> equilibrium models, as well as the <strong>Brennan–Schwartz</strong> and <strong>Longstaff–Schwartz</strong> two‑factor models.</p>
+<p>Equilibrium models provide economic intuition but are less commonly used to price derivatives because they do not necessarily fit the current term structure. In practice, arbitrage‑free models dominate due to their ability to match observed prices and deliver consistent valuations.</p>
+<hr>
+</section>
+</section>
+<section id="empirical-evidence-on-interestrate-changes" class="level1">
+<h1>3 Empirical Evidence on Interest‑Rate Changes</h1>
+<p>When choosing a model, it helps to understand actual interest‑rate behaviour. Two issues are often discussed: the relationship between volatility and the level of rates, and the possibility of negative rates.</p>
+<section id="volatility-of-rates-and-the-level-of-interest-rates" class="level3">
+<h3 class="anchored" data-anchor-id="volatility-of-rates-and-the-level-of-interest-rates">3.1 Volatility of rates and the level of interest rates</h3>
+<p>Empirical studies of Treasury yield curves from the late 1970s to the 2000s show that the correlation between interest‑rate volatility and the level of rates changes across regimes【671527559854124†screenshot】. During periods when rates exceeded roughly 10% (late 1970s and early 1980s), volatility tended to increase with the level of rates. When rates were below 10%, the correlation weakened and volatility behaved more like a constant. This evidence suggests that in low‑rate environments (common since the 1990s), the <strong>normal model</strong> (constant volatility) may be adequate, whereas in high‑rate regimes a lognormal or square‑root model might better reflect the link between level and volatility.</p>
+</section>
+<section id="negative-interest-rates" class="level3">
+<h3 class="anchored" data-anchor-id="negative-interest-rates">3.2 Negative interest rates</h3>
+<p>Historical episodes show that nominal rates can occasionally be negative. During the U.S. Great Depression, Treasury bills traded at negative yields; more recently some short‑term Japanese yen deposits briefly had negative yields in the late 1990s. Models with constant volatility allow negative rates, while models where volatility is proportional to the rate (lognormal) do not. Empirical tests indicate that the probability of negative rates under realistic parameter values is small and has little impact on derivative pricing. Hence, many practitioners are comfortable using normal models even though they admit negative rates.</p>
+<hr>
+</section>
+</section>
+<section id="selecting-an-interestrate-model" class="level1">
+<h1>4 Selecting an Interest‑Rate Model</h1>
+<p>When choosing a model for bond portfolio management, consider:</p>
 <ol type="1">
-<li><em>Exercise 1 placeholder</em></li>
-<li><em>Exercise 2 placeholder</em></li>
+<li><strong>Purpose of the model.</strong> For pricing complex derivatives or option‑embedded bonds, use arbitrage‑free models that fit the current term structure. For economic insight or macroeconomic forecasting, equilibrium models may suffice.</li>
+<li><strong>Volatility assumptions.</strong> In low‑rate environments, constant volatility models (Vasicek, Ho–Lee, Hull–White) perform well. In high‑rate regimes or when negative rates must be ruled out, lognormal or square‑root volatility (CIR, Black–Karasinski) may be preferred.</li>
+<li><strong>Computational tractability.</strong> Models should allow efficient calibration and pricing. Multi‑factor models offer flexibility but are more difficult to implement.</li>
+<li><strong>Data availability.</strong> Arbitrage‑free models require reliable market prices for a reference set of instruments; equilibrium models require long historical series to estimate parameters.</li>
 </ol>
+<p>Ultimately, practitioners often choose the simplest model that fits the current term structure and provides robust valuations across scenarios.</p>
+<hr>
+</section>
+<section id="estimating-interestrate-volatility-using-historical-data" class="level1">
+<h1>5 Estimating Interest‑Rate Volatility Using Historical Data</h1>
+<p>Volatility is an important input for any rate model. Two common methods are <strong>historical volatility</strong> and <strong>implied volatility</strong>.</p>
+<section id="historical-volatility" class="level3">
+<h3 class="anchored" data-anchor-id="historical-volatility">5.1 Historical volatility</h3>
+<p>Historical volatility uses past interest‑rate observations to estimate the standard deviation of rate changes. Suppose (r_t) is a series of weekly interest rates and (r_t) is the change from one week to the next. The sample standard deviation of (r_t) provides a weekly volatility. To annualize, multiply by () (assuming 52 weeks per year). For daily data, multiply the daily standard deviation by (), where (n) is the number of trading days in a year (commonly 250 or 260).</p>
+<section id="numerical-example-artificial-data" class="level4">
+<h4 class="anchored" data-anchor-id="numerical-example-artificial-data">Numerical example (artificial data)</h4>
+<p>Consider a hypothetical sequence of weekly short rates (in percent) over 10 weeks:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Week</th>
+<th>Rate (%)</th>
+<th>Weekly change ((r_t), bps)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>2.00</td>
+<td>–</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>2.05</td>
+<td>+5</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>2.04</td>
+<td>−1</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>2.08</td>
+<td>+4</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>2.02</td>
+<td>−6</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>2.10</td>
+<td>+8</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>2.09</td>
+<td>−1</td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td>2.12</td>
+<td>+3</td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td>2.15</td>
+<td>+3</td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td>2.14</td>
+<td>−1</td>
+</tr>
+</tbody>
+</table>
+<p>To compute the sample standard deviation of the changes, convert basis points to decimal form (e.g., +5&nbsp;bps = 0.0005). Using the eight non‑missing changes (+5, −1, +4, −6, +8, −1, +3, +3, −1) we find:</p>
+<ol type="1">
+<li>Mean change = ( = )&nbsp;bps.</li>
+<li>Variance = (_{i=1}^{9} (r_i - )^2). Calculating each squared deviation and summing yields ()&nbsp;(bp)(^2). The sample variance is (94.22/8 )&nbsp;(bp)(^2).</li>
+<li>Standard deviation = ( )&nbsp;bps per week.</li>
+<li>Annualized volatility = (3.43 )&nbsp;bps per year.</li>
+</ol>
+<p>Thus, this simplified data set implies an annual volatility of about 25&nbsp;basis points.</p>
+<p>The calculation can also be performed programmatically. Below we generate a synthetic time series and compute the historical volatility:</p>
+<div id="cell-synthetic-volatility" class="cell" data-execution_count="2">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Create synthetic weekly rates (percent)</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>rates <span class="op">=</span> np.array([<span class="fl">2.00</span>, <span class="fl">2.05</span>, <span class="fl">2.04</span>, <span class="fl">2.08</span>, <span class="fl">2.02</span>, <span class="fl">2.10</span>, <span class="fl">2.09</span>, <span class="fl">2.12</span>, <span class="fl">2.15</span>, <span class="fl">2.14</span>])</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>changes_bp <span class="op">=</span> (np.diff(rates) <span class="op">*</span> <span class="dv">10000</span>)  <span class="co"># convert percent differences to basis points</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute weekly volatility in bps</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>mean_change <span class="op">=</span> changes_bp.mean()</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>vol_weekly <span class="op">=</span> changes_bp.std(ddof<span class="op">=</span><span class="dv">1</span>)  <span class="co"># sample standard deviation in bps</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>vol_annual <span class="op">=</span> vol_weekly <span class="op">*</span> np.sqrt(<span class="dv">52</span>)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>vol_weekly, vol_annual</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="synthetic-volatility" class="cell-output cell-output-display" data-execution_count="2">
+<pre><code>(np.float64(418.66188956934894), np.float64(3019.01381984986))</code></pre>
+<p>Synthetic weekly rates and computed historical volatility</p>
+</div>
+</div>
+<p>This code calculates the weekly and annualized volatilities in basis points for the synthetic data. You can modify the <code>rates</code> array to explore different scenarios.</p>
+</section>
+</section>
+<section id="implied-volatility" class="level3">
+<h3 class="anchored" data-anchor-id="implied-volatility">5.2 Implied volatility</h3>
+<p>Implied volatility derives from market prices of option‑like instruments (caps, floors, swaptions). An option pricing model expresses the option price as a function of volatility. By inverting the model using observed prices, one obtains the market’s expected volatility. Implied volatility reflects current market conditions and forward‑looking expectations, whereas historical volatility reflects past behaviour.</p>
+<hr>
+</section>
+</section>
+<section id="key-points" class="level1">
+<h1>6 Key Points</h1>
+<ul>
+<li>An interest‑rate model specifies a stochastic process for the short rate and derives other rates from it. Drift, volatility and mean reversion are key components.</li>
+<li>One‑factor models use a single source of uncertainty (Brownian motion). Mean‑reverting drift and level‑dependent volatility are common specifications.</li>
+<li>Arbitrage‑free models (Ho–Lee, Hull–White, KWF, Black–Karasinski, BDT, HJM) calibrate to market prices and are widely used for valuation. Equilibrium models (Vasicek, CIR, Brennan–Schwartz, Longstaff–Schwartz) derive rates from economic assumptions.</li>
+<li>Empirical evidence suggests that volatility is largely independent of the level of rates when rates are below about 10%, supporting the normal model; at higher levels, volatility may increase with rates, favouring lognormal specifications【671527559854124†screenshot】.</li>
+<li>Negative nominal rates can occur but are rare. Normal models admit negative rates; the probability of occurrence is small under realistic parameters.</li>
+<li>Historical volatility is computed from past rate changes and annualized using square‑root‑of‑time scaling; implied volatility is extracted from option prices.</li>
+</ul>
+<hr>
+<p><em>Suggested readings:</em> Fabozzi, <em>Bond Markets: Analysis and Strategies</em>, Chapter&nbsp;17.</p>
 
 
 </section>

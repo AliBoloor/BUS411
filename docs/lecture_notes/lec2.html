@@ -2,16 +2,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.9.36">
+<meta name="generator" content="quarto-1.8.27">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
 <title>Lecture 2: Bond Pricing and Yield Measures – BUS 411 — Fixed Income Security Analysis and Valuation</title>
 <style>
-/* Default styles provided by pandoc.
-** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
-*/
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
 div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -35,18 +32,19 @@ ul.task-list li input[type="checkbox"] {
 <meta name="quarto:offset" content="../">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-f418161beb48e0141c760e455f12af2c.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-4d9afe2b8d18ee9fa5d0d57b5ed4214d.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-4480d3ac89455ca364325e129cc32926.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-82ca352cff4fe864e57b70d663416c95.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../site_libs/bootstrap/bootstrap-4480d3ac89455ca364325e129cc32926.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-97afdd19a946a7800d02dd55b4e8b647.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-aeaf3e155c33cdd5728541c7b417a725.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-97afdd19a946a7800d02dd55b4e8b647.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -76,7 +74,7 @@ ul.task-list li input[type="checkbox"] {
 }</script>
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -440,8 +438,9 @@ window.Quarto = {
   </ul></li>
   <li><a href="#pricing-floating-rate-and-inverse-floating-rate-securities" id="toc-pricing-floating-rate-and-inverse-floating-rate-securities" class="nav-link" data-scroll-target="#pricing-floating-rate-and-inverse-floating-rate-securities">8 Pricing Floating-Rate and Inverse-Floating-Rate Securities</a>
   <ul class="collapse">
-  <li><a href="#price-of-a-floater" id="toc-price-of-a-floater" class="nav-link" data-scroll-target="#price-of-a-floater">Price of a Floater</a></li>
-  <li><a href="#price-of-an-inverse-floater" id="toc-price-of-an-inverse-floater" class="nav-link" data-scroll-target="#price-of-an-inverse-floater">Price of an Inverse Floater</a></li>
+  <li><a href="#floating-rate-notes-floaters" id="toc-floating-rate-notes-floaters" class="nav-link" data-scroll-target="#floating-rate-notes-floaters">Floating-rate notes (floaters)</a></li>
+  <li><a href="#inverse-floating-rate-bonds" id="toc-inverse-floating-rate-bonds" class="nav-link" data-scroll-target="#inverse-floating-rate-bonds">Inverse floating-rate bonds</a></li>
+  <li><a href="#relationship-between-floaters-and-inverse-floaters-collateral-and-repackaging" id="toc-relationship-between-floaters-and-inverse-floaters-collateral-and-repackaging" class="nav-link" data-scroll-target="#relationship-between-floaters-and-inverse-floaters-collateral-and-repackaging">Relationship between floaters and inverse floaters: collateral and repackaging</a></li>
   </ul></li>
   <li><a href="#price-quotes-and-accrued-interest" id="toc-price-quotes-and-accrued-interest" class="nav-link" data-scroll-target="#price-quotes-and-accrued-interest">9 Price Quotes and Accrued Interest</a>
   <ul class="collapse">
@@ -779,7 +778,7 @@ P = \frac{F}{(1+r)^n}.
 <div id="fig-very-convex-price-yield" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-very-convex-price-yield-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="lec2_files/figure-html/fig-very-convex-price-yield-output-1.png" width="601" height="376" class="figure-img">
+<img src="lec2_files/figure-html/fig-very-convex-price-yield-output-1.png" width="602" height="376" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-very-convex-price-yield-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;1: Exaggerated illustration of a highly convex price–yield relationship for a bond. Note the strong curve, especially at low coupon and long maturity.
@@ -839,11 +838,11 @@ Figure&nbsp;1: Exaggerated illustration of a highly convex price–yield relatio
 </div>
 <div class="callout-body-container callout-body">
 <p>The figure below shows how the price of a 20-year 10% coupon bond moves toward par as it approaches maturity when market yields remain unchanged. A bond selling at a discount rises toward par, while a bond selling at a premium falls toward par.</p>
-<div id="814d9278" class="cell" data-fig-height="3.15" data-fig-width="4.9" data-message="false" data-execution_count="2">
+<div id="42c7bb8a" class="cell" data-fig-height="3.15" data-fig-width="4.9" data-message="false" data-execution_count="2">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="lec2_files/figure-html/cell-3-output-1.png" width="601" height="449" class="figure-img"></p>
+<p><img src="lec2_files/figure-html/cell-3-output-1.png" width="602" height="449" class="figure-img"></p>
 <figcaption>Time path for the price of a 20-year 10% bond as maturity approaches</figcaption>
 </figure>
 </div>
@@ -936,15 +935,123 @@ C \times \frac{\text{days since last coupon}}{\text{days in coupon period}}.
 </section>
 <section id="pricing-floating-rate-and-inverse-floating-rate-securities" class="level1">
 <h1>8 Pricing Floating-Rate and Inverse-Floating-Rate Securities</h1>
-<p>Some bonds do not pay fixed coupons. Instead, their coupon payments are linked to a reference rate such as LIBOR or Treasury rates.</p>
-<section id="price-of-a-floater" class="level2">
-<h2 class="anchored" data-anchor-id="price-of-a-floater">Price of a Floater</h2>
-<p>A floating-rate bond has a coupon that resets periodically based on a reference rate plus a fixed spread. Because the coupon adjusts to market interest rates, the price of a floating-rate bond typically remains close to its par value.</p>
-<p>The price of a floating-rate bond can be expressed as the present value of its expected future cash flows, where the coupon payments depend on future interest rates.</p>
+<p>Many bonds do not pay a fixed coupon. Instead, each coupon is tied to a short-term <strong>reference rate</strong> (for example a Treasury bill rate, <strong>SOFR</strong>, or—historically—<strong>LIBOR</strong>) and sometimes to a fixed <strong>spread</strong> or a formula. The two main structures below are <strong>floating-rate notes (floaters)</strong> and <strong>inverse floaters</strong>.</p>
+<section id="floating-rate-notes-floaters" class="level2">
+<h2 class="anchored" data-anchor-id="floating-rate-notes-floaters">Floating-rate notes (floaters)</h2>
+<p><strong>What they are.</strong> On each <strong>reset date</strong>, the issuer sets the coupon for the next period as a reference rate plus a fixed margin (spread), e.g.</p>
+<p><span class="math display">\[
+\text{coupon rate for the period} = \text{reference rate} + \text{margin}.
+\]</span></p>
+<p>The bond pays that rate on par for that period; at the next reset, the coupon changes again. Caps and floors may limit how high or low the coupon can go.</p>
+<p><strong>Why they exist.</strong> Borrowers (corporates, banks, governments) use floaters when they prefer <strong>funding costs that move with short rates</strong> instead of locking in a long-term fixed coupon. Investors use them when they want <strong>income that resets with money-market conditions</strong>, limiting sensitivity of <em>price</em> to small parallel shifts in the curve right after a reset.</p>
+<p><strong>Who uses them.</strong> Cash-rich institutions (money managers, corporate treasuries), bank treasury desks, and liability-driven investors often hold floaters as <strong>short-duration</strong> credit or liquidity instruments; issuers include banks and non-financial corporates.</p>
+<p><strong>How they are priced.</strong> Conceptually, price is still the <strong>present value of expected future cash flows</strong>, but those cash flows depend on future reference rates. Right after a coupon reset, if credit risk is unchanged, a plain floater with no unusual options often trades <strong>close to par</strong> because the next coupon is already aligned with current short rates. Between resets, the <strong>accrued value</strong> of the current coupon makes the clean price drift slightly away from par. For yield-style measures, practitioners often use a <strong>spread over the reference</strong> (e.g.&nbsp;<strong>discount margin</strong>), which is developed later in this lecture in more detail.</p>
+<p><strong>What moves the price.</strong> Key factors include: <strong>changes in the issuer’s credit spread</strong> (the margin the market demands over the reference); <strong>time to the next reset</strong>; <strong>the shape of short-rate expectations</strong>; <strong>liquidity</strong>; and any <strong>embedded options</strong> (caps, floors, call features). A widening credit spread lowers price even if the reference rate is unchanged.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Intuition: Why a floater often hugs par">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Intuition: Why a floater often hugs par
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>After a reset, the next coupon is set from <em>today’s</em> short rate. If nothing else changes, discounting that near–market coupon at a comparable short discount rate brings value back toward face value—unlike a fixed-rate bond, whose old coupon can be far above or below the market rate.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Example: Quarterly reset">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Example: Quarterly reset
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A floater pays quarterly with a margin of 0.40% (40 bp) over 3-month SOFR. If SOFR is 5.00% on the reset date, the coupon for the next quarter is 5.40% annualised (paid according to the day-count convention in the prospectus). If SOFR jumps to 5.50% at the next reset, the following quarter’s coupon becomes 5.90%. The investor’s <em>cash income</em> rises with short rates without needing to sell the bond.</p>
+</div>
+</div>
 </section>
-<section id="price-of-an-inverse-floater" class="level2">
-<h2 class="anchored" data-anchor-id="price-of-an-inverse-floater">Price of an Inverse Floater</h2>
-<p>An inverse floating-rate bond has a coupon that moves in the opposite direction of interest rates. When interest rates rise, the coupon decreases; when interest rates fall, the coupon increases. Because of this structure, inverse floaters are highly sensitive to interest rate changes and can be very volatile.</p>
+<section id="inverse-floating-rate-bonds" class="level2">
+<h2 class="anchored" data-anchor-id="inverse-floating-rate-bonds">Inverse floating-rate bonds</h2>
+<p><strong>What they are.</strong> An <strong>inverse floater</strong> pays a coupon that <strong>falls when the reference rate rises</strong> and <strong>rises when it falls</strong>. A common pattern is</p>
+<p><span class="math display">\[
+\text{coupon} = K - a \times \text{reference rate},
+\]</span></p>
+<p>where <span class="math inline">\(K\)</span> is a fixed base and <span class="math inline">\(a &gt; 0\)</span> is a <strong>leverage</strong> coefficient. There is usually a <strong>floor</strong> (coupon cannot go below zero or a stated minimum) and sometimes a <strong>cap</strong>. The structure can be created directly by the issuer or <strong>synthetically</strong> by combining fixed-rate bonds and floaters (for example in structured mortgage deals).</p>
+<p><strong>Why they exist.</strong> Issuers and structurers create inverse floaters to <strong>match demand from investors who want a bet on falling rates</strong> or who seek <strong>higher initial income</strong> in exchange for taking concentrated <strong>rate risk</strong>. They also appear as tranches that reallocate interest-rate risk within a larger pool of collateral.</p>
+<p><strong>Who uses them.</strong> Typically <strong>sophisticated institutional investors</strong> who understand negative duration and convexity—not a retail “buy and hold” core holding. Portfolio managers may use them tactically or as part of structured products.</p>
+<p><strong>How they are priced.</strong> Again, price equals the <strong>present value of expected future coupons and principal</strong>, but each future coupon depends on the <strong>path of the reference rate</strong> (and on floors/caps). Because coupons move the <em>wrong</em> way for rate levels, effective interest-rate sensitivity is often <strong>much larger</strong> than for a fixed-rate bond of the same maturity: <strong>duration can be long or even negative</strong> in some regions, and prices can be <strong>very volatile</strong>.</p>
+<p><strong>What moves the price.</strong> Besides <strong>credit spread</strong> and <strong>liquidity</strong> (as for any bond), the main drivers are: the <strong>level and expected path</strong> of the reference rate; <strong>volatility</strong> of rates (optionality from floors/caps matters); <strong>leverage</strong> <span class="math inline">\(a\)</span> in the coupon formula; and <strong>time</strong> to each reset. A rate rally can lift both the fixed-rate market <em>and</em> inverse-floater coupons, amplifying moves.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Intuition: Inverse means amplified rate exposure">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Intuition: Inverse means amplified rate exposure
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A fixed-rate bond loses principal value when yields spike. An inverse floater often <strong>also</strong> cuts your coupon when rates rise—so you can be hit on <strong>both</strong> price and income. When rates fall, the opposite can feel like a “double win,” which is why these structures are sometimes marketed for rate-bullish views—and why they require careful risk limits.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Example: Simple inverse coupon">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Example: Simple inverse coupon
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Suppose <span class="math inline">\(K = 12\%\)</span> and <span class="math inline">\(a = 1\)</span>, with the reference rate equal to 3-month SOFR (annualised). If SOFR is 3%, the coupon is <span class="math inline">\(12\% - 3\% = 9\%\)</span>. If SOFR rises to 7%, the coupon falls to <span class="math inline">\(12\% - 7\% = 5\%\)</span>. If the formula hits a <strong>floor</strong> of 0%, very high SOFR would clamp the coupon at 0% instead of turning negative.</p>
+</div>
+</div>
+</section>
+<section id="relationship-between-floaters-and-inverse-floaters-collateral-and-repackaging" class="level2">
+<h2 class="anchored" data-anchor-id="relationship-between-floaters-and-inverse-floaters-collateral-and-repackaging">Relationship between floaters and inverse floaters: collateral and repackaging</h2>
+<p><strong>Standalone vs structured.</strong> A <strong>corporate or sovereign floater</strong> is usually a direct promise by the issuer: the coupon formula is chosen for funding or investor demand, not because some separate asset “feeds” it. By contrast, in <strong>mortgage-backed and other structured deals</strong>, a <strong>floater tranche</strong> and an <strong>inverse-floater tranche</strong> are often carved from the <strong>same pool of collateral</strong>—typically <strong>fixed-rate</strong> loans or bonds whose gross coupon is (approximately) <strong>fixed</strong> as a share of outstanding principal.</p>
+<p><strong>What the collateral supplies.</strong> Think of the collateral as paying a <strong>total scheduled interest</strong> each period (for example a fixed pass-through coupon on a pool of mortgages, before prepayments and defaults complicate the picture). That <strong>single stream of cash interest</strong> is <strong>allocated across tranches</strong> according to deal rules. The structurer’s problem is to <strong>split</strong> that fixed (or mostly fixed) pie so that some investors receive <strong>floating</strong> coupons and others receive the <strong>remainder</strong> in a form that <strong>moves inversely</strong> with the chosen index.</p>
+<p><strong>The residual logic.</strong> A common pattern is:</p>
+<ul>
+<li>A <strong>floater tranche</strong> with face <span class="math inline">\(F\)</span> earns a coupon such as <span class="math inline">\(\text{reference rate} + \text{margin}\)</span> on <span class="math inline">\(F\)</span>.</li>
+<li>An <strong>inverse-floater tranche</strong> with face <span class="math inline">\(I\)</span> earns whatever interest is <strong>left over</strong> from the collateral after the floater (and fees) are paid, expressed as a formula <span class="math inline">\(K - a \times \text{reference rate}\)</span> on <span class="math inline">\(I\)</span>.</li>
+</ul>
+<p>By construction, <strong>interest paid to the floater plus interest paid to the inverse floater</strong> (plus senior fees) <strong>adds up to the interest coming off the collateral</strong> (up to caps/floors and modelling simplifications). The two tranches are therefore <strong>not independent bets on unrelated assets</strong>; they are <strong>complementary claims on the same underlying cash flows</strong>. When the reference rate rises, the floater’s share of that pie rises and the inverse floater’s share <strong>must</strong> fall—hence the inverse coupon formula.</p>
+<p><strong>Who holds which piece.</strong> The floater tranche appeals to investors who want <strong>money-market–like duration</strong> and a <strong>known spread</strong> over the index. The inverse tranche concentrates <strong>interest-rate risk</strong> in investors who want <strong>higher potential income</strong> when rates fall and accept <strong>large price and income volatility</strong> when rates rise. The <strong>collateral’s credit/prepayment risk</strong> is typically shared according to the deal’s waterfall (sometimes one tranche is more subordinated than the other); the <strong>split of rate risk</strong> between floater and inverse is a separate design choice.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Intuition: One fixed coupon, two rate exposures">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Intuition: One fixed coupon, two rate exposures
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Picture a fixed-rate pool paying 6% on $100~million. If one tranche is structured to receive “SOFR + 0.5%” on $60~million, that tranche grabs more dollars whenever SOFR rises. Whatever interest remains for the other $40~million <strong>must</strong> fall—so that second tranche behaves like an inverse floater relative to SOFR. You have <strong>one</strong> source of interest; <strong>floating</strong> and <strong>inverse</strong> are just <strong>different rules for dividing the same collateral income</strong>.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Example: Splitting collateral interest between floater and inverse">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Example: Splitting collateral interest between floater and inverse
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Simplified numbers: underlying collateral has $100~million principal and pays a <strong>fixed</strong> 6% annual interest, so $6~million per year before fees. Tranche <strong>F</strong> (floater): $60~million face, coupon <strong>SOFR + 0.50%</strong> paid on that $60~million. Tranche <strong>I</strong> (inverse): $40~million face; it receives <strong>all remaining interest</strong> on the pool after tranche <strong>F</strong> is paid (ignoring fees).</p>
+<p>If SOFR is <strong>5%</strong>, tranche <strong>F</strong> receives <span class="math inline">\((0.05 + 0.005) \times 60{,}000{,}000 = 3{,}300{,}000\)</span> dollars per year. The residual for tranche <strong>I</strong> is <span class="math inline">\(6{,}000{,}000 - 3{,}300{,}000 = 2{,}700{,}000\)</span>, which is <strong>6.75%</strong> on $40~million.</p>
+<p>If SOFR rises to <strong>7%</strong>, tranche <strong>F</strong> receives <span class="math inline">\((0.07 + 0.005) \times 60{,}000{,}000 = 4{,}500{,}000\)</span>. The residual for <strong>I</strong> is <span class="math inline">\(6{,}000{,}000 - 4{,}500{,}000 = 1{,}500{,}000\)</span>, which is <strong>3.75%</strong> on $40~million. The floater’s coupon rose with SOFR; the inverse tranche’s coupon <strong>fell</strong>, even though the <strong>underlying collateral</strong> was still a <strong>fixed</strong> 6% pool—<strong>repackaging</strong>, not a second independent borrower promise.</p>
+<p>Real CMOs add <strong>caps, floors, prepayment uncertainty, servicing, and credit enhancement</strong>; the economic point—that floater and inverse <strong>share</strong> the collateral’s interest—remains the same.</p>
+</div>
+</div>
 <hr>
 </section>
 </section>

@@ -485,17 +485,88 @@ The basic bond pricing formula assumes that all cash flows are discounted at the
 
 # 8 Pricing Floating-Rate and Inverse-Floating-Rate Securities
 
-Some bonds do not pay fixed coupons. Instead, their coupon payments are linked to a reference rate such as LIBOR or Treasury rates.
+Many bonds do not pay a fixed coupon. Instead, each coupon is tied to a short-term **reference rate** (for example a Treasury bill rate, **SOFR**, or—historically—**LIBOR**) and sometimes to a fixed **spread** or a formula. The two main structures below are **floating-rate notes (floaters)** and **inverse floaters**.
 
-## Price of a Floater
+## Floating-rate notes (floaters)
 
-A floating-rate bond has a coupon that resets periodically based on a reference rate plus a fixed spread. Because the coupon adjusts to market interest rates, the price of a floating-rate bond typically remains close to its par value.
+**What they are.** On each **reset date**, the issuer sets the coupon for the next period as a reference rate plus a fixed margin (spread), e.g.
 
-The price of a floating-rate bond can be expressed as the present value of its expected future cash flows, where the coupon payments depend on future interest rates.
+$$
+\text{coupon rate for the period} = \text{reference rate} + \text{margin}.
+$$
 
-## Price of an Inverse Floater
+The bond pays that rate on par for that period; at the next reset, the coupon changes again. Caps and floors may limit how high or low the coupon can go.
 
-An inverse floating-rate bond has a coupon that moves in the opposite direction of interest rates. When interest rates rise, the coupon decreases; when interest rates fall, the coupon increases. Because of this structure, inverse floaters are highly sensitive to interest rate changes and can be very volatile.
+**Why they exist.** Borrowers (corporates, banks, governments) use floaters when they prefer **funding costs that move with short rates** instead of locking in a long-term fixed coupon. Investors use them when they want **income that resets with money-market conditions**, limiting sensitivity of *price* to small parallel shifts in the curve right after a reset.
+
+**Who uses them.** Cash-rich institutions (money managers, corporate treasuries), bank treasury desks, and liability-driven investors often hold floaters as **short-duration** credit or liquidity instruments; issuers include banks and non-financial corporates.
+
+**How they are priced.** Conceptually, price is still the **present value of expected future cash flows**, but those cash flows depend on future reference rates. Right after a coupon reset, if credit risk is unchanged, a plain floater with no unusual options often trades **close to par** because the next coupon is already aligned with current short rates. Between resets, the **accrued value** of the current coupon makes the clean price drift slightly away from par. For yield-style measures, practitioners often use a **spread over the reference** (e.g. **discount margin**), which is developed later in this lecture in more detail.
+
+**What moves the price.** Key factors include: **changes in the issuer’s credit spread** (the margin the market demands over the reference); **time to the next reset**; **the shape of short-rate expectations**; **liquidity**; and any **embedded options** (caps, floors, call features). A widening credit spread lowers price even if the reference rate is unchanged.
+
+::: {.callout-tip title="Intuition: Why a floater often hugs par"}
+After a reset, the next coupon is set from *today’s* short rate. If nothing else changes, discounting that near–market coupon at a comparable short discount rate brings value back toward face value—unlike a fixed-rate bond, whose old coupon can be far above or below the market rate.
+:::
+
+::: {.callout-note title="Example: Quarterly reset"}
+A floater pays quarterly with a margin of 0.40% (40 bp) over 3-month SOFR. If SOFR is 5.00% on the reset date, the coupon for the next quarter is 5.40% annualised (paid according to the day-count convention in the prospectus). If SOFR jumps to 5.50% at the next reset, the following quarter’s coupon becomes 5.90%. The investor’s *cash income* rises with short rates without needing to sell the bond.
+:::
+
+## Inverse floating-rate bonds
+
+**What they are.** An **inverse floater** pays a coupon that **falls when the reference rate rises** and **rises when it falls**. A common pattern is
+
+$$
+\text{coupon} = K - a \times \text{reference rate},
+$$
+
+where $K$ is a fixed base and $a > 0$ is a **leverage** coefficient. There is usually a **floor** (coupon cannot go below zero or a stated minimum) and sometimes a **cap**. The structure can be created directly by the issuer or **synthetically** by combining fixed-rate bonds and floaters (for example in structured mortgage deals).
+
+**Why they exist.** Issuers and structurers create inverse floaters to **match demand from investors who want a bet on falling rates** or who seek **higher initial income** in exchange for taking concentrated **rate risk**. They also appear as tranches that reallocate interest-rate risk within a larger pool of collateral.
+
+**Who uses them.** Typically **sophisticated institutional investors** who understand negative duration and convexity—not a retail “buy and hold” core holding. Portfolio managers may use them tactically or as part of structured products.
+
+**How they are priced.** Again, price equals the **present value of expected future coupons and principal**, but each future coupon depends on the **path of the reference rate** (and on floors/caps). Because coupons move the *wrong* way for rate levels, effective interest-rate sensitivity is often **much larger** than for a fixed-rate bond of the same maturity: **duration can be long or even negative** in some regions, and prices can be **very volatile**.
+
+**What moves the price.** Besides **credit spread** and **liquidity** (as for any bond), the main drivers are: the **level and expected path** of the reference rate; **volatility** of rates (optionality from floors/caps matters); **leverage** $a$ in the coupon formula; and **time** to each reset. A rate rally can lift both the fixed-rate market *and* inverse-floater coupons, amplifying moves.
+
+::: {.callout-tip title="Intuition: Inverse means amplified rate exposure"}
+A fixed-rate bond loses principal value when yields spike. An inverse floater often **also** cuts your coupon when rates rise—so you can be hit on **both** price and income. When rates fall, the opposite can feel like a “double win,” which is why these structures are sometimes marketed for rate-bullish views—and why they require careful risk limits.
+:::
+
+::: {.callout-note title="Example: Simple inverse coupon"}
+Suppose $K = 12\%$ and $a = 1$, with the reference rate equal to 3-month SOFR (annualised). If SOFR is 3%, the coupon is $12\% - 3\% = 9\%$. If SOFR rises to 7%, the coupon falls to $12\% - 7\% = 5\%$. If the formula hits a **floor** of 0%, very high SOFR would clamp the coupon at 0% instead of turning negative.
+:::
+
+## Relationship between floaters and inverse floaters: collateral and repackaging
+
+**Standalone vs structured.** A **corporate or sovereign floater** is usually a direct promise by the issuer: the coupon formula is chosen for funding or investor demand, not because some separate asset “feeds” it. By contrast, in **mortgage-backed and other structured deals**, a **floater tranche** and an **inverse-floater tranche** are often carved from the **same pool of collateral**—typically **fixed-rate** loans or bonds whose gross coupon is (approximately) **fixed** as a share of outstanding principal.
+
+**What the collateral supplies.** Think of the collateral as paying a **total scheduled interest** each period (for example a fixed pass-through coupon on a pool of mortgages, before prepayments and defaults complicate the picture). That **single stream of cash interest** is **allocated across tranches** according to deal rules. The structurer’s problem is to **split** that fixed (or mostly fixed) pie so that some investors receive **floating** coupons and others receive the **remainder** in a form that **moves inversely** with the chosen index.
+
+**The residual logic.** A common pattern is:
+
+- A **floater tranche** with face $F$ earns a coupon such as $\text{reference rate} + \text{margin}$ on $F$.
+- An **inverse-floater tranche** with face $I$ earns whatever interest is **left over** from the collateral after the floater (and fees) are paid, expressed as a formula $K - a \times \text{reference rate}$ on $I$.
+
+By construction, **interest paid to the floater plus interest paid to the inverse floater** (plus senior fees) **adds up to the interest coming off the collateral** (up to caps/floors and modelling simplifications). The two tranches are therefore **not independent bets on unrelated assets**; they are **complementary claims on the same underlying cash flows**. When the reference rate rises, the floater’s share of that pie rises and the inverse floater’s share **must** fall—hence the inverse coupon formula.
+
+**Who holds which piece.** The floater tranche appeals to investors who want **money-market–like duration** and a **known spread** over the index. The inverse tranche concentrates **interest-rate risk** in investors who want **higher potential income** when rates fall and accept **large price and income volatility** when rates rise. The **collateral’s credit/prepayment risk** is typically shared according to the deal’s waterfall (sometimes one tranche is more subordinated than the other); the **split of rate risk** between floater and inverse is a separate design choice.
+
+::: {.callout-tip title="Intuition: One fixed coupon, two rate exposures"}
+Picture a fixed-rate pool paying 6% on \$100~million. If one tranche is structured to receive “SOFR + 0.5%” on \$60~million, that tranche grabs more dollars whenever SOFR rises. Whatever interest remains for the other \$40~million **must** fall—so that second tranche behaves like an inverse floater relative to SOFR. You have **one** source of interest; **floating** and **inverse** are just **different rules for dividing the same collateral income**.
+:::
+
+::: {.callout-note title="Example: Splitting collateral interest between floater and inverse"}
+Simplified numbers: underlying collateral has \$100~million principal and pays a **fixed** 6% annual interest, so \$6~million per year before fees. Tranche **F** (floater): \$60~million face, coupon **SOFR + 0.50%** paid on that \$60~million. Tranche **I** (inverse): \$40~million face; it receives **all remaining interest** on the pool after tranche **F** is paid (ignoring fees).
+
+If SOFR is **5%**, tranche **F** receives $(0.05 + 0.005) \times 60{,}000{,}000 = 3{,}300{,}000$ dollars per year. The residual for tranche **I** is $6{,}000{,}000 - 3{,}300{,}000 = 2{,}700{,}000$, which is **6.75%** on \$40~million.
+
+If SOFR rises to **7%**, tranche **F** receives $(0.07 + 0.005) \times 60{,}000{,}000 = 4{,}500{,}000$. The residual for **I** is $6{,}000{,}000 - 4{,}500{,}000 = 1{,}500{,}000$, which is **3.75%** on \$40~million. The floater’s coupon rose with SOFR; the inverse tranche’s coupon **fell**, even though the **underlying collateral** was still a **fixed** 6% pool—**repackaging**, not a second independent borrower promise.
+
+Real CMOs add **caps, floors, prepayment uncertainty, servicing, and credit enhancement**; the economic point—that floater and inverse **share** the collateral’s interest—remains the same.
+:::
 
 ---
 

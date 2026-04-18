@@ -3,8 +3,14 @@
 \usepackage{enumitem}
 \setlist[enumerate]{itemsep=0.12ex, topsep=0.35ex, parsep=0pt, partopsep=0pt}
 \date{}%
+% Arial is common on macOS/Windows but missing on Linux CI; TeX Gyre Heros is
+% a free Helvetica-like face shipped with TeX Live / TinyTeX.
 \AtBeginDocument{%
-  \setmainfont{Arial}[Ligatures=TeX]%
+  \IfFontExistsTF{Arial}{%
+    \setmainfont{Arial}[Ligatures=TeX]%
+  }{%
+    \setmainfont{TeX Gyre Heros}[Ligatures=TeX]%
+  }%
 }
 \RedeclareSectionCommand[
   beforeskip=-0.85\baselineskip plus -0.15\baselineskip minus 0.08\baselineskip,

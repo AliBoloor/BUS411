@@ -4,6 +4,10 @@ on:
   push:
     branches: [main, master]
 
+concurrency:
+  group: quarto-render-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   render:
     runs-on: ubuntu-latest
@@ -23,9 +27,18 @@ jobs:
 
       - name: Setup Quarto
         uses: quarto-dev/quarto-actions/setup@v2
+        env:
+          # Avoids GitHub API rate limits when downloading Quarto / TinyTeX bundles.
+          GH_TOKEN: ${{ github.token }}
         with:
           version: release
           tinytex: true
+
+      - name: Install TeX fonts for syllabus PDF (Linux)
+        run: |
+          if command -v tlmgr >/dev/null 2>&1; then
+            tlmgr install --no-dependents tex-gyre || true
+          fi
 
       - name: Setup Python for Quarto execution
         uses: actions/setup-python@v6

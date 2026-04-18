@@ -1,0 +1,23 @@
+% Very tight vertical rhythm; single rule after title; compact sections.
+\makeatletter
+\usepackage{enumitem}
+\setlist[enumerate]{itemsep=0.12ex, topsep=0.35ex, parsep=0pt, partopsep=0pt}
+\date{}%
+\AtBeginDocument{%
+  \setmainfont{Arial}[Ligatures=TeX]%
+}
+\RedeclareSectionCommand[
+  beforeskip=-0.85\baselineskip plus -0.15\baselineskip minus 0.08\baselineskip,
+  afterskip=0.12\baselineskip
+]{section}
+% Rules only under \section headings (avoids a stray line above the first section title)
+\setkomafont{section}{\normalfont\Large\bfseries\color[HTML]{C00000}}
+\renewcommand{\sectionlinesformat}[4]{%
+  \@hangfrom{\hskip #2#3}{#4}%
+  \par\nobreak
+  \vspace{-0.78\baselineskip}%
+  \noindent{\color[HTML]{4472C4}\rule{\linewidth}{0.55pt}}%
+  \par
+  \vspace{0.03\baselineskip}%
+}
+\makeatother

@@ -13,8 +13,8 @@ format:
     fontsize: 11pt
     toc: false
     number-sections: false
-    # So ## becomes \section (KOMA \sectionlinesformat applies); avoids \subsection without our rule
-    block-headings: false
+    # Use block headings so ## → LaTeX \section (matches course-outline-pdf-header.tex).
+    block-headings: true
     include-in-header:
       - course-outline-pdf-header.tex
 ---

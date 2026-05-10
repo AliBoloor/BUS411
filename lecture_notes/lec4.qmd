@@ -1,5 +1,5 @@
 ---
-title: "Lecture 2: Bond Pricing and Yield Measures"
+title: "Lecture 4: Benchmark Spreads and the Term Structure of Interest Rates"
 format:
   html:
     toc: true
@@ -15,553 +15,976 @@ jupyter: python3
 
 By the end of this lecture you should be able to:
 
-- Explain the time value of money and calculate future values and present values for cash‑flows.
-- Compute the price of a bond by discounting expected cash‑flows at an appropriate discount rate.
-- Describe how bond prices move in response to changes in yield and why the price–yield relationship is convex.
-- Relate coupon rate and yield to a bond’s trading status (par, premium or discount) and recognise how prices evolve as a bond approaches maturity (pull to par).
-- Identify factors—market interest rates, credit risk, liquidity, economic expectations, tax policy and inflation—that cause bond prices to change.
-- Describe complications in bond pricing arising from embedded options, floating‑rate structures and inverse floaters.
-- Explain how bonds are quoted clean and dirty, and compute accrued interest.
-- Compute yields using the present‑value relationship: current yield, yield to maturity, yield to call, yield to put, yield to sinker and yield to worst, as well as the yield for a portfolio and the cash‑flow yield for amortising securities.
-- Compute the discount margin for a floating‑rate security and explain why this margin differs from conventional yield measures.
-- Identify the sources of a bond’s total return—coupon interest, reinvestment income and capital gain or loss—and discuss reinvestment risk.
-- Use total return and horizon analysis to evaluate the realised performance of a bond or bond strategy under explicit assumptions about reinvestment rates and future yields.
-- Measure changes in yield using absolute (basis‑point) and relative (percentage) conventions.
+- Explain why a bond's required yield can be decomposed into a base interest rate and a benchmark spread.
+- Identify the main issuer, credit, tax, liquidity, financeability, option, and maturity characteristics that affect benchmark spreads.
+- Distinguish between a yield curve and a theoretical spot rate curve.
+- Explain why coupon bond yields are not the correct discount rates for valuing individual cash flows.
+- Construct a simple Treasury spot rate curve by bootstrapping from Treasury bill and coupon security prices.
+- Use spot rates to value a bond and to measure its spread over the Treasury curve.
+- Derive forward rates from spot rates and interpret forward rates as hedgeable break-even rates.
+- Compare the pure expectations, liquidity, preferred habitat, and market segmentation theories of the term structure.
+- Explain why swap rates are widely used as benchmark rates in fixed income markets.
+- Design curve strategies based on the shape of the yield curve and a trader's view about future curve movements.
 
 ---
 
-# 1 The Time Value of Money
+# 1 Base Interest Rate
 
-A fundamental principle underlying all fixed income valuation is the **time value of money**. A dollar received today is worth more than a dollar received in the future because the dollar today can be invested to earn interest. When an investor purchases a bond, the investor is exchanging money today for a stream of future cash flows. To determine whether this exchange is fair, we must be able to compare money received at different points in time. The tool that allows us to do this is present value and future value analysis.
+The **base interest rate** is the benchmark rate used as the starting point for valuing a bond. It is meant to represent the return required on a security with minimal default risk over the same maturity or cash-flow horizon.
 
-In fixed income markets, virtually every valuation problem can be reduced to one question:
+In U.S. dollar fixed income markets, the base rate is often taken from:
 
-> What is the present value of a set of future cash flows?
+- U.S. Treasury rates,
+- the Treasury spot rate curve,
+- the swap rate curve, or
+- overnight indexed swap rates for collateralized derivative valuation.
 
-To answer this question, we must first understand how money grows over time and how future cash flows are discounted back to the present.
-
----
-
-## 1.1 Future Value
-
-Suppose an investor invests an amount $P_0$ today at an interest rate $r$ per period. After one period, the investment grows to
+The base rate is not the full required yield on most bonds. A corporate bond, municipal bond, mortgage-backed security, or structured product usually requires compensation for additional risks and contractual features. The required yield can be summarized as:
 
 $$
-P_1 = P_0(1+r).
+\text{Required yield} = \text{Base interest rate} + \text{Benchmark spread}.
 $$
 
-After two periods, the investment grows to
+This decomposition is useful because it separates broad market interest-rate risk from issuer-specific and security-specific risk.
+
+::: {.callout-note title="Conceptual Example"}
+Suppose the 5-year Treasury yield is 3.80% and a 5-year industrial corporate bond trades at a yield of 5.05%.
 
 $$
-P_2 = P_0(1+r)^2.
+\text{Benchmark spread} = 5.05\% - 3.80\% = 1.25\%.
 $$
 
-After $n$ periods, the investment grows to
-
-$$
-P_n = P_0(1+r)^n.
-$$
-
-This is the **future value** of the investment. The key idea behind this formula is **compound interest**: interest earned each period is reinvested and itself earns interest in future periods. In fixed income markets, compounding plays a central role because coupon payments are often reinvested, and the return on a bond depends not only on coupon payments but also on the interest earned on reinvested coupons.
-
-::: {.callout-note title="Worked Example"}
-**Future Value**
-
-Suppose a pension fund invests \$10,000,000 at an annual interest rate of 9.2% for 6 years.
-
-$$
-P_6 = 10{,}000{,}000(1.092)^6 = 16{,}956{,}500.
-$$
-
-The investment grows to approximately \$16.96 million after six years.
+The bond trades at a spread of 125 basis points over the 5-year Treasury benchmark.
 :::
 
 ---
 
-## 1.2 Future Value of an Ordinary Annuity
+# 2 Benchmark Spread
 
-An **ordinary annuity** is a series of equal payments made at the **end** of each period. Coupon payments on most bonds are an example of an ordinary annuity.
+The **benchmark spread** is the yield difference between a bond and a benchmark security or benchmark curve. It compensates investors for risks and features not captured by the base interest rate.
 
-Suppose a payment $C$ is made at the end of each period for $n$ periods, and the interest rate is $r$. The future value of these payments at time $n$ is
-
-$$
-FV = C \left( \frac{(1+r)^n - 1}{r} \right).
-$$
-
-This formula shows that the future value of an annuity depends on both the number of payments and the interest rate at which the payments are reinvested. This is important in fixed income because the total return from a bond depends heavily on the reinvestment of coupon payments.
-
-::: {.callout-note title="Worked Example"}
-**Future Value of an Annuity**
-
-Suppose an investor receives \$100 at the end of each year for 5 years and can reinvest each payment at 6%.
+For a simple bond quoted against a Treasury benchmark:
 
 $$
-FV = 100 \left( \frac{(1.06)^5 - 1}{0.06} \right)
-= 100(5.637) = 563.70.
+\text{Benchmark spread} = y_{\text{bond}} - y_{\text{benchmark}}.
 $$
 
-The future value of the payments at the end of 5 years is \$563.70.
+If the corporate bond yield is 6.20% and the Treasury benchmark yield is 4.70%, the benchmark spread is:
+
+$$
+6.20\% - 4.70\% = 1.50\% = 150 \text{ basis points}.
+$$
+
+The spread is not fixed. It changes as credit conditions, market liquidity, investor risk appetite, and the bond's own characteristics change.
+
+```{python}
+#| label: fig-benchmark-spread
+#| fig-cap: "Yield decomposition into a base interest rate and a benchmark spread."
+#| echo: false
+#| warning: false
+#| message: false
+
+import matplotlib.pyplot as plt
+
+components = ["Base rate", "Benchmark spread"]
+values = [3.80, 1.25]
+colors = ["#4C78A8", "#F58518"]
+
+fig, ax = plt.subplots(figsize=(7, 4))
+ax.bar(["Required yield"], [sum(values)], color="#E6E6E6", edgecolor="black")
+bottom = 0
+for component, value, color in zip(components, values, colors):
+    ax.bar(["Required yield"], [value], bottom=bottom, color=color, label=f"{component}: {value:.2f}%")
+    bottom += value
+
+ax.set_ylabel("Yield (%)")
+ax.set_ylim(0, 5.6)
+ax.set_title("Required Yield = Base Rate + Benchmark Spread")
+ax.legend(loc="upper right")
+ax.grid(axis="y", alpha=0.25)
+plt.show()
+```
+
+## 2.1 Types of Issuers
+
+Different issuer types usually trade at different spreads because investors assign different risks and legal protections to each sector.
+
+Common issuer categories include:
+
+- sovereign governments,
+- government agencies,
+- supranational institutions,
+- municipalities,
+- financial corporations,
+- industrial corporations,
+- utilities,
+- structured finance issuers,
+- mortgage-backed security issuers.
+
+Treasury securities usually define the lowest-yielding benchmark in the domestic currency because they are backed by the sovereign taxing authority and are highly liquid. Corporate bonds trade at positive spreads because investors require compensation for default risk, downgrade risk, and lower liquidity.
+
+::: {.callout-note title="Issuer Spread Example"}
+Assume the 10-year Treasury yield is 4.00%. Three 10-year bonds trade at:
+
+| Issuer type | Yield | Spread over Treasury |
+|---|---:|---:|
+| Federal agency | 4.35% | 35 bps |
+| Utility company | 4.95% | 95 bps |
+| High-yield industrial company | 7.25% | 325 bps |
+
+The spread increases as investors require more compensation for credit and liquidity risk.
 :::
 
----
+## 2.2 Perceived Creditworthiness of Issuer
 
-## 1.3 Present Value
+Creditworthiness is the market's assessment of the issuer's ability and willingness to make promised payments. It depends on:
 
-Present value is the reverse of future value. Instead of asking how much an investment today will grow to in the future, we ask:
+- leverage,
+- earnings stability,
+- cash-flow coverage,
+- asset quality,
+- business risk,
+- industry cyclicality,
+- legal protections for creditors,
+- recovery value if default occurs.
 
-> How much is a future cash flow worth today?
+Credit ratings summarize some of this information, but market spreads often react faster than ratings. A widening spread can signal that investors are demanding more compensation for default or downgrade risk.
 
-If a payment of $F$ will be received in $n$ periods and the interest rate is $r$, the present value is
-
-$$
-PV = \frac{F}{(1+r)^n}.
-$$
-
-This formula is called **discounting**, and the interest rate $r$ is called the **discount rate**. In fixed income markets, the discount rate reflects the required yield on a bond, which depends on interest rates, credit risk, liquidity, and other factors.
-
-::: {.callout-note title="Worked Example"}
-**Present Value**
-
-Suppose an investor will receive \$1,000 in 3 years and the discount rate is 5%.
-
-$$
-PV = \frac{1000}{(1.05)^3} = 863.84.
-$$
-
-The present value of \$1,000 received in three years is \$863.84.
+::: {.callout-note title="Credit Spread Example"}
+A 7-year A-rated bond trades at 85 bps over Treasuries. A similar BBB-rated bond from the same sector trades at 145 bps. The 60 bps difference reflects the market's higher required compensation for the weaker credit profile.
 :::
 
----
+## 2.3 Inclusion of Options
 
-## 1.4 Present Value of a Series of Future Cash Flows
+Embedded options change a bond's cash flows and therefore affect its spread.
 
-Most bonds pay multiple cash flows: periodic coupon payments and the principal at maturity. The present value of a series of future cash flows is simply the sum of the present values of each individual cash flow.
+A **callable bond** gives the issuer the right to redeem the bond before maturity. This is valuable to the issuer and costly to the investor. If interest rates fall, the issuer can call the bond and refinance at a lower rate, limiting the investor's price upside.
 
-If the cash flows are $CF_1, CF_2, \dots, CF_n$, then
+A **putable bond** gives the investor the right to sell the bond back to the issuer at a specified price. This is valuable to the investor and costly to the issuer.
 
-$$
-PV = \sum_{t=1}^{n} \frac{CF_t}{(1+r)^t}.
-$$
+All else equal:
 
-This is the fundamental bond pricing formula. Every bond pricing problem is an application of this equation.
+- callable bonds usually trade at higher yields than otherwise comparable noncallable bonds,
+- putable bonds usually trade at lower yields than otherwise comparable nonputable bonds,
+- convertible bonds may trade at lower yields because the conversion option has value.
 
-::: {.callout-note title="Worked Example"}
-**Present Value of Multiple Cash Flows**
+::: {.callout-note title="Callable Bond Example"}
+Suppose two 10-year bonds are issued by the same company:
 
-Suppose a bond pays \$60 in one year, \$60 in two years, and \$1,060 in three years. If the discount rate is 5%:
+| Bond | Yield | Interpretation |
+|---|---:|---|
+| Noncallable | 5.40% | No issuer call option |
+| Callable after 3 years | 5.80% | Investor requires 40 bps more |
 
-$$
-PV = \frac{60}{1.05} + \frac{60}{1.05^2} + \frac{1060}{1.05^3} = 1026.71.
-$$
-
-This is the price of the bond.
+The extra yield compensates investors for call risk and reinvestment risk.
 :::
 
----
+## 2.4 Taxability of Interest
 
-## 1.5 Present Value of an Ordinary Annuity
+Tax treatment affects after-tax yield. Investors compare bonds based on what they keep after taxes, not only the quoted pretax yield.
 
-If a bond pays a fixed coupon $C$ each period for $n$ periods, the present value of the coupon payments is the present value of an ordinary annuity:
-
-$$
-PV = C \left( \frac{1 - (1+r)^{-n}}{r} \right).
-$$
-
-The price of a bond can therefore be written as
+For a taxable bond:
 
 $$
-P = C \left( \frac{1 - (1+r)^{-n}}{r} \right) + \frac{F}{(1+r)^n}.
+\text{After-tax yield} = y_{\text{taxable}}(1 - t),
 $$
 
-This formula shows that a bond is simply the present value of an annuity (coupon payments) plus the present value of a single payment (principal).
+where $t$ is the investor's marginal tax rate.
 
----
-
-## 1.6 Present Value When Payments Occur More Than Once per Year
-
-In many bond markets, coupon payments are made **semiannually**, meaning twice per year. Some securities pay quarterly or monthly.
-
-When payments occur more than once per year, we must adjust both the interest rate and the number of periods.
-
-If the annual interest rate is $r$ and there are $m$ payments per year, then:
-
-- Interest rate per period = $\frac{r}{m}$
-- Number of periods = $n \times m$
-
-The present value formula becomes
+For a tax-exempt municipal bond, investors often compute the **taxable-equivalent yield**:
 
 $$
-PV = \sum_{t=1}^{nm} \frac{CF_t}{\left(1+\frac{r}{m}\right)^t}.
+\text{Taxable-equivalent yield} = \frac{y_{\text{tax-exempt}}}{1 - t}.
 $$
 
-::: {.callout-note title="Worked Example"}
-**Semiannual Bond Pricing**
-
-Suppose a bond pays \$80 per year in coupons, paid semiannually, for 5 years. The required yield is 6%.
-
-- Semiannual coupon = \$40
-- Semiannual yield = 3%
-- Number of periods = 10
+::: {.callout-note title="Taxable-Equivalent Yield Example"}
+A municipal bond yields 3.00% and the investor's marginal tax rate is 35%.
 
 $$
-P = 40 \left( \frac{1 - (1.03)^{-10}}{0.03} \right) + \frac{1000}{(1.03)^{10}}.
+\text{Taxable-equivalent yield} = \frac{0.0300}{1 - 0.35} = 0.0462.
 $$
 
-This gives the price of the bond.
+The municipal bond is equivalent to a taxable bond yielding 4.62% for this investor.
 :::
 
----
+## 2.5 Expected Liquidity of an Issue
 
-## Key Insight
+Liquidity is the ability to buy or sell a bond quickly, in size, and at low transaction cost. Less liquid bonds usually require higher yields.
 
-The most important idea in fixed income valuation is:
+Liquidity depends on:
 
-> The price of any fixed income security is the present value of its expected future cash flows discounted at an appropriate discount rate.
+- issue size,
+- dealer inventory,
+- trading frequency,
+- transparency of market prices,
+- eligibility for major indexes,
+- whether the bond is newly issued or seasoned,
+- investor concentration.
 
----
+The liquidity premium is often small in calm markets but can become large during stress.
 
-# 2 Pricing a Bond
+::: {.callout-note title="Liquidity Example"}
+Two BBB-rated bonds have the same maturity and similar credit risk. Bond A is a \$2 billion benchmark issue that trades daily. Bond B is a \$150 million issue that rarely trades. If Bond A trades at 140 bps and Bond B trades at 175 bps over Treasuries, the 35 bps difference may largely reflect liquidity.
+:::
 
-The price of a bond is equal to the present value of its expected future cash flows. These cash flows consist of periodic coupon payments and the repayment of principal at maturity. Therefore, a bond can be viewed as a financial instrument that converts a series of future payments into a present value.
+## 2.6 Financeability of an Issue
 
-If a bond has coupon payment $C$, face value $F$, maturity $n$, and required yield $r$, the price of the bond is
+Financeability refers to how easily a bond can be financed in the repo or secured financing market. A bond that can be financed cheaply and reliably is more attractive to leveraged investors.
 
-$$
-P = \sum_{t=1}^{n} \frac{C}{(1+r)^t} + \frac{F}{(1+r)^n}.
-$$
+Financeability depends on:
 
-This formula shows that bond pricing is simply an application of present value. The required yield used to discount the cash flows reflects market interest rates, credit risk, liquidity, and other factors.
+- whether the bond is accepted as collateral,
+- the repo rate on the bond,
+- the haircut required by lenders,
+- settlement reliability,
+- whether the issue is special in the repo market,
+- how easily the position can be rolled.
 
-## Pricing Zero-Coupon Bonds
+If a bond is difficult to finance, investors may require a higher yield. If it is easy to finance, especially at favorable repo rates, investors may accept a lower yield.
 
-A zero-coupon bond makes only one payment at maturity and does not pay periodic coupons. Therefore, its price is simply the present value of the maturity value.
+::: {.callout-note title="Financeability Example"}
+A hedge fund can finance Treasury Bond A at a repo rate of 4.00% with a 2% haircut. A less liquid corporate bond requires a 15% haircut and a repo rate of 5.50%. Even if both bonds have attractive yields, the corporate bond consumes more capital and has higher financing risk, so its required spread must be higher.
+:::
 
-$$
-P = \frac{F}{(1+r)^n}.
-$$
+## 2.7 Term to Maturity
 
-Zero-coupon bonds are particularly useful for understanding the relationship between interest rates and bond prices because there is only one cash flow.
+Spreads often vary with maturity. The pattern of spreads across maturities is called the **credit spread curve**.
 
----
+For high-quality issuers, longer maturities often trade at wider spreads because there is more time for credit quality to deteriorate. For distressed issuers, the spread curve may invert because near-term default risk is more severe than long-term risk.
 
-# 3 Price–Yield Relationship
+```{python}
+#| label: fig-spread-curves
+#| fig-cap: "Illustrative spread curves for high-quality and distressed issuers."
+#| echo: false
+#| warning: false
+#| message: false
 
-One of the most important relationships in fixed income markets is the inverse relationship between bond prices and yields. When required yields increase, the present value of future cash flows decreases, and therefore the bond price falls. When required yields decrease, the present value of future cash flows increases, and therefore the bond price rises.
+import numpy as np
+import matplotlib.pyplot as plt
 
-This inverse relationship exists because the bond’s cash flows are fixed while the discount rate changes.
+maturities = np.array([1, 2, 3, 5, 7, 10, 20, 30])
+investment_grade = np.array([35, 45, 55, 70, 85, 100, 125, 145])
+distressed = np.array([900, 760, 610, 470, 380, 320, 270, 250])
 
-The relationship between bond price and yield is not linear; it is curved. This curvature is called **convexity**, and it means that bond prices increase at an increasing rate when yields fall and decrease at a decreasing rate when yields rise.
-
----
-
-# 4 Relationship Between Coupon Rate, Required Yield, and Price
-
-The relationship between the coupon rate and the required yield determines whether a bond sells at par, at a premium, or at a discount.
-
-| Coupon Rate vs Yield | Bond Price |
-|----------------------|------------|
-| Coupon rate = Yield  | Price = Par |
-| Coupon rate > Yield  | Price > Par (Premium) |
-| Coupon rate < Yield  | Price < Par (Discount) |
-
-If the coupon rate is higher than the market yield, the bond pays more interest than comparable bonds, so investors are willing to pay more than par. If the coupon rate is lower than the market yield, the bond pays less interest than comparable bonds, so investors will only buy it at a discount.
-
----
-
-# 5 Relationship Between Bond Price and Time if Interest Rates Are Unchanged
-
-If interest rates remain unchanged, the price of a bond will move toward its face value as it approaches maturity. This is known as **pull to par**.
-
-- A premium bond will decline in price over time.
-- A discount bond will increase in price over time.
-- A bond selling at par will remain at par.
-
-This occurs because the present value of the principal repayment becomes less sensitive to discounting as the bond approaches maturity.
-
----
-
-# 6 Reasons for the Change in the Price of a Bond
-
-Bond prices change for several reasons. The most important factor is changes in market interest rates, but other factors also affect bond prices:
-
-- Changes in the level of interest rates
-- Changes in credit risk of the issuer
-- Changes in liquidity of the bond
-- Changes in tax treatment
-- Changes in inflation expectations
-- Changes in economic conditions
-
-Understanding these factors is essential for fixed income portfolio management because bond prices can change even if interest rates remain constant.
+fig, ax = plt.subplots(figsize=(7, 4))
+ax.plot(maturities, investment_grade, marker="o", label="Investment grade")
+ax.plot(maturities, distressed, marker="o", label="Distressed issuer")
+ax.set_xlabel("Maturity (years)")
+ax.set_ylabel("Spread over Treasury (basis points)")
+ax.set_title("Credit Spread Curves Can Slope Up or Down")
+ax.grid(alpha=0.25)
+ax.legend()
+plt.show()
+```
 
 ---
 
-# 7 Complications in Pricing Bonds
+# 3 Term Structure of Interest Rate
 
-In practice, bond pricing is more complicated than the basic present value formula suggests. Several issues arise in real-world bond pricing.
+The **term structure of interest rates** describes how interest rates vary across maturities. It is one of the central tools in fixed income valuation because bond cash flows occur at different dates.
 
-## Next Coupon Payment Due in Less Than Six Months
+A term structure can be expressed using:
 
-Bonds often trade between coupon payment dates. When this happens, the buyer must compensate the seller for the interest earned since the last coupon payment. Therefore, the pricing formula must account for fractional periods.
+- par yields,
+- spot rates,
+- forward rates,
+- swap rates,
+- credit spread curves.
 
-## Cash Flows May Not Be Known
+Each curve answers a different question. A par yield curve tells us the coupon rate that would price a new bond at par. A spot rate curve gives the discount rate for a single cash flow at each maturity. A forward curve gives implied future rates between future dates.
 
-For some bonds, the future cash flows are uncertain. Examples include:
+## 3.1 Yield Curve
 
-- Callable bonds
-- Putable bonds
-- Mortgage-backed securities
-- Floating-rate securities
+A **yield curve** plots yields against maturities. The most common version is the Treasury yield curve, which plots yields on Treasury securities from short maturities to long maturities.
 
-In these cases, cash flows depend on future interest rates or borrower behavior.
+Yield curves may be:
 
-## Determining the Appropriate Required Yield
+- upward sloping,
+- flat,
+- inverted,
+- humped.
 
-The required yield depends on several factors:
+```{python}
+#| label: fig-yield-curves
+#| fig-cap: "Common yield curve shapes."
+#| echo: false
+#| warning: false
+#| message: false
 
-- Risk-free rate
-- Credit risk
-- Liquidity risk
-- Time to maturity
-- Tax considerations
+import numpy as np
+import matplotlib.pyplot as plt
 
-Choosing the correct discount rate is often the most difficult part of bond valuation.
+m = np.array([0.5, 1, 2, 3, 5, 7, 10, 20, 30])
+upward = np.array([3.0, 3.2, 3.5, 3.7, 4.0, 4.15, 4.30, 4.50, 4.60])
+flat = np.array([4.0, 4.02, 4.03, 4.02, 4.01, 4.00, 4.00, 4.01, 4.02])
+inverted = np.array([5.0, 4.9, 4.7, 4.5, 4.25, 4.10, 3.95, 3.80, 3.75])
+humped = np.array([3.4, 3.7, 4.1, 4.35, 4.25, 4.10, 3.95, 3.85, 3.80])
 
-## One Discount Rate Applicable to All Cash Flows
+fig, ax = plt.subplots(figsize=(7, 4))
+for curve, label in [(upward, "Upward sloping"), (flat, "Flat"), (inverted, "Inverted"), (humped, "Humped")]:
+    ax.plot(m, curve, marker="o", label=label)
+ax.set_xlabel("Maturity (years)")
+ax.set_ylabel("Yield (%)")
+ax.set_title("Yield Curve Shapes")
+ax.grid(alpha=0.25)
+ax.legend()
+plt.show()
+```
 
-The basic bond pricing formula assumes that all cash flows are discounted at the same interest rate. In reality, different cash flows should be discounted using different interest rates based on their maturity. This leads to the concept of the **term structure of interest rates**, which will be discussed later in the course.
+## 3.2 Why the Yield Curve Should Not Be Used to Price a Bond
+
+A coupon bond has multiple cash flows. A single yield-to-maturity applies one discount rate to all cash flows, but the market may require different discount rates for different cash-flow dates.
+
+If a 5-year bond pays coupons every six months, it has 10 cash flows. The first coupon should be discounted using a 6-month rate, the second coupon using a 1-year rate, and so on. Using only the 5-year yield ignores the fact that the earlier cash flows are less risky with respect to time.
+
+The correct discounting approach is:
+
+$$
+P = \sum_{t=1}^{n} \frac{CF_t}{(1 + z_t)^t},
+$$
+
+where $z_t$ is the spot rate for maturity $t$.
+
+::: {.callout-note title="Why One Yield Can Misprice a Bond"}
+Consider a 2-year annual-pay bond with \$50 coupon payments and \$1,000 principal. Suppose the 1-year spot rate is 3% and the 2-year spot rate is 5%.
+
+Correct spot-rate price:
+
+$$
+P = \frac{50}{1.03} + \frac{1050}{1.05^2} = 1000.65.
+$$
+
+If an investor incorrectly discounts both cash flows at the 2-year rate:
+
+$$
+P = \frac{50}{1.05} + \frac{1050}{1.05^2} = 999.72.
+$$
+
+The difference is small in this simple example, but it becomes material for large portfolios, steep curves, and securities with unusual cash-flow timing.
+:::
+
+## 3.3 Constructing the Theoretical Spot Rate Curve for Treasuries
+
+The **theoretical spot rate curve** is the set of zero-coupon Treasury rates implied by Treasury security prices. It is called theoretical because most maturities do not have directly traded zero-coupon Treasury securities.
+
+The curve is usually constructed by **bootstrapping**:
+
+1. Use Treasury bills or very short zero-coupon securities to obtain short spot rates directly.
+2. Use the shortest coupon Treasury security to solve for the next spot rate.
+3. Continue maturity by maturity, using previously solved spot rates to discount earlier coupons.
+
+For an annual-pay 2-year coupon Treasury:
+
+$$
+P = \frac{C}{1+z_1} + \frac{C+F}{(1+z_2)^2}.
+$$
+
+If $P$, $C$, $F$, and $z_1$ are known, solve for $z_2$:
+
+$$
+z_2 = \left(\frac{C+F}{P - \frac{C}{1+z_1}}\right)^{1/2} - 1.
+$$
+
+::: {.callout-note title="Bootstrapping Example"}
+Assume annual payments and face value \$100.
+
+| Maturity | Coupon | Price |
+|---:|---:|---:|
+| 1 year | 0.00% | 96.1538 |
+| 2 years | 5.00% | 99.4380 |
+
+The 1-year spot rate is:
+
+$$
+z_1 = \frac{100}{96.1538} - 1 = 4.00\%.
+$$
+
+For the 2-year bond:
+
+$$
+99.4380 = \frac{5}{1.04} + \frac{105}{(1+z_2)^2}.
+$$
+
+Solving gives:
+
+$$
+z_2 = 5.30\%.
+$$
+:::
+
+```{python}
+#| label: fig-bootstrapped-spot-curve
+#| fig-cap: "Example of a bootstrapped spot rate curve."
+#| echo: false
+#| warning: false
+#| message: false
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+maturities = np.array([0.5, 1, 2, 3, 5, 7, 10])
+spot_rates = np.array([3.60, 3.85, 4.15, 4.35, 4.55, 4.70, 4.85])
+
+fig, ax = plt.subplots(figsize=(7, 4))
+ax.plot(maturities, spot_rates, marker="o", color="#4C78A8")
+ax.set_xlabel("Maturity (years)")
+ax.set_ylabel("Spot rate (%)")
+ax.set_title("Theoretical Treasury Spot Rate Curve")
+ax.grid(alpha=0.25)
+plt.show()
+```
+
+## 3.4 On-the-Run Treasury Issues
+
+**On-the-run Treasuries** are the most recently issued Treasury securities at standard maturities. They are usually the most liquid securities in the Treasury market.
+
+Because they are highly liquid, on-the-run issues often trade at slightly lower yields than older, less liquid Treasury securities with similar maturities. This means the on-the-run curve is useful for market quoting but may embed a liquidity premium.
+
+For example, the current 10-year Treasury note may yield 4.20%, while an older 9.8-year Treasury note may yield 4.25%. The 5 bps difference may reflect liquidity rather than a true difference in risk-free discount rates.
+
+## 3.5 All Treasury Coupon Securities and Bills
+
+One approach to constructing the Treasury curve uses all available Treasury bills, notes, and bonds. This approach has more data points than an on-the-run curve.
+
+Advantages:
+
+- More observations across maturities.
+- Less dependence on a small number of benchmark issues.
+- Better ability to fit a smooth curve.
+
+Challenges:
+
+- Different issues may have different liquidity.
+- Some issues may be rich or cheap due to supply and demand.
+- Tax and financing effects may affect particular securities.
+- Coupon effects can make yields difficult to compare directly.
+
+In practice, curve construction often uses statistical fitting methods to smooth observed Treasury prices while controlling for outliers.
+
+## 3.6 Treasury Coupon Strips
+
+Treasury STRIPS are securities created by separating Treasury coupon and principal payments into individual zero-coupon instruments. STRIPS provide direct market prices for zero-coupon cash flows.
+
+STRIPS are useful for estimating spot rates because each strip has only one cash flow. However, STRIPS may be less liquid than on-the-run Treasuries and may reflect special supply-demand conditions from pension funds and long-duration investors.
+
+::: {.callout-note title="STRIPS Example"}
+Suppose a Treasury STRIP paying \$100 in 10 years trades at \$62.00.
+
+The 10-year annual spot rate is:
+
+$$
+z_{10} = \left(\frac{100}{62}\right)^{1/10} - 1 = 4.91\%.
+$$
+
+Because the STRIP has only one cash flow, its yield is directly interpretable as a spot rate.
+:::
+
+## 3.7 Using the Theoretical Spot Rate Curve
+
+The spot rate curve is used to discount each cash flow of a bond at the rate appropriate for that cash-flow date.
+
+For cash flows $CF_t$ and spot rates $z_t$:
+
+$$
+P = \sum_{t=1}^{n} \frac{CF_t}{(1+z_t)^t}.
+$$
+
+::: {.callout-note title="Spot Curve Valuation Example"}
+Consider a 3-year annual-pay Treasury with a 4% coupon and face value \$100. Assume:
+
+| Maturity | Spot rate |
+|---:|---:|
+| 1 year | 3.50% |
+| 2 years | 4.00% |
+| 3 years | 4.40% |
+
+The price is:
+
+$$
+P = \frac{4}{1.035} + \frac{4}{1.04^2} + \frac{104}{1.044^3} = 98.54.
+$$
+
+This price uses the correct discount rate for each cash-flow maturity.
+:::
+
+## 3.8 Spot Rates and the Base Interest Rate
+
+The base interest rate for a cash flow is best represented by the spot rate for that cash-flow date. A bond's Treasury benchmark spread can therefore be measured relative to the spot curve rather than a single benchmark maturity.
+
+If a risky bond has cash flows $CF_t$, its price can be expressed as:
+
+$$
+P = \sum_{t=1}^{n} \frac{CF_t}{(1 + z_t + s)^t},
+$$
+
+where:
+
+- $z_t$ is the Treasury spot rate for maturity $t$,
+- $s$ is the constant spread over the spot curve.
+
+This spread is conceptually closer to valuation than a simple spread to one Treasury maturity because it respects the timing of each cash flow.
+
+## 3.9 Forward Rates
+
+A **forward rate** is an interest rate implied today for a loan or investment that begins in the future. Forward rates are derived from spot rates.
+
+For annual compounding, the one-year forward rate from year 1 to year 2 is:
+
+$$
+1 + f_{1,2} = \frac{(1+z_2)^2}{1+z_1}.
+$$
+
+Forward rates are break-even rates. If investors can invest for two years at the 2-year spot rate or invest for one year and then reinvest for another year, the forward rate is the reinvestment rate that makes the two strategies equivalent.
+
+::: {.callout-note title="Forward Rate Example"}
+Suppose the 1-year spot rate is 4.00% and the 2-year spot rate is 4.80%.
+
+$$
+1 + f_{1,2} = \frac{1.048^2}{1.04} = 1.0561.
+$$
+
+The one-year forward rate beginning one year from now is 5.61%.
+:::
+
+## 3.10 Relationship Between Six-Month Forward Rates and Spot Rates
+
+Treasury notes and bonds pay semiannual coupons, so six-month rates are especially important.
+
+Let $z_n$ be the spot rate for maturity $n$ six-month periods, stated as a six-month periodic rate. The six-month forward rate from period $n-1$ to period $n$ is:
+
+$$
+1 + f_{n-1,n} = \frac{(1+z_n)^n}{(1+z_{n-1})^{n-1}}.
+$$
+
+Equivalently:
+
+$$
+f_{n-1,n} = \frac{(1+z_n)^n}{(1+z_{n-1})^{n-1}} - 1.
+$$
+
+::: {.callout-note title="Six-Month Forward Rate Example"}
+Suppose the 6-month spot rate is 2.00% per half-year and the 1-year spot rate is 2.20% per half-year.
+
+$$
+f_{1,2} = \frac{(1.022)^2}{1.020} - 1 = 2.40\%.
+$$
+
+The implied six-month rate for the second half-year is 2.40% on a six-month basis.
+:::
+
+```{python}
+#| label: fig-forward-rates
+#| fig-cap: "Forward rates implied by an upward-sloping spot curve."
+#| echo: false
+#| warning: false
+#| message: false
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+periods = np.array([1, 2, 3, 4, 5, 6])
+spot = np.array([0.018, 0.020, 0.022, 0.024, 0.025, 0.026])
+forward = [spot[0]]
+for i in range(1, len(spot)):
+    f = ((1 + spot[i]) ** (i + 1) / (1 + spot[i - 1]) ** i) - 1
+    forward.append(f)
+forward = np.array(forward)
+
+fig, ax = plt.subplots(figsize=(7, 4))
+ax.plot(periods / 2, spot * 2 * 100, marker="o", label="Annualized spot rates")
+ax.plot(periods / 2, forward * 2 * 100, marker="s", label="Annualized six-month forwards")
+ax.set_xlabel("Maturity / forward end date (years)")
+ax.set_ylabel("Annualized rate (%)")
+ax.set_title("Spot Rates and Implied Forward Rates")
+ax.grid(alpha=0.25)
+ax.legend()
+plt.show()
+```
+
+## 3.11 Other Forward Rates
+
+Forward rates can be constructed for any future interval, not only one-year or six-month intervals.
+
+The forward rate from time $a$ to time $b$ is:
+
+$$
+1 + f_{a,b} =
+\left(
+\frac{(1+z_b)^b}{(1+z_a)^a}
+\right)^{1/(b-a)}.
+$$
+
+This formula assumes annual compounding and maturities measured in years.
+
+::: {.callout-note title="Two-Year Forward Rate Beginning Three Years from Now"}
+Suppose the 3-year spot rate is 4.00% and the 5-year spot rate is 4.60%.
+
+$$
+1 + f_{3,5} =
+\left(
+\frac{1.046^5}{1.040^3}
+\right)^{1/2}.
+$$
+
+The 2-year forward rate beginning in year 3 is 5.51%.
+:::
+
+## 3.12 Forward Rate as a Hedgeable Rate
+
+A forward rate is hedgeable when it corresponds to a tradable strategy. For example, an investor can lock in a future borrowing or lending rate using:
+
+- Treasury futures,
+- interest rate swaps,
+- forward rate agreements,
+- Eurodollar or SOFR futures,
+- repo and cash Treasury positions.
+
+The forward rate is not necessarily the market's forecast of the future spot rate. It is a rate implied by current prices that can often be locked in or hedged.
+
+::: {.callout-note title="Forward Rate Hedge Example"}
+A pension fund expects to buy a 10-year Treasury note in three months. If the fund is worried that rates will fall before the purchase date, it can buy Treasury futures today. The futures position gains value if rates fall, offsetting the higher cash price of the Treasury note. The hedge converts uncertainty about a future rate into a more predictable effective purchase yield.
+:::
+
+## 3.13 Determinants of the Shape of the Term Structure
+
+The yield curve shape reflects several forces:
+
+- market expectations about future short-term rates,
+- compensation for interest-rate risk,
+- investor demand for specific maturities,
+- supply of securities at different maturities,
+- central bank policy,
+- inflation expectations,
+- economic growth expectations,
+- safe-haven demand,
+- balance-sheet and regulatory constraints.
+
+No single theory explains the curve at all times. In practice, the observed curve is the result of expectations, risk premiums, preferred maturity demand, and institutional constraints.
+
+## 3.14 Pure Expectations Theory
+
+The **pure expectations theory** states that forward rates reflect only expected future short-term rates. Under this theory, investors are risk neutral across maturities and do not require a maturity risk premium.
+
+If the yield curve is upward sloping, the theory says the market expects future short-term rates to rise. If the yield curve is inverted, the market expects future short-term rates to fall.
+
+The limitation is that long-term bonds are riskier than rolling short-term bonds, so investors usually require compensation for bearing duration risk.
+
+## 3.15 Liquidity Theory
+
+The **liquidity theory** states that investors prefer shorter maturities because short-term bonds have less price risk and are more liquid. Therefore, long-term bonds must offer a positive liquidity premium.
+
+Under this theory:
+
+$$
+\text{Long-term rate} = \text{Expected average future short rates} + \text{Liquidity premium}.
+$$
+
+The liquidity premium tends to make the yield curve slope upward even if expected future short rates are unchanged.
+
+## 3.16 Preferred Habitat Theory
+
+The **preferred habitat theory** says investors and borrowers prefer certain maturity ranges but can be induced to move outside those ranges if compensated.
+
+For example:
+
+- money market funds prefer short maturities,
+- banks may prefer intermediate maturities,
+- pension funds and insurers may prefer long maturities to match liabilities.
+
+If long-maturity investors have strong demand for 30-year bonds, long-term yields may be lower than expectations alone would imply.
+
+## 3.17 Market Segmentation Theory
+
+The **market segmentation theory** is stronger than preferred habitat theory. It says different maturity sectors are largely separate markets, with yields determined by supply and demand in each maturity segment.
+
+For example, the 2-year Treasury yield may be dominated by central bank policy expectations, while the 30-year Treasury yield may be dominated by pension demand, inflation uncertainty, and long-duration supply.
+
+The limitation is that arbitrage and relative-value trading connect maturity sectors, so markets are not completely segmented.
+
+## 3.18 The Main Influences on the Shape of the Yield Curve
+
+In practice, the yield curve shape is driven by a combination of macroeconomic and technical forces.
+
+| Influence | Typical effect |
+|---|---|
+| Expected central bank tightening | Raises short rates; may flatten or invert the curve |
+| Expected central bank easing | Lowers short rates; may steepen the curve |
+| Higher inflation uncertainty | Raises long-term risk premiums |
+| Recession risk | Often lowers intermediate and long rates |
+| Heavy long-term Treasury issuance | Can cheapen long maturities and steepen the curve |
+| Strong pension demand | Can richen long maturities and flatten the long end |
+| Safe-haven demand | Lowers Treasury yields, especially liquid benchmarks |
+
+```{python}
+#| label: fig-curve-drivers
+#| fig-cap: "Illustrative effects of macro views on the yield curve."
+#| echo: false
+#| warning: false
+#| message: false
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+m = np.array([0.5, 1, 2, 5, 10, 30])
+base = np.array([4.2, 4.1, 4.0, 4.1, 4.3, 4.5])
+tightening = np.array([5.0, 4.9, 4.7, 4.4, 4.35, 4.45])
+easing = np.array([3.2, 3.3, 3.5, 3.9, 4.2, 4.45])
+
+fig, ax = plt.subplots(figsize=(7, 4))
+ax.plot(m, base, marker="o", label="Current curve")
+ax.plot(m, tightening, marker="o", label="Tightening priced in")
+ax.plot(m, easing, marker="o", label="Easing priced in")
+ax.set_xlabel("Maturity (years)")
+ax.set_ylabel("Yield (%)")
+ax.set_title("Policy Views Can Change Curve Shape")
+ax.grid(alpha=0.25)
+ax.legend()
+plt.show()
+```
 
 ---
 
-# 8 Pricing Floating-Rate and Inverse-Floating-Rate Securities
+# 4 Swap Rate Yield Curve
 
-Some bonds do not pay fixed coupons. Instead, their coupon payments are linked to a reference rate such as LIBOR or Treasury rates.
+The **swap rate yield curve** plots fixed rates on plain-vanilla interest rate swaps across maturities. In a fixed-for-floating swap, one party pays a fixed rate and receives a floating reference rate, while the other party receives fixed and pays floating.
 
-## Price of a Floater
+The swap rate is the fixed rate that makes the initial value of the swap approximately zero.
 
-A floating-rate bond has a coupon that resets periodically based on a reference rate plus a fixed spread. Because the coupon adjusts to market interest rates, the price of a floating-rate bond typically remains close to its par value.
+Swap curves are important because:
 
-The price of a floating-rate bond can be expressed as the present value of its expected future cash flows, where the coupon payments depend on future interest rates.
+- swaps are actively traded across many maturities,
+- swap rates are used to price corporate bonds and structured products,
+- swaps reflect bank funding, collateral, and credit conditions,
+- swap spreads compare swap rates with Treasury rates.
 
-## Price of an Inverse Floater
+The **swap spread** is:
 
-An inverse floating-rate bond has a coupon that moves in the opposite direction of interest rates. When interest rates rise, the coupon decreases; when interest rates fall, the coupon increases. Because of this structure, inverse floaters are highly sensitive to interest rate changes and can be very volatile.
+$$
+\text{Swap spread} = \text{Swap rate} - \text{Treasury yield}.
+$$
+
+::: {.callout-note title="Swap Spread Example"}
+Suppose the 10-year swap rate is 4.65% and the 10-year Treasury yield is 4.25%.
+
+$$
+\text{10-year swap spread} = 4.65\% - 4.25\% = 0.40\%.
+$$
+
+The 10-year swap spread is 40 basis points.
+:::
+
+```{python}
+#| label: fig-swap-curve
+#| fig-cap: "Illustrative Treasury and swap curves."
+#| echo: false
+#| warning: false
+#| message: false
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+m = np.array([1, 2, 3, 5, 7, 10, 20, 30])
+treasury = np.array([3.9, 4.0, 4.05, 4.15, 4.22, 4.30, 4.45, 4.55])
+swap = treasury + np.array([0.30, 0.34, 0.36, 0.38, 0.39, 0.40, 0.36, 0.32])
+
+fig, ax = plt.subplots(figsize=(7, 4))
+ax.plot(m, treasury, marker="o", label="Treasury curve")
+ax.plot(m, swap, marker="s", label="Swap curve")
+ax.set_xlabel("Maturity (years)")
+ax.set_ylabel("Rate (%)")
+ax.set_title("Swap Rate Yield Curve")
+ax.grid(alpha=0.25)
+ax.legend()
+plt.show()
+```
+
+The swap curve is not risk free in the same way as a Treasury curve. It reflects the economics of collateralized derivatives markets, bank balance sheets, and floating-rate reference rates. However, it is often a better benchmark than Treasuries for valuing corporate and derivative-linked cash flows because many market participants hedge interest-rate risk using swaps rather than cash Treasuries.
 
 ---
 
-# 9 Price Quotes and Accrued Interest
+# 5 Curve Strategies
 
-## Price Quotes
+Curve strategies use positions in bonds, futures, swaps, or other rate instruments to express a view about changes in the level, slope, or curvature of the yield curve.
 
-Bond prices are typically quoted as a percentage of par value. For example, a price quote of 98.50 means the bond is selling for 98.50% of its face value.
+The main idea is to separate:
 
-If the face value is \$1,000, the price is
+- **level risk**: all rates move up or down together,
+- **slope risk**: short and long rates move by different amounts,
+- **curvature risk**: intermediate maturities move differently from short and long maturities.
 
-$$
-0.985 \times 1000 = 985.
-$$
+Curve trades are often structured to be approximately duration neutral so the profit or loss depends mainly on curve shape rather than the overall level of rates.
 
-Bond prices are quoted as **clean prices**, which do not include accrued interest.
+## 5.1 Bull Steepener
 
-## Accrued Interest
+A **bull steepener** is a strategy that benefits when yields fall and short-term yields fall more than long-term yields. This often occurs when the market expects central bank easing.
 
-When a bond is purchased between coupon payments, the buyer must pay the seller the interest that has accrued since the last coupon payment. This is called **accrued interest**.
+Example position:
 
-The actual amount paid for a bond is called the **dirty price**:
+- long 2-year Treasury notes,
+- short 10-year Treasury notes in a duration-adjusted amount.
 
-$$
-\text{Dirty Price} = \text{Clean Price} + \text{Accrued Interest}.
-$$
-
-Accrued interest is calculated as
+::: {.callout-note title="Bull Steepener Example"}
+Suppose the 2-year yield is 4.80% and the 10-year yield is 4.20%. The 2s10s slope is:
 
 $$
-\text{Accrued Interest} =
-\text{Coupon Payment} \times
-\frac{\text{Number of Days Since Last Coupon}}{\text{Number of Days in Coupon Period}}.
+4.20\% - 4.80\% = -0.60\%.
 $$
 
+The curve is inverted by 60 bps. A trader expects recession risk to rise and the central bank to cut rates. One month later:
 
-# 11 Computing the Yield or Internal Rate of Return
+- 2-year yield falls to 4.10%,
+- 10-year yield falls to 3.95%.
 
-## 11.1 Yield on Any Investment
-
-The **yield** or **internal rate of return (IRR)** on an investment is the interest rate that makes the present value of the investment’s cash‑flows equal to its price.  Mathematically, for an investment with $N$ future cash‑flows $CF_t$ and price $P$, the yield $y$ satisfies
-
-$$
-P = \sum_{t=1}^{N} \frac{CF_t}{(1+y)^t}.
-$$
-
-Solving for $y$ generally requires an iterative procedure because $y$ appears in the denominator of each term【965351366966888†L3643-L3669】.  A higher assumed yield lowers the present value; a lower assumed yield raises it.  The objective is to find the yield for which the present value equals the price.
-
-### Special case: a single cash flow
-
-If the investment has just one future cash flow $CF_N$ in $N$ periods, the yield can be solved algebraically:
+The new 2s10s slope is:
 
 $$
-y = \left(\frac{CF_N}{P}\right)^{1/N} - 1.
+3.95\% - 4.10\% = -0.15\%.
 $$
 
-This formula eliminates the need for trial and error because there is only one cash‑flow term【965351366966888†L3643-L3669】.
+The curve steepened by 45 bps. A long 2-year / short 10-year duration-neutral trade profits because the long 2-year position gains more from the larger yield decline than the short 10-year position loses.
+:::
 
-## 11.2 Example: Computing Yield by Trial and Error
+## 5.2 Bear Steepener
 
-Suppose a financial instrument with price \$903.10 promises cash‑flows of \$100, \$100, \$100 and \$1,000 in years 1–4.  To find its yield:
+A **bear steepener** benefits when yields rise and long-term yields rise more than short-term yields. This can occur when inflation risk rises or investors demand a larger term premium.
 
-1. Compute the present value of cash‑flows at several interest rates.
-2. Adjust the rate until the present value matches \$903.10.
+Example position:
 
-Using a 10 % trial rate gives a present value of \$931.69.  A 12 % trial rate produces \$875.71.  By interpolation, a rate of 11 % equates the present value to the price【965351366966888†L3718-L3767】.  The yield on this investment is therefore **11 %**.
+- short 30-year Treasury bonds,
+- long 5-year Treasury notes in a duration-adjusted amount.
 
-## 11.3 Periodic Cash Flows and Annualisation
+::: {.callout-note title="Bear Steepener Example"}
+The 5-year yield is 4.00% and the 30-year yield is 4.40%, so the 5s30s slope is 40 bps. A trader believes long-term inflation risk is underpriced. Two weeks later:
 
-Cash‑flows are often paid more than once per year—for example, semiannual coupons.  If there are $n$ compounding periods per year, the yield is the rate per period ($y$) that satisfies
+- 5-year yield rises to 4.10%,
+- 30-year yield rises to 4.80%.
 
-$$
-P = \sum_{t=1}^{nN} \frac{CF_t}{(1+y)^t}.
-$$
+The 5s30s slope becomes 70 bps. The curve steepened by 30 bps. A short long-bond position gains from the larger yield increase at the long end, while the long 5-year hedge loses less.
+:::
 
-For semiannual coupons, doubling $y$ gives the **bond‑equivalent yield**; for other frequencies, multiply $y$ by the number of periods in the year.  To find the **effective annual yield** corresponding to a periodic rate $r_p$, compute
+## 5.3 Bull Flattener
 
-$$
-\text{Effective annual yield} = (1 + r_p)^m - 1,
-$$
+A **bull flattener** benefits when yields fall and long-term yields fall more than short-term yields. This often occurs when inflation expectations decline or investors seek duration.
 
-where $m$ is the number of periods per year.  For example, a quarterly periodic rate of 2 % implies an effective annual yield of $(1.02)^4 - 1 \approx 8.24\,\%$.
+Example position:
 
----
+- long 10-year Treasury notes,
+- short 2-year Treasury notes in a duration-adjusted amount.
 
-# 12 Conventional Yield Measures
+If the 10-year yield falls by 50 bps while the 2-year yield falls by only 15 bps, the long 10-year position gains more than the short 2-year position loses.
 
-Bonds are commonly quoted using several yield measures that summarise different aspects of return.  Each measure uses the basic present‑value relationship but makes different assumptions about cash‑flows and reinvestment.
+## 5.4 Bear Flattener
 
-## 12.1 Current Yield
+A **bear flattener** benefits when yields rise and short-term yields rise more than long-term yields. This often occurs when the central bank is expected to tighten policy.
 
-The **current yield** relates a bond’s annual coupon to its market price:
+Example position:
 
-$$
-\text{current yield} = \frac{\text{annual coupon}}{\text{price}}.
-$$
+- short 2-year Treasury notes,
+- long 10-year Treasury notes in a duration-adjusted amount.
 
-For instance, a 15‑year bond with a 7 % coupon and price \$769.42 has a current yield of $70/769.42 \approx 9.10\,\%$.  A 4.5 % coupon bond priced at 99.531 (per \$100 par) has a current yield of $4.50/99.531 \approx 4.52\,\%$【965351366966888†L3896-L3922】.  The current yield ignores capital gains or losses and the time value of money; it measures coupon income relative to price.
+If the 2-year yield rises by 75 bps and the 10-year yield rises by 25 bps, the curve flattens. The short 2-year position gains more than the long 10-year position loses.
 
-## 12.2 Yield to Maturity (YTM)
+## 5.5 Butterfly Strategy
 
-The **yield to maturity** is the internal rate of return assuming the bond is held to maturity and all coupon payments are reinvested at the same rate.  For a bond with price $P$, coupon payment $C$, maturity value $M$ and $n$ semiannual periods, the present‑value equation is
+A **butterfly** strategy expresses a view on curvature. It compares an intermediate maturity with a weighted average of shorter and longer maturities.
 
-$$
-P = \sum_{t=1}^{n} \frac{C}{(1+y)^t} + \frac{M}{(1+y)^n}.
-$$
-
-Solving for $y$ (a semiannual rate) generally requires trial and error; doubling $y$ gives the bond‑equivalent YTM【965351366966888†L3896-L3973】.  YTM incorporates coupon income, reinvestment income and any capital gain or loss realised at maturity.
-
-## 12.3 Yield to Call, Yield to Put and Yield to Sinker
-
-**Callable bonds** allow the issuer to redeem the bond at specified call dates for a predetermined price.  The **yield to call** is the interest rate that equates the bond’s price to the present value of the coupon payments up to the assumed call date plus the call price.  Because multiple call dates may exist, investors often compute yields to first call, next call and to any refunding call.
-
-Similarly, **putable bonds** allow the investor to sell the bond back to the issuer on specified dates at a put price.  The **yield to put** equates the price to the present value of cash‑flows up to the put date plus the put price.  Bonds with sinking‑fund schedules retire portions of the issue over time.  The **yield to sinker** uses the sinking‑fund date and price.
-
-The **yield to worst** is the lowest yield among the yield to maturity, all yields to call and all yields to put.  It represents the minimum return an investor might realise if the issuer exercises embedded options.
-
-## 12.4 Yield for a Portfolio
-
-The yield of a bond portfolio is not simply the average of the individual yields because each bond has a different pattern of cash‑flows.  To compute a portfolio yield, aggregate the portfolio’s cash‑flows and find the discount rate that makes the present value of all cash‑flows equal the portfolio’s price.  For example, a portfolio containing bonds of different maturities and coupon rates requires discounting the combined cash‑flow schedule to match the total market value.
-
-## 12.5 Cash‑Flow Yield and Discount Margin
-
-For amortising securities such as mortgage‑backed or asset‑backed securities, investors receive principal repayments along with interest.  The **cash‑flow yield** is the rate that equates the price to the projected cash‑flows, including scheduled and unscheduled principal repayments.  Estimating the cash‑flow yield requires assumptions about prepayments and reinvestment.
-
-Floating‑rate securities pay interest linked to a reference rate (e.g., LIBOR) plus a quoted margin.  The cash‑flows depend on future reference rates, so a conventional YTM cannot be calculated directly.  Investors instead calculate the **discount margin**, the margin over the reference rate that equates the price to the present value of the projected cash‑flows assuming the reference rate remains constant.  This measure estimates the average spread an investor can expect over the reference rate.
-
----
-
-# 13 Sources of a Bond’s Return and Reinvestment Risk
-
-A bond’s total dollar return comes from three sources:
-
-1. **Coupon interest** – the periodic coupon payments.
-2. **Capital gain or loss** – the difference between the sale price (or maturity value) and the purchase price.
-3. **Reinvestment income** – interest earned from reinvesting the coupon payments (and, for amortising bonds, reinvested principal).
-
-Conventional yields implicitly assume that coupon payments can be reinvested at the computed yield.  The risk that future reinvestment rates will be lower than the yield at purchase is **reinvestment risk**.  The longer the maturity and the higher the coupon, the more the bond’s total return depends on the reinvestment of coupon payments, and therefore the greater the reinvestment risk.  Zero‑coupon bonds have no reinvestment risk because all return is realised at maturity.
-
-## 13.1 Interest‑on‑Interest Component
-
-For a non‑amortising bond paying semiannual coupon $C$ over $n$ periods and reinvestment rate $r$, the future value of the coupon payments plus reinvestment income after $n$ periods is
+A common 2s5s10s butterfly is:
 
 $$
- C \frac{(1+r)^n - 1}{r}.
+\text{Butterfly} = 2y_5 - y_2 - y_{10}.
 $$
 
-The interest‑on‑interest component is the difference between this amount and the sum of the coupon payments $(nC)$.  For long‑maturity, high‑coupon bonds, the interest‑on‑interest component may represent a significant portion of total return.
+If the 5-year yield is high relative to the 2-year and 10-year yields, the 5-year sector is cheap on the curve. A trader may buy 5-year notes and short 2-year and 10-year notes in duration-adjusted amounts.
 
----
+::: {.callout-note title="Butterfly Example"}
+Suppose:
 
-# 14 Total Return and Horizon Analysis
+| Maturity | Yield |
+|---:|---:|
+| 2-year | 4.00% |
+| 5-year | 4.50% |
+| 10-year | 4.30% |
 
-The yield to maturity and other conventional yields are **promised yields**: they are realised only if the bond is held to the date used in the calculation and coupon payments can be reinvested at that yield.  To evaluate a bond’s performance over a specific **investment horizon**, investors compute the **total return**, which explicitly incorporates assumptions about reinvestment rates and the bond’s sale price at the end of the horizon.
-
-## 14.1 Computing Total Return
-
-To compute the total return over a horizon of $h$ semiannual periods:
-
-1. **Reinvestment income** – For each coupon payment received before the horizon, compute its future value at the assumed reinvestment rate until the horizon.  Summing these gives the future value of coupon payments plus reinvestment income.
-2. **Projected sale price** – Estimate the bond’s price at the horizon by discounting its remaining cash‑flows at the expected yield to maturity prevailing at that time.
-3. **Total future dollars** – Add the future value of coupon payments to the projected sale price.  Subtract the initial purchase price to obtain the dollar return.
-4. **Total return** – Solve for the interest rate that equates the purchase price to the total future dollars; double the semiannual rate to express as an annualised return.
-
-This procedure accommodates multiple reinvestment rates.  For example, coupon payments received in early periods may be reinvested at one rate and later payments at another.  The final projected price depends on expectations for the yield environment at the horizon.
-
-## 14.2 Example: Total Return
-
-An investor with a three‑year horizon considers a 20‑year 8 % bond priced at \$828.40 with a yield to maturity of 10 %.  The investor expects to reinvest coupons at 6 % and to sell the bond after three years at a yield of 7 % for then‑17‑year bonds.  The calculation proceeds as follows:
-
-1. The bond pays \$40 every six months.  Assuming 3 % semiannual reinvestment, the future value of coupon payments over six periods is \$258.74.
-2. The projected sale price in three years (with a 7 % yield) is \$1,098.51.
-3. Total future dollars are \$1,357.25; dividing by the purchase price and solving for the semiannual return gives 8.58 % per half year.
-4. Doubling yields an **annualised total return of 17.16 %**, demonstrating how reinvestment and expected sale price affect realised performance.
-
-Horizon analysis is also used in bond‑swap decisions.  By calculating total returns under different reinvestment and yield scenarios, investors can determine whether swapping one bond for another improves projected performance.
-
----
-
-# 15 Measuring Yield Changes
-
-Yield changes can be measured in two ways:
-
-- **Absolute yield change** – measured in basis points.  It is the absolute difference between two yields:
+The butterfly is:
 
 $$
-\text{absolute change (bp)} = |y_{\text{new}} - y_{\text{old}}| \times 100.
+2(4.50\%) - 4.00\% - 4.30\% = 0.70\%.
 $$
 
-- **Relative (percentage) yield change** – calculated as the natural logarithm of the ratio of the new yield to the old yield:
+The 5-year point is high relative to the wings. A trader who expects the curve to become smoother may buy the 5-year note and short the 2-year and 10-year notes. If the 5-year yield later falls relative to the wings, the trade profits.
+:::
 
-$$
-\text{relative change (\%)} = 100 \times \ln\left(\frac{y_{\text{new}}}{y_{\text{old}}}\right).
-$$
+```{python}
+#| label: fig-curve-strategies
+#| fig-cap: "Examples of curve movements relevant for steepener, flattener, and butterfly trades."
+#| echo: false
+#| warning: false
+#| message: false
 
-For example, if yields rise from 4.45 % to 5.11 %, the absolute change is 66 bp and the relative change is $\ln(5.11/4.45) \times 100 \approx 13.83\,\%$.  These measures are useful for comparing yield movements across different sectors and maturities.
+import numpy as np
+import matplotlib.pyplot as plt
+
+m = np.array([2, 5, 10, 30])
+initial = np.array([4.6, 4.4, 4.2, 4.3])
+steepener = np.array([4.0, 4.1, 4.15, 4.35])
+flattener = np.array([5.1, 4.75, 4.35, 4.30])
+butterfly = np.array([4.6, 4.1, 4.2, 4.3])
+
+fig, ax = plt.subplots(figsize=(7, 4))
+ax.plot(m, initial, marker="o", label="Initial")
+ax.plot(m, steepener, marker="o", label="Bull steepener")
+ax.plot(m, flattener, marker="o", label="Bear flattener")
+ax.plot(m, butterfly, marker="o", label="5-year richens")
+ax.set_xlabel("Maturity (years)")
+ax.set_ylabel("Yield (%)")
+ax.set_title("Illustrative Curve Strategy Outcomes")
+ax.grid(alpha=0.25)
+ax.legend()
+plt.show()
+```
+
+## 5.6 Carry and Roll-Down
+
+Curve strategies are not driven only by future yield changes. They also earn or lose **carry** and **roll-down**.
+
+**Carry** is the return from holding a position if the yield curve does not change. For a bond, carry includes coupon income minus financing cost.
+
+**Roll-down** is the price effect from a bond moving to a shorter maturity on an unchanged yield curve. On an upward-sloping curve, a bond may roll down to a lower yield and gain price.
+
+::: {.callout-note title="Carry and Roll-Down Example"}
+A 5-year Treasury yields 4.30%. The 4-year point on the curve yields 4.00%. If the curve is unchanged after one year, the bond is now a 4-year bond and its required yield falls by 30 bps. The investor earns coupon income and may also gain from roll-down.
+
+However, if market yields rise enough, the mark-to-market loss can offset the carry and roll-down benefit.
+:::
+
+## 5.7 Risk Controls in Curve Strategies
+
+Curve strategies should be evaluated with explicit risk controls:
+
+- duration exposure,
+- key rate duration exposure,
+- convexity exposure,
+- financing cost,
+- liquidity risk,
+- stop-loss levels,
+- scenario analysis.
+
+A trade that appears to be a curve trade may still lose money if it has unintended exposure to the overall level of rates.
+
+::: {.callout-warning title="Implementation Risk"}
+A duration-neutral steepener is only neutral for small parallel shifts. It can still lose money if volatility rises, financing conditions change, the curve moves in an unexpected maturity sector, or the hedge instrument does not track the cash bond being hedged.
+:::
 
 ---
 
 # Key Points
 
-- Bond prices are determined by discounting expected future cash‑flows at a required yield; the time value of money is fundamental to this process.
-- Bond prices move inversely to yields and the price–yield relationship is convex; premium bonds decline toward par and discount bonds rise toward par as maturity approaches.
-- A bond’s trading status (par, premium or discount) depends on the relationship between its coupon rate and required yield.
-- Bond prices change primarily due to movements in market interest rates, but credit risk, liquidity, economic expectations, tax policy and inflation also play important roles.
-- Bond valuation becomes more complex when securities have embedded options, floating or inverse floating coupons, or amortising structures; quoted prices may exclude (clean) or include (dirty) accrued interest.
-- The internal rate of return equates the present value of cash‑flows to the price and can be computed for any investment; special cases (single cash‑flow) have closed‑form solutions【965351366966888†L3643-L3669】.
-- Conventional yield measures—current yield, yield to maturity, yield to call, yield to put, yield to sinker and yield to worst—summarise different aspects of return and rely on assumptions about holding periods and reinvestment【965351366966888†L3896-L3973】.
-- Portfolio yield is obtained by discounting the combined cash‑flows of the portfolio; cash‑flow yield and discount margin adapt the yield concept to amortising and floating‑rate securities.
-- A bond’s total return comprises coupon interest, reinvestment income and capital gain or loss; reinvestment risk arises when future rates differ from the original yield.
-- Total return and horizon analysis provide more realistic performance measures than yield to maturity because they incorporate explicit reinvestment assumptions and projected sale prices.
-- Yield changes can be measured in absolute (basis‑point) or relative (percentage) terms; both measures are useful for analysing interest‑rate movements.
+- The required yield on a bond can be decomposed into a base interest rate and a benchmark spread.
+- Benchmark spreads reflect issuer type, creditworthiness, embedded options, taxes, liquidity, financeability, and maturity.
+- A yield curve is useful for quotation, but spot rates are the correct rates for discounting individual cash flows.
+- Treasury spot curves can be constructed from bills, coupon securities, and STRIPS.
+- Forward rates are implied by spot rates and can often be hedged, but they are not pure forecasts.
+- The shape of the term structure reflects expectations, risk premiums, investor habitats, market segmentation, and macroeconomic forces.
+- Swap curves are important benchmarks because swaps are liquid instruments used for hedging and valuation.
+- Curve strategies express views about level, slope, curvature, carry, and roll-down, but they require careful risk control.
 
----
-
-# Suggested Readings
-
-Fabozzi – *Bond Markets, Analysis, and Strategies*:  
-**Chapter 2: Pricing of Bonds** – covers time value of money, bond pricing, price–yield relationship, convexity, coupon versus yield, price behaviour, and complications in pricing.  
-**Chapter 3: Measuring Yield** – explains how to compute yields, describe various yield measures, discuss sources of return and reinvestment risk, and introduce total return and horizon analysis.

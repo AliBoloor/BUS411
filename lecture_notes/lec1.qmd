@@ -4,13 +4,15 @@ format:
   html:
     toc: true
     toc-location: left
-    number-sections: false
+    number-sections: true
+    number-depth: 3
   pdf:
     toc: true
-    number-sections: false
+    number-sections: true
+    number-depth: 3
 jupyter: python3
 ---
-## Learning Objectives
+## Learning Objectives {.unnumbered}
 
 After reading this lecture you should be able to:
 
@@ -28,11 +30,11 @@ These objectives come directly from the first chapter of Fabozzi’s text and fr
 
 ---
 
-## 1 What is a bond?
+## What is a bond?
 
 A **bond** is a debt instrument requiring the issuer (the borrower) to repay the amount borrowed plus interest over a specified period of time.  In the simplest “plain vanilla” bond the issuer promises a fixed series of cash flows: periodic coupon payments and the repayment of principal at maturity.  Because the cash flow pattern is known up front (assuming the issuer does not default or redeem the bond early), an investor who holds the bond until the maturity date is assured of receiving a predetermined sequence of payments.
 
-### 1.1 Bond cash‑flow structure
+### Bond cash‑flow structure
 
 Two contractual elements determine a bond’s cash flow pattern:
 
@@ -46,7 +48,7 @@ The maturity date is the date when the principal is repaid.  Traditional fixed�
 Suppose a bond has a principal of \$1 000 and a coupon rate of 5 %.  The annual coupon payment is simply \(0.05×1 000=50\).  If coupons are paid semi‑annually, the investor receives \$25 every six months.  This illustrates how the coupon rate and principal determine the bond’s cash flow pattern.
 :::
 
-### 1.2 Term to maturity
+### Term to maturity
 
 The **term to maturity** is the number of years over which the issuer must meet its obligations.  Bonds with maturity of 1–5 years are called **short‑term**, those with 5–12 years are **intermediate‑term**, and bonds with more than 12 years are **long‑term**.  Maturity matters because:
 
@@ -54,19 +56,8 @@ The **term to maturity** is the number of years over which the issuer must meet 
 - The yield on a bond depends on its maturity; yields for different maturities form the **yield curve**.
 - Price volatility increases with maturity: all else equal, long‑term bond prices fluctuate more when yields change.
 
-::: {.callout-note title="Worked Example 2 – Classifying maturities"}
 
-Classify the following bonds by maturity:
-
-| Bond | Maturity | Classification |
-|-----|---------|----------------|
-| X | 2 years | Short‑term |
-| Y | 8 years | Intermediate‑term |
-| Z | 25 years | Long‑term |
-
-:::
-
-### 1.3 Principal and coupon types
+### Principal and coupon types
 
 Most bonds have a **fixed coupon rate**; however the bond market also includes **floating‑rate bonds** in which the coupon resets periodically based on a reference rate plus a quoted margin.  For example, a floating‑rate bond might pay 1‑month LIBOR plus 150 basis points (1.5 %).  LIBOR is the London Interbank Offered Rate, an interbank lending rate reported for several currencies.  If 1‑month LIBOR is 3.5 % and the quoted margin is 1.5 %, the coupon for that period resets at 5.0 %.  
 
@@ -94,11 +85,58 @@ In a **reverse repo**, the same transaction is viewed from the cash lender's sid
 
 **Inverse floating‑rate bonds** move in the opposite direction: the coupon falls when reference rates rise and vice versa.  Deferred‑coupon bonds allow the issuer to avoid cash outflows for a specified period; examples include deferred‑interest bonds, step‑up bonds and payment‑in‑kind bonds.  These structures were used to accommodate leveraged buyouts in the 1980s.
 
-### 1.4 Amortization feature
+::: {.callout-note title="Inflation-Linked Bonds: TIPS and Linkers"}
+
+**Inflation-linked bonds**, also known as “linkers,” are bonds whose principal and/or coupon payments adjust with changes in an official inflation index. The most prominent examples are **Treasury Inflation-Protected Securities (TIPS)** in the United States, which are indexed to the Consumer Price Index (CPI).
+
+- With TIPS, the principal amount is adjusted by the change in CPI; coupon payments are calculated on the inflation-adjusted principal, so both the interest payments and maturity value rise with inflation. This provides investors with protection against the eroding effect of inflation on fixed income.
+- In Canada, the equivalent instrument is called a **Real Return Bond (RRB)**, which adjusts both principal and coupon payments based on changes in the Canadian Consumer Price Index (CPI).
+- At maturity, investors in TIPS receive the greater of the original principal or the inflation-adjusted principal, guaranteeing repayment of their initial investment even in a period of deflation.
+
+Inflation-linked bonds are an important segment of the global bond market, providing a direct way to hedge inflation risk.
+
+:::
+
+
+### Amortization feature
 
 In a **non‑amortizing bond** the entire principal is repaid at maturity.  **Amortizing securities**, by contrast, repay principal over time according to an amortization schedule.  Mortgage‑backed and asset‑backed securities are examples.  For amortizing bonds investors often compute the **weighted average life** to measure the effective maturity.
 
-### 1.5 Embedded options
+::: {.callout-example title="Example: Amortizing Bond and Weighted Average Life"}
+
+Suppose an investor purchases a **5-year amortizing bond** with a principal of \$1,000 and equal annual payments of principal and interest. Unlike a non-amortizing bond—which pays all principal at maturity—this bond returns part of the principal each year along with interest.
+
+| Year | Principal Repaid | Remaining Principal | 
+|------|------------------|--------------------|
+| 1    | \$200            | \$800              |
+| 2    | \$200            | \$600              |
+| 3    | \$200            | \$400              |
+| 4    | \$200            | \$200              |
+| 5    | \$200            | \$0                |
+
+**Weighted Average Life (WAL):**
+Weighted average life measures the average time until each principal dollar is repaid, weighted by the amount of principal paid at each period. It is useful for comparing the effective maturity of amortizing securities versus a standard bullet (non-amortizing) bond.
+
+To calculate WAL:
+
+$$
+\text{WAL} = \frac{\sum_{t=1}^{N} P_t \times t}{\text{Total Principal}}
+$$
+
+where $P_t$ is the principal repaid at time $t$.
+
+For this bond:
+
+$$
+\text{WAL} = \frac{200 \times 1 + 200 \times 2 + 200 \times 3 + 200 \times 4 + 200 \times 5}{1000} = \frac{200 (1+2+3+4+5)}{1000} = \frac{200 \times 15}{1000} = \frac{3000}{1000} = 3\ \text{years}
+$$
+
+Thus, although the **final maturity** is 5 years, the **weighted average life** is only 3 years, since principal is returned gradually rather than all at once.
+
+:::
+
+
+### Embedded options
 
 Many bonds include options that allow either the issuer or the bondholder to alter the cash flow pattern.  Embedded options complicate valuation because the timing and amount of cash flows depend on future interest rates.  Common options include:
 
@@ -109,23 +147,25 @@ Many bonds include options that allow either the issuer or the bondholder to alt
 
 Some securities contain multiple embedded options (e.g., a callable, putable, convertible bond).  These features must be valued using option‑pricing techniques, which are covered in later lectures.
 
-### 1.6 Convertible and exchangeable bonds
+::: {.callout-note title="Convertible and exchangeable bonds"}
 
 A **convertible bond** allows the bondholder to exchange the bond for a predetermined number of the issuer’s common shares.  An **exchangeable bond** allows exchange for shares of a company other than the issuer.  These bonds provide upside exposure to stock price appreciation while retaining bond‑like features.
 
-### 1.7 Identifying bond issues
+:::
+
+### Identifying bond issues
 
 With hundreds of thousands of bonds outstanding, securities need unique identifiers.  In the U.S. the **CUSIP** (Committee on Uniform Security Identification Procedures) assigns a nine‑character code identifying the issuer and issue.  Debt issues covered include Treasuries, municipals, corporates, mortgage‑backed, asset‑backed and commercial paper.  Market participants often identify a bond by its issuer, coupon and maturity (e.g., Alcoa 5.95s 2/1/2037).
 
 ---
 
-## 2 Innovation and sectors of the bond market
+## Innovation and sectors of the bond market
 
-### 2.1 Financial innovation
+### Financial innovation
 
 Beginning in the early 1980s a wide range of new bond structures was introduced.  The residential mortgage market saw the development of **mortgage pass‑through securities**, where pools of individual mortgages are securitized and cash flows are passed through to investors.  From these basic instruments issuers created derivative securities such as **collateralized mortgage obligations (CMOs)** and **stripped mortgage‑backed securities** to meet the investment needs of a broader range of institutional investors.
 
-### 2.2 Sectors of the U.S. bond market
+### Sectors of the U.S. bond market
 
 The U.S. bond market – the world’s largest – is divided into six primary sectors:
 
@@ -140,7 +180,7 @@ The U.S. bond market – the world’s largest – is divided into six primary s
 
 These sectors span a wide range of issuers and structures.  For instance, the municipal sector splits into tax‑exempt and taxable subsectors, with tax‑exempt bonds historically dominating.  The corporate sector is divided into investment‑grade and high‑yield (non‑investment‑grade) segments based on third‑party credit ratings.  In the mortgage sector, agency mortgage‑backed securities are backed by Ginnie Mae, Fannie Mae or Freddie Mac, whereas non‑agency securities are backed by private issuers.  
 
-### 2.3 Asset‑backed and mortgage‑backed markets
+#### Asset‑backed and mortgage‑backed markets
 
 The **asset‑backed securities sector** pools loans or receivables and uses the asset pool as collateral.  Captive finance companies (subsidiaries of manufacturers that finance customer purchases) are common issuers; examples include Ford Motor Credit and Caterpillar Financial.  Even performing artists have issued ABS backed by future royalties.  
 
@@ -148,29 +188,25 @@ The **residential mortgage sector** includes loans for one‑ to four‑family h
 
 The **commercial mortgage sector** backs securities with loans on income‑producing properties such as office buildings, shopping malls, hotels and healthcare facilities.
 
-### 2.4 Pooled investment vehicles
+#### Pooled investment vehicles
 
 Retail and institutional investors can gain exposure to the bond market through **pooled investment vehicles** such as investment company shares, exchange‑traded funds, hedge funds and real estate investment trusts.  These vehicles offer diversification, liquidity and professional management, making them an attractive alternative to purchasing individual bonds.
 
-### 2.5 Global markets
-
-Beyond the U.S. market, the textbook discusses non‑U.S. bond markets including the Eurobond market and various national markets.  These markets will be explored in later lectures.
-
 ---
 
-## 3 Risks faced by bond investors
+## Risks faced by bond investors
 
 Fixed‑income investing involves numerous risks.  Fabozzi lists nine key risks.  Understanding these risks is essential for effective portfolio construction and risk control.
 
-### 3.1 Interest‑rate risk
+### Interest‑rate risk
 
 Bond prices move inversely with changes in market interest rates: when rates rise, bond prices fall, and vice versa.  If an investor must sell before maturity, rising rates may lead to capital losses.  The price sensitivity to rate changes depends on factors such as maturity, coupon and embedded options.
 
-### 3.2 Reinvestment risk
+### Reinvestment risk
 
 Yield calculations assume that coupon payments are reinvested at the same rate.  **Reinvestment risk** is the risk that the actual reinvestment rate will be lower than expected.  Reinvestment risk is greater for high‑coupon bonds and longer holding periods.  Interest‑rate risk and reinvestment risk offset each other; strategies such as immunization exploit this offset.
 
-### 3.3 Call risk
+### Call risk
 
 A call provision allows the issuer to retire (call) the bond before maturity.  Investors face three disadvantages:
 
@@ -178,7 +214,7 @@ A call provision allows the issuer to retire (call) the bond before maturity.  I
 2. Increased reinvestment risk: bonds are usually called when rates decline, forcing investors to reinvest at lower yields.  
 3. Limited price appreciation: the bond’s price may not rise above the call price, reducing capital gains potential.  
 
-### 3.4 Credit risk
+### Credit risk
 
 **Credit risk** refers to the possibility that the issuer fails to meet its contractual obligations.  It has three components:
 
@@ -188,35 +224,35 @@ A call provision allows the issuer to retire (call) the bond before maturity.  I
 
 Credit ratings assigned by agencies (e.g., Moody’s, S&P, Fitch) help investors gauge default risk.  Investors are also exposed to **counterparty risk**, the risk that the counterparty in a transaction fails to meet its obligations.  For example, leveraged purchases of bonds or trades in over‑the‑counter derivatives expose investors to counterparty default risk.
 
-### 3.5 Inflation risk
+### Inflation risk
 
 The real value of future cash flows depends on inflation.  **Inflation risk** arises when the purchasing power of a bond’s cash flows declines due to rising prices.  Floating‑rate bonds tied to inflation (also called **linkers**) reduce inflation risk.
 
-### 3.6 Exchange‑rate risk
+### Exchange‑rate risk
 
 For bonds denominated in a foreign currency, the investor’s return depends on exchange rates.  If the foreign currency depreciates relative to the investor’s home currency, the value of the cash flows declines.
 
-### 3.7 Liquidity risk
+### Liquidity risk
 
 **Liquidity risk** reflects the ease with which a bond can be sold at a reasonable price.  A wider bid–ask spread signals higher liquidity risk.  While retail investors planning to hold to maturity may ignore liquidity risk, institutional investors must mark portfolios to market and therefore require market prices based on sufficient trading volume.
 
-### 3.8 Volatility risk
+### Volatility risk
 
 For bonds with embedded options, price depends on both interest rates and the expected volatility of rates.  Greater expected volatility increases the value of the option.  For callable bonds and mortgage‑backed securities the price tends to decrease when volatility rises because the option given to the issuer becomes more valuable.  Volatility risk is often quantified using **vega** from option pricing theory.
 
-### 3.9 Risk risk
+### Risk risk
 
 Fabozzi introduces **risk risk**, defined as the risk of not understanding the risks inherent in a security.  Investors mitigate risk risk by staying informed about analytical techniques and avoiding securities they do not understand.  Although complex securities may offer higher returns, thorough analysis is essential.
 
 ---
 
-## 4 Secondary market for bonds
+## Secondary market for bonds
 
 After a bond is issued in the **primary market**, it can be bought and sold in the **secondary market**.  Secondary trading provides liquidity and allows investors to adjust portfolios in response to changing market conditions.  Liquidity varies across sectors: Treasury securities trade heavily, while certain municipals or high‑yield corporates may trade infrequently.  The presence of active secondary markets is crucial for price discovery and portfolio valuation.
 
 ---
 
-## Additional worked examples
+## Additional worked examples {.unnumbered}
 
 ::: {.callout-note title="Worked Example 3 – Pricing a zero‑coupon bond"}
 
@@ -257,6 +293,25 @@ Consider a corporate bond yielding 5 % when a comparable Treasury yields 3 %. 
 
 ---
 
-## Summary
+# Key Points {.unnumbered}
 
-This lecture introduced the fundamental features of bonds, including principal, coupons and term to maturity.  We examined innovations in bond structures and surveyed the six sectors of the U.S. bond market, noting important distinctions among Treasuries, agencies, municipals, corporates, asset‑backed securities and mortgages.  We also explored the major risks faced by bond investors—interest‑rate, reinvestment, call, credit (including counterparty), inflation, exchange‑rate, liquidity, volatility and risk risk—and discussed how embedded options and amortization features affect valuation.  Understanding these concepts provides a foundation for analyzing and investing in fixed‑income securities, which we will build upon in subsequent lectures.
+- A **bond** is a debt contract in which the issuer promises a schedule of cash flows—typically periodic **coupon** payments and repayment of **principal** at **maturity**—unless default or embedded options alter those flows.
+
+- **Principal (face or par value)** and the **coupon rate** determine the promised cash flows; traditional fixed‑rate bonds pay equal coupons, while **zero‑coupon** bonds pay interest implicitly through a discount to par.
+
+- **Term to maturity** shapes interest‑rate risk and yield quotation; yields by maturity trace the **yield curve**, and longer maturities generally imply greater **price volatility** when yields change.
+
+- Markets also include **floating‑rate** bonds (coupon resets off a reference rate plus a **quoted margin**), **inverse floating‑rate** bonds, deferred‑coupon structures, and **inflation‑linked** bonds such as U.S. **TIPS** and Canadian **RRBs**.
+
+- New floating‑rate issues increasingly reference **SOFR**, **CORRA**, **SONIA**, **€STR**, and similar benchmarks rather than **LIBOR**.
+
+- **Non‑amortizing** bonds repay principal at maturity; **amortizing** securities repay principal over a schedule; **weighted average life (WAL)** summarizes how quickly principal is returned on amortizing structures.
+
+- **Embedded options**—**call**, **put**, **conversion**, and **currency choice**—can change cash‑flow timing or upside and require option‑aware valuation.
+
+- **Convertible** bonds exchange into the issuer’s equity; **exchangeable** bonds exchange into shares of another company.
+
+- Major risks include **interest‑rate risk**, **reinvestment risk**, **call risk**, **credit risk** (default, **credit spread**, downgrade), **counterparty risk**, **inflation risk**, **exchange‑rate risk**, **liquidity risk**, **volatility risk** for option‑rich bonds, and **risk risk**—investing in securities one does not fully understand.
+
+- Bonds are sold first in the **primary market** and then trade in the **secondary market**, where liquidity and price discovery vary widely by sector and issue.
+

@@ -4,14 +4,16 @@ format:
   html:
     toc: true
     toc-location: left
-    number-sections: false
+    number-sections: true
+    number-depth: 3
   pdf:
     toc: true
-    number-sections: false
+    number-sections: true
+    number-depth: 3
 jupyter: python3
 ---
 
-## Learning Objectives
+## Learning Objectives {.unnumbered}
 
 By the end of this lecture you should be able to:
 
@@ -28,7 +30,7 @@ By the end of this lecture you should be able to:
 
 ---
 
-# 1 Base Interest Rate
+# Base Interest Rate
 
 The **base interest rate** is the benchmark rate used as the starting point for valuing a bond. It is meant to represent the return required on a security with minimal default risk over the same maturity or cash-flow horizon.
 
@@ -59,7 +61,7 @@ The bond trades at a spread of 125 basis points over the 5-year Treasury benchma
 
 ---
 
-# 2 Benchmark Spread
+# Benchmark Spread
 
 The **benchmark spread** is the yield difference between a bond and a benchmark security or benchmark curve. It compensates investors for risks and features not captured by the base interest rate.
 
@@ -105,7 +107,7 @@ ax.grid(axis="y", alpha=0.25)
 plt.show()
 ```
 
-## 2.1 Types of Issuers
+## Types of Issuers
 
 Different issuer types usually trade at different spreads because investors assign different risks and legal protections to each sector.
 
@@ -135,7 +137,7 @@ Assume the 10-year Treasury yield is 4.00%. Three 10-year bonds trade at:
 The spread increases as investors require more compensation for credit and liquidity risk.
 :::
 
-## 2.2 Perceived Creditworthiness of Issuer
+## Perceived Creditworthiness of Issuer
 
 Creditworthiness is the market's assessment of the issuer's ability and willingness to make promised payments. It depends on:
 
@@ -154,7 +156,7 @@ Credit ratings summarize some of this information, but market spreads often reac
 A 7-year A-rated bond trades at 85 bps over Treasuries. A similar BBB-rated bond from the same sector trades at 145 bps. The 60 bps difference reflects the market's higher required compensation for the weaker credit profile.
 :::
 
-## 2.3 Inclusion of Options
+## Inclusion of Options
 
 Embedded options change a bond's cash flows and therefore affect its spread.
 
@@ -179,7 +181,7 @@ Suppose two 10-year bonds are issued by the same company:
 The extra yield compensates investors for call risk and reinvestment risk.
 :::
 
-## 2.4 Taxability of Interest
+## Taxability of Interest
 
 Tax treatment affects after-tax yield. Investors compare bonds based on what they keep after taxes, not only the quoted pretax yield.
 
@@ -207,7 +209,7 @@ $$
 The municipal bond is equivalent to a taxable bond yielding 4.62% for this investor.
 :::
 
-## 2.5 Expected Liquidity of an Issue
+## Expected Liquidity of an Issue
 
 Liquidity is the ability to buy or sell a bond quickly, in size, and at low transaction cost. Less liquid bonds usually require higher yields.
 
@@ -227,7 +229,7 @@ The liquidity premium is often small in calm markets but can become large during
 Two BBB-rated bonds have the same maturity and similar credit risk. Bond A is a \$2 billion benchmark issue that trades daily. Bond B is a \$150 million issue that rarely trades. If Bond A trades at 140 bps and Bond B trades at 175 bps over Treasuries, the 35 bps difference may largely reflect liquidity.
 :::
 
-## 2.6 Financeability of an Issue
+## Financeability of an Issue
 
 Financeability refers to how easily a bond can be financed in the repo or secured financing market. A bond that can be financed cheaply and reliably is more attractive to leveraged investors.
 
@@ -246,7 +248,7 @@ If a bond is difficult to finance, investors may require a higher yield. If it i
 A hedge fund can finance Treasury Bond A at a repo rate of 4.00% with a 2% haircut. A less liquid corporate bond requires a 15% haircut and a repo rate of 5.50%. Even if both bonds have attractive yields, the corporate bond consumes more capital and has higher financing risk, so its required spread must be higher.
 :::
 
-## 2.7 Term to Maturity
+## Term to Maturity
 
 Spreads often vary with maturity. The pattern of spreads across maturities is called the **credit spread curve**.
 
@@ -279,7 +281,7 @@ plt.show()
 
 ---
 
-# 3 Term Structure of Interest Rate
+# Term Structure of Interest Rate
 
 The **term structure of interest rates** describes how interest rates vary across maturities. It is one of the central tools in fixed income valuation because bond cash flows occur at different dates.
 
@@ -293,7 +295,7 @@ A term structure can be expressed using:
 
 Each curve answers a different question. A par yield curve tells us the coupon rate that would price a new bond at par. A spot rate curve gives the discount rate for a single cash flow at each maturity. A forward curve gives implied future rates between future dates.
 
-## 3.1 Yield Curve
+## Yield Curve
 
 A **yield curve** plots yields against maturities. The most common version is the Treasury yield curve, which plots yields on Treasury securities from short maturities to long maturities.
 
@@ -331,7 +333,7 @@ ax.legend()
 plt.show()
 ```
 
-## 3.2 Why the Yield Curve Should Not Be Used to Price a Bond
+## Why the Yield Curve Should Not Be Used to Price a Bond
 
 A coupon bond has multiple cash flows. A single yield-to-maturity applies one discount rate to all cash flows, but the market may require different discount rates for different cash-flow dates.
 
@@ -363,7 +365,7 @@ $$
 The difference is small in this simple example, but it becomes material for large portfolios, steep curves, and securities with unusual cash-flow timing.
 :::
 
-## 3.3 Constructing the Theoretical Spot Rate Curve for Treasuries
+## Constructing the Theoretical Spot Rate Curve for Treasuries
 
 The **theoretical spot rate curve** is the set of zero-coupon Treasury rates implied by Treasury security prices. It is called theoretical because most maturities do not have directly traded zero-coupon Treasury securities.
 
@@ -434,7 +436,7 @@ ax.grid(alpha=0.25)
 plt.show()
 ```
 
-## 3.4 On-the-Run Treasury Issues
+## On-the-Run Treasury Issues
 
 **On-the-run Treasuries** are the most recently issued Treasury securities at standard maturities. They are usually the most liquid securities in the Treasury market.
 
@@ -442,7 +444,7 @@ Because they are highly liquid, on-the-run issues often trade at slightly lower 
 
 For example, the current 10-year Treasury note may yield 4.20%, while an older 9.8-year Treasury note may yield 4.25%. The 5 bps difference may reflect liquidity rather than a true difference in risk-free discount rates.
 
-## 3.5 All Treasury Coupon Securities and Bills
+## All Treasury Coupon Securities and Bills
 
 One approach to constructing the Treasury curve uses all available Treasury bills, notes, and bonds. This approach has more data points than an on-the-run curve.
 
@@ -461,7 +463,7 @@ Challenges:
 
 In practice, curve construction often uses statistical fitting methods to smooth observed Treasury prices while controlling for outliers.
 
-## 3.6 Treasury Coupon Strips
+## Treasury Coupon Strips
 
 Treasury STRIPS are securities created by separating Treasury coupon and principal payments into individual zero-coupon instruments. STRIPS provide direct market prices for zero-coupon cash flows.
 
@@ -479,7 +481,7 @@ $$
 Because the STRIP has only one cash flow, its yield is directly interpretable as a spot rate.
 :::
 
-## 3.7 Using the Theoretical Spot Rate Curve
+## Using the Theoretical Spot Rate Curve
 
 The spot rate curve is used to discount each cash flow of a bond at the rate appropriate for that cash-flow date.
 
@@ -507,7 +509,7 @@ $$
 This price uses the correct discount rate for each cash-flow maturity.
 :::
 
-## 3.8 Spot Rates and the Base Interest Rate
+## Spot Rates and the Base Interest Rate
 
 The base interest rate for a cash flow is best represented by the spot rate for that cash-flow date. A bond's Treasury benchmark spread can therefore be measured relative to the spot curve rather than a single benchmark maturity.
 
@@ -524,7 +526,7 @@ where:
 
 This spread is conceptually closer to valuation than a simple spread to one Treasury maturity because it respects the timing of each cash flow.
 
-## 3.9 Forward Rates
+## Forward Rates
 
 A **forward rate** is an interest rate implied today for a loan or investment that begins in the future. Forward rates are derived from spot rates.
 
@@ -546,7 +548,7 @@ $$
 The one-year forward rate beginning one year from now is 5.61%.
 :::
 
-## 3.10 Relationship Between Six-Month Forward Rates and Spot Rates
+## Relationship Between Six-Month Forward Rates and Spot Rates
 
 Treasury notes and bonds pay semiannual coupons, so six-month rates are especially important.
 
@@ -601,7 +603,7 @@ ax.legend()
 plt.show()
 ```
 
-## 3.11 Other Forward Rates
+## Other Forward Rates
 
 Forward rates can be constructed for any future interval, not only one-year or six-month intervals.
 
@@ -629,7 +631,7 @@ $$
 The 2-year forward rate beginning in year 3 is 5.51%.
 :::
 
-## 3.12 Forward Rate as a Hedgeable Rate
+## Forward Rate as a Hedgeable Rate
 
 A forward rate is hedgeable when it corresponds to a tradable strategy. For example, an investor can lock in a future borrowing or lending rate using:
 
@@ -645,7 +647,7 @@ The forward rate is not necessarily the market's forecast of the future spot rat
 A pension fund expects to buy a 10-year Treasury note in three months. If the fund is worried that rates will fall before the purchase date, it can buy Treasury futures today. The futures position gains value if rates fall, offsetting the higher cash price of the Treasury note. The hedge converts uncertainty about a future rate into a more predictable effective purchase yield.
 :::
 
-## 3.13 Determinants of the Shape of the Term Structure
+## Determinants of the Shape of the Term Structure
 
 The yield curve shape reflects several forces:
 
@@ -661,7 +663,7 @@ The yield curve shape reflects several forces:
 
 No single theory explains the curve at all times. In practice, the observed curve is the result of expectations, risk premiums, preferred maturity demand, and institutional constraints.
 
-## 3.14 Pure Expectations Theory
+## Pure Expectations Theory
 
 The **pure expectations theory** states that forward rates reflect only expected future short-term rates. Under this theory, investors are risk neutral across maturities and do not require a maturity risk premium.
 
@@ -669,7 +671,7 @@ If the yield curve is upward sloping, the theory says the market expects future 
 
 The limitation is that long-term bonds are riskier than rolling short-term bonds, so investors usually require compensation for bearing duration risk.
 
-## 3.15 Liquidity Theory
+## Liquidity Theory
 
 The **liquidity theory** states that investors prefer shorter maturities because short-term bonds have less price risk and are more liquid. Therefore, long-term bonds must offer a positive liquidity premium.
 
@@ -681,7 +683,7 @@ $$
 
 The liquidity premium tends to make the yield curve slope upward even if expected future short rates are unchanged.
 
-## 3.16 Preferred Habitat Theory
+## Preferred Habitat Theory
 
 The **preferred habitat theory** says investors and borrowers prefer certain maturity ranges but can be induced to move outside those ranges if compensated.
 
@@ -693,7 +695,7 @@ For example:
 
 If long-maturity investors have strong demand for 30-year bonds, long-term yields may be lower than expectations alone would imply.
 
-## 3.17 Market Segmentation Theory
+## Market Segmentation Theory
 
 The **market segmentation theory** is stronger than preferred habitat theory. It says different maturity sectors are largely separate markets, with yields determined by supply and demand in each maturity segment.
 
@@ -701,7 +703,7 @@ For example, the 2-year Treasury yield may be dominated by central bank policy e
 
 The limitation is that arbitrage and relative-value trading connect maturity sectors, so markets are not completely segmented.
 
-## 3.18 The Main Influences on the Shape of the Yield Curve
+## The Main Influences on the Shape of the Yield Curve
 
 In practice, the yield curve shape is driven by a combination of macroeconomic and technical forces.
 
@@ -744,7 +746,7 @@ plt.show()
 
 ---
 
-# 4 Swap Rate Yield Curve
+# Swap Rate Yield Curve
 
 The **swap rate yield curve** plots fixed rates on plain-vanilla interest rate swaps across maturities. In a fixed-for-floating swap, one party pays a fixed rate and receives a floating reference rate, while the other party receives fixed and pays floating.
 
@@ -802,7 +804,7 @@ The swap curve is not risk free in the same way as a Treasury curve. It reflects
 
 ---
 
-# 5 Curve Strategies
+# Curve Strategies
 
 Curve strategies use positions in bonds, futures, swaps, or other rate instruments to express a view about changes in the level, slope, or curvature of the yield curve.
 
@@ -814,7 +816,7 @@ The main idea is to separate:
 
 Curve trades are often structured to be approximately duration neutral so the profit or loss depends mainly on curve shape rather than the overall level of rates.
 
-## 5.1 Bull Steepener
+## Bull Steepener
 
 A **bull steepener** is a strategy that benefits when yields fall and short-term yields fall more than long-term yields. This often occurs when the market expects central bank easing.
 
@@ -844,7 +846,7 @@ $$
 The curve steepened by 45 bps. A long 2-year / short 10-year duration-neutral trade profits because the long 2-year position gains more from the larger yield decline than the short 10-year position loses.
 :::
 
-## 5.2 Bear Steepener
+## Bear Steepener
 
 A **bear steepener** benefits when yields rise and long-term yields rise more than short-term yields. This can occur when inflation risk rises or investors demand a larger term premium.
 
@@ -862,7 +864,7 @@ The 5-year yield is 4.00% and the 30-year yield is 4.40%, so the 5s30s slope is 
 The 5s30s slope becomes 70 bps. The curve steepened by 30 bps. A short long-bond position gains from the larger yield increase at the long end, while the long 5-year hedge loses less.
 :::
 
-## 5.3 Bull Flattener
+## Bull Flattener
 
 A **bull flattener** benefits when yields fall and long-term yields fall more than short-term yields. This often occurs when inflation expectations decline or investors seek duration.
 
@@ -873,7 +875,7 @@ Example position:
 
 If the 10-year yield falls by 50 bps while the 2-year yield falls by only 15 bps, the long 10-year position gains more than the short 2-year position loses.
 
-## 5.4 Bear Flattener
+## Bear Flattener
 
 A **bear flattener** benefits when yields rise and short-term yields rise more than long-term yields. This often occurs when the central bank is expected to tighten policy.
 
@@ -884,7 +886,7 @@ Example position:
 
 If the 2-year yield rises by 75 bps and the 10-year yield rises by 25 bps, the curve flattens. The short 2-year position gains more than the long 10-year position loses.
 
-## 5.5 Butterfly Strategy
+## Butterfly Strategy
 
 A **butterfly** strategy expresses a view on curvature. It compares an intermediate maturity with a weighted average of shorter and longer maturities.
 
@@ -943,7 +945,7 @@ ax.legend()
 plt.show()
 ```
 
-## 5.6 Carry and Roll-Down
+## Carry and Roll-Down
 
 Curve strategies are not driven only by future yield changes. They also earn or lose **carry** and **roll-down**.
 
@@ -957,7 +959,7 @@ A 5-year Treasury yields 4.30%. The 4-year point on the curve yields 4.00%. If t
 However, if market yields rise enough, the mark-to-market loss can offset the carry and roll-down benefit.
 :::
 
-## 5.7 Risk Controls in Curve Strategies
+## Risk Controls in Curve Strategies
 
 Curve strategies should be evaluated with explicit risk controls:
 
@@ -977,7 +979,7 @@ A duration-neutral steepener is only neutral for small parallel shifts. It can s
 
 ---
 
-# Key Points
+# Key Points {.unnumbered}
 
 - The required yield on a bond can be decomposed into a base interest rate and a benchmark spread.
 - Benchmark spreads reflect issuer type, creditworthiness, embedded options, taxes, liquidity, financeability, and maturity.

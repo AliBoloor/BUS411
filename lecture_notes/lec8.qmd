@@ -4,10 +4,12 @@ format:
   html:
     toc: true
     toc-location: left
-    number-sections: false
+    number-sections: true
+    number-depth: 3
   pdf:
     toc: true
-    number-sections: false
+    number-sections: true
+    number-depth: 3
 execute:
   echo: false
   warning: false
@@ -16,7 +18,7 @@ jupyter: python3
 ---
 
 
-## Learning Objectives
+## Learning Objectives {.unnumbered}
 
 After completing this lecture you should be able to:
 
@@ -30,7 +32,7 @@ After completing this lecture you should be able to:
 
 ---
 
-## 1 Drawbacks of Traditional Yield-Spread Analysis
+## Drawbacks of Traditional Yield-Spread Analysis
 
 Historically, fixed-income analysts compared the **yield to maturity (YTM)** of a corporate bond with the yield of a Treasury security of similar maturity to measure compensation for credit and liquidity risk. The **yield spread** was defined as
 
@@ -52,7 +54,7 @@ Because of these limitations, modern valuation methods use term-structure models
 
 ---
 
-## 2 Static Spread: An Alternative to Yield Spread
+## Static Spread: An Alternative to Yield Spread
 
 The **static spread** (also called the **I-spread**) measures the constant margin over the Treasury spot curve that discounts a bond's cash flows to its market price. For a bond with cash flows \(\{CF_{t_i}\}\) at times \(t_1,t_2,\dots,t_n\) and Treasury zero rates \(\{r_{t_i}\}\), the static spread \(s\) solves
 
@@ -116,13 +118,13 @@ In this example the static spread is about 86 basis points. Economically, that m
 
 ---
 
-## 3 Callable Bonds and Their Investment Characteristics
+## Callable Bonds and Their Investment Characteristics
 
 A **callable bond** gives the issuer the right, but not the obligation, to redeem the bond before maturity at a specified call price according to a call schedule. The issuer will typically call the bond when prevailing rates fall below the coupon rate, allowing refinancing at a lower borrowing cost.
 
 This embedded call option changes the bond's economic behavior.
 
-### 3.1 Lower price than a comparable option-free bond
+### Lower price than a comparable option-free bond
 
 Because the issuer owns the right to call, the investor is effectively **short a call option**. The callable bond therefore must be worth less than an otherwise identical option-free bond:
 
@@ -130,11 +132,11 @@ $$
 V_{\text{callable}} = V_{\text{option-free}} - V_{\text{call option}}
 $$
 
-### 3.2 Negative convexity
+### Negative convexity
 
 As yields decline, the price of an option-free bond rises at an increasing rate. A callable bond does not. Once rates fall enough, the chance of being called rises sharply, which caps further price appreciation. This gives callable bonds **negative convexity** over some yield ranges.
 
-### 3.3 Yield to worst
+### Yield to worst
 
 Because a callable bond may be redeemed at one of several call dates, investors often compute:
 
@@ -144,7 +146,7 @@ Because a callable bond may be redeemed at one of several call dates, investors 
 
 Yield to worst is a practical convention, but it is not a full valuation framework. It does not explicitly model volatility or the contingent nature of cash flows.
 
-### 3.4 Price-yield relationship for a callable bond
+### Price-yield relationship for a callable bond
 
 To visualize negative convexity, we can compare the price-yield curve of an option-free bond with that of a callable bond.
 
@@ -194,7 +196,7 @@ The callable bond's price is capped when yields fall enough for calling to becom
 
 ---
 
-## 4 Components of a Bond with an Embedded Option
+## Components of a Bond with an Embedded Option
 
 A bond with an embedded option can be decomposed conceptually into two parts:
 
@@ -217,7 +219,7 @@ This decomposition is useful because it tells us exactly where the pricing disto
 
 ---
 
-## 5 Valuation Model for Bonds with Embedded Options
+## Valuation Model for Bonds with Embedded Options
 
 The modern approach to valuing bonds with embedded options uses an **interest-rate lattice** and **risk-neutral valuation**.
 
@@ -233,7 +235,7 @@ The general logic is:
 
 The value at time 0 is the bond's model price.
 
-### 5.1 The key backward induction formula
+### The key backward induction formula
 
 For an option-free bond, backward induction uses
 
@@ -262,7 +264,7 @@ $$
 
 ---
 
-## 5.2 Why the lattice matters
+## Why the lattice matters
 
 The lattice is not just a computational trick. It is economically important.
 
@@ -291,7 +293,7 @@ So the embedded option makes the bond **path-dependent**. The value depends not 
 
 ---
 
-## 5.3 Constructing a simple binomial interest-rate tree
+## Constructing a simple binomial interest-rate tree
 
 To illustrate, consider a three-year bond with annual coupons of 8 on a face value of 100. Assume annual time steps. We first construct a simple short-rate tree directly for intuition.
 
@@ -316,7 +318,7 @@ This simplified tree is excellent for teaching because it isolates the core logi
 
 ---
 
-## 5.4 Step-by-step numerical example: pricing an option-free bond and a callable bond
+## Step-by-step numerical example: pricing an option-free bond and a callable bond
 
 We now price the bond **by hand** using backward induction.
 
@@ -513,7 +515,7 @@ Third, the lattice makes the exercise decision explicit at each node. That is th
 
 ---
 
-## 5.5 A compact Python implementation of the same logic
+## A compact Python implementation of the same logic
 
 The following code reproduces the lattice valuation for the option-free and callable bond.
 
@@ -558,7 +560,7 @@ print(f"Call option value: {option_value:.4f}")
 
 ---
 
-## 5.6 Constructing a model-based binomial tree
+## Constructing a model-based binomial tree
 
 In more formal models, rates evolve according to a short-rate process rather than being assigned directly. For example, with a lognormal up and down structure:
 
@@ -597,7 +599,7 @@ In practice, professional valuation systems use calibrated models such as Ho-Lee
 
 ---
 
-## 5.7 Incorporating default risk
+## Incorporating default risk
 
 The lattice framework can be extended to corporate bonds in several ways.
 
@@ -613,7 +615,7 @@ These extensions are important in practice because many callable bonds are corpo
 
 ---
 
-## 5.8 Implementation challenges
+## Implementation challenges
 
 Real-world implementation is harder than the classroom example suggests. A practical model must decide:
 
@@ -628,7 +630,7 @@ Even so, the lattice remains one of the clearest frameworks for understanding th
 
 ---
 
-## 6 Option-Adjusted Spread (OAS)
+## Option-Adjusted Spread (OAS)
 
 The **option-adjusted spread** measures the constant spread over the risk-free curve that equates the model price of a bond, after adjusting for embedded option effects, to its market price.
 
@@ -645,13 +647,13 @@ $$
 
 where the sum runs over all interest-rate paths.
 
-### 6.1 Why OAS matters
+### Why OAS matters
 
 Suppose two bonds have the same nominal spread over Treasuries, but one is callable and the other is not. The callable bond's spread partly compensates the investor for being short the call option. The OAS attempts to strip out that option effect.
 
 That makes OAS a cleaner measure of relative value when embedded options matter.
 
-### 6.2 Relating nominal spread, static spread, and OAS
+### Relating nominal spread, static spread, and OAS
 
 * **Nominal spread** compares one yield with another yield.
 * **Static spread** discounts promised cash flows using the spot curve plus a constant spread.
@@ -659,13 +661,13 @@ That makes OAS a cleaner measure of relative value when embedded options matter.
 
 So for bonds with embedded options, OAS is usually the economically relevant spread measure.
 
-### 6.3 Determining the option cost in spread terms
+### Determining the option cost in spread terms
 
 If a callable bond has a nominal spread of 150 basis points but an OAS of 100 basis points, then roughly 50 basis points of the nominal spread reflect the call option rather than pure credit or liquidity compensation.
 
 ---
 
-## 7 Effective Duration and Convexity
+## Effective Duration and Convexity
 
 For bonds with embedded options, traditional Macaulay duration and convexity are inadequate because cash flows depend on the future path of interest rates.
 
@@ -719,7 +721,7 @@ Because the call feature limits upside when rates fall, the callable bond's pric
 
 ---
 
-## 8 Key Points
+## Key Points {.unnumbered}
 
 * **Traditional yield spread analysis** is simple, but it ignores the full term structure and fails badly when embedded options affect cash flows.
 * The **static spread** improves on nominal spread by discounting promised cash flows off the spot curve, but it still ignores contingent option exercise.

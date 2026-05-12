@@ -31,8 +31,13 @@ jobs:
           # Avoids GitHub API rate limits when downloading Quarto / TinyTeX bundles.
           GH_TOKEN: ${{ github.token }}
         with:
-          version: release
+          # Pin so HTML and site_libs hashes stay aligned across runs (avoid mixing
+          # with a different local Quarto when committing docs from a laptop).
+          version: "1.9.37"
           tinytex: true
+
+      - name: Report Quarto version
+        run: quarto --version
 
       - name: Install TeX fonts for syllabus PDF (Linux)
         run: |

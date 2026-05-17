@@ -2,16 +2,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.9.37">
+<meta name="generator" content="quarto-1.8.27">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
 <title>Lecture 2: Bond Pricing and Yield Measures – BUS 411 — Fixed Income Security Analysis and Valuation</title>
 <style>
-/* Default styles provided by pandoc.
-** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
-*/
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
 div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -35,18 +32,19 @@ ul.task-list li input[type="checkbox"] {
 <meta name="quarto:offset" content="../">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-d0ae9245876894da5ac7e18953ecc5cc.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-4d9afe2b8d18ee9fa5d0d57b5ed4214d.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-bda36eceed6e9e4af31ec891887dbe1b.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-9c2ca81c002af579fc311bcf98e6e3e5.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../site_libs/bootstrap/bootstrap-bda36eceed6e9e4af31ec891887dbe1b.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-97afdd19a946a7800d02dd55b4e8b647.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-aeaf3e155c33cdd5728541c7b417a725.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-97afdd19a946a7800d02dd55b4e8b647.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -76,7 +74,7 @@ ul.task-list li input[type="checkbox"] {
 }</script>
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -404,8 +402,11 @@ window.Quarto = {
   <li><a href="#potential-sources-of-a-bonds-dollar-return" id="toc-potential-sources-of-a-bonds-dollar-return" class="nav-link" data-scroll-target="#potential-sources-of-a-bonds-dollar-return"><span class="header-section-number">12</span> Potential Sources of a Bond’s Dollar Return</a>
   <ul class="collapse">
   <li><a href="#determining-the-interest-on-interest-dollar-return" id="toc-determining-the-interest-on-interest-dollar-return" class="nav-link" data-scroll-target="#determining-the-interest-on-interest-dollar-return"><span class="header-section-number">12.1</span> Determining the Interest-on-Interest Dollar Return</a></li>
-  <li><a href="#yield-to-maturity-and-reinvestment-risk" id="toc-yield-to-maturity-and-reinvestment-risk" class="nav-link" data-scroll-target="#yield-to-maturity-and-reinvestment-risk"><span class="header-section-number">12.2</span> Yield to Maturity and Reinvestment Risk</a></li>
-  <li><a href="#cash-flow-yield-and-reinvestment-risk" id="toc-cash-flow-yield-and-reinvestment-risk" class="nav-link" data-scroll-target="#cash-flow-yield-and-reinvestment-risk"><span class="header-section-number">12.3</span> Cash Flow Yield and Reinvestment Risk</a></li>
+  <li><a href="#yield-to-maturity-and-reinvestment-risk" id="toc-yield-to-maturity-and-reinvestment-risk" class="nav-link" data-scroll-target="#yield-to-maturity-and-reinvestment-risk"><span class="header-section-number">12.2</span> Yield to Maturity and Reinvestment Risk</a>
+  <ul class="collapse">
+  <li><a href="#reinvestment-risk-and-bond-characteristics" id="toc-reinvestment-risk-and-bond-characteristics" class="nav-link" data-scroll-target="#reinvestment-risk-and-bond-characteristics">Reinvestment Risk and Bond Characteristics</a></li>
+  <li><a href="#amortizing-securities-and-reinvestment-risk" id="toc-amortizing-securities-and-reinvestment-risk" class="nav-link" data-scroll-target="#amortizing-securities-and-reinvestment-risk">Amortizing Securities and Reinvestment Risk</a></li>
+  </ul></li>
   </ul></li>
   <li><a href="#total-return" id="toc-total-return" class="nav-link" data-scroll-target="#total-return"><span class="header-section-number">13</span> Total Return</a>
   <ul class="collapse">
@@ -505,11 +506,17 @@ P_n = P_0(1+r)^n.
 </div>
 <div class="callout-body-container callout-body">
 <p><strong>Future Value</strong></p>
-<p>Suppose a pension fund invests $10,000,000 at an annual interest rate of 9.2% for 6 years.</p>
+<p>Suppose a pension fund invests $10,000,000 at a <strong>stated annual</strong> interest rate of 9.2% for 6 years.</p>
+<p><em>Annual compounding.</em> Interest is credited once per year, so the investment earns 9.2% each year for six years:</p>
 <p><span class="math display">\[
-P_6 = 10{,}000{,}000(1.092)^6 = 16{,}956{,}500.
+P_6 = 10{,}000{,}000(1.092)^6 \approx 16{,}956{,}500.
 \]</span></p>
-<p>The investment grows to approximately $16.96 million after six years.</p>
+<p>The balance is approximately $16.96 million after six years.</p>
+<p><em>Semi-annual compounding.</em> Interest is credited every six months at half the annual rate, so there are <span class="math inline">\(2 \times 6 = 12\)</span> compounding periods and the six-month rate is <span class="math inline">\(0.092/2 = 0.046\)</span>:</p>
+<p><span class="math display">\[
+P_6 = 10{,}000{,}000\left(1 + \frac{0.092}{2}\right)^{12} = 10{,}000{,}000(1.046)^{12} \approx 17{,}154{,}585.
+\]</span></p>
+<p>Equivalently, <span class="math inline">\(P_T = P_0\left(1 + \frac{r}{m}\right)^{mT}\)</span> with <span class="math inline">\(r = 0.092\)</span>, <span class="math inline">\(T = 6\)</span>, and <span class="math inline">\(m = 2\)</span> compounding intervals per year. More frequent compounding yields a higher terminal value (here about $17.15 million) because interest is reinvested sooner within each year.</p>
 </div>
 </div>
 <hr>
@@ -521,24 +528,123 @@ P_6 = 10{,}000{,}000(1.092)^6 = 16{,}956{,}500.
 <p><span class="math display">\[
 FV = C \left( \frac{(1+r)^n - 1}{r} \right).
 \]</span></p>
-<p>This formula shows that the future value of an annuity depends on both the number of payments and the interest rate at which the payments are reinvested. This is important in fixed income because the total return from a bond depends heavily on the reinvestment of coupon payments.</p>
-<div class="callout callout-style-default callout-note callout-titled" title="Worked Example">
+<div class="callout callout-style-default callout-note callout-titled" title="Derivation: Future Value of an Ordinary Annuity">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Worked Example
+<span class="screen-reader-only">Note</span>Derivation: Future Value of an Ordinary Annuity
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><strong>Future Value of an Annuity</strong></p>
-<p>Suppose an investor receives $100 at the end of each year for 5 years and can reinvest each payment at 6%.</p>
+<p>Suppose a payment <span class="math inline">\(C\)</span> is made at the <strong>end</strong> of each period for <span class="math inline">\(n\)</span> periods, and the interest rate per period is <span class="math inline">\(r\)</span>.</p>
+<p>The cash flows can be represented as:</p>
 <p><span class="math display">\[
-FV = 100 \left( \frac{(1.06)^5 - 1}{0.06} \right)
-= 100(5.637) = 563.70.
+\begin{aligned}
+\text{Time 1:} &amp; \quad C \\
+\text{Time 2:} &amp; \quad C \\
+&amp; \vdots \\
+\text{Time n:} &amp; \quad C
+\end{aligned}
 \]</span></p>
-<p>The future value of the payments at the end of 5 years is $563.70.</p>
+<p>Each payment earns interest from the time it is made until the end of the period <span class="math inline">\(n\)</span>:</p>
+<ul>
+<li>The <strong>first</strong> payment (at time 1) is invested for <span class="math inline">\(n-1\)</span> periods: <span class="math inline">\(C(1+r)^{n-1}\)</span></li>
+<li>The <strong>second</strong> payment is invested for <span class="math inline">\(n-2\)</span> periods: <span class="math inline">\(C(1+r)^{n-2}\)</span></li>
+<li>…</li>
+<li>The <strong>last</strong> payment (at time <span class="math inline">\(n\)</span>) is made at the end and earns no additional interest: <span class="math inline">\(C(1+r)^0 = C\)</span></li>
+</ul>
+<p>The <strong>future value</strong> at time <span class="math inline">\(n\)</span> is the sum:</p>
+<p><span class="math display">\[
+FV = C(1+r)^{n-1} + C(1+r)^{n-2} + \cdots + C(1+r)^0
+\]</span></p>
+<p>Factoring out <span class="math inline">\(C\)</span>:</p>
+<p><span class="math display">\[
+FV = C \left[ (1+r)^{n-1} + (1+r)^{n-2} + \dots + 1 \right]
+\]</span></p>
+<p>This is a geometric series with <span class="math inline">\(n\)</span> terms, ratio <span class="math inline">\((1+r)\)</span>:</p>
+<p><span class="math display">\[
+FV = C \cdot \frac{(1+r)^n - 1}{r}
+\]</span></p>
+<p>This is the <strong>future value formula for an ordinary annuity.</strong></p>
+</div>
+</div>
+<p>This formula shows that the future value of an annuity depends on both the number of payments and the interest rate at which the payments are reinvested. This is important in fixed income because the total return from a bond depends heavily on the reinvestment of coupon payments.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Reinvestment of Coupon Payments: 15-Year Bond Example">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Reinvestment of Coupon Payments: 15-Year Bond Example
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Setup</strong></p>
+<p>A portfolio manager purchases <strong>$20 million par value</strong> of a 15-year bond with a <strong>10% annual coupon</strong>, paid once per year.</p>
+<ul>
+<li>Annual coupon payment: <span class="math inline">\(0.10 \times 20{,}000{,}000 = 2{,}000{,}000\)</span></li>
+<li>Coupons are <strong>reinvested at 8% annually</strong></li>
+<li>Horizon: <strong>15 years</strong></li>
+</ul>
+<hr>
+<p><strong>Step 1 — Future value of reinvested coupons</strong></p>
+<p>The coupon stream is an <strong>ordinary annuity</strong> of $2,000,000 per year. Its future value is:</p>
+<p><span class="math display">\[
+FV = A \cdot \frac{(1+r)^n - 1}{r}
+\]</span></p>
+<p><span class="math display">\[
+FV = 2{,}000{,}000 \cdot \frac{(1.08)^{15} - 1}{0.08}
+= 2{,}000{,}000 \cdot 27.152125
+= 54{,}304{,}250
+\]</span></p>
+<hr>
+<p><strong>Step 2 — Decomposition of coupon value</strong></p>
+<ul>
+<li>Total coupon cash received: <span class="math inline">\(15 \times 2{,}000{,}000 = 30{,}000{,}000\)</span></li>
+<li>Interest earned from reinvestment: <span class="math inline">\(54{,}304{,}250 - 30{,}000{,}000 = 24{,}304{,}250\)</span></li>
+</ul>
+<hr>
+<p><strong>Step 3 — Total wealth at maturity</strong></p>
+<ul>
+<li>Par (maturity) value: <span class="math inline">\(20{,}000{,}000\)</span></li>
+<li>Future value of reinvested coupons: <span class="math inline">\(54{,}304{,}250\)</span></li>
+</ul>
+<p><span class="math display">\[
+\text{Total future value} = 20{,}000{,}000 + 54{,}304{,}250 = 74{,}304{,}250
+\]</span></p>
+<hr>
+<p><strong>Final Breakdown</strong></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Component</th>
+<th style="text-align: right;">Amount (USD)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Par value at maturity</td>
+<td style="text-align: right;">20,000,000</td>
+</tr>
+<tr class="even">
+<td>Coupon payments (sum)</td>
+<td style="text-align: right;">30,000,000</td>
+</tr>
+<tr class="odd">
+<td>Interest from reinvesting coupons</td>
+<td style="text-align: right;">24,304,250</td>
+</tr>
+<tr class="even">
+<td><strong>Total future value (after 15 years)</strong></td>
+<td style="text-align: right;"><strong>74,304,250</strong></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<p><strong>Key point</strong></p>
+<p>A substantial portion of terminal wealth comes from <strong>reinvestment income</strong>, not just coupons or principal. This is the essence of <strong>reinvestment risk</strong>.</p>
 </div>
 </div>
 <hr>
@@ -613,6 +719,53 @@ PV = C \left( \frac{1 - (1+r)^{-n}}{r} \right).
 P = C \left( \frac{1 - (1+r)^{-n}}{r} \right) + \frac{F}{(1+r)^n}.
 \]</span></p>
 <p>This formula shows that a bond is simply the present value of an annuity (coupon payments) plus the present value of a single payment (principal).</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Derivation: Present Value of an Ordinary Annuity">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Derivation: Present Value of an Ordinary Annuity
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>To derive the present value formula for an ordinary annuity (a series of <span class="math inline">\(n\)</span> payments of <span class="math inline">\(C\)</span> each, received at the end of each period, discounted at rate <span class="math inline">\(r\)</span>):</p>
+<p>The present value is the sum of the present values of all payments:</p>
+<p><span class="math display">\[
+PV = \frac{C}{(1 + r)} + \frac{C}{(1 + r)^2} + \cdots + \frac{C}{(1 + r)^n}
+\]</span></p>
+<p>This is a <strong>geometric series</strong>:</p>
+<ul>
+<li>First term <span class="math inline">\(= \frac{C}{1 + r}\)</span></li>
+<li>Common ratio <span class="math inline">\(= \frac{1}{1 + r}\)</span></li>
+</ul>
+<p>The sum of a geometric series with <span class="math inline">\(n\)</span> terms is:</p>
+<p><span class="math display">\[
+S_n = a \left( \frac{1 - q^n}{1 - q} \right)
+\]</span></p>
+<p>Plugging in the values:</p>
+<ul>
+<li><span class="math inline">\(a = \frac{C}{1 + r}\)</span></li>
+<li><span class="math inline">\(q = \frac{1}{1 + r}\)</span></li>
+</ul>
+<p>So,</p>
+<p><span class="math display">\[
+PV = \frac{C}{1 + r} \left( \frac{1 - \left( \frac{1}{1 + r} \right)^n}{1 - \frac{1}{1 + r}} \right)
+\]</span></p>
+<p>Simplify the denominator:</p>
+<p><span class="math display">\[
+1 - \frac{1}{1 + r} = \frac{(1 + r) - 1}{1 + r} = \frac{r}{1 + r}
+\]</span></p>
+<p>Therefore:</p>
+<p><span class="math display">\[
+PV = \frac{C}{1 + r} \cdot \frac{1 - (1 + r)^{-n}}{r / (1 + r)} = C \left( \frac{1 - (1 + r)^{-n}}{r} \right)
+\]</span></p>
+<p>This yields the familiar formula for the present value of an ordinary annuity:</p>
+<p><span class="math display">\[
+PV = C \left( \frac{1 - (1 + r)^{-n}}{r} \right)
+\]</span></p>
+</div>
+</div>
 <hr>
 </section>
 <section id="present-value-when-payments-occur-more-than-once-per-year" class="level2" data-number="1.6">
@@ -681,7 +834,7 @@ P = \sum_{t=1}^{n} \frac{C}{(1+r)^t} + \frac{F}{(1+r)^n}.
 </div>
 <div class="callout-body-container callout-body">
 <p><strong>Bond Pricing Example</strong></p>
-<p>Suppose a bond has a face value of <span class="math inline">\(\$1,000\)</span>, pays an annual coupon of <span class="math inline">\(\$50\)</span> <span class="math inline">\((C=50)\)</span>, matures in 3 years, <span class="math inline">\((n=3)\)</span>, and the required yield is <span class="math inline">\(6/%\)</span>, <span class="math inline">\((r=0.06)\)</span>. What is the price of the bond?</p>
+<p>Suppose a bond has a face value of <span class="math inline">\(\$1,000\)</span>, pays an annual coupon of <span class="math inline">\(\$50\)</span> <span class="math inline">\((C=50)\)</span>, matures in 3 years, <span class="math inline">\((n=3)\)</span>, and the required yield is <span class="math inline">\(6\%\)</span>, <span class="math inline">\((r=0.06)\)</span>. What is the price of the bond?</p>
 <p>First, calculate the present value of each coupon payment and the face value:</p>
 <p><span class="math display">\[
 \begin{aligned}
@@ -714,7 +867,7 @@ P = \frac{F}{(1+r)^n}.
 <div id="fig-very-convex-price-yield" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-very-convex-price-yield-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="lec2_files/figure-html/fig-very-convex-price-yield-output-1.png" width="601" height="376" class="figure-img">
+<img src="lec2_files/figure-html/fig-very-convex-price-yield-output-1.png" width="602" height="376" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-very-convex-price-yield-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;1: Exaggerated illustration of a highly convex price–yield relationship for a bond. Note the strong curve, especially at low coupon and long maturity.
@@ -774,11 +927,11 @@ Figure&nbsp;1: Exaggerated illustration of a highly convex price–yield relatio
 </div>
 <div class="callout-body-container callout-body">
 <p>The figure below shows how the price of a 20-year 10% coupon bond moves toward par as it approaches maturity when market yields remain unchanged. A bond selling at a discount rises toward par, while a bond selling at a premium falls toward par.</p>
-<div id="0fcf2db9" class="cell" data-fig-height="3.15" data-fig-width="4.9" data-message="false" data-execution_count="2">
+<div id="c2b2df33" class="cell" data-fig-height="3.15" data-fig-width="4.9" data-message="false" data-execution_count="2">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="lec2_files/figure-html/cell-3-output-1.png" width="601" height="449" class="figure-img"></p>
+<p><img src="lec2_files/figure-html/cell-3-output-1.png" width="602" height="449" class="figure-img"></p>
 <figcaption>Time path for the price of a 20-year 10% bond as maturity approaches</figcaption>
 </figure>
 </div>
@@ -1379,6 +1532,38 @@ y \approx 7\%.
 <li>Interest earned from reinvesting coupons (interest-on-interest)</li>
 <li>Capital gain or loss if the bond price changes</li>
 </ol>
+<div class="callout callout-style-default callout-note callout-titled" title="Summary: Yield Measures and Sources of Bond Return">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Summary: Yield Measures and Sources of Bond Return
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>When assessing a bond’s potential yield, it is crucial to recognize that total return can originate from three sources: coupon interest, reinvestment of coupons (interest-on-interest), and capital gain or loss. Different yield measures consider these sources differently:</p>
+<ul>
+<li><strong>Current Yield</strong>: Considers only coupon interest; ignores reinvestment income and capital gains or losses.</li>
+<li><strong>Yield to Maturity (YTM)</strong>: Reflects all three sources, but only if:
+<ol type="1">
+<li>The bond is held to maturity, and</li>
+<li>Coupon payments are reinvested at the YTM rate. Otherwise, the realized yield may differ from the stated YTM.</li>
+</ol></li>
+<li><strong>Yield to Call (YTC)</strong>: Also incorporates all three sources, assuming:
+<ol type="1">
+<li>The bond is called on the specified call date,</li>
+<li>Coupons are reinvested at the YTC rate. This measure faces the same reinvestment assumption risk as YTM.</li>
+</ol></li>
+<li><strong>Cash Flow Yield</strong>: Like YTM, but also assumes:
+<ol type="1">
+<li>Principal repayments are reinvested at the cash flow yield, and</li>
+<li>Projected prepayment patterns actually occur.</li>
+</ol></li>
+</ul>
+<p><strong>Key Point:</strong> All yield measures that include capital gains/losses and interest-on-interest rely on significant reinvestment and holding period assumptions. When these assumptions are not met, the actual realized yield may be higher or lower than stated.</p>
+</div>
+</div>
 <section id="determining-the-interest-on-interest-dollar-return" class="level2" data-number="12.1">
 <h2 data-number="12.1" class="anchored" data-anchor-id="determining-the-interest-on-interest-dollar-return"><span class="header-section-number">12.1</span> Determining the Interest-on-Interest Dollar Return</h2>
 <p>When a bond pays periodic coupons, investors typically reinvest those coupon payments until the end of the investment horizon. The interest earned on reinvested coupons is called <strong>interest-on-interest</strong>. This component of return can be significant, especially for long-term bonds, and it is an important part of the total return of a bond investment.</p>
@@ -1450,11 +1635,56 @@ C(1+r)^{n-t} - C
 <section id="yield-to-maturity-and-reinvestment-risk" class="level2" data-number="12.2">
 <h2 data-number="12.2" class="anchored" data-anchor-id="yield-to-maturity-and-reinvestment-risk"><span class="header-section-number">12.2</span> Yield to Maturity and Reinvestment Risk</h2>
 <p>Yield to maturity assumes that coupons are reinvested at the YTM. If reinvestment rates are lower than the YTM, the investor’s actual return will be lower. This is called <strong>reinvestment risk</strong>.</p>
+<p>The <strong>potential total dollar return</strong> assumes all coupons are reinvested at the yield to maturity (YTM).</p>
+<p><strong>Worked Example</strong></p>
+<div class="callout callout-style-default callout-note callout-titled" title="Worked Example: Breaking Down the Total Dollar Return">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Worked Example: Breaking Down the Total Dollar Return
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Suppose an investor buys a 15-year bond for $769.40. The bond pays a 10% annual coupon, distributed as $35 every six months (i.e., semiannual coupons). The bond’s face value is $1,000 and its yield to maturity is 10% (so, 5% per half-year). Let’s examine the components of the total dollar return if the bond is held to maturity and coupons are reinvested at the YTM.</p>
+<ul>
+<li><p><strong>Total Coupon Interest:</strong><br>
+Over 15 years, there are <span class="math inline">\(15 \times 2 = 30\)</span> semiannual periods.<br>
+<span class="math inline">\(\$35 \times 30 = \$1,050\)</span> in coupon payments.</p></li>
+<li><p><strong>Interest-on-Interest:</strong><br>
+Each coupon payment is reinvested at 5% (the semiannual YTM). Over 15 years, this compounded reinvestment results in<br>
+$1,275.36 earned <strong>just</strong> from reinvesting the coupons.</p></li>
+<li><p><strong>Capital Gain:</strong><br>
+The bond was purchased at $769.40 and redeems at face value ($1,000) at maturity.<br>
+$1,000 - $769.40 = $230.60 gain.</p></li>
+</ul>
+<p>So, the <strong>total potential dollar return</strong> is:<br>
+<span class="math inline">\(\$1,050\)</span> (coupons) + $1,275.36 (interest-on-interest) + $230.60 (capital gain) = <strong>$2,555.96</strong></p>
+<p>Alternatively, you could compute the future value of the initial investment: <span class="math display">\[
+769.40 \times (1.05)^{30} = \$3,325.30
+\]</span> which equals the original investment plus the total dollar return.</p>
+<p>Notice that of the total return, approximately <strong>half</strong> ($1,275.36 / $2,555.96 <span class="math inline">\(\approx\)</span> 50%) comes from the <strong>reinvestment of coupon payments</strong>—the interest-on-interest component.</p>
+<p><strong>Key point:</strong><br>
+To realize the yield to maturity, an investor must be able to reinvest all coupon payments at exactly the YTM. If future reinvestment rates turn out lower, the realized return will be less than the quoted YTM. This is known as <strong>reinvestment risk</strong>.</p>
+</div>
+</div>
+<section id="reinvestment-risk-and-bond-characteristics" class="level3">
+<h3 class="anchored" data-anchor-id="reinvestment-risk-and-bond-characteristics">Reinvestment Risk and Bond Characteristics</h3>
+<p>Two characteristics influence how much of a bond’s total return depends on reinvestment:</p>
+<ul>
+<li><strong>Maturity:</strong> Longer-maturity bonds are <strong>more sensitive</strong> to reinvestment risk. The longer the bond’s life, the more the total return depends on interest earned from reinvested coupons.</li>
+<li><strong>Coupon Rate:</strong> The <strong>higher the coupon rate</strong>, the greater the proportion of total return that depends on reinvestment. Premium bonds (high-coupon) are more dependent on reinvestment than par or discount bonds.</li>
+</ul>
+<p><strong>Zero-coupon bonds</strong> have no reinvestment risk: all the return comes from the difference between purchase price and face value, with no intermediate coupons to reinvest. The yield actually realized for a zero-coupon bond held to maturity <strong>always equals</strong> its YTM at purchase.</p>
 </section>
-<section id="cash-flow-yield-and-reinvestment-risk" class="level2" data-number="12.3">
-<h2 data-number="12.3" class="anchored" data-anchor-id="cash-flow-yield-and-reinvestment-risk"><span class="header-section-number">12.3</span> Cash Flow Yield and Reinvestment Risk</h2>
-<p>Cash flow yield incorporates expected cash flows and reinvestment assumptions and is therefore often a more realistic measure of return.</p>
+<section id="amortizing-securities-and-reinvestment-risk" class="level3">
+<h3 class="anchored" data-anchor-id="amortizing-securities-and-reinvestment-risk">Amortizing Securities and Reinvestment Risk</h3>
+<p>For <strong>amortizing securities</strong>, reinvestment risk is typically <strong>greater</strong> than for <strong>non-amortizing</strong> securities (such as conventional bullet bonds). With a bullet bond, the investor reinvests periodic <strong>coupon</strong> payments until maturity, when principal is returned in one lump sum. With an amortizing security, scheduled cash flows include both <strong>coupon interest</strong> and <strong>principal repayments</strong>, so the investor must reinvest <strong>principal</strong> as well as coupons throughout the life of the investment.</p>
+<p>The reinvestment burden is often heavier still for the major types of amortizing securities covered later in this course—<strong>mortgage-backed securities (MBS)</strong> and <strong>asset-backed securities (ABS)</strong>. Their cash flows are usually <strong>monthly</strong>, whereas coupons on non-amortizing bonds are typically <strong>semiannual</strong>. The investor must reinvest coupon income and returned principal <strong>more frequently</strong>, which increases reinvestment risk.</p>
+<p>A further source of reinvestment risk on many amortizing structures is <strong>prepayment</strong>. Borrowers are often allowed to <strong>accelerate</strong> scheduled principal repayment. In practice, prepayment tends to rise when <strong>interest rates fall</strong>, because refinancing becomes attractive. If a borrower prepays when rates are lower, the investor receives principal sooner and must reinvest those funds at <strong>lower</strong> reinvestment rates—reinforcing reinvestment risk at exactly the time reinvestment is least attractive.</p>
 <hr>
+</section>
 </section>
 </section>
 <section id="total-return" class="level1" data-number="13">
@@ -1508,8 +1738,8 @@ C(1+r)^{n-t} - C
 <li>Coupons = $40 every six months</li>
 <li>Investment horizon = 6 semiannual periods</li>
 </ul>
-<section id="step-1-reinvest-coupons" class="level3" data-number="13.1.1">
-<h3 data-number="13.1.1" class="anchored" data-anchor-id="step-1-reinvest-coupons"><span class="header-section-number">13.1.1</span> Step 1: Reinvest Coupons</h3>
+<section id="step-1-reinvest-coupons" class="level3">
+<h3 class="anchored" data-anchor-id="step-1-reinvest-coupons">Step 1: Reinvest Coupons</h3>
 <p>The total coupon interest plus interest-on-interest is</p>
 <p><span class="math display">\[
 40 \left( \frac{(1.03)^6 - 1}{0.03} \right)
@@ -1517,19 +1747,19 @@ C(1+r)^{n-t} - C
 = 258.74
 \]</span></p>
 </section>
-<section id="step-2-projected-sale-price" class="level3" data-number="13.1.2">
-<h3 data-number="13.1.2" class="anchored" data-anchor-id="step-2-projected-sale-price"><span class="header-section-number">13.1.2</span> Step 2: Projected Sale Price</h3>
+<section id="step-2-projected-sale-price" class="level3">
+<h3 class="anchored" data-anchor-id="step-2-projected-sale-price">Step 2: Projected Sale Price</h3>
 <p>At the end of 3 years, the bond will have 17 years remaining to maturity (34 periods). The projected sale price is the present value of remaining cash flows discounted at 7% annual yield (3.5% per period):</p>
 <p>Projected sale price = <strong>$1,098.51</strong></p>
 </section>
-<section id="step-3-total-future-dollars" class="level3" data-number="13.1.3">
-<h3 data-number="13.1.3" class="anchored" data-anchor-id="step-3-total-future-dollars"><span class="header-section-number">13.1.3</span> Step 3: Total Future Dollars</h3>
+<section id="step-3-total-future-dollars" class="level3">
+<h3 class="anchored" data-anchor-id="step-3-total-future-dollars">Step 3: Total Future Dollars</h3>
 <p><span class="math display">\[
 \text{Total Future Dollars} = 258.74 + 1,098.51 = 1,357.25
 \]</span></p>
 </section>
-<section id="step-4-compute-total-return" class="level3" data-number="13.1.4">
-<h3 data-number="13.1.4" class="anchored" data-anchor-id="step-4-compute-total-return"><span class="header-section-number">13.1.4</span> Step 4: Compute Total Return</h3>
+<section id="step-4-compute-total-return" class="level3">
+<h3 class="anchored" data-anchor-id="step-4-compute-total-return">Step 4: Compute Total Return</h3>
 <p><span class="math display">\[
 \left(\frac{1357.25}{828.40}\right)^{1/6} - 1
 = (1.6384)^{0.1667} - 1
@@ -1562,8 +1792,8 @@ C(1+r)^{n-t} - C
 <li>Yield at end of horizon = 10.6%</li>
 </ol>
 <p>Coupons are $45 every six months for 12 periods.</p>
-<section id="step-1-reinvest-first-four-coupons" class="level3" data-number="13.1.5">
-<h3 data-number="13.1.5" class="anchored" data-anchor-id="step-1-reinvest-first-four-coupons"><span class="header-section-number">13.1.5</span> Step 1: Reinvest First Four Coupons</h3>
+<section id="step-1-reinvest-first-four-coupons" class="level3">
+<h3 class="anchored" data-anchor-id="step-1-reinvest-first-four-coupons">Step 1: Reinvest First Four Coupons</h3>
 <p>Future value at end of year 2:</p>
 <p><span class="math display">\[
 45 \left( \frac{(1.04)^4 - 1}{0.04} \right) = 191.09
@@ -1573,8 +1803,8 @@ C(1+r)^{n-t} - C
 191.09(1.05)^8 = 282.32
 \]</span></p>
 </section>
-<section id="step-2-reinvest-remaining-eight-coupons" class="level3" data-number="13.1.6">
-<h3 data-number="13.1.6" class="anchored" data-anchor-id="step-2-reinvest-remaining-eight-coupons"><span class="header-section-number">13.1.6</span> Step 2: Reinvest Remaining Eight Coupons</h3>
+<section id="step-2-reinvest-remaining-eight-coupons" class="level3">
+<h3 class="anchored" data-anchor-id="step-2-reinvest-remaining-eight-coupons">Step 2: Reinvest Remaining Eight Coupons</h3>
 <p><span class="math display">\[
 45 \left( \frac{(1.05)^8 - 1}{0.05} \right) = 429.71
 \]</span></p>
@@ -1583,19 +1813,19 @@ C(1+r)^{n-t} - C
 282.32 + 429.71 = 712.03
 \]</span></p>
 </section>
-<section id="step-3-projected-sale-price" class="level3" data-number="13.1.7">
-<h3 data-number="13.1.7" class="anchored" data-anchor-id="step-3-projected-sale-price"><span class="header-section-number">13.1.7</span> Step 3: Projected Sale Price</h3>
+<section id="step-3-projected-sale-price" class="level3">
+<h3 class="anchored" data-anchor-id="step-3-projected-sale-price">Step 3: Projected Sale Price</h3>
 <p>Discount remaining cash flows at 10.6% yield:</p>
 <p>Projected sale price = <strong>$922.31</strong></p>
 </section>
-<section id="step-4-total-future-dollars" class="level3" data-number="13.1.8">
-<h3 data-number="13.1.8" class="anchored" data-anchor-id="step-4-total-future-dollars"><span class="header-section-number">13.1.8</span> Step 4: Total Future Dollars</h3>
+<section id="step-4-total-future-dollars" class="level3">
+<h3 class="anchored" data-anchor-id="step-4-total-future-dollars">Step 4: Total Future Dollars</h3>
 <p><span class="math display">\[
 712.03 + 922.31 = 1,634.34
 \]</span></p>
 </section>
-<section id="step-5-total-return" class="level3" data-number="13.1.9">
-<h3 data-number="13.1.9" class="anchored" data-anchor-id="step-5-total-return"><span class="header-section-number">13.1.9</span> Step 5: Total Return</h3>
+<section id="step-5-total-return" class="level3">
+<h3 class="anchored" data-anchor-id="step-5-total-return">Step 5: Total Return</h3>
 <p><span class="math display">\[
 \left(\frac{1634.34}{1000}\right)^{1/12} - 1
 = 0.0418

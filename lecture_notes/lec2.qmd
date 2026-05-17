@@ -5,17 +5,13 @@ format:
     toc: true
     toc-location: left
     number-sections: true
-    number-depth: 3
+    number-depth: 2
   pdf:
     toc: true
     number-sections: true
-    number-depth: 3
+    number-depth: 2
 jupyter: python3
 ---
-
-```{=latex}
-\setcounter{secnumdepth}{3}
-```
 
 ## Learning Objectives {.unnumbered}
 
@@ -73,13 +69,23 @@ This is the **future value** of the investment. The key idea behind this formula
 ::: {.callout-note title="Worked Example"}
 **Future Value**
 
-Suppose a pension fund invests \$10,000,000 at an annual interest rate of 9.2% for 6 years.
+Suppose a pension fund invests \$10,000,000 at a **stated annual** interest rate of 9.2% for 6 years.
+
+*Annual compounding.* Interest is credited once per year, so the investment earns 9.2% each year for six years:
 
 $$
-P_6 = 10{,}000{,}000(1.092)^6 = 16{,}956{,}500.
+P_6 = 10{,}000{,}000(1.092)^6 \approx 16{,}956{,}500.
 $$
 
-The investment grows to approximately \$16.96 million after six years.
+The balance is approximately \$16.96 million after six years.
+
+*Semi-annual compounding.* Interest is credited every six months at half the annual rate, so there are $2 \times 6 = 12$ compounding periods and the six-month rate is $0.092/2 = 0.046$:
+
+$$
+P_6 = 10{,}000{,}000\left(1 + \frac{0.092}{2}\right)^{12} = 10{,}000{,}000(1.046)^{12} \approx 17{,}154{,}585.
+$$
+
+Equivalently, $P_T = P_0\left(1 + \frac{r}{m}\right)^{mT}$ with $r = 0.092$, $T = 6$, and $m = 2$ compounding intervals per year. More frequent compounding yields a higher terminal value (here about \$17.15 million) because interest is reinvested sooner within each year.
 :::
 
 ---
@@ -94,19 +100,114 @@ $$
 FV = C \left( \frac{(1+r)^n - 1}{r} \right).
 $$
 
+::: {.callout-note title="Derivation: Future Value of an Ordinary Annuity"}
+
+Suppose a payment $C$ is made at the **end** of each period for $n$ periods, and the interest rate per period is $r$.
+
+The cash flows can be represented as:
+
+$$
+\begin{aligned}
+\text{Time 1:} & \quad C \\
+\text{Time 2:} & \quad C \\
+& \vdots \\
+\text{Time n:} & \quad C
+\end{aligned}
+$$
+
+Each payment earns interest from the time it is made until the end of the period $n$:
+
+- The **first** payment (at time 1) is invested for $n-1$ periods: $C(1+r)^{n-1}$
+- The **second** payment is invested for $n-2$ periods: $C(1+r)^{n-2}$
+- ...
+- The **last** payment (at time $n$) is made at the end and earns no additional interest: $C(1+r)^0 = C$
+
+The **future value** at time $n$ is the sum:
+
+$$
+FV = C(1+r)^{n-1} + C(1+r)^{n-2} + \cdots + C(1+r)^0
+$$
+
+Factoring out $C$:
+
+$$
+FV = C \left[ (1+r)^{n-1} + (1+r)^{n-2} + \dots + 1 \right]
+$$
+
+This is a geometric series with $n$ terms, ratio $(1+r)$:
+
+$$
+FV = C \cdot \frac{(1+r)^n - 1}{r}
+$$
+
+This is the **future value formula for an ordinary annuity.**
+
+:::
+
+
 This formula shows that the future value of an annuity depends on both the number of payments and the interest rate at which the payments are reinvested. This is important in fixed income because the total return from a bond depends heavily on the reinvestment of coupon payments.
 
-::: {.callout-note title="Worked Example"}
-**Future Value of an Annuity**
+::: {.callout-note title="Reinvestment of Coupon Payments: 15-Year Bond Example"}
 
-Suppose an investor receives \$100 at the end of each year for 5 years and can reinvest each payment at 6%.
+**Setup**
+
+A portfolio manager purchases **\$20 million par value** of a 15-year bond with a **10% annual coupon**, paid once per year.
+
+- Annual coupon payment: $0.10 \times 20{,}000{,}000 = 2{,}000{,}000$
+- Coupons are **reinvested at 8% annually**
+- Horizon: **15 years**
+
+---
+
+**Step 1 — Future value of reinvested coupons**
+
+The coupon stream is an **ordinary annuity** of \$2,000,000 per year. Its future value is:
 
 $$
-FV = 100 \left( \frac{(1.06)^5 - 1}{0.06} \right)
-= 100(5.637) = 563.70.
+FV = A \cdot \frac{(1+r)^n - 1}{r}
 $$
 
-The future value of the payments at the end of 5 years is \$563.70.
+$$
+FV = 2{,}000{,}000 \cdot \frac{(1.08)^{15} - 1}{0.08}
+= 2{,}000{,}000 \cdot 27.152125
+= 54{,}304{,}250
+$$
+
+---
+
+**Step 2 — Decomposition of coupon value**
+
+- Total coupon cash received: $15 \times 2{,}000{,}000 = 30{,}000{,}000$
+- Interest earned from reinvestment: $54{,}304{,}250 - 30{,}000{,}000 = 24{,}304{,}250$
+
+---
+
+**Step 3 — Total wealth at maturity**
+
+- Par (maturity) value: $20{,}000{,}000$
+- Future value of reinvested coupons: $54{,}304{,}250$
+
+$$
+\text{Total future value} = 20{,}000{,}000 + 54{,}304{,}250 = 74{,}304{,}250
+$$
+
+---
+
+**Final Breakdown**
+
+| Component                                      | Amount (USD)   |
+|-----------------------------------------------|---------------:|
+| Par value at maturity                         | 20,000,000     |
+| Coupon payments (sum)                         | 30,000,000     |
+| Interest from reinvesting coupons             | 24,304,250     |
+| **Total future value (after 15 years)**       | **74,304,250** |
+
+---
+
+**Key point**
+
+A substantial portion of terminal wealth comes from **reinvestment income**, not just coupons or principal. This is the essence of **reinvestment risk**.
+
 :::
 
 ---
@@ -181,6 +282,59 @@ $$
 
 This formula shows that a bond is simply the present value of an annuity (coupon payments) plus the present value of a single payment (principal).
 
+
+::: {.callout-note title="Derivation: Present Value of an Ordinary Annuity"}
+
+To derive the present value formula for an ordinary annuity (a series of $n$ payments of $C$ each, received at the end of each period, discounted at rate $r$):
+
+The present value is the sum of the present values of all payments:
+
+$$
+PV = \frac{C}{(1 + r)} + \frac{C}{(1 + r)^2} + \cdots + \frac{C}{(1 + r)^n}
+$$
+
+This is a **geometric series**:
+
+- First term $= \frac{C}{1 + r}$
+- Common ratio $= \frac{1}{1 + r}$
+
+The sum of a geometric series with $n$ terms is:
+
+$$
+S_n = a \left( \frac{1 - q^n}{1 - q} \right)
+$$
+
+Plugging in the values:
+
+- $a = \frac{C}{1 + r}$
+- $q = \frac{1}{1 + r}$
+
+So,
+
+$$
+PV = \frac{C}{1 + r} \left( \frac{1 - \left( \frac{1}{1 + r} \right)^n}{1 - \frac{1}{1 + r}} \right)
+$$
+
+Simplify the denominator:
+
+$$
+1 - \frac{1}{1 + r} = \frac{(1 + r) - 1}{1 + r} = \frac{r}{1 + r}
+$$
+
+Therefore:
+
+$$
+PV = \frac{C}{1 + r} \cdot \frac{1 - (1 + r)^{-n}}{r / (1 + r)} = C \left( \frac{1 - (1 + r)^{-n}}{r} \right)
+$$
+
+This yields the familiar formula for the present value of an ordinary annuity:
+
+$$
+PV = C \left( \frac{1 - (1 + r)^{-n}}{r} \right)
+$$
+
+:::
+
 ---
 
 ## Present Value When Payments Occur More Than Once per Year
@@ -242,7 +396,7 @@ This formula shows that bond pricing is simply an application of present value. 
 
 **Bond Pricing Example**
 
-Suppose a bond has a face value of $\$1,000$, pays an annual coupon of $\$50$ $(C=50)$, matures in 3 years, $(n=3)$, and the required yield is $6/%$, $(r=0.06)$. What is the price of the bond?
+Suppose a bond has a face value of $\$1,000$, pays an annual coupon of $\$50$ $(C=50)$, matures in 3 years, $(n=3)$, and the required yield is $6\%$, $(r=0.06)$. What is the price of the bond?
 
 First, calculate the present value of each coupon payment and the face value:
 
@@ -320,8 +474,8 @@ def plot_tangent(y0, color):
     plt.plot(x * 100, y, color, linestyle='--', linewidth=1.5)
 
 plot_tangent(0.025, 'r')
-plot_tangent(0.07, 'g')
-plot_tangent(0.11, 'purple')
+plot_tangent(0.07, 'r')
+plot_tangent(0.11, 'r')
 
 plt.legend(["Bond Price", "Tangents"])
 plt.show()
@@ -956,6 +1110,26 @@ The total dollar return from a bond comes from three sources:
 2. Interest earned from reinvesting coupons (interest-on-interest)
 3. Capital gain or loss if the bond price changes
 
+::: {.callout-note title="Summary: Yield Measures and Sources of Bond Return"}
+When assessing a bond’s potential yield, it is crucial to recognize that total return can originate from three sources: coupon interest, reinvestment of coupons (interest-on-interest), and capital gain or loss. Different yield measures consider these sources differently:
+
+- **Current Yield**: Considers only coupon interest; ignores reinvestment income and capital gains or losses.
+- **Yield to Maturity (YTM)**: Reflects all three sources, but only if:
+    1. The bond is held to maturity, and
+    2. Coupon payments are reinvested at the YTM rate.
+  Otherwise, the realized yield may differ from the stated YTM.
+- **Yield to Call (YTC)**: Also incorporates all three sources, assuming:
+    1. The bond is called on the specified call date,
+    2. Coupons are reinvested at the YTC rate.
+  This measure faces the same reinvestment assumption risk as YTM.
+- **Cash Flow Yield**: Like YTM, but also assumes:
+    1. Principal repayments are reinvested at the cash flow yield, and
+    2. Projected prepayment patterns actually occur.
+
+**Key Point:** All yield measures that include capital gains/losses and interest-on-interest rely on significant reinvestment and holding period assumptions. When these assumptions are not met, the actual realized yield may be higher or lower than stated.
+:::
+
+
 ## Determining the Interest-on-Interest Dollar Return
 
 When a bond pays periodic coupons, investors typically reinvest those coupon payments until the end of the investment horizon. The interest earned on reinvested coupons is called **interest-on-interest**. This component of return can be significant, especially for long-term bonds, and it is an important part of the total return of a bond investment.
@@ -1034,9 +1208,59 @@ Thus, \$12.20 of the investor’s return comes from **interest earned on reinves
 
 Yield to maturity assumes that coupons are reinvested at the YTM. If reinvestment rates are lower than the YTM, the investor’s actual return will be lower. This is called **reinvestment risk**.
 
-## Cash Flow Yield and Reinvestment Risk
+The **potential total dollar return** assumes all coupons are reinvested at the yield to maturity (YTM).
 
-Cash flow yield incorporates expected cash flows and reinvestment assumptions and is therefore often a more realistic measure of return.
+**Worked Example**
+
+::: {.callout-note title="Worked Example: Breaking Down the Total Dollar Return"}
+
+Suppose an investor buys a 15-year bond for \$769.40. The bond pays a 10% annual coupon, distributed as \$35 every six months (i.e., semiannual coupons). The bond's face value is \$1,000 and its yield to maturity is 10% (so, 5% per half-year). Let's examine the components of the total dollar return if the bond is held to maturity and coupons are reinvested at the YTM.
+
+- **Total Coupon Interest:**  
+  Over 15 years, there are $15 \times 2 = 30$ semiannual periods.  
+  $\$35 \times 30 = \$1,050$ in coupon payments.
+
+- **Interest-on-Interest:**  
+  Each coupon payment is reinvested at 5% (the semiannual YTM). Over 15 years, this compounded reinvestment results in  
+  \$1,275.36 earned **just** from reinvesting the coupons.
+
+- **Capital Gain:**  
+  The bond was purchased at \$769.40 and redeems at face value (\$1,000) at maturity.  
+  \$1,000 - \$769.40 = \$230.60 gain.
+
+So, the **total potential dollar return** is:  
+$\$1,050$ (coupons) + \$1,275.36 (interest-on-interest) + \$230.60 (capital gain) = **\$2,555.96**
+
+Alternatively, you could compute the future value of the initial investment:
+$$
+769.40 \times (1.05)^{30} = \$3,325.30
+$$
+which equals the original investment plus the total dollar return.
+
+Notice that of the total return, approximately **half** (\$1,275.36 / \$2,555.96 $\approx$ 50%) comes from the **reinvestment of coupon payments**—the interest-on-interest component.
+
+**Key point:**  
+To realize the yield to maturity, an investor must be able to reinvest all coupon payments at exactly the YTM. If future reinvestment rates turn out lower, the realized return will be less than the quoted YTM. This is known as **reinvestment risk**.
+
+:::
+
+### Reinvestment Risk and Bond Characteristics
+
+Two characteristics influence how much of a bond’s total return depends on reinvestment:
+
+- **Maturity:** Longer-maturity bonds are **more sensitive** to reinvestment risk. The longer the bond's life, the more the total return depends on interest earned from reinvested coupons.
+- **Coupon Rate:** The **higher the coupon rate**, the greater the proportion of total return that depends on reinvestment. Premium bonds (high-coupon) are more dependent on reinvestment than par or discount bonds.
+
+**Zero-coupon bonds** have no reinvestment risk: all the return comes from the difference between purchase price and face value, with no intermediate coupons to reinvest. The yield actually realized for a zero-coupon bond held to maturity **always equals** its YTM at purchase.
+
+
+### Amortizing Securities and Reinvestment Risk
+
+For **amortizing securities**, reinvestment risk is typically **greater** than for **non-amortizing** securities (such as conventional bullet bonds). With a bullet bond, the investor reinvests periodic **coupon** payments until maturity, when principal is returned in one lump sum. With an amortizing security, scheduled cash flows include both **coupon interest** and **principal repayments**, so the investor must reinvest **principal** as well as coupons throughout the life of the investment.
+
+The reinvestment burden is often heavier still for the major types of amortizing securities covered later in this course—**mortgage-backed securities (MBS)** and **asset-backed securities (ABS)**. Their cash flows are usually **monthly**, whereas coupons on non-amortizing bonds are typically **semiannual**. The investor must reinvest coupon income and returned principal **more frequently**, which increases reinvestment risk.
+
+A further source of reinvestment risk on many amortizing structures is **prepayment**. Borrowers are often allowed to **accelerate** scheduled principal repayment. In practice, prepayment tends to rise when **interest rates fall**, because refinancing becomes attractive. If a borrower prepays when rates are lower, the investor receives principal sooner and must reinvest those funds at **lower** reinvestment rates—reinforcing reinvestment risk at exactly the time reinvestment is least attractive.
 
 ---
 

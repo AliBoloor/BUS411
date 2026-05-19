@@ -996,9 +996,78 @@ Thus, if the bond is called in 4 years at \$1,040, the investor’s yield to cal
 
 Yield to sinker is the yield assuming the bond is retired through a sinking fund.
 
+::: {.callout-note title="Worked Example"}
+**Yield to Sinker**
+
+Suppose a company issues a \$1,000 face value bond with the following features:
+- Annual coupon: 7%
+- Issue price: \$980
+- Sinking fund payments: \$200 of principal will be retired at par at the end of each of years 3, 4, 5, 6, and 7.
+- Any remaining principal is paid at maturity (end of year 7).
+
+You purchase one bond at issue and are selected for sinking fund calls, so your principal is repaid as follows:
+
+| Year | Coupon Payment | Principal Repaid | Total Payment |
+|------|---------------|------------------|--------------|
+| 1    | \$70          | \$0              | \$70         |
+| 2    | \$70          | \$0              | \$70         |
+| 3    | \$70          | \$200            | \$270        |
+| 4    | \$70          | \$200            | \$270        |
+| 5    | \$70          | \$200            | \$270        |
+| 6    | \$70          | \$200            | \$270        |
+| 7    | \$70          | \$200            | \$270        |
+
+To find the **yield to sinker** ($y_s$), you solve for the discount rate that makes the purchase price equal to the present value of these projected cash flows:
+
+$$
+980 = \sum_{t=1}^{7} \frac{\text{Total Payment}_t}{(1+y_s)^t}.
+$$
+
+This requires trial and error or a financial calculator. Suppose, after calculation, you find $y_s \approx 7.4\%$.
+
+**Key point:**  
+The yield to sinker reflects the projected return *if* your bond is retired on the schedule dictated by sinking fund calls, which may be earlier than final maturity. It is generally compared to the YTM (if held to maturity) and yield to call (if callable) to assess your possible investment outcomes.
+:::
+
+
 ## Yield to Put
 
 Yield to put is the yield assuming the investor exercises the put option and sells the bond back to the issuer at the put price.
+
+::: {.callout-note title="Worked Example: Yield to Put"}
+
+**Yield to Put**
+
+Suppose you buy a \$1,000 face value bond issued at par (\$1,000) with the following features:
+- Coupon: 6% paid annually
+- Maturity: 10 years
+- Embedded put option: The bondholder may sell (put) the bond back to the issuer at par (\$1,000) at the end of year 5
+
+Assume current market yields rise, and you expect to exercise the put at the end of year 5. What is your *yield to put* if you exercise the put?
+
+**Projected cash flows if put is exercised:**
+
+| Year | Coupon Payment | Principal Repayment | Total Payment |
+|------|---------------|---------------------|--------------|
+| 1    | \$60          | \$0                 | \$60         |
+| 2    | \$60          | \$0                 | \$60         |
+| 3    | \$60          | \$0                 | \$60         |
+| 4    | \$60          | \$0                 | \$60         |
+| 5    | \$60          | \$1,000             | \$1,060      |
+
+You paid \$1,000 at issue. The **yield to put** ($y_p$) is the discount rate that equates the present value of the expected cash flows to the purchase price over 5 years:
+
+$$
+1{,}000 = \frac{60}{(1+y_p)^1} + \frac{60}{(1+y_p)^2} + \frac{60}{(1+y_p)^3} + \frac{60}{(1+y_p)^4} + \frac{1{,}060}{(1+y_p)^5}
+$$
+
+Solving this equation (trial and error, or a financial calculator), you find $y_p \approx 6\%$.
+
+**Key point:**  
+The yield to put reflects your expected return if you exercise the embedded put option at the first (or chosen) put date. It may be higher or lower than the yield to maturity, depending on the bond's price, coupons, and market interest rates.
+
+:::
+
 
 ## Yield to Worst
 
@@ -1007,6 +1076,34 @@ Yield to worst is the lowest yield among all possible yield measures (YTM, YTC, 
 ## Cash Flow Yield
 
 Cash flow yield is the internal rate of return based on the expected cash flows, which may differ from the promised cash flows due to embedded options or prepayments.
+
+::: {.callout-note title="Worked Example: Cash Flow Yield"}
+
+**Cash Flow Yield**
+
+Suppose you are analyzing an amortizing asset-backed security (ABS) with the following expected cash flows due to scheduled principal repayments and prepayments. The bond is purchased for \$5,000.
+
+| Year | Expected Cash Flow |
+|------|-------------------|
+| 1    | \$1,200           |
+| 2    | \$1,400           |
+| 3    | \$1,100           |
+| 4    | \$800             |
+| 5    | \$700             |
+
+The **cash flow yield** ($y_{cf}$) is the discount rate that equates the present value of these expected cash flows to the purchase price:
+
+$$
+5{,}000 = \frac{1{,}200}{(1+y_{cf})^1} + \frac{1{,}400}{(1+y_{cf})^2} + \frac{1{,}100}{(1+y_{cf})^3} + \frac{800}{(1+y_{cf})^4} + \frac{700}{(1+y_{cf})^5}
+$$
+
+Solving this equation (typically with a financial calculator or spreadsheet), you find $y_{cf} \approx 6.2\%$.
+
+**Key point:**  
+The cash flow yield reflects the average annual return to the investor, taking into account the timing and amount of the *expected* cash flows, including any prepayments or early principal repayments, not just the promised payments.
+
+:::
+
 
 ## Yield (Internal Rate of Return) for a Portfolio
 
@@ -1099,6 +1196,47 @@ Floating-rate securities are quoted using spread measures such as:
 - Spread over reference rate
 
 These spreads measure the compensation investors receive above the reference rate.
+
+::: {.callout-note title="Worked Example: Discount Margin for a Floating-Rate Note"}
+
+**Discount Margin Example:**
+
+Suppose you are analyzing a floating-rate note (FRN) with the following features:
+
+- Face value: \$1,000  
+- Coupon rate: 3-month SOFR + 1.20% (set at each reset date)  
+- Coupon paid quarterly  
+- Current 3-month SOFR: 4.60%  
+- Quoted margin: 1.20%  
+- Price: \$1,002.00 (per \$1,000 face value)  
+- 90 days to next reset
+
+**Step 1: Calculate the next coupon payment**
+
+$$
+\text{Next coupon rate} = 4.60\% + 1.20\% = 5.80\%
+$$
+$$
+\text{Quarterly coupon payment} = \$1,000 \times \frac{5.80\%}{4} = \$14.50
+$$
+
+**Step 2: Estimate the Discount Margin**
+
+Since the FRN trades slightly above par, the yield to maturity (discount margin) will be slightly below the quoted margin. The discount margin ($DM$) is the spread that equates the present value of the expected cash flows (assuming the reference rate remains unchanged) to the price.
+
+The relationship can be expressed as:
+
+$$
+\text{Price} = \sum_{t=1}^{n} \frac{\text{Reference Rate} + DM}{m} \times \frac{1}{\left(1 + \frac{\text{Reference Rate} + DM}{m}\right)^t} + \frac{1{,}000}{\left(1 + \frac{\text{Reference Rate} + DM}{m}\right)^n}
+$$
+
+In practice, financial calculators or spreadsheet software are used for the iterative solution. Qualitatively, for a price above par, the discount margin is less than the quoted margin. If the reference rate remains at 4.60%, the discount margin here would be slightly less than 1.20%—perhaps around 1.00%, depending on the bond's maturity and coupon frequency.
+
+**Key point:**  
+The discount margin is a better yield measure for floating-rate notes than yield to maturity because it reflects the investor’s expected return over the reference rate, given the bond’s price and cash flow structure.
+
+:::
+
 
 ---
 
@@ -1457,6 +1595,68 @@ It allows investors to analyze how returns change if:
 
 This approach is widely used in fixed income portfolio management.
 
+::: {.callout-note title="Example: Horizon Analysis in Practice"}
+
+**Scenario:**  
+Suppose you purchase a 3-year bond with a face value of \$1,000 and a 6% annual coupon, paid annually. You plan to sell the bond after 2 years, when you expect the yield to have changed.
+
+- **Bond characteristics:**  
+  - Coupon rate: 6%  
+  - Face value: \$1,000  
+  - Annual coupon: \$60  
+  - Time to maturity at purchase: 3 years  
+  - Purchase yield to maturity (YTM): 6%  
+  - Sale YTM after 2 years: 5%
+  - Investment horizon: 2 years
+
+**Step 1: Calculate Cash Flows Received During Holding Period**  
+You will receive 2 annual coupon payments:
+- Year 1: \$60  
+- Year 2: \$60
+
+**Step 2: Estimate Sale Price at End of Year 2**  
+At this point, the bond will have 1 year left to maturity. Its price will reflect the new YTM (5%):
+
+$$
+\text{Price}_{\text{end of year 2}} =
+\frac{\$60}{1.05} + \frac{\$1,000}{1.05}
+= \$57.14 + \$952.38 = \$1,009.52
+$$
+
+**Step 3: Assume Coupons Are Reinvested**  
+If coupons are reinvested at 5% per year:
+
+- First coupon (\$60) grows for 1 year:  
+  \$60 \times 1.05 = \$63.00
+- Second coupon (\$60) received at end of Year 2:  
+  \$60
+
+**Step 4: Total Value at End of 2 Years**
+- Sale proceeds: \$1,009.52  
+- Reinvested coupons: \$63.00 + \$60 = \$123.00
+
+**Total ending value:**  
+\$1,009.52 (sale) + \$123.00 (coupons) = **\$1,132.52**
+
+**Step 5: Compute Horizon (Total) Return**
+
+$$
+\text{Total return} =
+\frac{\$1,132.52 - \$1,000}{\$1,000} = 13.25\%
+$$
+
+Or, as an annualized return:
+
+$$
+(1 + 0.1325)^{1/2} - 1 \approx 6.42\% \text{ per year}
+$$
+
+**Key Lesson:**  
+Your horizon return reflects the bond’s coupons, reinvestment rate, and the bond’s sale price (determined by the yield at your investment horizon)—not just the initial yield!
+
+:::
+
+
 ---
 
 # Calculating Yield Changes
@@ -1648,7 +1848,7 @@ In practice, bond traders typically think in **basis points**, while researchers
 
 ---
 
-# Suggested Readings
+# Readings
 
 Fabozzi – *Bond Markets, Analysis, and Strategies*:  
 **Chapter 2: Pricing of Bonds**  

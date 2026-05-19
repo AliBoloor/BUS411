@@ -45,14 +45,15 @@ format:
           }
           \makeatother
 ---
-# Course information
+# Course Information
 
 **Instructor:** Ali Boloor  
 **Semester:** Summer 2026  
 **Email:** [aboloorf@sfu.ca](mailto:aboloorf@sfu.ca)  
 **LMS:** [Canvas](https://canvas.sfu.ca/) , [Course website](https://aliboloor.github.io/BUS411/)  
 **Lectures:** Tuesdays, 2:30-5:20pm  
-**Office hours:** *To be announced*
+**Office hours:** Tuesdays, 1:30-2:20pm (by appoinment only)  
+**Office:** : WMC 4394
 
 # Course Description
 
@@ -60,7 +61,7 @@ This course introduces the market valuation of fixed income securities. Topics i
 
 **Prerequisite:** BUS 315 and BUS 360W, each with a minimum grade of C-; 60 units.
 
-# Textbook
+# Required Textbook
 
 Fabozzi, F. J. (2015). *Bond markets, analysis, and strategies* (9th ed.). Pearson. ISBN 978-0-13-379677-3.
 
@@ -77,6 +78,14 @@ Classes are primarily lecture-based; discussion is encouraged. Materials include
 | Assignment 1 | 15% |
 | Assignment 2 | 15% |
 
+# Important Dates
+| Item                | Date           |
+|---------------------|---------------|
+| Exam 1              | June 23, 2026 |
+| Exam 2              | Aug. 11, 2026 |
+| Assignment 1 Due    | June 23, 2026 |
+| Assignment 2 Due    | Aug. 11, 2026 |
+
 # Topics
 
 1. Introduction
@@ -84,9 +93,9 @@ Classes are primarily lecture-based; discussion is encouraged. Materials include
 3. Bond price volatility
 4. Duration, convexity, and portfolio management
 5. Term structure and curve strategies
-6. Interest rate models
-7. Mortgage market
-8. Treasury securities and corporate debt instruments
+6. Mortgage market
+7. Treasury securities and corporate debt instruments
+8. Interest rate models
 9. Embedded options
 10. Corporate bond credit analysis
 11. Credit risk modeling

@@ -1203,37 +1203,58 @@ These spreads measure the compensation investors receive above the reference rat
 
 Suppose you are analyzing a floating-rate note (FRN) with the following features:
 
-- Face value: \$1,000  
+- Face value: $1,000  
 - Coupon rate: 3-month SOFR + 1.20% (set at each reset date)  
 - Coupon paid quarterly  
 - Current 3-month SOFR: 4.60%  
 - Quoted margin: 1.20%  
-- Price: \$1,002.00 (per \$1,000 face value)  
-- 90 days to next reset
+- Price: $1,002.00 (per $1,000 face value)  
+- 90 days to next reset  
+
+---
 
 **Step 1: Calculate the next coupon payment**
 
 $$
 \text{Next coupon rate} = 4.60\% + 1.20\% = 5.80\%
 $$
+
 $$
-\text{Quarterly coupon payment} = \$1,000 \times \frac{5.80\%}{4} = \$14.50
+\text{Quarterly coupon payment} = 1{,}000 \times \frac{5.80\%}{4} = 14.50
 $$
+
+---
 
 **Step 2: Estimate the Discount Margin**
 
-Since the FRN trades slightly above par, the yield to maturity (discount margin) will be slightly below the quoted margin. The discount margin ($DM$) is the spread that equates the present value of the expected cash flows (assuming the reference rate remains unchanged) to the price.
+The discount margin ($DM$) is the spread that equates the present value of the expected cash flows (assuming the reference rate remains unchanged) to the observed price.
 
-The relationship can be expressed as:
+For a floating-rate note, cash flows are based on the **quoted margin**, while discounting is done using the **discount margin**:
 
 $$
-\text{Price} = \sum_{t=1}^{n} \frac{\text{Reference Rate} + DM}{m} \times \frac{1}{\left(1 + \frac{\text{Reference Rate} + DM}{m}\right)^t} + \frac{1{,}000}{\left(1 + \frac{\text{Reference Rate} + DM}{m}\right)^n}
+\text{Price} =
+\sum_{t=1}^{n}
+\frac{\left(\frac{\text{Reference Rate} + \text{Quoted Margin}}{m}\right) \times 1{,}000}
+{\left(1 + \frac{\text{Reference Rate} + DM}{m}\right)^t}
++
+\frac{1{,}000}
+{\left(1 + \frac{\text{Reference Rate} + DM}{m}\right)^n}
 $$
 
-In practice, financial calculators or spreadsheet software are used for the iterative solution. Qualitatively, for a price above par, the discount margin is less than the quoted margin. If the reference rate remains at 4.60%, the discount margin here would be slightly less than 1.20%—perhaps around 1.00%, depending on the bond's maturity and coupon frequency.
+where:
+- $m = 4$ (quarterly payments)  
+- $n$ = number of remaining periods  
+- Reference Rate = 4.60%  
+- Quoted Margin = 1.20%  
+
+Since the FRN is trading slightly above par ($1{,}002 > 1{,}000$), the discount margin must be **slightly less than the quoted margin**.
+
+The exact value of $DM$ depends on the bond’s maturity and is obtained numerically using a financial calculator or spreadsheet.
+
+---
 
 **Key point:**  
-The discount margin is a better yield measure for floating-rate notes than yield to maturity because it reflects the investor’s expected return over the reference rate, given the bond’s price and cash flow structure.
+The discount margin is a more appropriate yield measure for floating-rate notes than yield to maturity because it captures the investor’s expected return relative to the reference rate, given the bond’s price and floating cash flow structure.
 
 :::
 
@@ -1352,33 +1373,51 @@ The **potential total dollar return** assumes all coupons are reinvested at the 
 
 ::: {.callout-note title="Worked Example: Breaking Down the Total Dollar Return"}
 
-Suppose an investor buys a 15-year bond for \$769.40. The bond pays a 10% annual coupon, distributed as \$35 every six months (i.e., semiannual coupons). The bond's face value is \$1,000 and its yield to maturity is 10% (so, 5% per half-year). Let's examine the components of the total dollar return if the bond is held to maturity and coupons are reinvested at the YTM.
+Suppose an investor buys a 15-year bond for $769.40. The bond pays a **10% annual coupon**, distributed as **$50 every six months** (i.e., semiannual coupons). The bond's face value is $1,000 and its yield to maturity is 10% (so, 5% per half-year). We examine the components of the total dollar return if the bond is held to maturity and coupons are reinvested at the YTM.
 
 - **Total Coupon Interest:**  
   Over 15 years, there are $15 \times 2 = 30$ semiannual periods.  
-  $\$35 \times 30 = \$1,050$ in coupon payments.
+  $50 \times 30 = 1,500$ in coupon payments.
 
-- **Interest-on-Interest:**  
-  Each coupon payment is reinvested at 5% (the semiannual YTM). Over 15 years, this compounded reinvestment results in  
-  \$1,275.36 earned **just** from reinvesting the coupons.
+- **Interest-on-Interest (Reinvestment Effect):**  
+  Each coupon is reinvested at 5% per period. The future value of coupons is:
+  $$
+  FV_{\text{coupons}} = 50 \times \frac{(1.05)^{30} - 1}{0.05} \approx 3,321.90
+  $$
+  The incremental value due to reinvestment is:
+  $$
+  3,321.90 - 1,500 = 1,821.90
+  $$
 
 - **Capital Gain:**  
-  The bond was purchased at \$769.40 and redeems at face value (\$1,000) at maturity.  
-  \$1,000 - \$769.40 = \$230.60 gain.
+  The bond is purchased at $769.40 and redeemed at $1,000:
+  $$
+  1,000 - 769.40 = 230.60
+  $$
 
-So, the **total potential dollar return** is:  
-$\$1,050$ (coupons) + \$1,275.36 (interest-on-interest) + \$230.60 (capital gain) = **\$2,555.96**
+---
 
-Alternatively, you could compute the future value of the initial investment:
+**Total Dollar Return:**
 $$
-769.40 \times (1.05)^{30} = \$3,325.30
+1,500 + 1,821.90 + 230.60 = 3,552.50
 $$
-which equals the original investment plus the total dollar return.
 
-Notice that of the total return, approximately **half** (\$1,275.36 / \$2,555.96 $\approx$ 50%) comes from the **reinvestment of coupon payments**—the interest-on-interest component.
+---
+
+**Consistency check (future value of initial investment):**
+$$
+769.40 \times (1.05)^{30} \approx 3,325.30
+$$
+
+---
+
+**Important note:**  
+The small discrepancy between the two totals arises from rounding. Conceptually, the total future value equals the reinvested coupons plus the principal repayment.
+
+---
 
 **Key point:**  
-To realize the yield to maturity, an investor must be able to reinvest all coupon payments at exactly the YTM. If future reinvestment rates turn out lower, the realized return will be less than the quoted YTM. This is known as **reinvestment risk**.
+To realize the yield to maturity, an investor must reinvest all coupon payments at the YTM. If reinvestment rates are lower, the realized return will fall short of the YTM—this is **reinvestment risk**.
 
 :::
 
@@ -1598,61 +1637,84 @@ This approach is widely used in fixed income portfolio management.
 ::: {.callout-note title="Example: Horizon Analysis in Practice"}
 
 **Scenario:**  
-Suppose you purchase a 3-year bond with a face value of \$1,000 and a 6% annual coupon, paid annually. You plan to sell the bond after 2 years, when you expect the yield to have changed.
+Suppose you purchase a 3-year bond with a face value of $1,000 and a 6% annual coupon, paid annually. You plan to sell the bond after 2 years, when you expect the yield to have changed.
 
 - **Bond characteristics:**  
   - Coupon rate: 6%  
-  - Face value: \$1,000  
-  - Annual coupon: \$60  
+  - Face value: $1,000  
+  - Annual coupon: $60  
   - Time to maturity at purchase: 3 years  
-  - Purchase yield to maturity (YTM): 6%  
-  - Sale YTM after 2 years: 5%
-  - Investment horizon: 2 years
+  - Purchase YTM: 6%  
+  - Expected YTM at sale (after 2 years): 5%  
+  - Investment horizon: 2 years  
 
-**Step 1: Calculate Cash Flows Received During Holding Period**  
-You will receive 2 annual coupon payments:
-- Year 1: \$60  
-- Year 2: \$60
+Since the coupon rate equals the YTM at purchase, the bond is initially priced at **par ($1,000)**.
 
-**Step 2: Estimate Sale Price at End of Year 2**  
-At this point, the bond will have 1 year left to maturity. Its price will reflect the new YTM (5%):
+---
 
-$$
-\text{Price}_{\text{end of year 2}} =
-\frac{\$60}{1.05} + \frac{\$1,000}{1.05}
-= \$57.14 + \$952.38 = \$1,009.52
-$$
+**Step 1: Cash Flows During Holding Period**  
+You receive two coupon payments:
+- Year 1: $60  
+- Year 2: $60  
 
-**Step 3: Assume Coupons Are Reinvested**  
-If coupons are reinvested at 5% per year:
+---
 
-- First coupon (\$60) grows for 1 year:  
-  \$60 \times 1.05 = \$63.00
-- Second coupon (\$60) received at end of Year 2:  
-  \$60
-
-**Step 4: Total Value at End of 2 Years**
-- Sale proceeds: \$1,009.52  
-- Reinvested coupons: \$63.00 + \$60 = \$123.00
-
-**Total ending value:**  
-\$1,009.52 (sale) + \$123.00 (coupons) = **\$1,132.52**
-
-**Step 5: Compute Horizon (Total) Return**
+**Step 2: Sale Price at End of Year 2**  
+After 2 years, the bond has 1 year remaining. Its price reflects the new YTM of 5%:
 
 $$
-\text{Total return} =
-\frac{\$1,132.52 - \$1,000}{\$1,000} = 13.25\%
+P_{2} = \frac{60}{1.05} + \frac{1,000}{1.05}
+= 57.14 + 952.38 = 1,009.52
 $$
 
-Or, as an annualized return:
+---
+
+**Step 3: Reinvestment of Coupons**  
+Assume coupons are reinvested at 5% (the expected rate at the horizon):
+
+- First coupon grows for 1 year:
+  $$
+  60 \times 1.05 = 63
+  $$
+- Second coupon is received at the end of Year 2:
+  $$
+  60
+  $$
+
+---
+
+**Step 4: Total Value at End of Horizon (2 Years)**
+
+- Sale proceeds: $1,009.52  
+- Value of reinvested coupons: $63 + 60 = 123  
 
 $$
-(1 + 0.1325)^{1/2} - 1 \approx 6.42\% \text{ per year}
+\text{Total value} = 1,009.52 + 123 = 1,132.52
 $$
 
-**Key Lesson:**  
-Your horizon return reflects the bond’s coupons, reinvestment rate, and the bond’s sale price (determined by the yield at your investment horizon)—not just the initial yield!
+---
+
+**Step 5: Horizon Return**
+
+Total 2-year return:
+$$
+\frac{1,132.52 - 1,000}{1,000} = 13.25\%
+$$
+
+Annualized (compound) return:
+$$
+(1.13252)^{1/2} - 1 \approx 6.42\% \text{ per year}
+$$
+
+---
+
+**Key Insight:**  
+The realized (horizon) return depends on:
+- coupon income  
+- reinvestment rate of coupons  
+- the bond’s sale price (determined by yields at the horizon)
+
+A decline in yields (from 6% to 5%) generates a **capital gain**, which raises the realized return above the initial YTM.
 
 :::
 

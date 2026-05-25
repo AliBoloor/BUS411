@@ -1,0 +1,2837 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.27">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Lecture 3: Bond Price Volatility, Duration, Convexity, and Bond Portfolio Strategies – BUS 411 — Fixed Income Security Analysis and Valuation</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-4d9afe2b8d18ee9fa5d0d57b5ed4214d.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-97afdd19a946a7800d02dd55b4e8b647.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-aeaf3e155c33cdd5728541c7b417a725.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-97afdd19a946a7800d02dd55b4e8b647.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="docked nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">BUS 411 — Fixed Income Security Analysis and Valuation</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../lecture_notes/index.html"> 
+<span class="menu-text">Lecture Notes</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../assignments/index.html"> 
+<span class="menu-text">Assignments</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#learning-objectives" id="toc-learning-objectives" class="nav-link active" data-scroll-target="#learning-objectives">Learning Objectives</a></li>
+  <li><a href="#review-of-the-priceyield-relationship-for-option-free-bonds" id="toc-review-of-the-priceyield-relationship-for-option-free-bonds" class="nav-link" data-scroll-target="#review-of-the-priceyield-relationship-for-option-free-bonds"><span class="header-section-number">1</span> Review of the Price–Yield Relationship for Option-Free Bonds</a></li>
+  <li><a href="#price-volatility-characteristics-of-option-free-bonds" id="toc-price-volatility-characteristics-of-option-free-bonds" class="nav-link" data-scroll-target="#price-volatility-characteristics-of-option-free-bonds"><span class="header-section-number">2</span> Price-Volatility Characteristics of Option-Free Bonds</a>
+  <ul class="collapse">
+  <li><a href="#property-1" id="toc-property-1" class="nav-link" data-scroll-target="#property-1">Property 1</a></li>
+  <li><a href="#property-2" id="toc-property-2" class="nav-link" data-scroll-target="#property-2">Property 2</a></li>
+  <li><a href="#property-3" id="toc-property-3" class="nav-link" data-scroll-target="#property-3">Property 3</a></li>
+  <li><a href="#property-4" id="toc-property-4" class="nav-link" data-scroll-target="#property-4">Property 4</a></li>
+  <li><a href="#characteristics-of-a-bond-that-affect-its-price-volatility" id="toc-characteristics-of-a-bond-that-affect-its-price-volatility" class="nav-link" data-scroll-target="#characteristics-of-a-bond-that-affect-its-price-volatility"><span class="header-section-number">2.1</span> Characteristics of a Bond That Affect Its Price Volatility</a></li>
+  <li><a href="#effects-of-yield-to-maturity" id="toc-effects-of-yield-to-maturity" class="nav-link" data-scroll-target="#effects-of-yield-to-maturity"><span class="header-section-number">2.2</span> Effects of Yield to Maturity</a></li>
+  </ul></li>
+  <li><a href="#measures-of-bond-price-volatility" id="toc-measures-of-bond-price-volatility" class="nav-link" data-scroll-target="#measures-of-bond-price-volatility"><span class="header-section-number">3</span> Measures of Bond Price Volatility</a>
+  <ul class="collapse">
+  <li><a href="#price-value-of-a-basis-point" id="toc-price-value-of-a-basis-point" class="nav-link" data-scroll-target="#price-value-of-a-basis-point"><span class="header-section-number">3.1</span> Price Value of a Basis Point</a></li>
+  <li><a href="#yield-value-of-a-price-change" id="toc-yield-value-of-a-price-change" class="nav-link" data-scroll-target="#yield-value-of-a-price-change"><span class="header-section-number">3.2</span> Yield Value of a Price Change</a></li>
+  <li><a href="#duration" id="toc-duration" class="nav-link" data-scroll-target="#duration"><span class="header-section-number">3.3</span> Duration</a>
+  <ul class="collapse">
+  <li><a href="#macaulay-duration" id="toc-macaulay-duration" class="nav-link" data-scroll-target="#macaulay-duration">Macaulay Duration</a></li>
+  <li><a href="#modified-duration" id="toc-modified-duration" class="nav-link" data-scroll-target="#modified-duration">Modified Duration</a></li>
+  <li><a href="#derivation-of-the-duration-approximation" id="toc-derivation-of-the-duration-approximation" class="nav-link" data-scroll-target="#derivation-of-the-duration-approximation">Derivation of the Duration Approximation</a></li>
+  <li><a href="#alternative-duration-formula" id="toc-alternative-duration-formula" class="nav-link" data-scroll-target="#alternative-duration-formula">Alternative Duration Formula</a></li>
+  </ul></li>
+  <li><a href="#properties-of-duration" id="toc-properties-of-duration" class="nav-link" data-scroll-target="#properties-of-duration"><span class="header-section-number">3.4</span> Properties of Duration</a></li>
+  <li><a href="#approximating-the-percentage-price-change" id="toc-approximating-the-percentage-price-change" class="nav-link" data-scroll-target="#approximating-the-percentage-price-change"><span class="header-section-number">3.5</span> Approximating the Percentage Price Change</a></li>
+  <li><a href="#approximating-the-dollar-price-change" id="toc-approximating-the-dollar-price-change" class="nav-link" data-scroll-target="#approximating-the-dollar-price-change"><span class="header-section-number">3.6</span> Approximating the Dollar Price Change</a></li>
+  <li><a href="#spread-duration" id="toc-spread-duration" class="nav-link" data-scroll-target="#spread-duration"><span class="header-section-number">3.7</span> Spread Duration</a></li>
+  <li><a href="#portfolio-duration" id="toc-portfolio-duration" class="nav-link" data-scroll-target="#portfolio-duration"><span class="header-section-number">3.8</span> Portfolio Duration</a></li>
+  <li><a href="#analytical-versus-empirical-duration" id="toc-analytical-versus-empirical-duration" class="nav-link" data-scroll-target="#analytical-versus-empirical-duration"><span class="header-section-number">3.9</span> Analytical versus Empirical Duration</a></li>
+  </ul></li>
+  <li><a href="#convexity" id="toc-convexity" class="nav-link" data-scroll-target="#convexity"><span class="header-section-number">4</span> Convexity</a>
+  <ul class="collapse">
+  <li><a href="#relationship-among-volatility-measures" id="toc-relationship-among-volatility-measures" class="nav-link" data-scroll-target="#relationship-among-volatility-measures"><span class="header-section-number">4.1</span> Relationship Among Volatility Measures</a></li>
+  <li><a href="#duration-as-a-tangent-line-approximation" id="toc-duration-as-a-tangent-line-approximation" class="nav-link" data-scroll-target="#duration-as-a-tangent-line-approximation"><span class="header-section-number">4.2</span> Duration as a Tangent-Line Approximation</a></li>
+  <li><a href="#measuring-convexity" id="toc-measuring-convexity" class="nav-link" data-scroll-target="#measuring-convexity"><span class="header-section-number">4.3</span> Measuring Convexity</a></li>
+  <li><a href="#convexity-of-the-hypothetical-bonds" id="toc-convexity-of-the-hypothetical-bonds" class="nav-link" data-scroll-target="#convexity-of-the-hypothetical-bonds"><span class="header-section-number">4.4</span> Convexity of the Hypothetical Bonds</a></li>
+  <li><a href="#approximating-percentage-price-change-using-duration-and-convexity" id="toc-approximating-percentage-price-change-using-duration-and-convexity" class="nav-link" data-scroll-target="#approximating-percentage-price-change-using-duration-and-convexity"><span class="header-section-number">4.5</span> Approximating Percentage Price Change Using Duration and Convexity</a></li>
+  <li><a href="#notes-on-convexity-measures" id="toc-notes-on-convexity-measures" class="nav-link" data-scroll-target="#notes-on-convexity-measures"><span class="header-section-number">4.6</span> Notes on Convexity Measures</a></li>
+  <li><a href="#value-of-convexity" id="toc-value-of-convexity" class="nav-link" data-scroll-target="#value-of-convexity"><span class="header-section-number">4.7</span> Value of Convexity</a></li>
+  <li><a href="#properties-of-convexity" id="toc-properties-of-convexity" class="nav-link" data-scroll-target="#properties-of-convexity"><span class="header-section-number">4.8</span> Properties of Convexity</a></li>
+  </ul></li>
+  <li><a href="#additional-concerns-when-using-duration" id="toc-additional-concerns-when-using-duration" class="nav-link" data-scroll-target="#additional-concerns-when-using-duration"><span class="header-section-number">5</span> Additional Concerns When Using Duration</a></li>
+  <li><a href="#do-not-think-of-duration-as-a-measure-of-time" id="toc-do-not-think-of-duration-as-a-measure-of-time" class="nav-link" data-scroll-target="#do-not-think-of-duration-as-a-measure-of-time"><span class="header-section-number">6</span> Do Not Think of Duration as a Measure of Time</a></li>
+  <li><a href="#approximating-a-bonds-duration-and-convexity-measure" id="toc-approximating-a-bonds-duration-and-convexity-measure" class="nav-link" data-scroll-target="#approximating-a-bonds-duration-and-convexity-measure"><span class="header-section-number">7</span> Approximating a Bond’s Duration and Convexity Measure</a>
+  <ul class="collapse">
+  <li><a href="#duration-of-an-inverse-floater" id="toc-duration-of-an-inverse-floater" class="nav-link" data-scroll-target="#duration-of-an-inverse-floater"><span class="header-section-number">7.1</span> Duration of an Inverse Floater</a></li>
+  </ul></li>
+  <li><a href="#measuring-a-bond-portfolios-responsiveness-to-nonparallel-changes-in-interest-rates" id="toc-measuring-a-bond-portfolios-responsiveness-to-nonparallel-changes-in-interest-rates" class="nav-link" data-scroll-target="#measuring-a-bond-portfolios-responsiveness-to-nonparallel-changes-in-interest-rates"><span class="header-section-number">8</span> Measuring a Bond Portfolio’s Responsiveness to Nonparallel Changes in Interest Rates</a>
+  <ul class="collapse">
+  <li><a href="#yield-curve-reshaping-duration" id="toc-yield-curve-reshaping-duration" class="nav-link" data-scroll-target="#yield-curve-reshaping-duration"><span class="header-section-number">8.1</span> Yield Curve Reshaping Duration</a></li>
+  <li><a href="#key-rate-duration" id="toc-key-rate-duration" class="nav-link" data-scroll-target="#key-rate-duration"><span class="header-section-number">8.2</span> Key Rate Duration</a></li>
+  </ul></li>
+  <li><a href="#key-points" id="toc-key-points" class="nav-link" data-scroll-target="#key-points">Key Points</a></li>
+  </ul>
+<div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="lec3.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></nav>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Lecture 3: Bond Price Volatility, Duration, Convexity, and Bond Portfolio Strategies</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="learning-objectives" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="learning-objectives">Learning Objectives</h2>
+<p>By the end of this lecture you should be able to:</p>
+<ul>
+<li>Review and interpret the price–yield relationship for option-free bonds.</li>
+<li>Explain the main price-volatility properties of option-free bonds.</li>
+<li>Identify the bond characteristics that affect price volatility.</li>
+<li>Compute and interpret price value of a basis point, yield value of a price change, duration, and convexity.</li>
+<li>Use duration and convexity to approximate percentage and dollar price changes.</li>
+<li>Distinguish between analytical duration and empirical duration.</li>
+<li>Explain spread duration, portfolio duration, key rate duration, and yield curve reshaping duration.</li>
+<li>Understand practical limitations of duration as a risk measure.</li>
+<li>Explain why duration is not simply a measure of time.</li>
+<li>Interpret the duration of inverse floaters.</li>
+<li>Describe how bond portfolio responsiveness changes under nonparallel shifts in the yield curve.</li>
+<li>Explain the main bond portfolio strategy frameworks, including benchmark-based, absolute return, and liability-driven strategies.</li>
+<li>Understand the role of bond benchmarks and the limitations of market-cap-weighted bond indexes.</li>
+<li>Distinguish between top-down and bottom-up portfolio construction.</li>
+<li>Explain active strategies, smart beta approaches, and the use of leverage in bond portfolio management.</li>
+</ul>
+<hr>
+</section>
+<section id="review-of-the-priceyield-relationship-for-option-free-bonds" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Review of the Price–Yield Relationship for Option-Free Bonds</h1>
+<p>For an option-free bond, price and yield move in opposite directions. When the required yield rises, the bond price falls. When the required yield falls, the bond price rises. This inverse relationship follows directly from the bond pricing formula because future cash flows are discounted at the required yield.</p>
+<p>An <strong>option-free bond</strong> is a bond whose promised cash flows do not change because of an embedded call, put, or prepayment option. This matters because the price response can be studied cleanly: the cash flows are fixed, so the only thing changing in the present value calculation is the discount rate. If the market requires a higher return to hold the bond, each promised coupon and principal payment is worth less today. If the market requires a lower return, those same cash flows are worth more today.</p>
+<p>For a bond with coupon payment <span class="math inline">\(C\)</span>, face value <span class="math inline">\(F\)</span>, maturity <span class="math inline">\(n\)</span>, and required yield <span class="math inline">\(y\)</span>, the price is</p>
+<p><span class="math display">\[
+P = \sum_{t=1}^{n} \frac{C}{(1+y)^t} + \frac{F}{(1+y)^n}.
+\]</span></p>
+<p>Because the denominator increases when <span class="math inline">\(y\)</span> increases, the present value of each cash flow falls, and therefore the bond price falls.</p>
+<p>The relationship is inverse, but it is not linear. A graph of price against required yield is curved, or <strong>convex</strong>. This curvature is central to the rest of the lecture. It means that the price gain from a large fall in yield is larger than the price loss from an equal-sized rise in yield, all else equal.</p>
+<p>In practice, a bond price can change over time for several reasons:</p>
+<ul>
+<li>The required market yield changes.</li>
+<li>The perceived credit risk of the issuer changes.</li>
+<li>A premium or discount bond moves closer to maturity.</li>
+<li>The benchmark yield curve changes shape.</li>
+</ul>
+<p>In this section, we isolate the first effect: an instantaneous change in the required yield, holding the promised cash flows fixed.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Worked Example">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Worked Example
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Review of the Price–Yield Relationship</strong></p>
+<p>Suppose a 3-year bond has:</p>
+<ul>
+<li>Face value = $1,000</li>
+<li>Annual coupon = $60</li>
+<li>Required yield = 5%</li>
+</ul>
+<p>Its price is</p>
+<p><span class="math display">\[
+P = \frac{60}{1.05} + \frac{60}{1.05^2} + \frac{1060}{1.05^3}
+= 57.14 + 54.42 + 915.91
+= 1027.47.
+\]</span></p>
+<p>If the required yield rises to 7%, the new price is</p>
+<p><span class="math display">\[
+P = \frac{60}{1.07} + \frac{60}{1.07^2} + \frac{1060}{1.07^3}
+= 56.07 + 52.40 + 865.38
+= 973.85.
+\]</span></p>
+<p>The bond price falls from $1,027.47 to $973.85 when the required yield rises from 5% to 7%.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled" title="Intuition">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Intuition
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A bond is a package of future dollars. Yield is the rate used to translate those future dollars into today’s dollars. A higher yield is a higher discount rate, so today’s value is lower.</p>
+</div>
+</div>
+<table class="caption-top table">
+<caption>Price-Yield Relationship for Six Hypothetical Bonds</caption>
+<colgroup>
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: right;">Required Yield (%)</th>
+<th style="text-align: right;">9% / 5 years</th>
+<th style="text-align: right;">9% / 25 years</th>
+<th style="text-align: right;">6% / 5 years</th>
+<th style="text-align: right;">6% / 25 years</th>
+<th style="text-align: right;">0% / 5 years</th>
+<th style="text-align: right;">0% / 25 years</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">6.00</td>
+<td style="text-align: right;">112.7953</td>
+<td style="text-align: right;">138.5946</td>
+<td style="text-align: right;">100.0000</td>
+<td style="text-align: right;">100.0000</td>
+<td style="text-align: right;">74.4094</td>
+<td style="text-align: right;">22.8107</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">7.00</td>
+<td style="text-align: right;">108.3166</td>
+<td style="text-align: right;">123.4556</td>
+<td style="text-align: right;">95.8417</td>
+<td style="text-align: right;">88.2722</td>
+<td style="text-align: right;">70.8919</td>
+<td style="text-align: right;">17.9053</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">8.00</td>
+<td style="text-align: right;">104.0554</td>
+<td style="text-align: right;">110.7410</td>
+<td style="text-align: right;">91.8891</td>
+<td style="text-align: right;">78.5178</td>
+<td style="text-align: right;">67.5564</td>
+<td style="text-align: right;">14.0713</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">8.50</td>
+<td style="text-align: right;">102.0027</td>
+<td style="text-align: right;">105.1482</td>
+<td style="text-align: right;">89.9864</td>
+<td style="text-align: right;">74.2587</td>
+<td style="text-align: right;">65.9537</td>
+<td style="text-align: right;">12.4795</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">8.90</td>
+<td style="text-align: right;">100.3966</td>
+<td style="text-align: right;">100.9961</td>
+<td style="text-align: right;">88.4983</td>
+<td style="text-align: right;">71.1105</td>
+<td style="text-align: right;">64.7017</td>
+<td style="text-align: right;">11.3391</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">8.99</td>
+<td style="text-align: right;">100.0395</td>
+<td style="text-align: right;">100.0988</td>
+<td style="text-align: right;">88.1676</td>
+<td style="text-align: right;">70.4318</td>
+<td style="text-align: right;">64.4236</td>
+<td style="text-align: right;">11.0975</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">9.00</td>
+<td style="text-align: right;">100.0000</td>
+<td style="text-align: right;">100.0000</td>
+<td style="text-align: right;">88.1309</td>
+<td style="text-align: right;">70.3570</td>
+<td style="text-align: right;">64.3928</td>
+<td style="text-align: right;">11.0710</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">9.01</td>
+<td style="text-align: right;">99.9604</td>
+<td style="text-align: right;">99.9013</td>
+<td style="text-align: right;">88.0943</td>
+<td style="text-align: right;">70.2824</td>
+<td style="text-align: right;">64.3620</td>
+<td style="text-align: right;">11.0445</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">9.10</td>
+<td style="text-align: right;">99.6053</td>
+<td style="text-align: right;">99.0199</td>
+<td style="text-align: right;">87.7654</td>
+<td style="text-align: right;">69.6164</td>
+<td style="text-align: right;">64.0855</td>
+<td style="text-align: right;">10.8093</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">9.50</td>
+<td style="text-align: right;">98.0459</td>
+<td style="text-align: right;">95.2539</td>
+<td style="text-align: right;">86.3214</td>
+<td style="text-align: right;">66.7773</td>
+<td style="text-align: right;">62.8723</td>
+<td style="text-align: right;">9.8242</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">10.00</td>
+<td style="text-align: right;">96.1391</td>
+<td style="text-align: right;">90.8720</td>
+<td style="text-align: right;">84.5565</td>
+<td style="text-align: right;">63.4881</td>
+<td style="text-align: right;">61.3913</td>
+<td style="text-align: right;">8.7204</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">11.00</td>
+<td style="text-align: right;">92.4624</td>
+<td style="text-align: right;">83.0685</td>
+<td style="text-align: right;">81.1559</td>
+<td style="text-align: right;">57.6712</td>
+<td style="text-align: right;">58.5431</td>
+<td style="text-align: right;">6.8767</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">12.00</td>
+<td style="text-align: right;">88.9599</td>
+<td style="text-align: right;">76.3572</td>
+<td style="text-align: right;">77.9197</td>
+<td style="text-align: right;">52.7144</td>
+<td style="text-align: right;">55.8395</td>
+<td style="text-align: right;">5.4288</td>
+</tr>
+</tbody>
+</table>
+<div id="d0c835ee" class="cell" data-message="false" data-execution_count="1">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="lec3_files/figure-html/cell-2-output-1.png" width="757" height="468" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<hr>
+</section>
+<section id="price-volatility-characteristics-of-option-free-bonds" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> Price-Volatility Characteristics of Option-Free Bonds</h1>
+<p>The price-volatility properties of option-free bonds describe how different bonds respond to changes in required yield.</p>
+<section id="property-1" class="level3">
+<h3 class="anchored" data-anchor-id="property-1">Property 1</h3>
+<p>Although the prices of all option-free bonds move in the opposite direction from the change in required yield, the <strong>percentage price change is not the same for all bonds</strong>.</p>
+<p>Some bonds are more sensitive to changes in yield than others. Longer maturity bonds and lower coupon bonds tend to experience greater percentage price changes for a given change in yield.</p>
+<p>For example, a 25-year coupon bond usually reacts more strongly to a 100-basis-point yield increase than a 5-year coupon bond with the same coupon rate. The reason is timing: more of the long bond’s value comes from cash flows far in the future, and distant cash flows are more affected by changes in the discount rate.</p>
+<p>The same logic explains why lower-coupon bonds are more volatile. A low-coupon bond pays less cash early and returns more of its value at maturity. Its value is therefore more concentrated in later cash flows, making it more sensitive to the discount rate.</p>
+</section>
+<section id="property-2" class="level3">
+<h3 class="anchored" data-anchor-id="property-2">Property 2</h3>
+<p>For <strong>very small changes</strong> in the required yield, the percentage price change for a given bond is roughly the same whether the required yield increases or decreases.</p>
+<p>This is the local linear approximation behind duration.</p>
+<p>For instance, a 1-basis-point increase and a 1-basis-point decrease usually produce almost symmetric percentage price changes. The price-yield curve is still curved, but over a tiny interval the curve looks almost like a straight line. Duration uses exactly this idea.</p>
+</section>
+<section id="property-3" class="level3">
+<h3 class="anchored" data-anchor-id="property-3">Property 3</h3>
+<p>For <strong>large changes</strong> in the required yield, the percentage price change is not the same for an increase in the required yield as it is for a decrease in the required yield.</p>
+<p>This occurs because the price–yield relationship is curved rather than linear.</p>
+<p>If a bond loses about 9% when yields rise by 100 basis points, it will not necessarily gain exactly 9% when yields fall by 100 basis points. The difference becomes more important as the yield shock becomes larger and as the bond becomes more convex.</p>
+</section>
+<section id="property-4" class="level3">
+<h3 class="anchored" data-anchor-id="property-4">Property 4</h3>
+<p>For a given large change in basis points, the <strong>percentage price increase is greater than the percentage price decrease</strong>.</p>
+<p>This is the practical consequence of convexity. The curvature of the price–yield relationship makes price gains from falling yields larger than price losses from equally sized yield increases.</p>
+<p>For a long investor, positive convexity is beneficial. If yields fall, the upside price move is amplified; if yields rise, the downside move is dampened relative to a straight-line approximation. For a short seller, the same property works in the opposite direction: the potential loss from falling yields is larger than the potential gain from rising yields.</p>
+</section>
+<section id="characteristics-of-a-bond-that-affect-its-price-volatility" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="characteristics-of-a-bond-that-affect-its-price-volatility"><span class="header-section-number">2.1</span> Characteristics of a Bond That Affect Its Price Volatility</h2>
+<p>The main bond characteristics affecting price volatility are:</p>
+<ul>
+<li>Time to maturity</li>
+<li>Coupon rate</li>
+</ul>
+<p>For option-free bonds:</p>
+<ul>
+<li>Longer maturity generally means greater price volatility.</li>
+<li>Lower coupon generally means greater price volatility.</li>
+<li>Lower yield generally implies greater price volatility.</li>
+</ul>
+<p>The maturity and coupon effects are easiest to understand through cash-flow timing. A high-coupon bond returns more cash earlier through coupon payments, so less of its value depends on distant cash flows. A zero-coupon bond has only one cash flow at maturity, so its full value is exposed to discount-rate changes over the entire life of the bond.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Example: Coupon and Maturity Effects">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Example: Coupon and Maturity Effects
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Consider three bonds with the same required yield:</p>
+<ul>
+<li>A 5-year 9% coupon bond</li>
+<li>A 25-year 9% coupon bond</li>
+<li>A 25-year zero-coupon bond</li>
+</ul>
+<p>The 25-year coupon bond is more volatile than the 5-year coupon bond because its cash flows extend farther into the future. The 25-year zero-coupon bond is typically even more volatile because all of its cash flow arrives at maturity.</p>
+</div>
+</div>
+</section>
+<section id="effects-of-yield-to-maturity" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="effects-of-yield-to-maturity"><span class="header-section-number">2.2</span> Effects of Yield to Maturity</h2>
+<p>For two otherwise identical option-free bonds, the bond with the lower yield to maturity will exhibit greater percentage price volatility for a given change in yield. This effect is related to the curvature of the present value function.</p>
+<p>When yields are already low, a given basis-point move is large relative to the starting discount rate. Also, the price-yield curve is steeper at lower yields. This means the same 100-basis-point change has a larger percentage price impact when the initial yield is 4% than when the initial yield is 10%, all else equal.</p>
+<p>This point is important in low-rate environments. A portfolio that appears to have moderate risk based on historical yield levels may become more sensitive when yields are low. The same maturity and coupon structure can produce larger price swings simply because the starting yield is lower.</p>
+<hr>
+</section>
+</section>
+<section id="measures-of-bond-price-volatility" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Measures of Bond Price Volatility</h1>
+<p>Several measures are used to summarize how sensitive a bond’s price is to changes in yield.</p>
+<section id="price-value-of-a-basis-point" class="level2" data-number="3.1">
+<h2 data-number="3.1" class="anchored" data-anchor-id="price-value-of-a-basis-point"><span class="header-section-number">3.1</span> Price Value of a Basis Point</h2>
+<p>The <strong>price value of a basis point (PVBP)</strong>, a.k.a. dollar value of an 01 (DV01), measures the change in the price of a bond for a one-basis-point change in yield.</p>
+<p>A basis point is</p>
+<p><span class="math display">\[
+0.01\% = 0.0001.
+\]</span></p>
+<p>PVBP is often approximated by repricing the bond at yields <span class="math inline">\(y\)</span> and <span class="math inline">\(y+0.0001\)</span> and taking the difference.</p>
+<p><span class="math display">\[
+PVBP \approx P(y) - P(y+0.0001).
+\]</span></p>
+<p>It is a dollar measure of interest-rate sensitivity.</p>
+<p>PVBP is usually reported as an absolute value. If a bond price falls by 0.04 per $100 of par when yield rises by one basis point, its PVBP is 0.04. For a $10 million position, the dollar impact is scaled by position size:</p>
+<p><span class="math display">\[
+\text{Dollar PVBP}
+= 0.04 \times \frac{10{,}000{,}000}{100}
+= 4{,}000.
+\]</span></p>
+<p>So a one-basis-point yield increase would reduce the position value by about $4,000. Traders often use PVBP or DV01 because it converts rate exposure into dollars immediately.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 11%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Measure</th>
+<th style="text-align: right;">5-year 9% coupon</th>
+<th style="text-align: right;">25-year 9% coupon</th>
+<th style="text-align: right;">5-year 6% coupon</th>
+<th style="text-align: right;">25-year 6% coupon</th>
+<th style="text-align: right;">5-year zero-coupon</th>
+<th style="text-align: right;">25-year zero-coupon</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Initial Price (9% yield)</td>
+<td style="text-align: right;">100.0000</td>
+<td style="text-align: right;">100.0000</td>
+<td style="text-align: right;">88.1309</td>
+<td style="text-align: right;">70.3570</td>
+<td style="text-align: right;">64.3928</td>
+<td style="text-align: right;">11.0710</td>
+</tr>
+<tr class="even">
+<td>Price at 9.01%</td>
+<td style="text-align: right;">99.9604</td>
+<td style="text-align: right;">99.9013</td>
+<td style="text-align: right;">88.0945</td>
+<td style="text-align: right;">70.2824</td>
+<td style="text-align: right;">64.3620</td>
+<td style="text-align: right;">11.0445</td>
+</tr>
+<tr class="odd">
+<td>DV01</td>
+<td style="text-align: right;">0.0396</td>
+<td style="text-align: right;">0.0987</td>
+<td style="text-align: right;">0.0364</td>
+<td style="text-align: right;">0.0746</td>
+<td style="text-align: right;">0.0308</td>
+<td style="text-align: right;">0.0265</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="yield-value-of-a-price-change" class="level2" data-number="3.2">
+<h2 data-number="3.2" class="anchored" data-anchor-id="yield-value-of-a-price-change"><span class="header-section-number">3.2</span> Yield Value of a Price Change</h2>
+<p>The <strong>yield value of a price change (YVPC)</strong> is the change in yield associated with a specified change in price. It is the inverse way of thinking about price sensitivity.</p>
+<p>For example, suppose a bond is priced at 100 and we ask how much the yield must increase for the price to fall to 99. If a small yield increase produces that $1 price decline, the bond is highly price-sensitive. If it takes a much larger yield increase to produce the same price decline, the bond is less price-sensitive.</p>
+<p>YVPC is less common than PVBP and duration in portfolio risk reports, but it is useful when the portfolio manager is thinking in price terms: “How many basis points of yield movement would wipe out one point of price?”</p>
+</section>
+<section id="duration" class="level2" data-number="3.3">
+<h2 data-number="3.3" class="anchored" data-anchor-id="duration"><span class="header-section-number">3.3</span> Duration</h2>
+<p>Duration is one of the most important measures of bond price sensitivity.</p>
+<p>The central interpretation is:</p>
+<p><span class="math display">\[
+\text{Modified duration}
+\approx
+\text{percentage price change for a 100-basis-point yield change}.
+\]</span></p>
+<p>The sign is inverse. A bond with modified duration of 6 is expected to lose roughly 6% if yield rises by 100 basis points and gain roughly 6% if yield falls by 100 basis points, before accounting for convexity.</p>
+<section id="macaulay-duration" class="level3">
+<h3 class="anchored" data-anchor-id="macaulay-duration">Macaulay Duration</h3>
+<p>The <strong>Macaulay duration</strong> is the weighted average time to receipt of the bond’s cash flows, where the weights are the present values of the cash flows as a proportion of the bond price.</p>
+<p><span class="math display">\[
+D_M = \frac{\sum_{t=1}^{n} t \cdot \frac{CF_t}{(1+y)^t}}{P}
+\]</span></p>
+<p>For bonds with semiannual coupons, duration is first computed in periods and then divided by the number of periods per year.</p>
+<p>The weights in Macaulay duration are not based on the raw cash flows. They are based on the present values of the cash flows. A large principal payment far in the future may be heavily discounted, while a near-term coupon has a smaller dollar amount but receives less discounting. Macaulay duration combines both timing and present value.</p>
+<p>For a zero-coupon bond, there is only one cash flow. Therefore, 100% of the present value weight is placed on the maturity date, and Macaulay duration equals maturity.</p>
+</section>
+<section id="modified-duration" class="level3">
+<h3 class="anchored" data-anchor-id="modified-duration">Modified Duration</h3>
+<p>The <strong>modified duration</strong> converts Macaulay duration into a direct measure of price sensitivity:</p>
+<p><span class="math display">\[
+D^* = \frac{D_M}{1+y}
+\]</span></p>
+<p>for annual compounding, or more generally</p>
+<p><span class="math display">\[
+D^* = \frac{D_M}{1+y/m}
+\]</span></p>
+<p>when payments occur <span class="math inline">\(m\)</span> times per year.</p>
+<p>Modified duration gives the approximate percentage price change for a small change in yield:</p>
+<p><span class="math display">\[
+\frac{\Delta P}{P} \approx -D^* \Delta y
+\]</span></p>
+<p>The negative sign is essential. Duration itself is normally reported as a positive number for option-free bonds, but the price response has the opposite sign of the yield change.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Example: Modified Duration">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Example: Modified Duration
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>If a bond has modified duration of 4.5 and its yield increases by 25 basis points, then</p>
+<p><span class="math display">\[
+\frac{\Delta P}{P}
+\approx
+-4.5(0.0025)
+= -0.01125.
+\]</span></p>
+<p>The bond price is expected to fall by about 1.125%.</p>
+</div>
+</div>
+</section>
+<section id="derivation-of-the-duration-approximation" class="level3">
+<h3 class="anchored" data-anchor-id="derivation-of-the-duration-approximation">Derivation of the Duration Approximation</h3>
+<p>Start with the bond price formula:</p>
+<p><span class="math display">\[
+P(y) = \sum_{t=1}^{n} \frac{CF_t}{(1+y)^t}
+\]</span></p>
+<p>Differentiate with respect to <span class="math inline">\(y\)</span>:</p>
+<p><span class="math display">\[
+\frac{dP}{dy} = \sum_{t=1}^{n} -t \frac{CF_t}{(1+y)^{t+1}}
+\]</span></p>
+<p>Divide by <span class="math inline">\(P\)</span>:</p>
+<p><span class="math display">\[
+\frac{1}{P}\frac{dP}{dy} = -\frac{1}{1+y}
+\cdot
+\frac{\sum_{t=1}^{n} t \frac{CF_t}{(1+y)^t}}{P}
+\]</span></p>
+<p>This yields</p>
+<p><span class="math display">\[
+\frac{1}{P}\frac{dP}{dy} = -D^*
+\]</span></p>
+<p>which leads to the approximation</p>
+<p><span class="math display">\[
+\frac{\Delta P}{P} \approx -D^* \Delta y.
+\]</span></p>
+<p>The derivative gives the slope of the price-yield curve at the current yield. Duration is therefore a <strong>local</strong> risk measure: it describes the slope at one point, not the full curve. This is why duration works well for small changes in yield but becomes less accurate for large changes.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Example: Macaulay and Modified Duration">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Example: Macaulay and Modified Duration
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Suppose a 3-year bond has:</p>
+<ul>
+<li>Face value = $1,000</li>
+<li>Annual coupon rate = 8%</li>
+<li>Annual coupon payment = $80</li>
+<li>Yield to maturity = 6%</li>
+</ul>
+<p>The bond price is the present value of its promised cash flows:</p>
+<p><span class="math display">\[
+P = \frac{80}{1.06} + \frac{80}{1.06^2} + \frac{1080}{1.06^3}
+= 1053.4602.
+\]</span></p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: right;">Year</th>
+<th style="text-align: right;">Cash Flow</th>
+<th style="text-align: right;">Present Value at 6%</th>
+<th style="text-align: right;">PV Weight</th>
+<th style="text-align: right;">Contribution to Duration</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">80</td>
+<td style="text-align: right;">75.4717</td>
+<td style="text-align: right;">0.0716</td>
+<td style="text-align: right;">0.0716</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">80</td>
+<td style="text-align: right;">71.1997</td>
+<td style="text-align: right;">0.0676</td>
+<td style="text-align: right;">0.1352</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">1,080</td>
+<td style="text-align: right;">906.7888</td>
+<td style="text-align: right;">0.8608</td>
+<td style="text-align: right;">2.5823</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><strong>Total</strong></td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"><strong>1,053.4602</strong></td>
+<td style="text-align: right;"><strong>1.0000</strong></td>
+<td style="text-align: right;"><strong>2.7891</strong></td>
+</tr>
+</tbody>
+</table>
+<p>The Macaulay duration is the sum of the contribution column:</p>
+<p><span class="math display">\[
+D_M = 0.0716 + 0.1352 + 2.5823 = 2.7891 \text{ years}.
+\]</span></p>
+<p>The modified duration is:</p>
+<p><span class="math display">\[
+D^* = \frac{D_M}{1+y}
+= \frac{2.7891}{1.06}
+= 2.6313.
+\]</span></p>
+<p>This means a small 100-basis-point increase in yield would reduce the bond price by approximately 2.6313%, before accounting for convexity.</p>
+</div>
+</div>
+</section>
+<section id="alternative-duration-formula" class="level3">
+<h3 class="anchored" data-anchor-id="alternative-duration-formula">Alternative Duration Formula</h3>
+<p>Instead of calculating Macaulay duration from each cash-flow weight and then converting it to modified duration, we can derive modified duration directly from the bond price formula.</p>
+<p>For a standard fixed-coupon bond, price can be written as the sum of two components:</p>
+<ul>
+<li>The present value of the coupon annuity</li>
+<li>The present value of the face value</li>
+</ul>
+<p><span class="math display">\[
+P
+= C\left(\frac{1 - (1+y)^{-n}}{y}\right)
++ \frac{F}{(1+y)^n},
+\]</span></p>
+<p>where <span class="math inline">\(C\)</span> is the coupon payment, <span class="math inline">\(F\)</span> is face value, <span class="math inline">\(y\)</span> is the yield per period, and <span class="math inline">\(n\)</span> is the number of periods.</p>
+<p>Taking the first derivative with respect to yield gives:</p>
+<p><span class="math display">\[
+\frac{dP}{dy}
+=
+C\left[
+\frac{ny(1+y)^{-n-1} - \left(1 - (1+y)^{-n}\right)}{y^2}
+\right]
+- nF(1+y)^{-n-1}.
+\]</span></p>
+<p>Modified duration is the negative of the percentage price derivative:</p>
+<p><span class="math display">\[
+D^* = -\frac{1}{P}\frac{dP}{dy}.
+\]</span></p>
+<p>Substituting the derivative into this expression gives the alternative modified duration formula:</p>
+<p><span class="math display">\[
+D^*
+=
+\frac{
+\frac{C}{y^2}\left[1 - (1+y)^{-n}\right]
++ n\left(F - \frac{C}{y}\right)(1+y)^{-n-1}
+}{P}.
+\]</span></p>
+<p>Once modified duration is known, Macaulay duration is:</p>
+<p><span class="math display">\[
+D_M = D^*(1+y).
+\]</span></p>
+<div class="callout callout-style-default callout-note callout-titled" title="Example: Alternative Duration Formula">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Example: Alternative Duration Formula
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Use the same 3-year bond:</p>
+<ul>
+<li>Face value = $1,000</li>
+<li>Annual coupon payment = $80</li>
+<li>Yield to maturity = 6%</li>
+<li>Price = $1,053.4602</li>
+</ul>
+<p>First calculate modified duration:</p>
+<p><span class="math display">\[
+D^*
+=
+\frac{
+\frac{80}{0.06^2}\left[1 - 1.06^{-3}\right]
++ 3\left(1000 - \frac{80}{0.06}\right)1.06^{-4}
+}{1053.4602}
+= 2.6313.
+\]</span></p>
+<p>Then convert modified duration to Macaulay duration:</p>
+<p><span class="math display">\[
+D_M = 2.6313(1.06) = 2.7891 \text{ years}.
+\]</span></p>
+<p>This matches the cash-flow contribution method. The alternative formula simply gets the same duration by differentiating the annuity-plus-face-value price formula.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="properties-of-duration" class="level2" data-number="3.4">
+<h2 data-number="3.4" class="anchored" data-anchor-id="properties-of-duration"><span class="header-section-number">3.4</span> Properties of Duration</h2>
+<p>For option-free bonds:</p>
+<ul>
+<li>Duration is less than maturity for coupon bonds.</li>
+<li>Zero-coupon bond Macaulay duration equals its maturity.</li>
+<li>Duration increases with maturity, but at a decreasing rate.</li>
+<li>Duration decreases as coupon rate increases.</li>
+<li>Duration decreases as yield increases.</li>
+</ul>
+<p>These properties match the price-volatility patterns discussed earlier. Longer maturity and lower coupon both push more value into later cash flows, increasing duration. Higher yields discount distant cash flows more heavily, reducing their present value weights and lowering duration.</p>
+<p>One qualification is that the maturity-duration relationship is strongest for ordinary coupon bonds near normal yield levels. For very long-maturity deep-discount bonds, duration behavior can be less intuitive, so the general rule should not be applied mechanically.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Example: When Longer Maturity Does Not Imply Proportionally Higher Duration">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Example: When Longer Maturity Does Not Imply Proportionally Higher Duration
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Scenario:</strong> Consider two long-term bonds in a high-yield environment where discounting is strong.</p>
+<ul>
+<li>Yield to maturity: 10%</li>
+<li>Both bonds have very low coupons (≈ 1%), so they behave close to deep-discount bonds</li>
+</ul>
+<p><strong>Bond A:</strong></p>
+<ul>
+<li>Maturity: 30 years</li>
+<li>Coupon: 1%</li>
+<li>Approximate duration: ~20–22</li>
+</ul>
+<p><strong>Bond B:</strong></p>
+<ul>
+<li>Maturity: 100 years</li>
+<li>Coupon: 1%</li>
+<li>Approximate duration: ~35–40</li>
+</ul>
+<hr>
+<p><strong>Naive expectation:</strong> One might expect the 100-year bond to have a duration close to 100, making it vastly more sensitive to interest rates than the 30-year bond.</p>
+<hr>
+<p><strong>What actually happens:</strong></p>
+<ul>
+<li>The 100-year bond’s duration is <strong>far below its maturity</strong></li>
+<li>Extending maturity from 30 to 100 years increases duration, but <strong>not proportionally</strong></li>
+</ul>
+<hr>
+<p><strong>Why?</strong></p>
+<ul>
+<li>Even small coupons generate intermediate cash flows</li>
+<li>These earlier cash flows <strong>pull duration inward</strong></li>
+<li>At a 10% yield, very distant payments are <strong>heavily discounted</strong> and contribute little to present value</li>
+</ul>
+<hr>
+<p><strong>Implication:</strong></p>
+<ul>
+<li>Increasing maturity from 30 → 50 years has a noticeable impact on duration</li>
+<li>Increasing maturity from 50 → 100 years has <strong>much smaller incremental impact</strong></li>
+</ul>
+<hr>
+<p><strong>More counterintuitive case:</strong></p>
+<ul>
+<li><strong>Bond C:</strong> 30-year zero-coupon → duration ≈ 30</li>
+<li><strong>Bond D:</strong> 100-year bond with 2% coupon → duration can be <strong>less than 30</strong></li>
+</ul>
+<p>So:</p>
+<blockquote class="blockquote">
+<p>A shorter-maturity bond can have <strong>higher duration</strong> than a much longer-maturity bond.</p>
+</blockquote>
+<hr>
+<p><strong>Conclusion:</strong> The rule “longer maturity ⇒ higher duration” holds for standard bonds at typical maturities, but <strong>breaks down for very long-maturity deep-discount bonds</strong>, where duration increases at a diminishing rate and may even be lower than that of shorter bonds.</p>
+</div>
+</div>
+</section>
+<section id="approximating-the-percentage-price-change" class="level2" data-number="3.5">
+<h2 data-number="3.5" class="anchored" data-anchor-id="approximating-the-percentage-price-change"><span class="header-section-number">3.5</span> Approximating the Percentage Price Change</h2>
+<p>Modified duration gives the first-order approximation:</p>
+<p><span class="math display">\[
+\frac{\Delta P}{P} \approx -D^* \Delta y
+\]</span></p>
+<div class="callout callout-style-default callout-note callout-titled" title="Example: Duration Approximation vs. Actual Price Change">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Example: Duration Approximation vs.&nbsp;Actual Price Change
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Consider the <strong>25-year, 6% coupon</strong> bond from earlier in this lecture, priced at <strong>9%</strong> yield to maturity (<span class="math inline">\(P_0 = 70.357\)</span> per $100 par, modified duration <span class="math inline">\(D^* = 10.62\)</span>). If yield rises, the duration estimate is</p>
+<p><span class="math display">\[
+\frac{\Delta P}{P} \approx -D^* \Delta y.
+\]</span></p>
+<p>Compare that linear estimate to the <strong>actual</strong> percentage price change from repricing the bond (same cash flows, new yield):</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 21%">
+<col style="width: 15%">
+<col style="width: 15%">
+<col style="width: 15%">
+<col style="width: 15%">
+<col style="width: 15%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: center;">Yield shock</th>
+<th style="text-align: right;">New yield</th>
+<th style="text-align: right;">New price</th>
+<th style="text-align: right;">Duration estimate</th>
+<th style="text-align: right;">Actual change</th>
+<th style="text-align: right;">Difference</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">+100 bp</td>
+<td style="text-align: right;">10.00%</td>
+<td style="text-align: right;">63.488</td>
+<td style="text-align: right;"><span class="math inline">\(-10.62\%\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(-9.76\%\)</span></td>
+<td style="text-align: right;">0.86 pp</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">+200 bp</td>
+<td style="text-align: right;">11.00%</td>
+<td style="text-align: right;">57.671</td>
+<td style="text-align: right;"><span class="math inline">\(-21.24\%\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(-18.03\%\)</span></td>
+<td style="text-align: right;">3.21 pp</td>
+</tr>
+</tbody>
+</table>
+<p>For the <strong>100-basis-point</strong> increase:</p>
+<p><span class="math display">\[
+\frac{\Delta P}{P} \approx -10.62(0.01) = -10.62\%,
+\]</span></p>
+<p>but the true price change is <span class="math inline">\((63.488/70.357 - 1) \approx -9.76\%\)</span>. The duration rule is close but still <strong>overstates</strong> the loss by about 0.86 percentage points.</p>
+<p>For the <strong>200-basis-point</strong> increase:</p>
+<p><span class="math display">\[
+\frac{\Delta P}{P} \approx -10.62(0.02) = -21.24\%,
+\]</span></p>
+<p>while the actual change is <span class="math inline">\((57.671/70.357 - 1) \approx -18.03\%\)</span>. The gap widens to about <strong>3.21 percentage points</strong> because duration forces a curved price–yield relationship into a straight-line estimate. Convexity (developed below) corrects part of this error for larger shocks.</p>
+</div>
+</div>
+</section>
+<section id="approximating-the-dollar-price-change" class="level2" data-number="3.6">
+<h2 data-number="3.6" class="anchored" data-anchor-id="approximating-the-dollar-price-change"><span class="header-section-number">3.6</span> Approximating the Dollar Price Change</h2>
+<p>Multiply the percentage change by the bond price:</p>
+<p><span class="math display">\[
+\Delta P \approx -D^* P \Delta y
+\]</span></p>
+<p>The product <span class="math inline">\(D^*P\)</span> is often called <strong>dollar duration</strong>:</p>
+<p><span class="math display">\[
+\text{Dollar duration} = -D^*P.
+\]</span></p>
+<p>For a bond priced at 70.357 with modified duration of 10.62,</p>
+<p><span class="math display">\[
+\Delta P
+\approx
+-10.62(70.357)(0.0001)
+= -0.0747
+\]</span></p>
+<p>for a one-basis-point yield increase. This is essentially the same information as PVBP, expressed through duration.</p>
+</section>
+<section id="spread-duration" class="level2" data-number="3.7">
+<h2 data-number="3.7" class="anchored" data-anchor-id="spread-duration"><span class="header-section-number">3.7</span> Spread Duration</h2>
+<p><strong>Spread duration</strong> measures the sensitivity of a bond’s price to a change in its credit spread, holding the benchmark yield curve fixed.</p>
+<p>It is especially important for corporate bonds, high-yield bonds, and structured products.</p>
+<p>For a non-Treasury bond, yield can be thought of as:</p>
+<p><span class="math display">\[
+\text{Bond yield}
+=
+\text{Treasury yield}
++
+\text{credit spread}.
+\]</span></p>
+<p>Treasury duration measures exposure to changes in benchmark rates. Spread duration measures exposure to changes in the extra compensation investors require for credit, liquidity, or sector risk.</p>
+<p>A corporate bond with spread duration of 5 would be expected to lose about 5% if its credit spread widens by 100 basis points, assuming Treasury rates are unchanged. A Treasury bond has no credit spread relative to itself, so its spread duration is zero.</p>
+<p>For floating-rate securities, spread duration is also important because the coupon resets with short-term rates, but the quoted margin is fixed. If the market demands a higher margin than the security pays, the floater’s price falls.</p>
+</section>
+<section id="portfolio-duration" class="level2" data-number="3.8">
+<h2 data-number="3.8" class="anchored" data-anchor-id="portfolio-duration"><span class="header-section-number">3.8</span> Portfolio Duration</h2>
+<p>Portfolio duration measures the interest-rate sensitivity of the whole portfolio. It is the market-value-weighted average duration of the individual holdings:</p>
+<p><span class="math display">\[
+D_P = \sum_{i=1}^{N} w_i D_i
+\]</span></p>
+<p>where</p>
+<p><span class="math display">\[
+w_i = \frac{\text{Market Value of Bond } i}{\text{Total Portfolio Market Value}}.
+\]</span></p>
+<p>The market-value weights are essential. A small position in a high-duration bond may contribute less portfolio risk than a large position in a moderate-duration bond. For that reason, managers usually focus on each holding’s <strong>contribution to portfolio duration</strong>:</p>
+<p><span class="math display">\[
+\text{Contribution to portfolio duration}
+=
+\text{portfolio weight} \times \text{duration of issue}.
+\]</span></p>
+<div class="callout callout-style-default callout-note callout-titled" title="Example: Bond-Level Contribution to Portfolio Duration">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Example: Bond-Level Contribution to Portfolio Duration
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Suppose a portfolio has four bonds:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 15%">
+<col style="width: 21%">
+<col style="width: 21%">
+<col style="width: 21%">
+<col style="width: 21%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Bond</th>
+<th style="text-align: right;">Market Value</th>
+<th style="text-align: right;">Weight in Portfolio</th>
+<th style="text-align: right;">Duration</th>
+<th style="text-align: right;">Contribution to Portfolio Duration</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>A</td>
+<td style="text-align: right;">$10,000,000</td>
+<td style="text-align: right;">0.10</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">0.40</td>
+</tr>
+<tr class="even">
+<td>B</td>
+<td style="text-align: right;">$40,000,000</td>
+<td style="text-align: right;">0.40</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">2.80</td>
+</tr>
+<tr class="odd">
+<td>C</td>
+<td style="text-align: right;">$30,000,000</td>
+<td style="text-align: right;">0.30</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">1.80</td>
+</tr>
+<tr class="even">
+<td>D</td>
+<td style="text-align: right;">$20,000,000</td>
+<td style="text-align: right;">0.20</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0.40</td>
+</tr>
+<tr class="odd">
+<td><strong>Total</strong></td>
+<td style="text-align: right;"><strong>$100,000,000</strong></td>
+<td style="text-align: right;"><strong>1.00</strong></td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"><strong>5.40</strong></td>
+</tr>
+</tbody>
+</table>
+<p>The portfolio duration is 5.40. Bond B contributes the most because it has both a large portfolio weight and a high duration.</p>
+</div>
+</div>
+<p>The same logic can be applied to sectors. This is useful because two portfolios can have similar total duration but different exposure to Treasury, corporate, mortgage-backed, or agency-related sectors.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Example: Portfolio Duration vs. Benchmark by Sector">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Example: Portfolio Duration vs.&nbsp;Benchmark by Sector
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Consider a portfolio with the following sector weights and durations:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 26%">
+<col style="width: 26%">
+<col style="width: 26%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Sector</th>
+<th style="text-align: right;">Portfolio Sector Weight</th>
+<th style="text-align: right;">Sector Duration</th>
+<th style="text-align: right;">Contribution to Portfolio Duration</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Treasury</td>
+<td style="text-align: right;">0.295</td>
+<td style="text-align: right;">7.25</td>
+<td style="text-align: right;">2.14</td>
+</tr>
+<tr class="even">
+<td>Government Related</td>
+<td style="text-align: right;">0.036</td>
+<td style="text-align: right;">1.94</td>
+<td style="text-align: right;">0.07</td>
+</tr>
+<tr class="odd">
+<td>Agency MBS</td>
+<td style="text-align: right;">0.290</td>
+<td style="text-align: right;">5.17</td>
+<td style="text-align: right;">1.50</td>
+</tr>
+<tr class="even">
+<td>Corporates</td>
+<td style="text-align: right;">0.379</td>
+<td style="text-align: right;">4.85</td>
+<td style="text-align: right;">1.84</td>
+</tr>
+<tr class="odd">
+<td><strong>Total</strong></td>
+<td style="text-align: right;"><strong>1.000</strong></td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"><strong>5.55</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Compare that portfolio with its benchmark (e.g.&nbsp;the Barclays US Aggregate Bond Index):</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 26%">
+<col style="width: 26%">
+<col style="width: 26%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Sector</th>
+<th style="text-align: right;">Benchmark Weight</th>
+<th style="text-align: right;">Benchmark Sector Duration</th>
+<th style="text-align: right;">Contribution to Benchmark Duration</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Treasury</td>
+<td style="text-align: right;">0.333</td>
+<td style="text-align: right;">5.32</td>
+<td style="text-align: right;">1.77</td>
+</tr>
+<tr class="even">
+<td>Government Related</td>
+<td style="text-align: right;">0.068</td>
+<td style="text-align: right;">5.88</td>
+<td style="text-align: right;">0.40</td>
+</tr>
+<tr class="odd">
+<td>Agency MBS</td>
+<td style="text-align: right;">0.333</td>
+<td style="text-align: right;">4.53</td>
+<td style="text-align: right;">1.51</td>
+</tr>
+<tr class="even">
+<td>Corporates</td>
+<td style="text-align: right;">0.266</td>
+<td style="text-align: right;">6.50</td>
+<td style="text-align: right;">1.73</td>
+</tr>
+<tr class="odd">
+<td><strong>Total</strong></td>
+<td style="text-align: right;"><strong>1.000</strong></td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"><strong>5.41</strong></td>
+</tr>
+</tbody>
+</table>
+<p>The total durations are close: 5.55 for the portfolio versus 5.41 for the benchmark. The portfolio is therefore approximately duration neutral relative to the benchmark. But the sector contributions are not identical:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 26%">
+<col style="width: 26%">
+<col style="width: 26%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Sector</th>
+<th style="text-align: right;">Portfolio Contribution</th>
+<th style="text-align: right;">Benchmark Contribution</th>
+<th style="text-align: right;">Difference</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Treasury</td>
+<td style="text-align: right;">2.14</td>
+<td style="text-align: right;">1.77</td>
+<td style="text-align: right;">0.37</td>
+</tr>
+<tr class="even">
+<td>Government Related</td>
+<td style="text-align: right;">0.07</td>
+<td style="text-align: right;">0.40</td>
+<td style="text-align: right;">-0.33</td>
+</tr>
+<tr class="odd">
+<td>Agency MBS</td>
+<td style="text-align: right;">1.50</td>
+<td style="text-align: right;">1.51</td>
+<td style="text-align: right;">-0.01</td>
+</tr>
+<tr class="even">
+<td>Corporates</td>
+<td style="text-align: right;">1.84</td>
+<td style="text-align: right;">1.73</td>
+<td style="text-align: right;">0.11</td>
+</tr>
+<tr class="odd">
+<td><strong>Total</strong></td>
+<td style="text-align: right;"><strong>5.55</strong></td>
+<td style="text-align: right;"><strong>5.41</strong></td>
+<td style="text-align: right;"><strong>0.14</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Sector yields and spreads do not always move together. A portfolio can be close to benchmark duration overall while still taking active bets on where that duration exposure is located.</p>
+</div>
+</div>
+</section>
+<section id="analytical-versus-empirical-duration" class="level2" data-number="3.9">
+<h2 data-number="3.9" class="anchored" data-anchor-id="analytical-versus-empirical-duration"><span class="header-section-number">3.9</span> Analytical versus Empirical Duration</h2>
+<ul>
+<li><strong>Analytical duration</strong> is computed from a pricing formula.</li>
+<li><strong>Empirical duration</strong> is estimated by repricing the bond under shifted yields and observing the resulting price change.</li>
+</ul>
+<p>Empirical duration is often necessary for bonds with uncertain cash flows or embedded options.</p>
+<p>Analytical duration is cleanest for option-free bonds because the cash flows are fixed and the pricing formula is explicit. Empirical duration is more general. It asks a practical question: if the pricing model is shocked upward and downward by a small yield change, how much does the price move?</p>
+<p>For high-quality corporate bonds, analytical duration often captures much of the interest-rate risk because the bond behaves similarly to an option-free bond plus a credit spread. For lower-rated or distressed bonds, the measured price movement may be driven more by equity-like credit risk than by Treasury-rate movements. In that case, a duration estimated from historical regression may differ meaningfully from a formula-based duration.</p>
+<p>The key distinction is:</p>
+<ul>
+<li>Analytical duration comes from a valuation formula or pricing model.</li>
+<li>Empirical duration comes from observed or simulated price responses.</li>
+<li>Poor pricing models produce poor duration estimates.</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="convexity" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> Convexity</h1>
+<p>Duration, PVBP, and related measures work well for small changes in yield or price. Their limitation is that they approximate a curved price-yield relationship with a straight line. Convexity adds the second-order effect: it measures the curvature of the bond price function.</p>
+<p>The duration approximation is the tangent line to the price-yield curve at the initial yield. At that point, duration gives the slope of the curve. The steeper the tangent line, the greater the duration; the flatter the tangent line, the lower the duration.</p>
+<p>For an option-free bond, duration changes as yields change. As yield increases, duration decreases and the tangent line becomes flatter. As yield decreases, duration increases and the tangent line becomes steeper. This is one reason the duration-only approximation is best for small yield changes and becomes less accurate for large yield changes.</p>
+<section id="relationship-among-volatility-measures" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="relationship-among-volatility-measures"><span class="header-section-number">4.1</span> Relationship Among Volatility Measures</h2>
+<p>The main measures of bond price volatility are closely related:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Measure</th>
+<th>Interpretation</th>
+<th>Relationship</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Macaulay duration, <span class="math inline">\(D_M\)</span></td>
+<td>Present-value-weighted average time to cash flows</td>
+<td>Starting point for modified duration</td>
+</tr>
+<tr class="even">
+<td>Modified duration, <span class="math inline">\(D^*\)</span></td>
+<td>Approximate percentage price change for a small yield change</td>
+<td><span class="math inline">\(D^* = D_M / (1 + y/m)\)</span></td>
+</tr>
+<tr class="odd">
+<td>PVBP</td>
+<td>Dollar price change for a 1-basis-point yield change</td>
+<td><span class="math inline">\(\text{PVBP} \approx D^*P/10{,}000\)</span></td>
+</tr>
+<tr class="even">
+<td>Price-yield slope</td>
+<td>Absolute change in price for a change in yield</td>
+<td>Closely related to dollar duration</td>
+</tr>
+<tr class="odd">
+<td>Convexity</td>
+<td>Curvature of the price-yield relationship</td>
+<td>Improves the duration approximation for larger yield changes</td>
+</tr>
+</tbody>
+</table>
+<p>For bonds at or near par, a rough rule is:</p>
+<p><span class="math display">\[
+\text{PVBP} \approx \frac{D^*}{100}
+\]</span></p>
+<p>when price is quoted per $100 of par value.</p>
+</section>
+<section id="duration-as-a-tangent-line-approximation" class="level2" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="duration-as-a-tangent-line-approximation"><span class="header-section-number">4.2</span> Duration as a Tangent-Line Approximation</h2>
+<p>Duration estimates price changes using the tangent line to the price-yield curve at the initial yield <span class="math inline">\(y^*\)</span>. If we move away from <span class="math inline">\(y^*\)</span>, the tangent-line estimate differs from the actual curved price-yield relationship.</p>
+<p>For option-free bonds, the duration-only estimate usually understates the actual price:</p>
+<ul>
+<li>If yields fall, duration underestimates the price gain.</li>
+<li>If yields rise, duration overstates the price loss, so the estimated ending price is too low.</li>
+</ul>
+<p>The farther the yield moves from the starting yield, the larger this error becomes. Convexity corrects part of this error by adding curvature to the approximation.</p>
+<div id="09f86819" class="cell" data-message="false" data-execution_count="2">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="lec3_files/figure-html/cell-3-output-1.png" width="757" height="468" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="measuring-convexity" class="level2" data-number="4.3">
+<h2 data-number="4.3" class="anchored" data-anchor-id="measuring-convexity"><span class="header-section-number">4.3</span> Measuring Convexity</h2>
+<p>Using a Taylor series approximation, the price change can be written as:</p>
+<p><span class="math display">\[
+\Delta P
+\approx
+\frac{dP}{dy}\Delta y
++
+\frac{1}{2}\frac{d^2P}{dy^2}(\Delta y)^2.
+\]</span></p>
+<p>Dividing by price gives the approximate percentage price change:</p>
+<p><span class="math display">\[
+\frac{\Delta P}{P}
+\approx
+\frac{1}{P}\frac{dP}{dy}\Delta y
++
+\frac{1}{2P}\frac{d^2P}{dy^2}(\Delta y)^2.
+\]</span></p>
+<p>The first term is the duration effect:</p>
+<p><span class="math display">\[
+\frac{1}{P}\frac{dP}{dy}\Delta y
+=
+-D^*\Delta y.
+\]</span></p>
+<p>The second derivative captures convexity. The <strong>dollar convexity measure</strong> is:</p>
+<p><span class="math display">\[
+\text{Dollar convexity}
+=
+\frac{d^2P}{dy^2}.
+\]</span></p>
+<p>The <strong>convexity measure</strong> divides dollar convexity by price:</p>
+<p><span class="math display">\[
+\text{Convexity}
+=
+\frac{1}{P}\frac{d^2P}{dy^2}.
+\]</span></p>
+<p>Therefore, the duration-plus-convexity approximation is:</p>
+<p><span class="math display">\[
+\frac{\Delta P}{P}
+\approx
+-D^*\Delta y
++
+\frac{1}{2}\text{Convexity}(\Delta y)^2.
+\]</span></p>
+<p>For an option-free bond with cash flows <span class="math inline">\(CF_t\)</span>, the second derivative is:</p>
+<p><span class="math display">\[
+\frac{d^2P}{dy^2}
+=
+\sum_{t=1}^{n}
+\frac{t(t+1)CF_t}{(1+y)^{t+2}}.
+\]</span></p>
+<p>For bonds with semiannual coupons, the convexity calculation is first done in half-year periods. To annualize it, divide by <span class="math inline">\(m^2\)</span>, where <span class="math inline">\(m\)</span> is the number of coupon payments per year. For semiannual coupon bonds, divide by <span class="math inline">\(2^2 = 4\)</span>.</p>
+</section>
+<section id="convexity-of-the-hypothetical-bonds" class="level2" data-number="4.4">
+<h2 data-number="4.4" class="anchored" data-anchor-id="convexity-of-the-hypothetical-bonds"><span class="header-section-number">4.4</span> Convexity of the Hypothetical Bonds</h2>
+<p>The following table summarizes the convexity measures for the six hypothetical bonds used earlier. Values are annualized.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 26%">
+<col style="width: 26%">
+<col style="width: 26%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Bond</th>
+<th style="text-align: right;">Second Derivative</th>
+<th style="text-align: right;">Annualized Convexity Measure</th>
+<th style="text-align: right;">Annualized Dollar Convexity Measure</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>9% / 5-year</td>
+<td style="text-align: right;">7,781.02</td>
+<td style="text-align: right;">19.45</td>
+<td style="text-align: right;">$1,945.26</td>
+</tr>
+<tr class="even">
+<td>9% / 25-year</td>
+<td style="text-align: right;">64,288.42</td>
+<td style="text-align: right;">160.72</td>
+<td style="text-align: right;">$16,072.00</td>
+</tr>
+<tr class="odd">
+<td>6% / 5-year</td>
+<td style="text-align: right;">7,349.45</td>
+<td style="text-align: right;">20.85</td>
+<td style="text-align: right;">$1,837.36</td>
+</tr>
+<tr class="even">
+<td>6% / 25-year</td>
+<td style="text-align: right;">51,476.26</td>
+<td style="text-align: right;">182.92</td>
+<td style="text-align: right;">$12,869.70</td>
+</tr>
+<tr class="odd">
+<td>0% / 5-year</td>
+<td style="text-align: right;">6,486.30</td>
+<td style="text-align: right;">25.18</td>
+<td style="text-align: right;">$1,621.42</td>
+</tr>
+<tr class="even">
+<td>0% / 25-year</td>
+<td style="text-align: right;">25,851.93</td>
+<td style="text-align: right;">583.78</td>
+<td style="text-align: right;">$6,463.02</td>
+</tr>
+</tbody>
+</table>
+<p>The table shows two important patterns:</p>
+<ul>
+<li>For a given maturity and yield, lower-coupon bonds have greater convexity.</li>
+<li>Longer-maturity bonds usually have greater convexity than shorter-maturity bonds.</li>
+</ul>
+</section>
+<section id="approximating-percentage-price-change-using-duration-and-convexity" class="level2" data-number="4.5">
+<h2 data-number="4.5" class="anchored" data-anchor-id="approximating-percentage-price-change-using-duration-and-convexity"><span class="header-section-number">4.5</span> Approximating Percentage Price Change Using Duration and Convexity</h2>
+<p>The convexity term is positive for option-free bonds because <span class="math inline">\((\Delta y)^2\)</span> is positive whether yields rise or fall. Convexity therefore helps in both directions:</p>
+<ul>
+<li>When yields rise, convexity offsets part of the duration-based loss.</li>
+<li>When yields fall, convexity adds to the duration-based gain.</li>
+</ul>
+<div class="callout callout-style-default callout-note callout-titled" title="Example: Duration Plus Convexity">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Example: Duration Plus Convexity
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Consider the 25-year, 6% coupon bond selling to yield 9%.</p>
+<ul>
+<li>Modified duration = 10.62</li>
+<li>Convexity measure = 182.92</li>
+<li>Starting price = 70.357</li>
+</ul>
+<p>If the required yield rises by 200 basis points, then <span class="math inline">\(\Delta y = +0.02\)</span>.</p>
+<p>The duration effect is:</p>
+<p><span class="math display">\[
+-D^*\Delta y
+=
+-10.62(0.02)
+=
+-21.24\%.
+\]</span></p>
+<p>The convexity effect is:</p>
+<p><span class="math display">\[
+\frac{1}{2}(182.92)(0.02)^2
+=
+3.66\%.
+\]</span></p>
+<p>The estimated percentage price change is:</p>
+<p><span class="math display">\[
+-21.24\% + 3.66\%
+=
+-17.58\%.
+\]</span></p>
+<p>The actual price change from repricing the bond is approximately -18.03%, so adding convexity materially improves the duration-only estimate.</p>
+<p>If the required yield falls by 200 basis points, then <span class="math inline">\(\Delta y = -0.02\)</span>.</p>
+<p>The duration effect is:</p>
+<p><span class="math display">\[
+-10.62(-0.02)
+=
+21.24\%.
+\]</span></p>
+<p>The convexity effect is still positive:</p>
+<p><span class="math display">\[
+\frac{1}{2}(182.92)(-0.02)^2
+=
+3.66\%.
+\]</span></p>
+<p>The estimated percentage price change is:</p>
+<p><span class="math display">\[
+21.24\% + 3.66\%
+=
+24.90\%.
+\]</span></p>
+<p>The actual price change from repricing the bond is approximately 25.46%.</p>
+</div>
+</div>
+</section>
+<section id="notes-on-convexity-measures" class="level2" data-number="4.6">
+<h2 data-number="4.6" class="anchored" data-anchor-id="notes-on-convexity-measures"><span class="header-section-number">4.6</span> Notes on Convexity Measures</h2>
+<p>Three points are important.</p>
+<p>First, <strong>convexity</strong> can refer to the general shape of the price-yield relationship, while the <strong>convexity measure</strong> is the numerical estimate used in the price-change approximation.</p>
+<p>Second, convexity does not have the same simple interpretation as duration. A modified duration of 4 means an approximate 4% price change for a 100-basis-point change in yield. A convexity measure must be interpreted together with the squared yield change:</p>
+<p><span class="math display">\[
+\frac{1}{2}\text{Convexity}(\Delta y)^2.
+\]</span></p>
+<p>Third, different vendors and textbooks may scale convexity differently. Some define convexity as:</p>
+<p><span class="math display">\[
+\frac{1}{2P}\frac{d^2P}{dy^2}
+\]</span></p>
+<p>instead of:</p>
+<p><span class="math display">\[
+\frac{1}{P}\frac{d^2P}{dy^2}.
+\]</span></p>
+<p>This does not change the estimated price effect as long as the formula is used consistently.</p>
+</section>
+<section id="value-of-convexity" class="level2" data-number="4.7">
+<h2 data-number="4.7" class="anchored" data-anchor-id="value-of-convexity"><span class="header-section-number">4.7</span> Value of Convexity</h2>
+<p>Convexity has investment value. Suppose two option-free bonds have the same yield and the same duration, but Bond B has greater convexity than Bond A. If yields rise, Bond B should lose less. If yields fall, Bond B should gain more.</p>
+<p>Because of this payoff pattern, convexity has a market value. Investors who expect large interest-rate moves generally prefer more convex bonds because convexity helps in both directions: it increases the upside when yields fall and reduces the downside when yields rise. These investors are usually willing to pay for convexity by accepting a lower yield.</p>
+<p>The value of convexity depends on the investor’s view of future interest-rate volatility. If an investor expects rates to be volatile, extra convexity is valuable because the bond has more opportunity to benefit from large yield moves. If an investor expects rates to remain stable, extra convexity is less useful because the price-yield curve is being evaluated only near the current yield, where duration alone is already a good approximation.</p>
+<p>This creates a tradeoff. When the market price of convexity is high, a low-volatility investor may prefer to sell convexity by holding the less convex bond and earning a higher yield. A high-volatility investor may prefer to buy convexity, accepting a lower yield in exchange for better performance when yields move substantially.</p>
+<div id="37ed4587" class="cell" data-message="false" data-execution_count="3">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="lec3_files/figure-html/cell-4-output-1.png" width="757" height="468" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="properties-of-convexity" class="level2" data-number="4.8">
+<h2 data-number="4.8" class="anchored" data-anchor-id="properties-of-convexity"><span class="header-section-number">4.8</span> Properties of Convexity</h2>
+<p>All option-free bonds have positive convexity, but the amount of convexity depends on yield, maturity, coupon rate, and what comparison is being made.</p>
+<p><strong>Property 1: As required yield increases, convexity decreases. As required yield decreases, convexity increases.</strong></p>
+<p>This is the standard positive convexity property of option-free bonds. When yields rise, the price of the bond falls, but duration also declines. The lower duration slows the price decline. When yields fall, the price of the bond rises, and duration increases. The higher duration accelerates the price gain.</p>
+<p><strong>Intuition:</strong> The slope of the price-yield curve becomes flatter as yields rise and steeper as yields fall. A flatter tangent line means lower duration; a steeper tangent line means higher duration. Convexity measures how quickly that slope, or dollar duration, changes as yields move.</p>
+<p><strong>Property 2: For a given yield and maturity, the lower the coupon, the greater the convexity of a bond.</strong></p>
+<p>This property follows from the timing of cash flows. Lower-coupon bonds return less cash early and leave more value concentrated in later cash flows. Later cash flows are more sensitive to changes in the discount rate, so the price-yield curve bends more.</p>
+<p><strong>Intuition:</strong> A zero-coupon bond has all of its value in one distant payment, so its price is highly sensitive to changes in yield. A high-coupon bond returns more value through earlier coupon payments, which reduces curvature. This is why, among bonds with the same yield and maturity, the zero-coupon bond has the highest convexity and the high-coupon bond has the lowest convexity.</p>
+<div id="a714f82a" class="cell" data-message="false" data-execution_count="4">
+<div class="cell-output cell-output-display" data-execution_count="4">
+
+<div id="convexity-widget" style="max-width: 980px; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">
+  <div style="border: 1px solid #d6dde8; border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+    <div style="font-weight: 700; color: #1f77b4; margin-bottom: 8px;">Bond A</div>
+    <label>Yield (%) <input id="cw-yield-a" type="number" min="0.5" max="15" step="0.25" value="6" style="width: 80px;"></label>
+    <label style="margin-left: 12px;">Maturity <input id="cw-maturity-a" type="number" min="1" max="40" step="1" value="10" style="width: 70px;"></label>
+    <div style="margin-top: 10px;">
+      <label>Coupon: <span id="cw-coupon-a-label">2.0%</span></label>
+      <input id="cw-coupon-a" type="range" min="0" max="12" step="0.25" value="2" style="width: 100%;">
+    </div>
+    <div id="cw-metrics-a" style="margin-top: 8px; font-size: 0.92rem;"></div>
+  </div>
+  <svg id="cw-chart" viewbox="0 0 900 520" width="100%" height="520" role="img" aria-label="Interactive price-yield convexity graph"></svg>
+</div>
+
+<script>
+(function() {
+  const face = 100;
+  const ids = ["yield-a", "maturity-a", "coupon-a"];
+  const controls = Object.fromEntries(ids.map(id => [id, document.getElementById("cw-" + id)]));
+  const svg = document.getElementById("cw-chart");
+  const ns = "http://www.w3.org/2000/svg";
+
+  function value(id) {
+    return Number(controls[id].value);
+  }
+
+  function flows(couponPct, maturity) {
+    const n = Math.max(1, Math.round(maturity));
+    const coupon = face * couponPct / 100;
+    const result = [];
+    for (let t = 1; t <= n; t++) {
+      result.push({t, cf: coupon + (t === n ? face : 0)});
+    }
+    return result;
+  }
+
+  function price(couponPct, maturity, yieldPct) {
+    const y = yieldPct / 100;
+    return flows(couponPct, maturity).reduce((total, row) => {
+      return total + row.cf / Math.pow(1 + y, row.t);
+    }, 0);
+  }
+
+  function metrics(couponPct, maturity, yieldPct) {
+    const y = yieldPct / 100;
+    const rows = flows(couponPct, maturity);
+    const p = price(couponPct, maturity, yieldPct);
+    const macaulay = rows.reduce((total, row) => {
+      return total + row.t * row.cf / Math.pow(1 + y, row.t);
+    }, 0) / p;
+    const modified = macaulay / (1 + y);
+    const convexity = rows.reduce((total, row) => {
+      return total + row.t * (row.t + 1) * row.cf / Math.pow(1 + y, row.t + 2);
+    }, 0) / p;
+    return {price: p, macaulay, modified, convexity};
+  }
+
+  function make(tag, attrs = {}) {
+    const node = document.createElementNS(ns, tag);
+    Object.entries(attrs).forEach(([key, val]) => node.setAttribute(key, val));
+    return node;
+  }
+
+  function line(x1, y1, x2, y2, attrs = {}) {
+    svg.appendChild(make("line", {x1, y1, x2, y2, ...attrs}));
+  }
+
+  function text(x, y, content, attrs = {}) {
+    const node = make("text", {x, y, ...attrs});
+    node.textContent = content;
+    svg.appendChild(node);
+  }
+
+  function render() {
+    const a = {coupon: value("coupon-a"), maturity: value("maturity-a"), yield: value("yield-a"), color: "#1f77b4", label: "Bond A"};
+    document.getElementById("cw-coupon-a-label").textContent = a.coupon.toFixed(1) + "%";
+
+    const yieldGrid = Array.from({length: 140}, (_, i) => 1 + i * (13 / 139));
+    const curve = {
+      ...a,
+      points: yieldGrid.map(y => ({x: y, y: price(a.coupon, a.maturity, y)})),
+      metrics: metrics(a.coupon, a.maturity, a.yield)
+    };
+
+    const allPrices = curve.points.map(p => p.y);
+    const minPrice = Math.min(...allPrices);
+    const maxPrice = Math.max(...allPrices);
+    const pad = 55;
+    const width = 900;
+    const height = 520;
+    const left = 75;
+    const right = 30;
+    const top = 35;
+    const bottom = 65;
+    const plotW = width - left - right;
+    const plotH = height - top - bottom;
+    const xScale = x => left + (x - 1) / 13 * plotW;
+    const yScale = y => top + (maxPrice + pad - y) / (maxPrice - minPrice + 2 * pad) * plotH;
+
+    svg.innerHTML = "";
+    line(left, top, left, top + plotH, {stroke: "#333", "stroke-width": 1});
+    line(left, top + plotH, left + plotW, top + plotH, {stroke: "#333", "stroke-width": 1});
+    for (let x = 2; x <= 14; x += 2) {
+      const px = xScale(x);
+      line(px, top, px, top + plotH, {stroke: "#e8edf3", "stroke-width": 1});
+      text(px, top + plotH + 24, x + "%", {"font-size": 12, "text-anchor": "middle", fill: "#333"});
+    }
+    const yTicks = 5;
+    for (let i = 0; i <= yTicks; i++) {
+      const val = minPrice - pad + i * (maxPrice - minPrice + 2 * pad) / yTicks;
+      const py = yScale(val);
+      line(left, py, left + plotW, py, {stroke: "#e8edf3", "stroke-width": 1});
+      text(left - 10, py + 4, val.toFixed(0), {"font-size": 12, "text-anchor": "end", fill: "#333"});
+    }
+
+    const d = curve.points.map((p, i) => `${i === 0 ? "M" : "L"} ${xScale(p.x)} ${yScale(p.y)}`).join(" ");
+    svg.appendChild(make("path", {d, fill: "none", stroke: curve.color, "stroke-width": 3}));
+    const currentPrice = price(curve.coupon, curve.maturity, curve.yield);
+    svg.appendChild(make("circle", {cx: xScale(curve.yield), cy: yScale(currentPrice), r: 5, fill: curve.color}));
+    text(xScale(curve.yield) + 8, yScale(currentPrice) - 8, "Bond A at selected yield", {"font-size": 13, fill: curve.color, "font-weight": 700});
+
+    text(left + plotW / 2, height - 18, "Yield to maturity", {"font-size": 14, "text-anchor": "middle", fill: "#333"});
+    text(20, top + plotH / 2, "Price per $100 par", {"font-size": 14, "text-anchor": "middle", fill: "#333", transform: `rotate(-90 20 ${top + plotH / 2})`});
+    text(left, 22, "Price-yield relationship and convexity", {"font-size": 17, "font-weight": 700, fill: "#222"});
+
+    document.getElementById("cw-metrics-a").innerHTML =
+      `Price: <b>${curve.metrics.price.toFixed(2)}</b><br>` +
+      `Macaulay duration: <b>${curve.metrics.macaulay.toFixed(2)}</b><br>` +
+      `Modified duration: <b>${curve.metrics.modified.toFixed(2)}</b><br>` +
+      `Convexity: <b>${curve.metrics.convexity.toFixed(2)}</b>`;
+
+  }
+
+  Object.values(controls).forEach(input => input.addEventListener("input", render));
+  render();
+})();
+</script>
+</div>
+</div>
+<p><strong>Property 3: For a given yield and modified duration, the lower the coupon, the smaller the convexity.</strong></p>
+<p>This comparison holds duration constant rather than maturity. Under this comparison, lower-coupon bonds, including zero-coupon bonds, can have lower convexity than coupon bonds with the same modified duration.</p>
+<p><strong>Intuition:</strong> Holding maturity fixed and holding duration fixed are different comparisons. A zero-coupon bond has duration equal to its maturity, so matching a coupon bond’s modified duration may require comparing it with a shorter-maturity zero-coupon bond. That shorter maturity reduces curvature. The investment implication is that zero-coupon bonds have the lowest convexity for a given modified duration.</p>
+<div id="75b673bf" class="cell" data-message="false" data-execution_count="5">
+<div class="cell-output cell-output-display" data-execution_count="5">
+
+<div id="same-duration-widget" style="max-width: 980px; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">
+  <div style="border: 1px solid #d6dde8; border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+    <div style="font-weight: 700; color: #1f77b4; margin-bottom: 8px;">Same-Duration Convexity Comparison</div>
+    <label>Yield (%) <input id="sd-yield" type="number" min="0.5" max="15" step="0.25" value="6" style="width: 80px;"></label>
+    <label style="margin-left: 12px;">Target modified duration <input id="sd-duration" type="number" min="1" max="30" step="0.25" value="8" style="width: 80px;"></label>
+    <div style="margin-top: 10px;">
+      <label>Coupon: <span id="sd-coupon-label">4.0%</span></label>
+      <input id="sd-coupon" type="range" min="0" max="12" step="0.25" value="4" style="width: 100%;">
+    </div>
+    <div id="sd-metrics" style="margin-top: 8px; font-size: 0.92rem;"></div>
+  </div>
+  <svg id="sd-chart" viewbox="0 0 900 520" width="100%" height="520" role="img" aria-label="Interactive same-duration convexity graph"></svg>
+</div>
+
+<script>
+(function() {
+  const face = 100;
+  const controls = {
+    y: document.getElementById("sd-yield"),
+    duration: document.getElementById("sd-duration"),
+    coupon: document.getElementById("sd-coupon")
+  };
+  const svg = document.getElementById("sd-chart");
+  const ns = "http://www.w3.org/2000/svg";
+
+  function flows(couponPct, maturity) {
+    const n = Math.max(1, Math.round(maturity));
+    const coupon = face * couponPct / 100;
+    const result = [];
+    for (let t = 1; t <= n; t++) {
+      result.push({t, cf: coupon + (t === n ? face : 0)});
+    }
+    return result;
+  }
+
+  function price(couponPct, maturity, yieldPct) {
+    const y = yieldPct / 100;
+    return flows(couponPct, maturity).reduce((total, row) => {
+      return total + row.cf / Math.pow(1 + y, row.t);
+    }, 0);
+  }
+
+  function metrics(couponPct, maturity, yieldPct) {
+    const y = yieldPct / 100;
+    const rows = flows(couponPct, maturity);
+    const p = price(couponPct, maturity, yieldPct);
+    const macaulay = rows.reduce((total, row) => {
+      return total + row.t * row.cf / Math.pow(1 + y, row.t);
+    }, 0) / p;
+    const modified = macaulay / (1 + y);
+    const convexity = rows.reduce((total, row) => {
+      return total + row.t * (row.t + 1) * row.cf / Math.pow(1 + y, row.t + 2);
+    }, 0) / p;
+    return {price: p, macaulay, modified, convexity};
+  }
+
+  function closestMaturity(couponPct, yieldPct, targetDuration) {
+    let best = {maturity: 1, error: Infinity, metrics: metrics(couponPct, 1, yieldPct)};
+    for (let n = 1; n <= 80; n++) {
+      const m = metrics(couponPct, n, yieldPct);
+      const error = Math.abs(m.modified - targetDuration);
+      if (error < best.error) {
+        best = {maturity: n, error, metrics: m};
+      }
+    }
+    return best;
+  }
+
+  function make(tag, attrs = {}) {
+    const node = document.createElementNS(ns, tag);
+    Object.entries(attrs).forEach(([key, val]) => node.setAttribute(key, val));
+    return node;
+  }
+
+  function line(x1, y1, x2, y2, attrs = {}) {
+    svg.appendChild(make("line", {x1, y1, x2, y2, ...attrs}));
+  }
+
+  function text(x, y, content, attrs = {}) {
+    const node = make("text", {x, y, ...attrs});
+    node.textContent = content;
+    svg.appendChild(node);
+  }
+
+  function render() {
+    const yieldPct = Number(controls.y.value);
+    const targetDuration = Number(controls.duration.value);
+    const couponPct = Number(controls.coupon.value);
+    document.getElementById("sd-coupon-label").textContent = couponPct.toFixed(1) + "%";
+
+    const match = closestMaturity(couponPct, yieldPct, targetDuration);
+    const maturity = match.maturity;
+    const m = match.metrics;
+    const yieldGrid = Array.from({length: 140}, (_, i) => 1 + i * (13 / 139));
+    const points = yieldGrid.map(y => ({x: y, y: price(couponPct, maturity, y)}));
+
+    const allPrices = points.map(p => p.y);
+    const minPrice = Math.min(...allPrices);
+    const maxPrice = Math.max(...allPrices);
+    const pad = 55;
+    const width = 900;
+    const height = 520;
+    const left = 75;
+    const right = 30;
+    const top = 35;
+    const bottom = 65;
+    const plotW = width - left - right;
+    const plotH = height - top - bottom;
+    const xScale = x => left + (x - 1) / 13 * plotW;
+    const yScale = y => top + (maxPrice + pad - y) / (maxPrice - minPrice + 2 * pad) * plotH;
+
+    svg.innerHTML = "";
+    line(left, top, left, top + plotH, {stroke: "#333", "stroke-width": 1});
+    line(left, top + plotH, left + plotW, top + plotH, {stroke: "#333", "stroke-width": 1});
+    for (let x = 2; x <= 14; x += 2) {
+      const px = xScale(x);
+      line(px, top, px, top + plotH, {stroke: "#e8edf3", "stroke-width": 1});
+      text(px, top + plotH + 24, x + "%", {"font-size": 12, "text-anchor": "middle", fill: "#333"});
+    }
+    for (let i = 0; i <= 5; i++) {
+      const val = minPrice - pad + i * (maxPrice - minPrice + 2 * pad) / 5;
+      const py = yScale(val);
+      line(left, py, left + plotW, py, {stroke: "#e8edf3", "stroke-width": 1});
+      text(left - 10, py + 4, val.toFixed(0), {"font-size": 12, "text-anchor": "end", fill: "#333"});
+    }
+
+    const d = points.map((p, i) => `${i === 0 ? "M" : "L"} ${xScale(p.x)} ${yScale(p.y)}`).join(" ");
+    svg.appendChild(make("path", {d, fill: "none", stroke: "#1f77b4", "stroke-width": 3}));
+    const currentPrice = price(couponPct, maturity, yieldPct);
+    svg.appendChild(make("circle", {cx: xScale(yieldPct), cy: yScale(currentPrice), r: 5, fill: "#1f77b4"}));
+    text(xScale(yieldPct) + 8, yScale(currentPrice) - 8, "Selected yield", {"font-size": 13, fill: "#1f77b4", "font-weight": 700});
+
+    text(left + plotW / 2, height - 18, "Yield to maturity", {"font-size": 14, "text-anchor": "middle", fill: "#333"});
+    text(20, top + plotH / 2, "Price per $100 par", {"font-size": 14, "text-anchor": "middle", fill: "#333", transform: `rotate(-90 20 ${top + plotH / 2})`});
+    text(left, 22, "Price-yield curve for selected coupon at target duration", {"font-size": 17, "font-weight": 700, fill: "#222"});
+
+    document.getElementById("sd-metrics").innerHTML =
+      `Implied maturity closest to target duration: <b>${maturity} years</b><br>` +
+      `Price: <b>${m.price.toFixed(2)}</b><br>` +
+      `Macaulay duration: <b>${m.macaulay.toFixed(2)}</b><br>` +
+      `Modified duration: <b>${m.modified.toFixed(2)}</b> ` +
+      `(target: ${targetDuration.toFixed(2)})<br>` +
+      `Convexity: <b>${m.convexity.toFixed(2)}</b>`;
+  }
+
+  Object.values(controls).forEach(input => input.addEventListener("input", render));
+  render();
+})();
+</script>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="additional-concerns-when-using-duration" class="level1" data-number="5">
+<h1 data-number="5"><span class="header-section-number">5</span> Additional Concerns When Using Duration</h1>
+<p>Duration is useful, but it has limitations:</p>
+<ul>
+<li>It is a local approximation and works best for small yield changes.</li>
+<li>It assumes parallel shifts in the yield curve unless modified.</li>
+<li>For bonds with embedded options, duration can change sharply when yields change.</li>
+<li>It does not capture curvature unless convexity is added.</li>
+</ul>
+<p>The parallel-shift assumption is especially important. A single duration number assumes that all relevant yields move by the same number of basis points. Real yield curves often twist: short rates may rise while long rates fall, or intermediate rates may move more than both ends. A portfolio with bonds across maturities can therefore experience a value change that is poorly described by one duration number.</p>
+<p>The embedded-option issue is also important. A callable bond may have cash flows that change when yields fall because the issuer becomes more likely to call the bond. In these cases, the price-yield relationship can depart from the option-free pattern, and effective duration is usually needed.</p>
+<p>Practical takeaway: duration is a useful first risk measure, not a complete risk model.</p>
+<hr>
+</section>
+<section id="do-not-think-of-duration-as-a-measure-of-time" class="level1" data-number="6">
+<h1 data-number="6"><span class="header-section-number">6</span> Do Not Think of Duration as a Measure of Time</h1>
+<p>Although Macaulay duration has units of time, duration should not be interpreted simply as “time to maturity” or “average life” in a casual sense.</p>
+<p>For risk management purposes, duration is best understood as a <strong>measure of price sensitivity to yield changes</strong>, not merely as a measure of time.</p>
+<p>This distinction prevents confusion. Some securities can have duration greater than their legal maturity or even negative duration. That would make little sense if duration were only a time measure, but it makes sense if duration is a price-sensitivity measure.</p>
+<p>For example, an inverse floater can have a duration of 40 even if the collateral has a 30-year maturity. The interpretation is not that the instrument has a 40-year life. The interpretation is that a 100-basis-point rate change may change the value by roughly 40%.</p>
+<p>When in doubt, use the operational interpretation:</p>
+<p><span class="math display">\[
+\text{Duration} \approx \text{percentage price sensitivity to a 100-basis-point yield change}.
+\]</span></p>
+<hr>
+</section>
+<section id="approximating-a-bonds-duration-and-convexity-measure" class="level1" data-number="7">
+<h1 data-number="7"><span class="header-section-number">7</span> Approximating a Bond’s Duration and Convexity Measure</h1>
+<p>In practice, duration and convexity are often approximated numerically by repricing the bond at yields above and below the current yield.</p>
+<p>This is the standard approach in commercial analytics. Instead of manually differentiating a price formula, the analyst shocks the relevant yield or curve, reprices the security, and converts the price response into duration and convexity. This works for plain bonds and can also work for complex securities if the pricing model handles changing cash flows.</p>
+<p>An empirical approximation to duration is</p>
+<p><span class="math display">\[
+D^* \approx \frac{P_- - P_+}{2P_0 \Delta y}
+\]</span></p>
+<p>where:</p>
+<ul>
+<li><span class="math inline">\(P_-\)</span> = price if yield decreases</li>
+<li><span class="math inline">\(P_+\)</span> = price if yield increases</li>
+<li><span class="math inline">\(P_0\)</span> = current price</li>
+</ul>
+<p>An empirical approximation to convexity is</p>
+<p><span class="math display">\[
+\text{Convexity} \approx \frac{P_- + P_+ - 2P_0}{P_0 (\Delta y)^2}
+\]</span></p>
+<div class="callout callout-style-default callout-note callout-titled" title="Example: Numerical Duration and Convexity">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Example: Numerical Duration and Convexity
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Suppose a bond has:</p>
+<ul>
+<li>Current price <span class="math inline">\(P_0 = 70.3570\)</span></li>
+<li>Price if yield falls by 10 basis points: <span class="math inline">\(P_- = 71.1105\)</span></li>
+<li>Price if yield rises by 10 basis points: <span class="math inline">\(P_+ = 69.6164\)</span></li>
+<li><span class="math inline">\(\Delta y = 0.001\)</span></li>
+</ul>
+<p>Approximate duration is</p>
+<p><span class="math display">\[
+D^*
+\approx
+\frac{71.1105 - 69.6164}{2(70.3570)(0.001)}
+= 10.62.
+\]</span></p>
+<p>Approximate convexity is</p>
+<p><span class="math display">\[
+\frac{71.1105 + 69.6164 - 2(70.3570)}
+{70.3570(0.001)^2}
+= 183.3.
+\]</span></p>
+<p>These numerical estimates are close to the formula-based values for an option-free bond.</p>
+</div>
+</div>
+<section id="duration-of-an-inverse-floater" class="level2" data-number="7.1">
+<h2 data-number="7.1" class="anchored" data-anchor-id="duration-of-an-inverse-floater"><span class="header-section-number">7.1</span> Duration of an Inverse Floater</h2>
+<p>The duration of an inverse floater can be very large because its coupon moves inversely with rates. The bond’s cash flows become more favorable when rates fall and less favorable when rates rise, increasing price sensitivity.</p>
+<p>An inverse floater is often created by splitting collateral into a floater and an inverse floater. The floater receives coupons that move with rates. The inverse floater receives the residual cash flow, so its coupon moves in the opposite direction.</p>
+<p>If the floater’s duration is close to zero, the inverse floater absorbs most of the interest-rate exposure of the collateral. A useful approximation is:</p>
+<p><span class="math display">\[
+\text{Duration of inverse floater}
+=
+(1+L)
+(\text{duration of collateral})
+\times
+\frac{\text{collateral price}}{\text{inverse price}},
+\]</span></p>
+<p>where <span class="math inline">\(L\)</span> is the ratio of floater par value to inverse floater par value.</p>
+<p>Example: if $100 million of collateral is split into an $80 million floater and a $20 million inverse floater, then <span class="math inline">\(L=4\)</span>. If both trade near par and the collateral duration is 8, the inverse floater duration is approximately</p>
+<p><span class="math display">\[
+(1+4)(8)=40.
+\]</span></p>
+<p>The inverse floater is therefore a leveraged exposure to the collateral’s rate sensitivity.</p>
+<hr>
+</section>
+</section>
+<section id="measuring-a-bond-portfolios-responsiveness-to-nonparallel-changes-in-interest-rates" class="level1" data-number="8">
+<h1 data-number="8"><span class="header-section-number">8</span> Measuring a Bond Portfolio’s Responsiveness to Nonparallel Changes in Interest Rates</h1>
+<p>When the yield curve changes in a nonparallel way, standard duration is not enough. A portfolio can be exposed differently to short-, intermediate-, and long-term rates.</p>
+<p>A parallel shift means every maturity point on the yield curve moves by the same number of basis points. Many real-world moves are nonparallel.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Yield Curve Movements: Steepening, Flattening, Twists, and Curvature">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Yield Curve Movements: Steepening, Flattening, Twists, and Curvature
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The yield curve does not always move in parallel. Most real-world changes can be understood as combinations of <strong>level, slope, and curvature</strong> shifts.</p>
+<hr>
+<p><strong>1. Parallel Shift (Level Move)</strong></p>
+<ul>
+<li>All yields increase or decrease by roughly the same amount</li>
+<li>Driven by broad macro factors (e.g., monetary policy, inflation expectations)</li>
+</ul>
+<p><span class="math display">\[
+y(T) \rightarrow y(T) + \Delta
+\]</span></p>
+<hr>
+<p><strong>2. Steepening (Slope Increases)</strong></p>
+<ul>
+<li>Long-term yields move <strong>more than</strong> short-term yields</li>
+</ul>
+<p>Types:</p>
+<ul>
+<li><strong>Bear steepening</strong>: long rates ↑ more than short rates</li>
+<li><strong>Bull steepening</strong>: short rates ↓ more than long rates</li>
+</ul>
+<p><span class="math display">\[
+y(10y) - y(2y) \uparrow
+\]</span></p>
+<hr>
+<p><strong>3. Flattening (Slope Decreases)</strong></p>
+<ul>
+<li>Short-term and long-term yields move closer together</li>
+</ul>
+<p>Types:</p>
+<ul>
+<li><strong>Bear flattening</strong>: short rates ↑ more than long rates</li>
+<li><strong>Bull flattening</strong>: long rates ↓ more than short rates</li>
+</ul>
+<p><span class="math display">\[
+y(10y) - y(2y) \downarrow
+\]</span></p>
+<hr>
+<p><strong>4. Twist (General Rotation)</strong></p>
+<ul>
+<li>One end of the curve rises while the other falls</li>
+<li>Includes steepening and flattening as special cases</li>
+</ul>
+<p><span class="math display">\[
+y(T) \rightarrow y(T) + a + b \cdot T
+\]</span></p>
+<ul>
+<li><span class="math inline">\(a\)</span>: level shift</li>
+<li><span class="math inline">\(b\)</span>: slope change</li>
+</ul>
+<hr>
+<p><strong>5. Butterfly (Curvature Change)</strong></p>
+<ul>
+<li>Middle maturities move differently from short and long ends</li>
+</ul>
+<p>Example:</p>
+<ul>
+<li>Short rates ↓</li>
+<li>Intermediate rates ↑</li>
+<li>Long rates ↓</li>
+</ul>
+<p>Measure:</p>
+<p><span class="math display">\[
+2 y(5y) - y(2y) - y(10y)
+\]</span></p>
+<hr>
+<p><strong>Key Insight</strong> Most yield curve movements can be decomposed into:</p>
+<ul>
+<li><strong>Level</strong> → parallel shifts</li>
+<li><strong>Slope</strong> → steepening/flattening</li>
+<li><strong>Curvature</strong> → butterfly effects</li>
+</ul>
+<p>These components form the basis for interest rate risk management and relative value trading.</p>
+</div>
+</div>
+<p>For portfolios with bonds across the maturity spectrum, these distinctions matter. A barbell portfolio and a bullet portfolio can have the same total duration but react very differently to a curve twist.</p>
+<section id="yield-curve-reshaping-duration" class="level2" data-number="8.1">
+<h2 data-number="8.1" class="anchored" data-anchor-id="yield-curve-reshaping-duration"><span class="header-section-number">8.1</span> Yield Curve Reshaping Duration</h2>
+<p><strong>Yield curve reshaping duration</strong> measures the responsiveness of a portfolio to twists, steepenings, flattenings, and other nonparallel curve movements.</p>
+<p>This is especially important for active bond portfolio management.</p>
+<p>One approach separates the curve into segments. For example, a manager may define:</p>
+<ul>
+<li>Short-end slope as the 10-year yield minus the 2-year yield.</li>
+<li>Long-end slope as the 30-year yield minus the 10-year yield.</li>
+</ul>
+<p>The portfolio can then be repriced under a steepening and flattening of each segment. The resulting measures summarize how much portfolio value changes when the shape of the curve changes, not merely when the whole curve shifts up or down.</p>
+<p>For the short end, the approximation has the same structure as numerical duration:</p>
+<p><span class="math display">\[
+SEDUR
+=
+\frac{V_{SE,S} - V_{SE,F}}{2V_0\Delta y},
+\]</span></p>
+<p>where <span class="math inline">\(V_{SE,S}\)</span> is portfolio value after a short-end steepening, <span class="math inline">\(V_{SE,F}\)</span> is portfolio value after a short-end flattening, and <span class="math inline">\(V_0\)</span> is the initial portfolio value.</p>
+<p>For the long end:</p>
+<p><span class="math display">\[
+LEDUR
+=
+\frac{V_{LE,F} - V_{LE,S}}{2V_0\Delta y}.
+\]</span></p>
+<p>The interpretation is similar to duration: SEDUR and LEDUR approximate the percentage change in portfolio value for a 100-basis-point change in the relevant yield-curve slope.</p>
+</section>
+<section id="key-rate-duration" class="level2" data-number="8.2">
+<h2 data-number="8.2" class="anchored" data-anchor-id="key-rate-duration"><span class="header-section-number">8.2</span> Key Rate Duration</h2>
+<p><strong>Key rate duration</strong> measures the sensitivity of a bond’s price to changes in a specific maturity point on the yield curve, holding other points constant.</p>
+<p>This is essential when yield curve shifts are not parallel.</p>
+<p>Instead of summarizing interest-rate risk with one number, key rate duration produces a vector of exposures. Common key rates include 3 months, 1 year, 2 years, 5 years, 10 years, and 30 years. A portfolio can have the same total duration as another portfolio but very different key rate exposures.</p>
+<p>Example: two portfolios may both have duration of 4.3. One may be exposed mainly to the 2-year and 30-year points, while the other is exposed mainly to the 5-year point. If only the 30-year yield rises, their performance will differ even though their total duration is the same.</p>
+<p>A key rate duration of 0.675 at the 30-year maturity means the portfolio value is expected to change by about 0.675% for a 100-basis-point change in the 30-year rate, holding the rest of the curve fixed.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Example: Same Total Duration, Different Key Rate Exposures">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Example: Same Total Duration, Different Key Rate Exposures
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Suppose two portfolios both have total duration of 4.30, but their exposure is distributed differently across the yield curve.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Key rate</th>
+<th style="text-align: right;">Portfolio A: Barbell</th>
+<th style="text-align: right;">Portfolio B: Bullet</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>2-year</td>
+<td style="text-align: right;">1.40</td>
+<td style="text-align: right;">0.20</td>
+</tr>
+<tr class="even">
+<td>5-year</td>
+<td style="text-align: right;">0.30</td>
+<td style="text-align: right;">3.50</td>
+</tr>
+<tr class="odd">
+<td>10-year</td>
+<td style="text-align: right;">0.60</td>
+<td style="text-align: right;">0.50</td>
+</tr>
+<tr class="even">
+<td>30-year</td>
+<td style="text-align: right;">2.00</td>
+<td style="text-align: right;">0.10</td>
+</tr>
+<tr class="odd">
+<td><strong>Total duration</strong></td>
+<td style="text-align: right;"><strong>4.30</strong></td>
+<td style="text-align: right;"><strong>4.30</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Portfolio A is a <strong>barbell</strong>: it has more exposure at the short and long ends of the curve. Portfolio B is a <strong>bullet</strong>: it has most of its exposure around the 5-year point.</p>
+<p>If the entire yield curve shifts up by 100 basis points, both portfolios lose about 4.30%. But if only one maturity point moves, their performance can be very different:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 27%">
+<col style="width: 36%">
+<col style="width: 36%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Yield curve shock</th>
+<th style="text-align: right;">Portfolio A estimated price change</th>
+<th style="text-align: right;">Portfolio B estimated price change</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Parallel +100 bp</td>
+<td style="text-align: right;">-4.30%</td>
+<td style="text-align: right;">-4.30%</td>
+</tr>
+<tr class="even">
+<td>5-year rate +100 bp only</td>
+<td style="text-align: right;">-0.30%</td>
+<td style="text-align: right;">-3.50%</td>
+</tr>
+<tr class="odd">
+<td>30-year rate +100 bp only</td>
+<td style="text-align: right;">-2.00%</td>
+<td style="text-align: right;">-0.10%</td>
+</tr>
+</tbody>
+</table>
+<p>The lesson is that total duration hides where the interest-rate exposure is located. Key rate duration shows the portfolio’s exposure to specific maturity points on the curve.</p>
+</div>
+</div>
+<div id="43e45b11" class="cell" data-message="false" data-execution_count="6">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="lec3_files/figure-html/cell-7-output-1.png" width="949" height="373" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="key-points" class="level1 unnumbered">
+<h1 class="unnumbered">Key Points</h1>
+<ul>
+<li>Option-free bond prices move inversely with required yields because higher yields discount fixed cash flows more heavily.</li>
+<li>The price-yield relationship is convex, not linear. Price gains from yield decreases are larger than price losses from equal-sized yield increases.</li>
+<li>Price volatility differs across bonds. Longer maturity, lower coupon, and lower starting yield generally increase price sensitivity.</li>
+<li>PVBP measures the dollar price change for a one-basis-point yield change; YVPC asks how much yield must change to produce a given price change.</li>
+<li>Macaulay duration is a present-value-weighted average time to cash flows. Modified duration converts that timing measure into approximate percentage price sensitivity.</li>
+<li>Duration is a local, first-order approximation. It works best for small yield changes around the current yield.</li>
+<li>Duration should be interpreted as a measure of price sensitivity, not simply as a measure of time.</li>
+<li>Convexity measures the curvature of the price-yield relationship and improves price-change estimates for larger yield moves.</li>
+<li>Positive convexity helps option-free bond investors: it reduces losses when yields rise and increases gains when yields fall, relative to a duration-only estimate.</li>
+<li>Convexity has value when interest-rate volatility is expected to be high; investors often accept lower yield to own more convex bonds.</li>
+<li>Portfolio duration is the market-value-weighted average of individual bond durations. Contribution to duration shows which bonds or sectors drive total interest-rate exposure.</li>
+<li>A portfolio can have nearly the same total duration as a benchmark but different sector or key-rate exposures.</li>
+<li>Spread duration measures sensitivity to changes in credit or sector spreads, holding benchmark Treasury rates constant.</li>
+<li>Analytical duration is formula-based; empirical duration is estimated by repricing under yield shocks and is useful when cash flows are uncertain or model-dependent.</li>
+<li>Key rate duration and yield curve reshaping duration are needed when yield curve changes are nonparallel, such as steepenings, flattenings, and butterfly shifts.</li>
+</ul>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/aliboloor\.github\.io\/BUS411\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

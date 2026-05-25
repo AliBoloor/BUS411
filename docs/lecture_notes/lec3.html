@@ -23,7 +23,7 @@ ul.task-list li input[type="checkbox"] {
 </style>
 
 
-<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="../site_libs/quarto-nav/quarto-nav.js"></script>
 <script src="../site_libs/quarto-nav/headroom.min.js"></script>
 <script src="../site_libs/clipboard/clipboard.min.js"></script>
 <script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
@@ -72,6 +72,9 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
@@ -441,56 +444,26 @@ window.Quarto = {
   </ul></li>
   <li><a href="#convexity" id="toc-convexity" class="nav-link" data-scroll-target="#convexity"><span class="header-section-number">4</span> Convexity</a>
   <ul class="collapse">
-  <li><a href="#intuition-and-formula" id="toc-intuition-and-formula" class="nav-link" data-scroll-target="#intuition-and-formula"><span class="header-section-number">4.1</span> Intuition and Formula</a></li>
-  <li><a href="#measuring-convexity" id="toc-measuring-convexity" class="nav-link" data-scroll-target="#measuring-convexity"><span class="header-section-number">4.2</span> Measuring Convexity</a></li>
-  <li><a href="#approximating-percentage-price-change-using-duration-and-convexity" id="toc-approximating-percentage-price-change-using-duration-and-convexity" class="nav-link" data-scroll-target="#approximating-percentage-price-change-using-duration-and-convexity"><span class="header-section-number">4.3</span> Approximating Percentage Price Change Using Duration and Convexity</a></li>
-  <li><a href="#value-of-convexity" id="toc-value-of-convexity" class="nav-link" data-scroll-target="#value-of-convexity"><span class="header-section-number">4.4</span> Value of Convexity</a></li>
-  <li><a href="#properties-of-convexity" id="toc-properties-of-convexity" class="nav-link" data-scroll-target="#properties-of-convexity"><span class="header-section-number">4.5</span> Properties of Convexity</a></li>
+  <li><a href="#relationship-among-volatility-measures" id="toc-relationship-among-volatility-measures" class="nav-link" data-scroll-target="#relationship-among-volatility-measures"><span class="header-section-number">4.1</span> Relationship Among Volatility Measures</a></li>
+  <li><a href="#duration-as-a-tangent-line-approximation" id="toc-duration-as-a-tangent-line-approximation" class="nav-link" data-scroll-target="#duration-as-a-tangent-line-approximation"><span class="header-section-number">4.2</span> Duration as a Tangent-Line Approximation</a></li>
+  <li><a href="#measuring-convexity" id="toc-measuring-convexity" class="nav-link" data-scroll-target="#measuring-convexity"><span class="header-section-number">4.3</span> Measuring Convexity</a></li>
+  <li><a href="#convexity-of-the-hypothetical-bonds" id="toc-convexity-of-the-hypothetical-bonds" class="nav-link" data-scroll-target="#convexity-of-the-hypothetical-bonds"><span class="header-section-number">4.4</span> Convexity of the Hypothetical Bonds</a></li>
+  <li><a href="#approximating-percentage-price-change-using-duration-and-convexity" id="toc-approximating-percentage-price-change-using-duration-and-convexity" class="nav-link" data-scroll-target="#approximating-percentage-price-change-using-duration-and-convexity"><span class="header-section-number">4.5</span> Approximating Percentage Price Change Using Duration and Convexity</a></li>
+  <li><a href="#notes-on-convexity-measures" id="toc-notes-on-convexity-measures" class="nav-link" data-scroll-target="#notes-on-convexity-measures"><span class="header-section-number">4.6</span> Notes on Convexity Measures</a></li>
+  <li><a href="#value-of-convexity" id="toc-value-of-convexity" class="nav-link" data-scroll-target="#value-of-convexity"><span class="header-section-number">4.7</span> Value of Convexity</a></li>
+  <li><a href="#properties-of-convexity" id="toc-properties-of-convexity" class="nav-link" data-scroll-target="#properties-of-convexity"><span class="header-section-number">4.8</span> Properties of Convexity</a></li>
   </ul></li>
   <li><a href="#additional-concerns-when-using-duration" id="toc-additional-concerns-when-using-duration" class="nav-link" data-scroll-target="#additional-concerns-when-using-duration"><span class="header-section-number">5</span> Additional Concerns When Using Duration</a></li>
   <li><a href="#do-not-think-of-duration-as-a-measure-of-time" id="toc-do-not-think-of-duration-as-a-measure-of-time" class="nav-link" data-scroll-target="#do-not-think-of-duration-as-a-measure-of-time"><span class="header-section-number">6</span> Do Not Think of Duration as a Measure of Time</a></li>
   <li><a href="#approximating-a-bonds-duration-and-convexity-measure" id="toc-approximating-a-bonds-duration-and-convexity-measure" class="nav-link" data-scroll-target="#approximating-a-bonds-duration-and-convexity-measure"><span class="header-section-number">7</span> Approximating a Bond’s Duration and Convexity Measure</a>
   <ul class="collapse">
   <li><a href="#duration-of-an-inverse-floater" id="toc-duration-of-an-inverse-floater" class="nav-link" data-scroll-target="#duration-of-an-inverse-floater"><span class="header-section-number">7.1</span> Duration of an Inverse Floater</a></li>
-  <li><a href="#key-rate-duration" id="toc-key-rate-duration" class="nav-link" data-scroll-target="#key-rate-duration"><span class="header-section-number">7.2</span> Key Rate Duration</a></li>
   </ul></li>
   <li><a href="#measuring-a-bond-portfolios-responsiveness-to-nonparallel-changes-in-interest-rates" id="toc-measuring-a-bond-portfolios-responsiveness-to-nonparallel-changes-in-interest-rates" class="nav-link" data-scroll-target="#measuring-a-bond-portfolios-responsiveness-to-nonparallel-changes-in-interest-rates"><span class="header-section-number">8</span> Measuring a Bond Portfolio’s Responsiveness to Nonparallel Changes in Interest Rates</a>
   <ul class="collapse">
   <li><a href="#yield-curve-reshaping-duration" id="toc-yield-curve-reshaping-duration" class="nav-link" data-scroll-target="#yield-curve-reshaping-duration"><span class="header-section-number">8.1</span> Yield Curve Reshaping Duration</a></li>
+  <li><a href="#key-rate-duration" id="toc-key-rate-duration" class="nav-link" data-scroll-target="#key-rate-duration"><span class="header-section-number">8.2</span> Key Rate Duration</a></li>
   </ul></li>
-  <li><a href="#the-asset-allocation-decision" id="toc-the-asset-allocation-decision" class="nav-link" data-scroll-target="#the-asset-allocation-decision"><span class="header-section-number">9</span> The Asset Allocation Decision</a>
-  <ul class="collapse">
-  <li><a href="#how-much-should-be-allocated-to-bonds" id="toc-how-much-should-be-allocated-to-bonds" class="nav-link" data-scroll-target="#how-much-should-be-allocated-to-bonds"><span class="header-section-number">9.1</span> How Much Should Be Allocated to Bonds?</a></li>
-  <li><a href="#who-should-manage-the-bond-portfolio" id="toc-who-should-manage-the-bond-portfolio" class="nav-link" data-scroll-target="#who-should-manage-the-bond-portfolio"><span class="header-section-number">9.2</span> Who Should Manage the Bond Portfolio?</a></li>
-  </ul></li>
-  <li><a href="#portfolio-management-team" id="toc-portfolio-management-team" class="nav-link" data-scroll-target="#portfolio-management-team"><span class="header-section-number">10</span> Portfolio Management Team</a></li>
-  <li><a href="#spectrum-of-bond-portfolio-strategies" id="toc-spectrum-of-bond-portfolio-strategies" class="nav-link" data-scroll-target="#spectrum-of-bond-portfolio-strategies"><span class="header-section-number">11</span> Spectrum of Bond Portfolio Strategies</a>
-  <ul class="collapse">
-  <li><a href="#bond-benchmark-based-strategies" id="toc-bond-benchmark-based-strategies" class="nav-link" data-scroll-target="#bond-benchmark-based-strategies"><span class="header-section-number">11.1</span> Bond Benchmark-Based Strategies</a></li>
-  <li><a href="#absolute-return-strategies" id="toc-absolute-return-strategies" class="nav-link" data-scroll-target="#absolute-return-strategies"><span class="header-section-number">11.2</span> Absolute Return Strategies</a></li>
-  <li><a href="#liability-driven-strategies" id="toc-liability-driven-strategies" class="nav-link" data-scroll-target="#liability-driven-strategies"><span class="header-section-number">11.3</span> Liability-Driven Strategies</a></li>
-  </ul></li>
-  <li><a href="#bond-benchmarks" id="toc-bond-benchmarks" class="nav-link" data-scroll-target="#bond-benchmarks"><span class="header-section-number">12</span> Bond Benchmarks</a>
-  <ul class="collapse">
-  <li><a href="#bond-market-indexes" id="toc-bond-market-indexes" class="nav-link" data-scroll-target="#bond-market-indexes"><span class="header-section-number">12.1</span> Bond Market Indexes</a></li>
-  <li><a href="#market-capitalization-weighted-bond-indexes" id="toc-market-capitalization-weighted-bond-indexes" class="nav-link" data-scroll-target="#market-capitalization-weighted-bond-indexes"><span class="header-section-number">12.2</span> Market-Capitalization-Weighted Bond Indexes</a></li>
-  <li><a href="#commonly-used-bond-market-indexes" id="toc-commonly-used-bond-market-indexes" class="nav-link" data-scroll-target="#commonly-used-bond-market-indexes"><span class="header-section-number">12.3</span> Commonly Used Bond Market Indexes</a></li>
-  <li><a href="#problems-associated-with-market-cap-weighted-bond-indexes" id="toc-problems-associated-with-market-cap-weighted-bond-indexes" class="nav-link" data-scroll-target="#problems-associated-with-market-cap-weighted-bond-indexes"><span class="header-section-number">12.4</span> Problems Associated with Market-Cap-Weighted Bond Indexes</a></li>
-  <li><a href="#customized-bond-indexes" id="toc-customized-bond-indexes" class="nav-link" data-scroll-target="#customized-bond-indexes"><span class="header-section-number">12.5</span> Customized Bond Indexes</a></li>
-  <li><a href="#alternative-bond-indexes" id="toc-alternative-bond-indexes" class="nav-link" data-scroll-target="#alternative-bond-indexes"><span class="header-section-number">12.6</span> Alternative Bond Indexes</a></li>
-  <li><a href="#ad-hoc-weighted-index" id="toc-ad-hoc-weighted-index" class="nav-link" data-scroll-target="#ad-hoc-weighted-index"><span class="header-section-number">12.7</span> Ad Hoc Weighted Index</a></li>
-  <li><a href="#risk-based-schemes" id="toc-risk-based-schemes" class="nav-link" data-scroll-target="#risk-based-schemes"><span class="header-section-number">12.8</span> Risk-Based Schemes</a></li>
-  </ul></li>
-  <li><a href="#the-primary-risk-factors" id="toc-the-primary-risk-factors" class="nav-link" data-scroll-target="#the-primary-risk-factors"><span class="header-section-number">13</span> The Primary Risk Factors</a></li>
-  <li><a href="#top-down-versus-bottom-up-portfolio-construction-and-management" id="toc-top-down-versus-bottom-up-portfolio-construction-and-management" class="nav-link" data-scroll-target="#top-down-versus-bottom-up-portfolio-construction-and-management"><span class="header-section-number">14</span> Top-Down versus Bottom-Up Portfolio Construction and Management</a>
-  <ul class="collapse">
-  <li><a href="#manager-expectations-versus-the-market-consensus" id="toc-manager-expectations-versus-the-market-consensus" class="nav-link" data-scroll-target="#manager-expectations-versus-the-market-consensus"><span class="header-section-number">14.1</span> Manager Expectations versus the Market Consensus</a></li>
-  <li><a href="#interest-rate-expectations-strategies" id="toc-interest-rate-expectations-strategies" class="nav-link" data-scroll-target="#interest-rate-expectations-strategies"><span class="header-section-number">14.2</span> Interest-Rate Expectations Strategies</a></li>
-  <li><a href="#yield-curve-strategies" id="toc-yield-curve-strategies" class="nav-link" data-scroll-target="#yield-curve-strategies"><span class="header-section-number">14.3</span> Yield Curve Strategies</a></li>
-  </ul></li>
-  <li><a href="#active-portfolio-strategies" id="toc-active-portfolio-strategies" class="nav-link" data-scroll-target="#active-portfolio-strategies"><span class="header-section-number">15</span> Active Portfolio Strategies</a></li>
-  <li><a href="#smart-beta-bond-strategies" id="toc-smart-beta-bond-strategies" class="nav-link" data-scroll-target="#smart-beta-bond-strategies"><span class="header-section-number">16</span> Smart Beta Bond Strategies</a></li>
-  <li><a href="#the-use-of-leverage" id="toc-the-use-of-leverage" class="nav-link" data-scroll-target="#the-use-of-leverage"><span class="header-section-number">17</span> The Use of Leverage</a></li>
   <li><a href="#key-points" id="toc-key-points" class="nav-link" data-scroll-target="#key-points">Key Points</a></li>
   </ul>
 <div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="lec3.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></nav>
@@ -749,7 +722,7 @@ P = \frac{60}{1.07} + \frac{60}{1.07^2} + \frac{1060}{1.07^3}
 </tr>
 </tbody>
 </table>
-<div id="f7b10db3" class="cell" data-message="false" data-execution_count="1">
+<div id="22aa1e88" class="cell" data-message="false" data-execution_count="1">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -1601,49 +1574,200 @@ w_i = \frac{\text{Market Value of Bond } i}{\text{Total Portfolio Market Value}}
 </section>
 <section id="convexity" class="level1" data-number="4">
 <h1 data-number="4"><span class="header-section-number">4</span> Convexity</h1>
-<p>Duration gives a linear approximation, but the price–yield relationship is curved. Convexity captures that curvature.</p>
-<p>Duration is the first derivative effect: it measures the slope of the price-yield curve. Convexity is the second derivative effect: it measures how that slope changes as yields move. A bond with greater convexity has a price-yield curve that bends more.</p>
-<p>This matters because a straight-line approximation cannot capture the asymmetry in bond price changes. Duration alone predicts equal-sized gains and losses for equal-sized yield decreases and increases. Convexity corrects that approximation.</p>
-<section id="intuition-and-formula" class="level2" data-number="4.1">
-<h2 data-number="4.1" class="anchored" data-anchor-id="intuition-and-formula"><span class="header-section-number">4.1</span> Intuition and Formula</h2>
-<p>Convexity measures the rate at which duration itself changes as yield changes. It is the second derivative effect in the price–yield relationship.</p>
-<p>A common convexity measure for an option-free bond is</p>
+<p>Duration, PVBP, and related measures work well for small changes in yield or price. Their limitation is that they approximate a curved price-yield relationship with a straight line. Convexity adds the second-order effect: it measures the curvature of the bond price function.</p>
+<p>The duration approximation is the tangent line to the price-yield curve at the initial yield. At that point, duration gives the slope of the curve. The steeper the tangent line, the greater the duration; the flatter the tangent line, the lower the duration.</p>
+<p>For an option-free bond, duration changes as yields change. As yield increases, duration decreases and the tangent line becomes flatter. As yield decreases, duration increases and the tangent line becomes steeper. This is one reason the duration-only approximation is best for small yield changes and becomes less accurate for large yield changes.</p>
+<section id="relationship-among-volatility-measures" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="relationship-among-volatility-measures"><span class="header-section-number">4.1</span> Relationship Among Volatility Measures</h2>
+<p>The main measures of bond price volatility are closely related:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Measure</th>
+<th>Interpretation</th>
+<th>Relationship</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Macaulay duration, <span class="math inline">\(D_M\)</span></td>
+<td>Present-value-weighted average time to cash flows</td>
+<td>Starting point for modified duration</td>
+</tr>
+<tr class="even">
+<td>Modified duration, <span class="math inline">\(D^*\)</span></td>
+<td>Approximate percentage price change for a small yield change</td>
+<td><span class="math inline">\(D^* = D_M / (1 + y/m)\)</span></td>
+</tr>
+<tr class="odd">
+<td>PVBP</td>
+<td>Dollar price change for a 1-basis-point yield change</td>
+<td><span class="math inline">\(\text{PVBP} \approx D^*P/10{,}000\)</span></td>
+</tr>
+<tr class="even">
+<td>Price-yield slope</td>
+<td>Absolute change in price for a change in yield</td>
+<td>Closely related to dollar duration</td>
+</tr>
+<tr class="odd">
+<td>Convexity</td>
+<td>Curvature of the price-yield relationship</td>
+<td>Improves the duration approximation for larger yield changes</td>
+</tr>
+</tbody>
+</table>
+<p>For bonds at or near par, a rough rule is:</p>
 <p><span class="math display">\[
-\text{Convexity}
-=
-\frac{1}{P}
-\sum_{t=1}^{n}
-\frac{CF_t \, t(t+1)}{(1+y)^{t+2}}
+\text{PVBP} \approx \frac{D^*}{100}
 \]</span></p>
-<p>for annual periods, with adjustments as needed for more frequent compounding.</p>
-<p>For bonds with semiannual coupons, the calculation is first done in half-year periods and then annualized by dividing by <span class="math inline">\(m^2\)</span>, where <span class="math inline">\(m\)</span> is the number of coupon payments per year. With semiannual coupons, <span class="math inline">\(m=2\)</span>, so the period-based convexity is divided by 4.</p>
-<p>The formula places large weight on later cash flows because of the <span class="math inline">\(t(t+1)\)</span> term. This is why long-maturity and low-coupon bonds tend to have high convexity.</p>
+<p>when price is quoted per $100 of par value.</p>
 </section>
-<section id="measuring-convexity" class="level2" data-number="4.2">
-<h2 data-number="4.2" class="anchored" data-anchor-id="measuring-convexity"><span class="header-section-number">4.2</span> Measuring Convexity</h2>
-<p>Convexity can also be estimated empirically by repricing the bond at yields above and below the current yield.</p>
-<p>The numerical approximation is:</p>
+<section id="duration-as-a-tangent-line-approximation" class="level2" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="duration-as-a-tangent-line-approximation"><span class="header-section-number">4.2</span> Duration as a Tangent-Line Approximation</h2>
+<p>Duration estimates price changes using the tangent line to the price-yield curve at the initial yield <span class="math inline">\(y^*\)</span>. If we move away from <span class="math inline">\(y^*\)</span>, the tangent-line estimate differs from the actual curved price-yield relationship.</p>
+<p>For option-free bonds, the duration-only estimate usually understates the actual price:</p>
+<ul>
+<li>If yields fall, duration underestimates the price gain.</li>
+<li>If yields rise, duration overstates the price loss, so the estimated ending price is too low.</li>
+</ul>
+<p>The farther the yield moves from the starting yield, the larger this error becomes. Convexity corrects part of this error by adding curvature to the approximation.</p>
+<div id="a14579e3" class="cell" data-message="false" data-execution_count="2">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="lec3_files/figure-html/cell-3-output-1.png" width="757" height="468" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="measuring-convexity" class="level2" data-number="4.3">
+<h2 data-number="4.3" class="anchored" data-anchor-id="measuring-convexity"><span class="header-section-number">4.3</span> Measuring Convexity</h2>
+<p>Using a Taylor series approximation, the price change can be written as:</p>
 <p><span class="math display">\[
-\text{Convexity}
+\Delta P
 \approx
-\frac{P_- + P_+ - 2P_0}{P_0(\Delta y)^2}.
+\frac{dP}{dy}\Delta y
++
+\frac{1}{2}\frac{d^2P}{dy^2}(\Delta y)^2.
 \]</span></p>
-<p>This method is widely used because it works for more complicated securities if a pricing model can produce <span class="math inline">\(P_-\)</span>, <span class="math inline">\(P_0\)</span>, and <span class="math inline">\(P_+\)</span>. For option-free bonds, it produces nearly the same answer as the closed-form formula when the yield shock is small.</p>
-</section>
-<section id="approximating-percentage-price-change-using-duration-and-convexity" class="level2" data-number="4.3">
-<h2 data-number="4.3" class="anchored" data-anchor-id="approximating-percentage-price-change-using-duration-and-convexity"><span class="header-section-number">4.3</span> Approximating Percentage Price Change Using Duration and Convexity</h2>
-<p>A better approximation than duration alone is</p>
+<p>Dividing by price gives the approximate percentage price change:</p>
 <p><span class="math display">\[
 \frac{\Delta P}{P}
 \approx
--D^* \Delta y
+\frac{1}{P}\frac{dP}{dy}\Delta y
 +
-\frac{1}{2} \text{Convexity} (\Delta y)^2
+\frac{1}{2P}\frac{d^2P}{dy^2}(\Delta y)^2.
 \]</span></p>
-<p>The convexity term is positive for option-free bonds because <span class="math inline">\((\Delta y)^2\)</span> is positive whether rates rise or fall. Therefore, convexity adds value in both directions:</p>
+<p>The first term is the duration effect:</p>
+<p><span class="math display">\[
+\frac{1}{P}\frac{dP}{dy}\Delta y
+=
+-D^*\Delta y.
+\]</span></p>
+<p>The second derivative captures convexity. The <strong>dollar convexity measure</strong> is:</p>
+<p><span class="math display">\[
+\text{Dollar convexity}
+=
+\frac{d^2P}{dy^2}.
+\]</span></p>
+<p>The <strong>convexity measure</strong> divides dollar convexity by price:</p>
+<p><span class="math display">\[
+\text{Convexity}
+=
+\frac{1}{P}\frac{d^2P}{dy^2}.
+\]</span></p>
+<p>Therefore, the duration-plus-convexity approximation is:</p>
+<p><span class="math display">\[
+\frac{\Delta P}{P}
+\approx
+-D^*\Delta y
++
+\frac{1}{2}\text{Convexity}(\Delta y)^2.
+\]</span></p>
+<p>For an option-free bond with cash flows <span class="math inline">\(CF_t\)</span>, the second derivative is:</p>
+<p><span class="math display">\[
+\frac{d^2P}{dy^2}
+=
+\sum_{t=1}^{n}
+\frac{t(t+1)CF_t}{(1+y)^{t+2}}.
+\]</span></p>
+<p>For bonds with semiannual coupons, the convexity calculation is first done in half-year periods. To annualize it, divide by <span class="math inline">\(m^2\)</span>, where <span class="math inline">\(m\)</span> is the number of coupon payments per year. For semiannual coupon bonds, divide by <span class="math inline">\(2^2 = 4\)</span>.</p>
+</section>
+<section id="convexity-of-the-hypothetical-bonds" class="level2" data-number="4.4">
+<h2 data-number="4.4" class="anchored" data-anchor-id="convexity-of-the-hypothetical-bonds"><span class="header-section-number">4.4</span> Convexity of the Hypothetical Bonds</h2>
+<p>The following table summarizes the convexity measures for the six hypothetical bonds used earlier. Values are annualized.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 26%">
+<col style="width: 26%">
+<col style="width: 26%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Bond</th>
+<th style="text-align: right;">Second Derivative</th>
+<th style="text-align: right;">Annualized Convexity Measure</th>
+<th style="text-align: right;">Annualized Dollar Convexity Measure</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>9% / 5-year</td>
+<td style="text-align: right;">7,781.02</td>
+<td style="text-align: right;">19.45</td>
+<td style="text-align: right;">$1,945.26</td>
+</tr>
+<tr class="even">
+<td>9% / 25-year</td>
+<td style="text-align: right;">64,288.42</td>
+<td style="text-align: right;">160.72</td>
+<td style="text-align: right;">$16,072.00</td>
+</tr>
+<tr class="odd">
+<td>6% / 5-year</td>
+<td style="text-align: right;">7,349.45</td>
+<td style="text-align: right;">20.85</td>
+<td style="text-align: right;">$1,837.36</td>
+</tr>
+<tr class="even">
+<td>6% / 25-year</td>
+<td style="text-align: right;">51,476.26</td>
+<td style="text-align: right;">182.92</td>
+<td style="text-align: right;">$12,869.70</td>
+</tr>
+<tr class="odd">
+<td>0% / 5-year</td>
+<td style="text-align: right;">6,486.30</td>
+<td style="text-align: right;">25.18</td>
+<td style="text-align: right;">$1,621.42</td>
+</tr>
+<tr class="even">
+<td>0% / 25-year</td>
+<td style="text-align: right;">25,851.93</td>
+<td style="text-align: right;">583.78</td>
+<td style="text-align: right;">$6,463.02</td>
+</tr>
+</tbody>
+</table>
+<p>The table shows two important patterns:</p>
 <ul>
-<li>When yields rise, it offsets part of the duration-based loss.</li>
-<li>When yields fall, it adds to the duration-based gain.</li>
+<li>For a given maturity and yield, lower-coupon bonds have greater convexity.</li>
+<li>Longer-maturity bonds usually have greater convexity than shorter-maturity bonds.</li>
+</ul>
+</section>
+<section id="approximating-percentage-price-change-using-duration-and-convexity" class="level2" data-number="4.5">
+<h2 data-number="4.5" class="anchored" data-anchor-id="approximating-percentage-price-change-using-duration-and-convexity"><span class="header-section-number">4.5</span> Approximating Percentage Price Change Using Duration and Convexity</h2>
+<p>The convexity term is positive for option-free bonds because <span class="math inline">\((\Delta y)^2\)</span> is positive whether yields rise or fall. Convexity therefore helps in both directions:</p>
+<ul>
+<li>When yields rise, convexity offsets part of the duration-based loss.</li>
+<li>When yields fall, convexity adds to the duration-based gain.</li>
 </ul>
 <div class="callout callout-style-default callout-note callout-titled" title="Example: Duration Plus Convexity">
 <div class="callout-header d-flex align-content-center">
@@ -1655,45 +1779,399 @@ w_i = \frac{\text{Market Value of Bond } i}{\text{Total Portfolio Market Value}}
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Suppose a bond has:</p>
+<p>Consider the 25-year, 6% coupon bond selling to yield 9%.</p>
 <ul>
 <li>Modified duration = 10.62</li>
-<li>Convexity = 182.92</li>
-<li>Yield change = +200 basis points, or <span class="math inline">\(0.02\)</span></li>
+<li>Convexity measure = 182.92</li>
+<li>Starting price = 70.357</li>
 </ul>
-<p>The duration effect is</p>
+<p>If the required yield rises by 200 basis points, then <span class="math inline">\(\Delta y = +0.02\)</span>.</p>
+<p>The duration effect is:</p>
 <p><span class="math display">\[
--10.62(0.02) = -21.24\%.
+-D^*\Delta y
+=
+-10.62(0.02)
+=
+-21.24\%.
 \]</span></p>
-<p>The convexity effect is</p>
+<p>The convexity effect is:</p>
 <p><span class="math display">\[
-\frac{1}{2}(182.92)(0.02)^2 = 3.66\%.
+\frac{1}{2}(182.92)(0.02)^2
+=
+3.66\%.
 \]</span></p>
-<p>The duration-plus-convexity estimate is</p>
+<p>The estimated percentage price change is:</p>
 <p><span class="math display">\[
--21.24\% + 3.66\% = -17.58\%.
+-21.24\% + 3.66\%
+=
+-17.58\%.
 \]</span></p>
-<p>This is typically closer to the actual price change than duration alone for a large rate move.</p>
+<p>The actual price change from repricing the bond is approximately -18.03%, so adding convexity materially improves the duration-only estimate.</p>
+<p>If the required yield falls by 200 basis points, then <span class="math inline">\(\Delta y = -0.02\)</span>.</p>
+<p>The duration effect is:</p>
+<p><span class="math display">\[
+-10.62(-0.02)
+=
+21.24\%.
+\]</span></p>
+<p>The convexity effect is still positive:</p>
+<p><span class="math display">\[
+\frac{1}{2}(182.92)(-0.02)^2
+=
+3.66\%.
+\]</span></p>
+<p>The estimated percentage price change is:</p>
+<p><span class="math display">\[
+21.24\% + 3.66\%
+=
+24.90\%.
+\]</span></p>
+<p>The actual price change from repricing the bond is approximately 25.46%.</p>
 </div>
 </div>
 </section>
-<section id="value-of-convexity" class="level2" data-number="4.4">
-<h2 data-number="4.4" class="anchored" data-anchor-id="value-of-convexity"><span class="header-section-number">4.4</span> Value of Convexity</h2>
-<p>Convexity improves approximation accuracy for large changes in yield. It also explains why price gains from falling yields exceed price losses from equal yield increases.</p>
-<p>Convexity has investment value. If two option-free bonds have the same yield and the same duration, the bond with greater convexity is generally preferred because it performs better for both large upward and large downward yield moves. If yields rise, it loses less; if yields fall, it gains more.</p>
-<p>Markets usually recognize this. Investors often have to “pay for convexity” by accepting a lower yield on the more convex bond. Convexity is most valuable when expected interest-rate volatility is high. If rates are expected to barely move, the benefit of extra curvature is small.</p>
+<section id="notes-on-convexity-measures" class="level2" data-number="4.6">
+<h2 data-number="4.6" class="anchored" data-anchor-id="notes-on-convexity-measures"><span class="header-section-number">4.6</span> Notes on Convexity Measures</h2>
+<p>Three points are important.</p>
+<p>First, <strong>convexity</strong> can refer to the general shape of the price-yield relationship, while the <strong>convexity measure</strong> is the numerical estimate used in the price-change approximation.</p>
+<p>Second, convexity does not have the same simple interpretation as duration. A modified duration of 4 means an approximate 4% price change for a 100-basis-point change in yield. A convexity measure must be interpreted together with the squared yield change:</p>
+<p><span class="math display">\[
+\frac{1}{2}\text{Convexity}(\Delta y)^2.
+\]</span></p>
+<p>Third, different vendors and textbooks may scale convexity differently. Some define convexity as:</p>
+<p><span class="math display">\[
+\frac{1}{2P}\frac{d^2P}{dy^2}
+\]</span></p>
+<p>instead of:</p>
+<p><span class="math display">\[
+\frac{1}{P}\frac{d^2P}{dy^2}.
+\]</span></p>
+<p>This does not change the estimated price effect as long as the formula is used consistently.</p>
 </section>
-<section id="properties-of-convexity" class="level2" data-number="4.5">
-<h2 data-number="4.5" class="anchored" data-anchor-id="properties-of-convexity"><span class="header-section-number">4.5</span> Properties of Convexity</h2>
-<p>For option-free bonds:</p>
-<ul>
-<li>Convexity is positive.</li>
-<li>Convexity increases with maturity.</li>
-<li>Convexity tends to be greater for lower coupon bonds.</li>
-<li>Convexity tends to be greater at lower yields.</li>
-</ul>
-<p>Positive convexity means the slope of the price-yield curve becomes flatter as yields rise and steeper as yields fall. In duration language, duration decreases when yields rise and increases when yields fall.</p>
-<p>There is one subtle comparison: for a given yield and maturity, lower-coupon bonds tend to have greater convexity. But for a given yield and modified duration, lower-coupon bonds can have lower convexity. This is why convexity comparisons should always specify what is being held constant.</p>
+<section id="value-of-convexity" class="level2" data-number="4.7">
+<h2 data-number="4.7" class="anchored" data-anchor-id="value-of-convexity"><span class="header-section-number">4.7</span> Value of Convexity</h2>
+<p>Convexity has investment value. Suppose two option-free bonds have the same yield and the same duration, but Bond B has greater convexity than Bond A. If yields rise, Bond B should lose less. If yields fall, Bond B should gain more.</p>
+<p>Because of this payoff pattern, convexity has a market value. Investors who expect large interest-rate moves generally prefer more convex bonds because convexity helps in both directions: it increases the upside when yields fall and reduces the downside when yields rise. These investors are usually willing to pay for convexity by accepting a lower yield.</p>
+<p>The value of convexity depends on the investor’s view of future interest-rate volatility. If an investor expects rates to be volatile, extra convexity is valuable because the bond has more opportunity to benefit from large yield moves. If an investor expects rates to remain stable, extra convexity is less useful because the price-yield curve is being evaluated only near the current yield, where duration alone is already a good approximation.</p>
+<p>This creates a tradeoff. When the market price of convexity is high, a low-volatility investor may prefer to sell convexity by holding the less convex bond and earning a higher yield. A high-volatility investor may prefer to buy convexity, accepting a lower yield in exchange for better performance when yields move substantially.</p>
+<div id="a4f8afc4" class="cell" data-message="false" data-execution_count="3">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="lec3_files/figure-html/cell-4-output-1.png" width="757" height="468" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="properties-of-convexity" class="level2" data-number="4.8">
+<h2 data-number="4.8" class="anchored" data-anchor-id="properties-of-convexity"><span class="header-section-number">4.8</span> Properties of Convexity</h2>
+<p>All option-free bonds have positive convexity, but the amount of convexity depends on yield, maturity, coupon rate, and what comparison is being made.</p>
+<p><strong>Property 1: As required yield increases, convexity decreases. As required yield decreases, convexity increases.</strong></p>
+<p>This is the standard positive convexity property of option-free bonds. When yields rise, the price of the bond falls, but duration also declines. The lower duration slows the price decline. When yields fall, the price of the bond rises, and duration increases. The higher duration accelerates the price gain.</p>
+<p><strong>Intuition:</strong> The slope of the price-yield curve becomes flatter as yields rise and steeper as yields fall. A flatter tangent line means lower duration; a steeper tangent line means higher duration. Convexity measures how quickly that slope, or dollar duration, changes as yields move.</p>
+<p><strong>Property 2: For a given yield and maturity, the lower the coupon, the greater the convexity of a bond.</strong></p>
+<p>This property follows from the timing of cash flows. Lower-coupon bonds return less cash early and leave more value concentrated in later cash flows. Later cash flows are more sensitive to changes in the discount rate, so the price-yield curve bends more.</p>
+<p><strong>Intuition:</strong> A zero-coupon bond has all of its value in one distant payment, so its price is highly sensitive to changes in yield. A high-coupon bond returns more value through earlier coupon payments, which reduces curvature. This is why, among bonds with the same yield and maturity, the zero-coupon bond has the highest convexity and the high-coupon bond has the lowest convexity.</p>
+<div id="03cb7d98" class="cell" data-message="false" data-execution_count="4">
+<div class="cell-output cell-output-display" data-execution_count="10">
+
+<div id="convexity-widget" style="max-width: 980px; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">
+  <div style="border: 1px solid #d6dde8; border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+    <div style="font-weight: 700; color: #1f77b4; margin-bottom: 8px;">Bond A</div>
+    <label>Yield (%) <input id="cw-yield-a" type="number" min="0.5" max="15" step="0.25" value="6" style="width: 80px;"></label>
+    <label style="margin-left: 12px;">Maturity <input id="cw-maturity-a" type="number" min="1" max="40" step="1" value="10" style="width: 70px;"></label>
+    <div style="margin-top: 10px;">
+      <label>Coupon: <span id="cw-coupon-a-label">2.0%</span></label>
+      <input id="cw-coupon-a" type="range" min="0" max="12" step="0.25" value="2" style="width: 100%;">
+    </div>
+    <div id="cw-metrics-a" style="margin-top: 8px; font-size: 0.92rem;"></div>
+  </div>
+  <svg id="cw-chart" viewbox="0 0 900 520" width="100%" height="520" role="img" aria-label="Interactive price-yield convexity graph"></svg>
+</div>
+
+<script>
+(function() {
+  const face = 100;
+  const ids = ["yield-a", "maturity-a", "coupon-a"];
+  const controls = Object.fromEntries(ids.map(id => [id, document.getElementById("cw-" + id)]));
+  const svg = document.getElementById("cw-chart");
+  const ns = "http://www.w3.org/2000/svg";
+
+  function value(id) {
+    return Number(controls[id].value);
+  }
+
+  function flows(couponPct, maturity) {
+    const n = Math.max(1, Math.round(maturity));
+    const coupon = face * couponPct / 100;
+    const result = [];
+    for (let t = 1; t <= n; t++) {
+      result.push({t, cf: coupon + (t === n ? face : 0)});
+    }
+    return result;
+  }
+
+  function price(couponPct, maturity, yieldPct) {
+    const y = yieldPct / 100;
+    return flows(couponPct, maturity).reduce((total, row) => {
+      return total + row.cf / Math.pow(1 + y, row.t);
+    }, 0);
+  }
+
+  function metrics(couponPct, maturity, yieldPct) {
+    const y = yieldPct / 100;
+    const rows = flows(couponPct, maturity);
+    const p = price(couponPct, maturity, yieldPct);
+    const macaulay = rows.reduce((total, row) => {
+      return total + row.t * row.cf / Math.pow(1 + y, row.t);
+    }, 0) / p;
+    const modified = macaulay / (1 + y);
+    const convexity = rows.reduce((total, row) => {
+      return total + row.t * (row.t + 1) * row.cf / Math.pow(1 + y, row.t + 2);
+    }, 0) / p;
+    return {price: p, macaulay, modified, convexity};
+  }
+
+  function make(tag, attrs = {}) {
+    const node = document.createElementNS(ns, tag);
+    Object.entries(attrs).forEach(([key, val]) => node.setAttribute(key, val));
+    return node;
+  }
+
+  function line(x1, y1, x2, y2, attrs = {}) {
+    svg.appendChild(make("line", {x1, y1, x2, y2, ...attrs}));
+  }
+
+  function text(x, y, content, attrs = {}) {
+    const node = make("text", {x, y, ...attrs});
+    node.textContent = content;
+    svg.appendChild(node);
+  }
+
+  function render() {
+    const a = {coupon: value("coupon-a"), maturity: value("maturity-a"), yield: value("yield-a"), color: "#1f77b4", label: "Bond A"};
+    document.getElementById("cw-coupon-a-label").textContent = a.coupon.toFixed(1) + "%";
+
+    const yieldGrid = Array.from({length: 140}, (_, i) => 1 + i * (13 / 139));
+    const curve = {
+      ...a,
+      points: yieldGrid.map(y => ({x: y, y: price(a.coupon, a.maturity, y)})),
+      metrics: metrics(a.coupon, a.maturity, a.yield)
+    };
+
+    const allPrices = curve.points.map(p => p.y);
+    const minPrice = Math.min(...allPrices);
+    const maxPrice = Math.max(...allPrices);
+    const pad = 55;
+    const width = 900;
+    const height = 520;
+    const left = 75;
+    const right = 30;
+    const top = 35;
+    const bottom = 65;
+    const plotW = width - left - right;
+    const plotH = height - top - bottom;
+    const xScale = x => left + (x - 1) / 13 * plotW;
+    const yScale = y => top + (maxPrice + pad - y) / (maxPrice - minPrice + 2 * pad) * plotH;
+
+    svg.innerHTML = "";
+    line(left, top, left, top + plotH, {stroke: "#333", "stroke-width": 1});
+    line(left, top + plotH, left + plotW, top + plotH, {stroke: "#333", "stroke-width": 1});
+    for (let x = 2; x <= 14; x += 2) {
+      const px = xScale(x);
+      line(px, top, px, top + plotH, {stroke: "#e8edf3", "stroke-width": 1});
+      text(px, top + plotH + 24, x + "%", {"font-size": 12, "text-anchor": "middle", fill: "#333"});
+    }
+    const yTicks = 5;
+    for (let i = 0; i <= yTicks; i++) {
+      const val = minPrice - pad + i * (maxPrice - minPrice + 2 * pad) / yTicks;
+      const py = yScale(val);
+      line(left, py, left + plotW, py, {stroke: "#e8edf3", "stroke-width": 1});
+      text(left - 10, py + 4, val.toFixed(0), {"font-size": 12, "text-anchor": "end", fill: "#333"});
+    }
+
+    const d = curve.points.map((p, i) => `${i === 0 ? "M" : "L"} ${xScale(p.x)} ${yScale(p.y)}`).join(" ");
+    svg.appendChild(make("path", {d, fill: "none", stroke: curve.color, "stroke-width": 3}));
+    const currentPrice = price(curve.coupon, curve.maturity, curve.yield);
+    svg.appendChild(make("circle", {cx: xScale(curve.yield), cy: yScale(currentPrice), r: 5, fill: curve.color}));
+    text(xScale(curve.yield) + 8, yScale(currentPrice) - 8, "Bond A at selected yield", {"font-size": 13, fill: curve.color, "font-weight": 700});
+
+    text(left + plotW / 2, height - 18, "Yield to maturity", {"font-size": 14, "text-anchor": "middle", fill: "#333"});
+    text(20, top + plotH / 2, "Price per $100 par", {"font-size": 14, "text-anchor": "middle", fill: "#333", transform: `rotate(-90 20 ${top + plotH / 2})`});
+    text(left, 22, "Price-yield relationship and convexity", {"font-size": 17, "font-weight": 700, fill: "#222"});
+
+    document.getElementById("cw-metrics-a").innerHTML =
+      `Price: <b>${curve.metrics.price.toFixed(2)}</b><br>` +
+      `Macaulay duration: <b>${curve.metrics.macaulay.toFixed(2)}</b><br>` +
+      `Modified duration: <b>${curve.metrics.modified.toFixed(2)}</b><br>` +
+      `Convexity: <b>${curve.metrics.convexity.toFixed(2)}</b>`;
+
+  }
+
+  Object.values(controls).forEach(input => input.addEventListener("input", render));
+  render();
+})();
+</script>
+</div>
+</div>
+<p><strong>Property 3: For a given yield and modified duration, the lower the coupon, the smaller the convexity.</strong></p>
+<p>This comparison holds duration constant rather than maturity. Under this comparison, lower-coupon bonds, including zero-coupon bonds, can have lower convexity than coupon bonds with the same modified duration.</p>
+<p><strong>Intuition:</strong> Holding maturity fixed and holding duration fixed are different comparisons. A zero-coupon bond has duration equal to its maturity, so matching a coupon bond’s modified duration may require comparing it with a shorter-maturity zero-coupon bond. That shorter maturity reduces curvature. The investment implication is that zero-coupon bonds have the lowest convexity for a given modified duration.</p>
+<div id="c5cf8980" class="cell" data-message="false" data-execution_count="5">
+<div class="cell-output cell-output-display" data-execution_count="11">
+
+<div id="same-duration-widget" style="max-width: 980px; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">
+  <div style="border: 1px solid #d6dde8; border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+    <div style="font-weight: 700; color: #1f77b4; margin-bottom: 8px;">Same-Duration Convexity Comparison</div>
+    <label>Yield (%) <input id="sd-yield" type="number" min="0.5" max="15" step="0.25" value="6" style="width: 80px;"></label>
+    <label style="margin-left: 12px;">Target modified duration <input id="sd-duration" type="number" min="1" max="30" step="0.25" value="8" style="width: 80px;"></label>
+    <div style="margin-top: 10px;">
+      <label>Coupon: <span id="sd-coupon-label">4.0%</span></label>
+      <input id="sd-coupon" type="range" min="0" max="12" step="0.25" value="4" style="width: 100%;">
+    </div>
+    <div id="sd-metrics" style="margin-top: 8px; font-size: 0.92rem;"></div>
+  </div>
+  <svg id="sd-chart" viewbox="0 0 900 520" width="100%" height="520" role="img" aria-label="Interactive same-duration convexity graph"></svg>
+</div>
+
+<script>
+(function() {
+  const face = 100;
+  const controls = {
+    y: document.getElementById("sd-yield"),
+    duration: document.getElementById("sd-duration"),
+    coupon: document.getElementById("sd-coupon")
+  };
+  const svg = document.getElementById("sd-chart");
+  const ns = "http://www.w3.org/2000/svg";
+
+  function flows(couponPct, maturity) {
+    const n = Math.max(1, Math.round(maturity));
+    const coupon = face * couponPct / 100;
+    const result = [];
+    for (let t = 1; t <= n; t++) {
+      result.push({t, cf: coupon + (t === n ? face : 0)});
+    }
+    return result;
+  }
+
+  function price(couponPct, maturity, yieldPct) {
+    const y = yieldPct / 100;
+    return flows(couponPct, maturity).reduce((total, row) => {
+      return total + row.cf / Math.pow(1 + y, row.t);
+    }, 0);
+  }
+
+  function metrics(couponPct, maturity, yieldPct) {
+    const y = yieldPct / 100;
+    const rows = flows(couponPct, maturity);
+    const p = price(couponPct, maturity, yieldPct);
+    const macaulay = rows.reduce((total, row) => {
+      return total + row.t * row.cf / Math.pow(1 + y, row.t);
+    }, 0) / p;
+    const modified = macaulay / (1 + y);
+    const convexity = rows.reduce((total, row) => {
+      return total + row.t * (row.t + 1) * row.cf / Math.pow(1 + y, row.t + 2);
+    }, 0) / p;
+    return {price: p, macaulay, modified, convexity};
+  }
+
+  function closestMaturity(couponPct, yieldPct, targetDuration) {
+    let best = {maturity: 1, error: Infinity, metrics: metrics(couponPct, 1, yieldPct)};
+    for (let n = 1; n <= 80; n++) {
+      const m = metrics(couponPct, n, yieldPct);
+      const error = Math.abs(m.modified - targetDuration);
+      if (error < best.error) {
+        best = {maturity: n, error, metrics: m};
+      }
+    }
+    return best;
+  }
+
+  function make(tag, attrs = {}) {
+    const node = document.createElementNS(ns, tag);
+    Object.entries(attrs).forEach(([key, val]) => node.setAttribute(key, val));
+    return node;
+  }
+
+  function line(x1, y1, x2, y2, attrs = {}) {
+    svg.appendChild(make("line", {x1, y1, x2, y2, ...attrs}));
+  }
+
+  function text(x, y, content, attrs = {}) {
+    const node = make("text", {x, y, ...attrs});
+    node.textContent = content;
+    svg.appendChild(node);
+  }
+
+  function render() {
+    const yieldPct = Number(controls.y.value);
+    const targetDuration = Number(controls.duration.value);
+    const couponPct = Number(controls.coupon.value);
+    document.getElementById("sd-coupon-label").textContent = couponPct.toFixed(1) + "%";
+
+    const match = closestMaturity(couponPct, yieldPct, targetDuration);
+    const maturity = match.maturity;
+    const m = match.metrics;
+    const yieldGrid = Array.from({length: 140}, (_, i) => 1 + i * (13 / 139));
+    const points = yieldGrid.map(y => ({x: y, y: price(couponPct, maturity, y)}));
+
+    const allPrices = points.map(p => p.y);
+    const minPrice = Math.min(...allPrices);
+    const maxPrice = Math.max(...allPrices);
+    const pad = 55;
+    const width = 900;
+    const height = 520;
+    const left = 75;
+    const right = 30;
+    const top = 35;
+    const bottom = 65;
+    const plotW = width - left - right;
+    const plotH = height - top - bottom;
+    const xScale = x => left + (x - 1) / 13 * plotW;
+    const yScale = y => top + (maxPrice + pad - y) / (maxPrice - minPrice + 2 * pad) * plotH;
+
+    svg.innerHTML = "";
+    line(left, top, left, top + plotH, {stroke: "#333", "stroke-width": 1});
+    line(left, top + plotH, left + plotW, top + plotH, {stroke: "#333", "stroke-width": 1});
+    for (let x = 2; x <= 14; x += 2) {
+      const px = xScale(x);
+      line(px, top, px, top + plotH, {stroke: "#e8edf3", "stroke-width": 1});
+      text(px, top + plotH + 24, x + "%", {"font-size": 12, "text-anchor": "middle", fill: "#333"});
+    }
+    for (let i = 0; i <= 5; i++) {
+      const val = minPrice - pad + i * (maxPrice - minPrice + 2 * pad) / 5;
+      const py = yScale(val);
+      line(left, py, left + plotW, py, {stroke: "#e8edf3", "stroke-width": 1});
+      text(left - 10, py + 4, val.toFixed(0), {"font-size": 12, "text-anchor": "end", fill: "#333"});
+    }
+
+    const d = points.map((p, i) => `${i === 0 ? "M" : "L"} ${xScale(p.x)} ${yScale(p.y)}`).join(" ");
+    svg.appendChild(make("path", {d, fill: "none", stroke: "#1f77b4", "stroke-width": 3}));
+    const currentPrice = price(couponPct, maturity, yieldPct);
+    svg.appendChild(make("circle", {cx: xScale(yieldPct), cy: yScale(currentPrice), r: 5, fill: "#1f77b4"}));
+    text(xScale(yieldPct) + 8, yScale(currentPrice) - 8, "Selected yield", {"font-size": 13, fill: "#1f77b4", "font-weight": 700});
+
+    text(left + plotW / 2, height - 18, "Yield to maturity", {"font-size": 14, "text-anchor": "middle", fill: "#333"});
+    text(20, top + plotH / 2, "Price per $100 par", {"font-size": 14, "text-anchor": "middle", fill: "#333", transform: `rotate(-90 20 ${top + plotH / 2})`});
+    text(left, 22, "Price-yield curve for selected coupon at target duration", {"font-size": 17, "font-weight": 700, fill: "#222"});
+
+    document.getElementById("sd-metrics").innerHTML =
+      `Implied maturity closest to target duration: <b>${maturity} years</b><br>` +
+      `Price: <b>${m.price.toFixed(2)}</b><br>` +
+      `Macaulay duration: <b>${m.macaulay.toFixed(2)}</b><br>` +
+      `Modified duration: <b>${m.modified.toFixed(2)}</b> ` +
+      `(target: ${targetDuration.toFixed(2)})<br>` +
+      `Convexity: <b>${m.convexity.toFixed(2)}</b>`;
+  }
+
+  Object.values(controls).forEach(input => input.addEventListener("input", render));
+  render();
+})();
+</script>
+</div>
+</div>
 <hr>
 </section>
 </section>
@@ -1707,7 +2185,7 @@ w_i = \frac{\text{Market Value of Bond } i}{\text{Total Portfolio Market Value}}
 <li>It does not capture curvature unless convexity is added.</li>
 </ul>
 <p>The parallel-shift assumption is especially important. A single duration number assumes that all relevant yields move by the same number of basis points. Real yield curves often twist: short rates may rise while long rates fall, or intermediate rates may move more than both ends. A portfolio with bonds across maturities can therefore experience a value change that is poorly described by one duration number.</p>
-<p>The embedded-option issue is also important. A callable bond may have cash flows that change when yields fall because the issuer becomes more likely to call the bond. A mortgage-backed security may receive faster prepayments when mortgage rates fall. In these cases, the price-yield relationship can depart from the option-free pattern, and effective duration is usually needed.</p>
+<p>The embedded-option issue is also important. A callable bond may have cash flows that change when yields fall because the issuer becomes more likely to call the bond. In these cases, the price-yield relationship can depart from the option-free pattern, and effective duration is usually needed.</p>
 <p>Practical takeaway: duration is a useful first risk measure, not a complete risk model.</p>
 <hr>
 </section>
@@ -1793,26 +2271,97 @@ D^*
 (1+4)(8)=40.
 \]</span></p>
 <p>The inverse floater is therefore a leveraged exposure to the collateral’s rate sensitivity.</p>
-</section>
-<section id="key-rate-duration" class="level2" data-number="7.2">
-<h2 data-number="7.2" class="anchored" data-anchor-id="key-rate-duration"><span class="header-section-number">7.2</span> Key Rate Duration</h2>
-<p><strong>Key rate duration</strong> measures the sensitivity of a bond’s price to changes in a specific maturity point on the yield curve, holding other points constant.</p>
-<p>This is essential when yield curve shifts are not parallel.</p>
-<p>Instead of summarizing interest-rate risk with one number, key rate duration produces a vector of exposures. Common key rates include 3 months, 1 year, 2 years, 5 years, 10 years, and 30 years. A portfolio can have the same total duration as another portfolio but very different key rate exposures.</p>
-<p>Example: two portfolios may both have duration of 4.3. One may be exposed mainly to the 2-year and 30-year points, while the other is exposed mainly to the 5-year point. If only the 30-year yield rises, their performance will differ even though their total duration is the same.</p>
-<p>A key rate duration of 0.675 at the 30-year maturity means the portfolio value is expected to change by about 0.675% for a 100-basis-point change in the 30-year rate, holding the rest of the curve fixed.</p>
 <hr>
 </section>
 </section>
 <section id="measuring-a-bond-portfolios-responsiveness-to-nonparallel-changes-in-interest-rates" class="level1" data-number="8">
 <h1 data-number="8"><span class="header-section-number">8</span> Measuring a Bond Portfolio’s Responsiveness to Nonparallel Changes in Interest Rates</h1>
 <p>When the yield curve changes in a nonparallel way, standard duration is not enough. A portfolio can be exposed differently to short-, intermediate-, and long-term rates.</p>
-<p>A parallel shift means every maturity point on the yield curve moves by the same number of basis points. Many real-world moves are nonparallel:</p>
+<p>A parallel shift means every maturity point on the yield curve moves by the same number of basis points. Many real-world moves are nonparallel.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Yield Curve Movements: Steepening, Flattening, Twists, and Curvature">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Yield Curve Movements: Steepening, Flattening, Twists, and Curvature
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The yield curve does not always move in parallel. Most real-world changes can be understood as combinations of <strong>level, slope, and curvature</strong> shifts.</p>
+<hr>
+<p><strong>1. Parallel Shift (Level Move)</strong></p>
 <ul>
-<li><strong>Steepening:</strong> long-term yields rise more than short-term yields, or short-term yields fall more than long-term yields.</li>
-<li><strong>Flattening:</strong> short-term yields rise more than long-term yields, or long-term yields fall more than short-term yields.</li>
-<li><strong>Curvature change:</strong> intermediate maturities move differently from both short and long maturities.</li>
+<li>All yields increase or decrease by roughly the same amount</li>
+<li>Driven by broad macro factors (e.g., monetary policy, inflation expectations)</li>
 </ul>
+<p><span class="math display">\[
+y(T) \rightarrow y(T) + \Delta
+\]</span></p>
+<hr>
+<p><strong>2. Steepening (Slope Increases)</strong></p>
+<ul>
+<li>Long-term yields move <strong>more than</strong> short-term yields</li>
+</ul>
+<p>Types:</p>
+<ul>
+<li><strong>Bear steepening</strong>: long rates ↑ more than short rates</li>
+<li><strong>Bull steepening</strong>: short rates ↓ more than long rates</li>
+</ul>
+<p><span class="math display">\[
+y(10y) - y(2y) \uparrow
+\]</span></p>
+<hr>
+<p><strong>3. Flattening (Slope Decreases)</strong></p>
+<ul>
+<li>Short-term and long-term yields move closer together</li>
+</ul>
+<p>Types:</p>
+<ul>
+<li><strong>Bear flattening</strong>: short rates ↑ more than long rates</li>
+<li><strong>Bull flattening</strong>: long rates ↓ more than short rates</li>
+</ul>
+<p><span class="math display">\[
+y(10y) - y(2y) \downarrow
+\]</span></p>
+<hr>
+<p><strong>4. Twist (General Rotation)</strong></p>
+<ul>
+<li>One end of the curve rises while the other falls</li>
+<li>Includes steepening and flattening as special cases</li>
+</ul>
+<p><span class="math display">\[
+y(T) \rightarrow y(T) + a + b \cdot T
+\]</span></p>
+<ul>
+<li><span class="math inline">\(a\)</span>: level shift</li>
+<li><span class="math inline">\(b\)</span>: slope change</li>
+</ul>
+<hr>
+<p><strong>5. Butterfly (Curvature Change)</strong></p>
+<ul>
+<li>Middle maturities move differently from short and long ends</li>
+</ul>
+<p>Example:</p>
+<ul>
+<li>Short rates ↓</li>
+<li>Intermediate rates ↑</li>
+<li>Long rates ↓</li>
+</ul>
+<p>Measure:</p>
+<p><span class="math display">\[
+2 y(5y) - y(2y) - y(10y)
+\]</span></p>
+<hr>
+<p><strong>Key Insight</strong> Most yield curve movements can be decomposed into:</p>
+<ul>
+<li><strong>Level</strong> → parallel shifts</li>
+<li><strong>Slope</strong> → steepening/flattening</li>
+<li><strong>Curvature</strong> → butterfly effects</li>
+</ul>
+<p>These components form the basis for interest rate risk management and relative value trading.</p>
+</div>
+</div>
 <p>For portfolios with bonds across the maturity spectrum, these distinctions matter. A barbell portfolio and a bullet portfolio can have the same total duration but react very differently to a curve twist.</p>
 <section id="yield-curve-reshaping-duration" class="level2" data-number="8.1">
 <h2 data-number="8.1" class="anchored" data-anchor-id="yield-curve-reshaping-duration"><span class="header-section-number">8.1</span> Yield Curve Reshaping Duration</h2>
@@ -1838,164 +2387,127 @@ LEDUR
 \frac{V_{LE,F} - V_{LE,S}}{2V_0\Delta y}.
 \]</span></p>
 <p>The interpretation is similar to duration: SEDUR and LEDUR approximate the percentage change in portfolio value for a 100-basis-point change in the relevant yield-curve slope.</p>
+</section>
+<section id="key-rate-duration" class="level2" data-number="8.2">
+<h2 data-number="8.2" class="anchored" data-anchor-id="key-rate-duration"><span class="header-section-number">8.2</span> Key Rate Duration</h2>
+<p><strong>Key rate duration</strong> measures the sensitivity of a bond’s price to changes in a specific maturity point on the yield curve, holding other points constant.</p>
+<p>This is essential when yield curve shifts are not parallel.</p>
+<p>Instead of summarizing interest-rate risk with one number, key rate duration produces a vector of exposures. Common key rates include 3 months, 1 year, 2 years, 5 years, 10 years, and 30 years. A portfolio can have the same total duration as another portfolio but very different key rate exposures.</p>
+<p>Example: two portfolios may both have duration of 4.3. One may be exposed mainly to the 2-year and 30-year points, while the other is exposed mainly to the 5-year point. If only the 30-year yield rises, their performance will differ even though their total duration is the same.</p>
+<p>A key rate duration of 0.675 at the 30-year maturity means the portfolio value is expected to change by about 0.675% for a 100-basis-point change in the 30-year rate, holding the rest of the curve fixed.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Example: Same Total Duration, Different Key Rate Exposures">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Example: Same Total Duration, Different Key Rate Exposures
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Suppose two portfolios both have total duration of 4.30, but their exposure is distributed differently across the yield curve.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Key rate</th>
+<th style="text-align: right;">Portfolio A: Barbell</th>
+<th style="text-align: right;">Portfolio B: Bullet</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>2-year</td>
+<td style="text-align: right;">1.40</td>
+<td style="text-align: right;">0.20</td>
+</tr>
+<tr class="even">
+<td>5-year</td>
+<td style="text-align: right;">0.30</td>
+<td style="text-align: right;">3.50</td>
+</tr>
+<tr class="odd">
+<td>10-year</td>
+<td style="text-align: right;">0.60</td>
+<td style="text-align: right;">0.50</td>
+</tr>
+<tr class="even">
+<td>30-year</td>
+<td style="text-align: right;">2.00</td>
+<td style="text-align: right;">0.10</td>
+</tr>
+<tr class="odd">
+<td><strong>Total duration</strong></td>
+<td style="text-align: right;"><strong>4.30</strong></td>
+<td style="text-align: right;"><strong>4.30</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Portfolio A is a <strong>barbell</strong>: it has more exposure at the short and long ends of the curve. Portfolio B is a <strong>bullet</strong>: it has most of its exposure around the 5-year point.</p>
+<p>If the entire yield curve shifts up by 100 basis points, both portfolios lose about 4.30%. But if only one maturity point moves, their performance can be very different:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 27%">
+<col style="width: 36%">
+<col style="width: 36%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Yield curve shock</th>
+<th style="text-align: right;">Portfolio A estimated price change</th>
+<th style="text-align: right;">Portfolio B estimated price change</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Parallel +100 bp</td>
+<td style="text-align: right;">-4.30%</td>
+<td style="text-align: right;">-4.30%</td>
+</tr>
+<tr class="even">
+<td>5-year rate +100 bp only</td>
+<td style="text-align: right;">-0.30%</td>
+<td style="text-align: right;">-3.50%</td>
+</tr>
+<tr class="odd">
+<td>30-year rate +100 bp only</td>
+<td style="text-align: right;">-2.00%</td>
+<td style="text-align: right;">-0.10%</td>
+</tr>
+</tbody>
+</table>
+<p>The lesson is that total duration hides where the interest-rate exposure is located. Key rate duration shows the portfolio’s exposure to specific maturity points on the curve.</p>
+</div>
+</div>
+<div id="cf16f7c6" class="cell" data-message="false" data-execution_count="6">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="lec3_files/figure-html/cell-7-output-1.png" width="949" height="373" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
 <hr>
 </section>
-</section>
-<section id="the-asset-allocation-decision" class="level1" data-number="9">
-<h1 data-number="9"><span class="header-section-number">9</span> The Asset Allocation Decision</h1>
-<p>Bond portfolio management begins with the asset allocation decision.</p>
-<section id="how-much-should-be-allocated-to-bonds" class="level2" data-number="9.1">
-<h2 data-number="9.1" class="anchored" data-anchor-id="how-much-should-be-allocated-to-bonds"><span class="header-section-number">9.1</span> How Much Should Be Allocated to Bonds?</h2>
-<p>The allocation to bonds depends on:</p>
-<ul>
-<li>Risk tolerance</li>
-<li>Investment horizon</li>
-<li>Liability structure</li>
-<li>Return objectives</li>
-<li>Regulatory and institutional constraints</li>
-</ul>
-</section>
-<section id="who-should-manage-the-bond-portfolio" class="level2" data-number="9.2">
-<h2 data-number="9.2" class="anchored" data-anchor-id="who-should-manage-the-bond-portfolio"><span class="header-section-number">9.2</span> Who Should Manage the Bond Portfolio?</h2>
-<p>Management may be internal or external, depending on institutional size, expertise, and governance structure.</p>
-<hr>
-</section>
-</section>
-<section id="portfolio-management-team" class="level1" data-number="10">
-<h1 data-number="10"><span class="header-section-number">10</span> Portfolio Management Team</h1>
-<p>A bond portfolio management team may include:</p>
-<ul>
-<li>Chief investment officer</li>
-<li>Portfolio managers</li>
-<li>Credit analysts</li>
-<li>Quantitative analysts</li>
-<li>Traders</li>
-<li>Risk managers</li>
-</ul>
-<p>Effective bond portfolio management requires both macro views and security-level analysis.</p>
-<hr>
-</section>
-<section id="spectrum-of-bond-portfolio-strategies" class="level1" data-number="11">
-<h1 data-number="11"><span class="header-section-number">11</span> Spectrum of Bond Portfolio Strategies</h1>
-<p>Bond strategies span a wide spectrum.</p>
-<section id="bond-benchmark-based-strategies" class="level2" data-number="11.1">
-<h2 data-number="11.1" class="anchored" data-anchor-id="bond-benchmark-based-strategies"><span class="header-section-number">11.1</span> Bond Benchmark-Based Strategies</h2>
-<p>These strategies seek to outperform or closely track a benchmark index.</p>
-</section>
-<section id="absolute-return-strategies" class="level2" data-number="11.2">
-<h2 data-number="11.2" class="anchored" data-anchor-id="absolute-return-strategies"><span class="header-section-number">11.2</span> Absolute Return Strategies</h2>
-<p>These strategies focus on achieving a target return regardless of benchmark composition.</p>
-</section>
-<section id="liability-driven-strategies" class="level2" data-number="11.3">
-<h2 data-number="11.3" class="anchored" data-anchor-id="liability-driven-strategies"><span class="header-section-number">11.3</span> Liability-Driven Strategies</h2>
-<p>These strategies are designed to match assets to the behavior of liabilities, especially for pension funds and insurance companies.</p>
-<hr>
-</section>
-</section>
-<section id="bond-benchmarks" class="level1" data-number="12">
-<h1 data-number="12"><span class="header-section-number">12</span> Bond Benchmarks</h1>
-<p>Bond benchmarks play a central role in performance measurement and portfolio construction.</p>
-<section id="bond-market-indexes" class="level2" data-number="12.1">
-<h2 data-number="12.1" class="anchored" data-anchor-id="bond-market-indexes"><span class="header-section-number">12.1</span> Bond Market Indexes</h2>
-<p>Bond market indexes summarize the performance of broad segments of the bond market.</p>
-</section>
-<section id="market-capitalization-weighted-bond-indexes" class="level2" data-number="12.2">
-<h2 data-number="12.2" class="anchored" data-anchor-id="market-capitalization-weighted-bond-indexes"><span class="header-section-number">12.2</span> Market-Capitalization-Weighted Bond Indexes</h2>
-<p>These indexes weight securities by the amount of debt outstanding.</p>
-</section>
-<section id="commonly-used-bond-market-indexes" class="level2" data-number="12.3">
-<h2 data-number="12.3" class="anchored" data-anchor-id="commonly-used-bond-market-indexes"><span class="header-section-number">12.3</span> Commonly Used Bond Market Indexes</h2>
-<p>Examples include major government, corporate, aggregate, and global bond indexes.</p>
-</section>
-<section id="problems-associated-with-market-cap-weighted-bond-indexes" class="level2" data-number="12.4">
-<h2 data-number="12.4" class="anchored" data-anchor-id="problems-associated-with-market-cap-weighted-bond-indexes"><span class="header-section-number">12.4</span> Problems Associated with Market-Cap-Weighted Bond Indexes</h2>
-<p>A major criticism is that the largest borrowers receive the largest weights, which may not be desirable from a risk-adjusted perspective.</p>
-</section>
-<section id="customized-bond-indexes" class="level2" data-number="12.5">
-<h2 data-number="12.5" class="anchored" data-anchor-id="customized-bond-indexes"><span class="header-section-number">12.5</span> Customized Bond Indexes</h2>
-<p>Institutions often build custom indexes tailored to liabilities, risk limits, or mandate constraints.</p>
-</section>
-<section id="alternative-bond-indexes" class="level2" data-number="12.6">
-<h2 data-number="12.6" class="anchored" data-anchor-id="alternative-bond-indexes"><span class="header-section-number">12.6</span> Alternative Bond Indexes</h2>
-<p>Alternative weighting methods seek to avoid weaknesses of market-cap weighting.</p>
-</section>
-<section id="ad-hoc-weighted-index" class="level2" data-number="12.7">
-<h2 data-number="12.7" class="anchored" data-anchor-id="ad-hoc-weighted-index"><span class="header-section-number">12.7</span> Ad Hoc Weighted Index</h2>
-<p>Some indexes use judgment-based or rule-based weighting schemes.</p>
-</section>
-<section id="risk-based-schemes" class="level2" data-number="12.8">
-<h2 data-number="12.8" class="anchored" data-anchor-id="risk-based-schemes"><span class="header-section-number">12.8</span> Risk-Based Schemes</h2>
-<p>Risk-based weighting allocates more deliberately with respect to duration, volatility, spread, or other risk factors.</p>
-<hr>
-</section>
-</section>
-<section id="the-primary-risk-factors" class="level1" data-number="13">
-<h1 data-number="13"><span class="header-section-number">13</span> The Primary Risk Factors</h1>
-<p>Important bond portfolio risk factors include:</p>
-<ul>
-<li>Level of interest rates</li>
-<li>Shape of the yield curve</li>
-<li>Credit spreads</li>
-<li>Liquidity</li>
-<li>Inflation</li>
-<li>Currency risk for global portfolios</li>
-</ul>
-<hr>
-</section>
-<section id="top-down-versus-bottom-up-portfolio-construction-and-management" class="level1" data-number="14">
-<h1 data-number="14"><span class="header-section-number">14</span> Top-Down versus Bottom-Up Portfolio Construction and Management</h1>
-<p>Bond portfolios may be built using different philosophies.</p>
-<section id="manager-expectations-versus-the-market-consensus" class="level2" data-number="14.1">
-<h2 data-number="14.1" class="anchored" data-anchor-id="manager-expectations-versus-the-market-consensus"><span class="header-section-number">14.1</span> Manager Expectations versus the Market Consensus</h2>
-<p>Active management depends on views that differ from what is already reflected in market prices.</p>
-</section>
-<section id="interest-rate-expectations-strategies" class="level2" data-number="14.2">
-<h2 data-number="14.2" class="anchored" data-anchor-id="interest-rate-expectations-strategies"><span class="header-section-number">14.2</span> Interest-Rate Expectations Strategies</h2>
-<p>Managers may position portfolios based on expected changes in the level of rates.</p>
-</section>
-<section id="yield-curve-strategies" class="level2" data-number="14.3">
-<h2 data-number="14.3" class="anchored" data-anchor-id="yield-curve-strategies"><span class="header-section-number">14.3</span> Yield Curve Strategies</h2>
-<p>Managers may position portfolios for steepening, flattening, or curvature changes in the yield curve.</p>
-<hr>
-</section>
-</section>
-<section id="active-portfolio-strategies" class="level1" data-number="15">
-<h1 data-number="15"><span class="header-section-number">15</span> Active Portfolio Strategies</h1>
-<p>Active strategies attempt to add value through:</p>
-<ul>
-<li>Duration positioning</li>
-<li>Yield curve positioning</li>
-<li>Sector rotation</li>
-<li>Credit selection</li>
-<li>Security selection</li>
-</ul>
-<hr>
-</section>
-<section id="smart-beta-bond-strategies" class="level1" data-number="16">
-<h1 data-number="16"><span class="header-section-number">16</span> Smart Beta Bond Strategies</h1>
-<p>Smart beta bond strategies apply systematic, rule-based approaches that deviate from traditional market-cap weighting. They may tilt toward value, carry, quality, low volatility, or other characteristics.</p>
-<hr>
-</section>
-<section id="the-use-of-leverage" class="level1" data-number="17">
-<h1 data-number="17"><span class="header-section-number">17</span> The Use of Leverage</h1>
-<p>Leverage can increase exposure to return opportunities, but it also magnifies risk. In bond portfolios, leverage may be obtained through borrowing, derivatives, or repo transactions.</p>
-<hr>
 </section>
 <section id="key-points" class="level1 unnumbered">
 <h1 class="unnumbered">Key Points</h1>
 <ul>
-<li>Bond prices move inversely with yields, and the price–yield relationship for option-free bonds is convex.</li>
-<li>Different option-free bonds do not have the same price volatility. Maturity, coupon rate, and yield level all affect sensitivity to changes in yield.</li>
-<li>Duration is the primary first-order measure of bond price sensitivity, while convexity captures second-order effects.</li>
-<li>Duration provides a good approximation for small yield changes; duration plus convexity provides a better approximation for larger changes.</li>
-<li>Duration should be interpreted mainly as a measure of price sensitivity, not merely as a measure of time.</li>
-<li>Key rate duration and yield curve reshaping duration are needed when yield curve shifts are not parallel.</li>
-<li>Spread duration is important for spread products such as corporate bonds and structured products.</li>
-<li>Bond portfolio management involves asset allocation, benchmark choice, strategy selection, and risk management.</li>
-<li>Benchmark-based, absolute return, and liability-driven approaches represent different portfolio management frameworks.</li>
-<li>Bond indexes are useful but imperfect; market-cap-weighted indexes have important limitations.</li>
-<li>Active strategies require views that differ from market consensus.</li>
-<li>Smart beta and leveraged strategies extend the range of bond portfolio approaches.</li>
+<li>Option-free bond prices move inversely with required yields because higher yields discount fixed cash flows more heavily.</li>
+<li>The price-yield relationship is convex, not linear. Price gains from yield decreases are larger than price losses from equal-sized yield increases.</li>
+<li>Price volatility differs across bonds. Longer maturity, lower coupon, and lower starting yield generally increase price sensitivity.</li>
+<li>PVBP measures the dollar price change for a one-basis-point yield change; YVPC asks how much yield must change to produce a given price change.</li>
+<li>Macaulay duration is a present-value-weighted average time to cash flows. Modified duration converts that timing measure into approximate percentage price sensitivity.</li>
+<li>Duration is a local, first-order approximation. It works best for small yield changes around the current yield.</li>
+<li>Duration should be interpreted as a measure of price sensitivity, not simply as a measure of time.</li>
+<li>Convexity measures the curvature of the price-yield relationship and improves price-change estimates for larger yield moves.</li>
+<li>Positive convexity helps option-free bond investors: it reduces losses when yields rise and increases gains when yields fall, relative to a duration-only estimate.</li>
+<li>Convexity has value when interest-rate volatility is expected to be high; investors often accept lower yield to own more convex bonds.</li>
+<li>Portfolio duration is the market-value-weighted average of individual bond durations. Contribution to duration shows which bonds or sectors drive total interest-rate exposure.</li>
+<li>A portfolio can have nearly the same total duration as a benchmark but different sector or key-rate exposures.</li>
+<li>Spread duration measures sensitivity to changes in credit or sector spreads, holding benchmark Treasury rates constant.</li>
+<li>Analytical duration is formula-based; empirical duration is estimated by repricing under yield shocks and is useful when cash flows are uncertain or model-dependent.</li>
+<li>Key rate duration and yield curve reshaping duration are needed when yield curve changes are nonparallel, such as steepenings, flattenings, and butterfly shifts.</li>
 </ul>
 
 

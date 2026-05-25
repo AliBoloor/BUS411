@@ -895,8 +895,8 @@
     "objectID": "lecture_notes/lec3.html#measuring-convexity",
     "href": "lecture_notes/lec3.html#measuring-convexity",
     "title": "Lecture 3: Bond Price Volatility, Duration, Convexity, and Bond Portfolio Strategies",
-    "section": "4.2 Measuring Convexity",
-    "text": "4.2 Measuring Convexity\nConvexity can also be estimated empirically by repricing the bond at yields above and below the current yield.\nThe numerical approximation is:\n\\[\n\\text{Convexity}\n\\approx\n\\frac{P_- + P_+ - 2P_0}{P_0(\\Delta y)^2}.\n\\]\nThis method is widely used because it works for more complicated securities if a pricing model can produce \\(P_-\\), \\(P_0\\), and \\(P_+\\). For option-free bonds, it produces nearly the same answer as the closed-form formula when the yield shock is small.",
+    "section": "4.3 Measuring Convexity",
+    "text": "4.3 Measuring Convexity\nUsing a Taylor series approximation, the price change can be written as:\n\\[\n\\Delta P\n\\approx\n\\frac{dP}{dy}\\Delta y\n+\n\\frac{1}{2}\\frac{d^2P}{dy^2}(\\Delta y)^2.\n\\]\nDividing by price gives the approximate percentage price change:\n\\[\n\\frac{\\Delta P}{P}\n\\approx\n\\frac{1}{P}\\frac{dP}{dy}\\Delta y\n+\n\\frac{1}{2P}\\frac{d^2P}{dy^2}(\\Delta y)^2.\n\\]\nThe first term is the duration effect:\n\\[\n\\frac{1}{P}\\frac{dP}{dy}\\Delta y\n=\n-D^*\\Delta y.\n\\]\nThe second derivative captures convexity. The dollar convexity measure is:\n\\[\n\\text{Dollar convexity}\n=\n\\frac{d^2P}{dy^2}.\n\\]\nThe convexity measure divides dollar convexity by price:\n\\[\n\\text{Convexity}\n=\n\\frac{1}{P}\\frac{d^2P}{dy^2}.\n\\]\nTherefore, the duration-plus-convexity approximation is:\n\\[\n\\frac{\\Delta P}{P}\n\\approx\n-D^*\\Delta y\n+\n\\frac{1}{2}\\text{Convexity}(\\Delta y)^2.\n\\]\nFor an option-free bond with cash flows \\(CF_t\\), the second derivative is:\n\\[\n\\frac{d^2P}{dy^2}\n=\n\\sum_{t=1}^{n}\n\\frac{t(t+1)CF_t}{(1+y)^{t+2}}.\n\\]\nFor bonds with semiannual coupons, the convexity calculation is first done in half-year periods. To annualize it, divide by \\(m^2\\), where \\(m\\) is the number of coupon payments per year. For semiannual coupon bonds, divide by \\(2^2 = 4\\).",
     "crumbs": [
       "Home",
       "Lecture 3"
@@ -906,8 +906,8 @@
     "objectID": "lecture_notes/lec3.html#approximating-percentage-price-change-using-duration-and-convexity",
     "href": "lecture_notes/lec3.html#approximating-percentage-price-change-using-duration-and-convexity",
     "title": "Lecture 3: Bond Price Volatility, Duration, Convexity, and Bond Portfolio Strategies",
-    "section": "4.3 Approximating Percentage Price Change Using Duration and Convexity",
-    "text": "4.3 Approximating Percentage Price Change Using Duration and Convexity\nA better approximation than duration alone is\n\\[\n\\frac{\\Delta P}{P}\n\\approx\n-D^* \\Delta y\n+\n\\frac{1}{2} \\text{Convexity} (\\Delta y)^2\n\\]\nThe convexity term is positive for option-free bonds because \\((\\Delta y)^2\\) is positive whether rates rise or fall. Therefore, convexity adds value in both directions:\n\nWhen yields rise, it offsets part of the duration-based loss.\nWhen yields fall, it adds to the duration-based gain.\n\n\n\n\n\n\n\nNoteExample: Duration Plus Convexity\n\n\n\nSuppose a bond has:\n\nModified duration = 10.62\nConvexity = 182.92\nYield change = +200 basis points, or \\(0.02\\)\n\nThe duration effect is\n\\[\n-10.62(0.02) = -21.24\\%.\n\\]\nThe convexity effect is\n\\[\n\\frac{1}{2}(182.92)(0.02)^2 = 3.66\\%.\n\\]\nThe duration-plus-convexity estimate is\n\\[\n-21.24\\% + 3.66\\% = -17.58\\%.\n\\]\nThis is typically closer to the actual price change than duration alone for a large rate move.",
+    "section": "4.5 Approximating Percentage Price Change Using Duration and Convexity",
+    "text": "4.5 Approximating Percentage Price Change Using Duration and Convexity\nThe convexity term is positive for option-free bonds because \\((\\Delta y)^2\\) is positive whether yields rise or fall. Convexity therefore helps in both directions:\n\nWhen yields rise, convexity offsets part of the duration-based loss.\nWhen yields fall, convexity adds to the duration-based gain.\n\n\n\n\n\n\n\nNoteExample: Duration Plus Convexity\n\n\n\nConsider the 25-year, 6% coupon bond selling to yield 9%.\n\nModified duration = 10.62\nConvexity measure = 182.92\nStarting price = 70.357\n\nIf the required yield rises by 200 basis points, then \\(\\Delta y = +0.02\\).\nThe duration effect is:\n\\[\n-D^*\\Delta y\n=\n-10.62(0.02)\n=\n-21.24\\%.\n\\]\nThe convexity effect is:\n\\[\n\\frac{1}{2}(182.92)(0.02)^2\n=\n3.66\\%.\n\\]\nThe estimated percentage price change is:\n\\[\n-21.24\\% + 3.66\\%\n=\n-17.58\\%.\n\\]\nThe actual price change from repricing the bond is approximately -18.03%, so adding convexity materially improves the duration-only estimate.\nIf the required yield falls by 200 basis points, then \\(\\Delta y = -0.02\\).\nThe duration effect is:\n\\[\n-10.62(-0.02)\n=\n21.24\\%.\n\\]\nThe convexity effect is still positive:\n\\[\n\\frac{1}{2}(182.92)(-0.02)^2\n=\n3.66\\%.\n\\]\nThe estimated percentage price change is:\n\\[\n21.24\\% + 3.66\\%\n=\n24.90\\%.\n\\]\nThe actual price change from repricing the bond is approximately 25.46%.",
     "crumbs": [
       "Home",
       "Lecture 3"
@@ -917,8 +917,8 @@
     "objectID": "lecture_notes/lec3.html#value-of-convexity",
     "href": "lecture_notes/lec3.html#value-of-convexity",
     "title": "Lecture 3: Bond Price Volatility, Duration, Convexity, and Bond Portfolio Strategies",
-    "section": "4.4 Value of Convexity",
-    "text": "4.4 Value of Convexity\nConvexity improves approximation accuracy for large changes in yield. It also explains why price gains from falling yields exceed price losses from equal yield increases.\nConvexity has investment value. If two option-free bonds have the same yield and the same duration, the bond with greater convexity is generally preferred because it performs better for both large upward and large downward yield moves. If yields rise, it loses less; if yields fall, it gains more.\nMarkets usually recognize this. Investors often have to “pay for convexity” by accepting a lower yield on the more convex bond. Convexity is most valuable when expected interest-rate volatility is high. If rates are expected to barely move, the benefit of extra curvature is small.",
+    "section": "4.7 Value of Convexity",
+    "text": "4.7 Value of Convexity\nConvexity has investment value. Suppose two option-free bonds have the same yield and the same duration, but Bond B has greater convexity than Bond A. If yields rise, Bond B should lose less. If yields fall, Bond B should gain more.\nBecause of this payoff pattern, convexity has a market value. Investors who expect large interest-rate moves generally prefer more convex bonds because convexity helps in both directions: it increases the upside when yields fall and reduces the downside when yields rise. These investors are usually willing to pay for convexity by accepting a lower yield.\nThe value of convexity depends on the investor’s view of future interest-rate volatility. If an investor expects rates to be volatile, extra convexity is valuable because the bond has more opportunity to benefit from large yield moves. If an investor expects rates to remain stable, extra convexity is less useful because the price-yield curve is being evaluated only near the current yield, where duration alone is already a good approximation.\nThis creates a tradeoff. When the market price of convexity is high, a low-volatility investor may prefer to sell convexity by holding the less convex bond and earning a higher yield. A high-volatility investor may prefer to buy convexity, accepting a lower yield in exchange for better performance when yields move substantially.",
     "crumbs": [
       "Home",
       "Lecture 3"
@@ -928,8 +928,8 @@
     "objectID": "lecture_notes/lec3.html#properties-of-convexity",
     "href": "lecture_notes/lec3.html#properties-of-convexity",
     "title": "Lecture 3: Bond Price Volatility, Duration, Convexity, and Bond Portfolio Strategies",
-    "section": "4.5 Properties of Convexity",
-    "text": "4.5 Properties of Convexity\nFor option-free bonds:\n\nConvexity is positive.\nConvexity increases with maturity.\nConvexity tends to be greater for lower coupon bonds.\nConvexity tends to be greater at lower yields.\n\nPositive convexity means the slope of the price-yield curve becomes flatter as yields rise and steeper as yields fall. In duration language, duration decreases when yields rise and increases when yields fall.\nThere is one subtle comparison: for a given yield and maturity, lower-coupon bonds tend to have greater convexity. But for a given yield and modified duration, lower-coupon bonds can have lower convexity. This is why convexity comparisons should always specify what is being held constant.",
+    "section": "4.8 Properties of Convexity",
+    "text": "4.8 Properties of Convexity\nAll option-free bonds have positive convexity, but the amount of convexity depends on yield, maturity, coupon rate, and what comparison is being made.\nProperty 1: As required yield increases, convexity decreases. As required yield decreases, convexity increases.\nThis is the standard positive convexity property of option-free bonds. When yields rise, the price of the bond falls, but duration also declines. The lower duration slows the price decline. When yields fall, the price of the bond rises, and duration increases. The higher duration accelerates the price gain.\nIntuition: The slope of the price-yield curve becomes flatter as yields rise and steeper as yields fall. A flatter tangent line means lower duration; a steeper tangent line means higher duration. Convexity measures how quickly that slope, or dollar duration, changes as yields move.\nProperty 2: For a given yield and maturity, the lower the coupon, the greater the convexity of a bond.\nThis property follows from the timing of cash flows. Lower-coupon bonds return less cash early and leave more value concentrated in later cash flows. Later cash flows are more sensitive to changes in the discount rate, so the price-yield curve bends more.\nIntuition: A zero-coupon bond has all of its value in one distant payment, so its price is highly sensitive to changes in yield. A high-coupon bond returns more value through earlier coupon payments, which reduces curvature. This is why, among bonds with the same yield and maturity, the zero-coupon bond has the highest convexity and the high-coupon bond has the lowest convexity.\n\n\n\n\n  \n    Bond A\n    Yield (%) \n    Maturity \n    \n      Coupon: 2.0%\n      \n    \n    \n  \n  \n\n\n\n\n\nProperty 3: For a given yield and modified duration, the lower the coupon, the smaller the convexity.\nThis comparison holds duration constant rather than maturity. Under this comparison, lower-coupon bonds, including zero-coupon bonds, can have lower convexity than coupon bonds with the same modified duration.\nIntuition: Holding maturity fixed and holding duration fixed are different comparisons. A zero-coupon bond has duration equal to its maturity, so matching a coupon bond’s modified duration may require comparing it with a shorter-maturity zero-coupon bond. That shorter maturity reduces curvature. The investment implication is that zero-coupon bonds have the lowest convexity for a given modified duration.\n\n\n\n\n  \n    Same-Duration Convexity Comparison\n    Yield (%) \n    Target modified duration \n    \n      Coupon: 4.0%",
     "crumbs": [
       "Home",
       "Lecture 3"
@@ -950,8 +950,8 @@
     "objectID": "lecture_notes/lec3.html#key-rate-duration",
     "href": "lecture_notes/lec3.html#key-rate-duration",
     "title": "Lecture 3: Bond Price Volatility, Duration, Convexity, and Bond Portfolio Strategies",
-    "section": "7.2 Key Rate Duration",
-    "text": "7.2 Key Rate Duration\nKey rate duration measures the sensitivity of a bond’s price to changes in a specific maturity point on the yield curve, holding other points constant.\nThis is essential when yield curve shifts are not parallel.\nInstead of summarizing interest-rate risk with one number, key rate duration produces a vector of exposures. Common key rates include 3 months, 1 year, 2 years, 5 years, 10 years, and 30 years. A portfolio can have the same total duration as another portfolio but very different key rate exposures.\nExample: two portfolios may both have duration of 4.3. One may be exposed mainly to the 2-year and 30-year points, while the other is exposed mainly to the 5-year point. If only the 30-year yield rises, their performance will differ even though their total duration is the same.\nA key rate duration of 0.675 at the 30-year maturity means the portfolio value is expected to change by about 0.675% for a 100-basis-point change in the 30-year rate, holding the rest of the curve fixed.",
+    "section": "8.2 Key Rate Duration",
+    "text": "8.2 Key Rate Duration\nKey rate duration measures the sensitivity of a bond’s price to changes in a specific maturity point on the yield curve, holding other points constant.\nThis is essential when yield curve shifts are not parallel.\nInstead of summarizing interest-rate risk with one number, key rate duration produces a vector of exposures. Common key rates include 3 months, 1 year, 2 years, 5 years, 10 years, and 30 years. A portfolio can have the same total duration as another portfolio but very different key rate exposures.\nExample: two portfolios may both have duration of 4.3. One may be exposed mainly to the 2-year and 30-year points, while the other is exposed mainly to the 5-year point. If only the 30-year yield rises, their performance will differ even though their total duration is the same.\nA key rate duration of 0.675 at the 30-year maturity means the portfolio value is expected to change by about 0.675% for a 100-basis-point change in the 30-year rate, holding the rest of the curve fixed.\n\n\n\n\n\n\nNoteExample: Same Total Duration, Different Key Rate Exposures\n\n\n\nSuppose two portfolios both have total duration of 4.30, but their exposure is distributed differently across the yield curve.\n\n\n\nKey rate\nPortfolio A: Barbell\nPortfolio B: Bullet\n\n\n\n\n2-year\n1.40\n0.20\n\n\n5-year\n0.30\n3.50\n\n\n10-year\n0.60\n0.50\n\n\n30-year\n2.00\n0.10\n\n\nTotal duration\n4.30\n4.30\n\n\n\nPortfolio A is a barbell: it has more exposure at the short and long ends of the curve. Portfolio B is a bullet: it has most of its exposure around the 5-year point.\nIf the entire yield curve shifts up by 100 basis points, both portfolios lose about 4.30%. But if only one maturity point moves, their performance can be very different:\n\n\n\n\n\n\n\n\nYield curve shock\nPortfolio A estimated price change\nPortfolio B estimated price change\n\n\n\n\nParallel +100 bp\n-4.30%\n-4.30%\n\n\n5-year rate +100 bp only\n-0.30%\n-3.50%\n\n\n30-year rate +100 bp only\n-2.00%\n-0.10%\n\n\n\nThe lesson is that total duration hides where the interest-rate exposure is located. Key rate duration shows the portfolio’s exposure to specific maturity points on the curve.",
     "crumbs": [
       "Home",
       "Lecture 3"
@@ -3515,5 +3515,49 @@
     "title": "Assignment 1",
     "section": "6.5 Question 30",
     "text": "6.5 Question 30\nA mortgage investor evaluates an agency MBS trading at 103.00. The expected cash-flow yield under the base prepayment model is 4.85 percent. Under a faster prepayment model, the yield falls to 4.20 percent. Under a slower prepayment model, the yield rises to 5.05 percent.\nAnswer the following:\n\nExplain why the same security has different yields under different prepayment assumptions.\n\nExplain why faster prepayments reduce yield for this premium MBS.\n\nExplain why slower prepayments increase yield in this scenario.\n\nExplain why cash-flow yield is limited as a valuation measure.\n\nExplain why option-adjusted spread is often preferred for mortgage-backed securities."
+  },
+  {
+    "objectID": "lecture_notes/lec3.html#relationship-among-volatility-measures",
+    "href": "lecture_notes/lec3.html#relationship-among-volatility-measures",
+    "title": "Lecture 3: Bond Price Volatility, Duration, Convexity, and Bond Portfolio Strategies",
+    "section": "4.1 Relationship Among Volatility Measures",
+    "text": "4.1 Relationship Among Volatility Measures\nThe main measures of bond price volatility are closely related:\n\n\n\n\n\n\n\n\nMeasure\nInterpretation\nRelationship\n\n\n\n\nMacaulay duration, \\(D_M\\)\nPresent-value-weighted average time to cash flows\nStarting point for modified duration\n\n\nModified duration, \\(D^*\\)\nApproximate percentage price change for a small yield change\n\\(D^* = D_M / (1 + y/m)\\)\n\n\nPVBP\nDollar price change for a 1-basis-point yield change\n\\(\\text{PVBP} \\approx D^*P/10{,}000\\)\n\n\nPrice-yield slope\nAbsolute change in price for a change in yield\nClosely related to dollar duration\n\n\nConvexity\nCurvature of the price-yield relationship\nImproves the duration approximation for larger yield changes\n\n\n\nFor bonds at or near par, a rough rule is:\n\\[\n\\text{PVBP} \\approx \\frac{D^*}{100}\n\\]\nwhen price is quoted per $100 of par value.",
+    "crumbs": [
+      "Home",
+      "Lecture 3"
+    ]
+  },
+  {
+    "objectID": "lecture_notes/lec3.html#duration-as-a-tangent-line-approximation",
+    "href": "lecture_notes/lec3.html#duration-as-a-tangent-line-approximation",
+    "title": "Lecture 3: Bond Price Volatility, Duration, Convexity, and Bond Portfolio Strategies",
+    "section": "4.2 Duration as a Tangent-Line Approximation",
+    "text": "4.2 Duration as a Tangent-Line Approximation\nDuration estimates price changes using the tangent line to the price-yield curve at the initial yield \\(y^*\\). If we move away from \\(y^*\\), the tangent-line estimate differs from the actual curved price-yield relationship.\nFor option-free bonds, the duration-only estimate usually understates the actual price:\n\nIf yields fall, duration underestimates the price gain.\nIf yields rise, duration overstates the price loss, so the estimated ending price is too low.\n\nThe farther the yield moves from the starting yield, the larger this error becomes. Convexity corrects part of this error by adding curvature to the approximation.",
+    "crumbs": [
+      "Home",
+      "Lecture 3"
+    ]
+  },
+  {
+    "objectID": "lecture_notes/lec3.html#convexity-of-the-hypothetical-bonds",
+    "href": "lecture_notes/lec3.html#convexity-of-the-hypothetical-bonds",
+    "title": "Lecture 3: Bond Price Volatility, Duration, Convexity, and Bond Portfolio Strategies",
+    "section": "4.4 Convexity of the Hypothetical Bonds",
+    "text": "4.4 Convexity of the Hypothetical Bonds\nThe following table summarizes the convexity measures for the six hypothetical bonds used earlier. Values are annualized.\n\n\n\n\n\n\n\n\n\nBond\nSecond Derivative\nAnnualized Convexity Measure\nAnnualized Dollar Convexity Measure\n\n\n\n\n9% / 5-year\n7,781.02\n19.45\n$1,945.26\n\n\n9% / 25-year\n64,288.42\n160.72\n$16,072.00\n\n\n6% / 5-year\n7,349.45\n20.85\n$1,837.36\n\n\n6% / 25-year\n51,476.26\n182.92\n$12,869.70\n\n\n0% / 5-year\n6,486.30\n25.18\n$1,621.42\n\n\n0% / 25-year\n25,851.93\n583.78\n$6,463.02\n\n\n\nThe table shows two important patterns:\n\nFor a given maturity and yield, lower-coupon bonds have greater convexity.\nLonger-maturity bonds usually have greater convexity than shorter-maturity bonds.",
+    "crumbs": [
+      "Home",
+      "Lecture 3"
+    ]
+  },
+  {
+    "objectID": "lecture_notes/lec3.html#notes-on-convexity-measures",
+    "href": "lecture_notes/lec3.html#notes-on-convexity-measures",
+    "title": "Lecture 3: Bond Price Volatility, Duration, Convexity, and Bond Portfolio Strategies",
+    "section": "4.6 Notes on Convexity Measures",
+    "text": "4.6 Notes on Convexity Measures\nThree points are important.\nFirst, convexity can refer to the general shape of the price-yield relationship, while the convexity measure is the numerical estimate used in the price-change approximation.\nSecond, convexity does not have the same simple interpretation as duration. A modified duration of 4 means an approximate 4% price change for a 100-basis-point change in yield. A convexity measure must be interpreted together with the squared yield change:\n\\[\n\\frac{1}{2}\\text{Convexity}(\\Delta y)^2.\n\\]\nThird, different vendors and textbooks may scale convexity differently. Some define convexity as:\n\\[\n\\frac{1}{2P}\\frac{d^2P}{dy^2}\n\\]\ninstead of:\n\\[\n\\frac{1}{P}\\frac{d^2P}{dy^2}.\n\\]\nThis does not change the estimated price effect as long as the formula is used consistently.",
+    "crumbs": [
+      "Home",
+      "Lecture 3"
+    ]
   }
 ]

@@ -5,11 +5,11 @@ format:
     toc: true
     toc-location: left
     number-sections: true
-    number-depth: 3
+    number-depth: 2
   pdf:
     toc: true
     number-sections: true
-    number-depth: 3
+    number-depth: 2
 jupyter: python3
 ---
 
@@ -60,6 +60,7 @@ In practice, a bond price can change over time for several reasons:
 
 In this section, we isolate the first effect: an instantaneous change in the required yield, holding the promised cash flows fixed.
 
+
 ::: {.callout-note title="Worked Example"}
 **Review of the Price–Yield Relationship**
 
@@ -89,8 +90,62 @@ The bond price falls from \$1,027.47 to \$973.85 when the required yield rises f
 :::
 
 ::: {.callout-tip title="Intuition"}
-A bond is a package of future dollars. Yield is the rate used to translate those future dollars into today's dollars. A higher yield is a higher discount rate, so today's value is lower. This is why bond traders often say "rates up, prices down."
+A bond is a package of future dollars. Yield is the rate used to translate those future dollars into today's dollars. A higher yield is a higher discount rate, so today's value is lower. 
 :::
+
+
+| Required Yield (%) | 9% / 5 years | 9% / 25 years | 6% / 5 years | 6% / 25 years | 0% / 5 years | 0% / 25 years |
+|---:|---:|---:|---:|---:|---:|---:|
+| 6.00 | 112.7953 | 138.5946 | 100.0000 | 100.0000 | 74.4094 | 22.8107 |
+| 7.00 | 108.3166 | 123.4556 | 95.8417 | 88.2722 | 70.8919 | 17.9053 |
+| 8.00 | 104.0554 | 110.7410 | 91.8891 | 78.5178 | 67.5564 | 14.0713 |
+| 8.50 | 102.0027 | 105.1482 | 89.9864 | 74.2587 | 65.9537 | 12.4795 |
+| 8.90 | 100.3966 | 100.9961 | 88.4983 | 71.1105 | 64.7017 | 11.3391 |
+| 8.99 | 100.0395 | 100.0988 | 88.1676 | 70.4318 | 64.4236 | 11.0975 |
+| 9.00 | 100.0000 | 100.0000 | 88.1309 | 70.3570 | 64.3928 | 11.0710 |
+| 9.01 | 99.9604 | 99.9013 | 88.0943 | 70.2824 | 64.3620 | 11.0445 |
+| 9.10 | 99.6053 | 99.0199 | 87.7654 | 69.6164 | 64.0855 | 10.8093 |
+| 9.50 | 98.0459 | 95.2539 | 86.3214 | 66.7773 | 62.8723 | 9.8242 |
+| 10.00 | 96.1391 | 90.8720 | 84.5565 | 63.4881 | 61.3913 | 8.7204 |
+| 11.00 | 92.4624 | 83.0685 | 81.1559 | 57.6712 | 58.5431 | 6.8767 |
+| 12.00 | 88.9599 | 76.3572 | 77.9197 | 52.7144 | 55.8395 | 5.4288 |
+
+: Price-Yield Relationship for Six Hypothetical Bonds
+
+```{python}
+#| echo: false
+#| message: false
+#| warning: false
+
+import matplotlib.pyplot as plt
+import pandas as pd
+
+bond_prices = pd.DataFrame(
+    {
+        "Required Yield (%)": [6.00, 7.00, 8.00, 8.50, 8.90, 8.99, 9.00, 9.01, 9.10, 9.50, 10.00, 11.00, 12.00],
+        "9% / 5 years": [112.7953, 108.3166, 104.0554, 102.0027, 100.3966, 100.0395, 100.0000, 99.9604, 99.6053, 98.0459, 96.1391, 92.4624, 88.9599],
+        "9% / 25 years": [138.5946, 123.4556, 110.7410, 105.1482, 100.9961, 100.0988, 100.0000, 99.9013, 99.0199, 95.2539, 90.8720, 83.0685, 76.3572],
+        "6% / 5 years": [100.0000, 95.8417, 91.8891, 89.9864, 88.4983, 88.1676, 88.1309, 88.0943, 87.7654, 86.3214, 84.5565, 81.1559, 77.9197],
+        "6% / 25 years": [100.0000, 88.2722, 78.5178, 74.2587, 71.1105, 70.4318, 70.3570, 70.2824, 69.6164, 66.7773, 63.4881, 57.6712, 52.7144],
+        "0% / 5 years": [74.4094, 70.8919, 67.5564, 65.9537, 64.7017, 64.4236, 64.3928, 64.3620, 64.0855, 62.8723, 61.3913, 58.5431, 55.8395],
+        "0% / 25 years": [22.8107, 17.9053, 14.0713, 12.4795, 11.3391, 11.0975, 11.0710, 11.0445, 10.8093, 9.8242, 8.7204, 6.8767, 5.4288],
+    }
+)
+
+ax = bond_prices.plot(
+    x="Required Yield (%)",
+    y=bond_prices.columns.drop("Required Yield (%)"),
+    figsize=(8, 5),
+    linewidth=2,
+)
+ax.set_xlabel("Required Yield (%)")
+ax.set_ylabel("Price")
+ax.set_title("Price-Yield Relationship for Six Hypothetical Bonds")
+ax.grid(True, alpha=0.3)
+ax.legend(title="Coupon / Maturity", loc="best")
+plt.tight_layout()
+plt.show()
+```
 
 ---
 
@@ -98,7 +153,7 @@ A bond is a package of future dollars. Yield is the rate used to translate those
 
 The price-volatility properties of option-free bonds describe how different bonds respond to changes in required yield.
 
-## Property 1
+### Property 1
 
 Although the prices of all option-free bonds move in the opposite direction from the change in required yield, the **percentage price change is not the same for all bonds**.
 
@@ -108,7 +163,7 @@ For example, a 25-year coupon bond usually reacts more strongly to a 100-basis-p
 
 The same logic explains why lower-coupon bonds are more volatile. A low-coupon bond pays less cash early and returns more of its value at maturity. Its value is therefore more concentrated in later cash flows, making it more sensitive to the discount rate.
 
-## Property 2
+### Property 2
 
 For **very small changes** in the required yield, the percentage price change for a given bond is roughly the same whether the required yield increases or decreases.
 
@@ -116,7 +171,7 @@ This is the local linear approximation behind duration.
 
 For instance, a 1-basis-point increase and a 1-basis-point decrease usually produce almost symmetric percentage price changes. The price-yield curve is still curved, but over a tiny interval the curve looks almost like a straight line. Duration uses exactly this idea.
 
-## Property 3
+### Property 3
 
 For **large changes** in the required yield, the percentage price change is not the same for an increase in the required yield as it is for a decrease in the required yield.
 
@@ -124,7 +179,7 @@ This occurs because the price–yield relationship is curved rather than linear.
 
 If a bond loses about 9% when yields rise by 100 basis points, it will not necessarily gain exactly 9% when yields fall by 100 basis points. The difference becomes more important as the yield shock becomes larger and as the bond becomes more convex.
 
-## Property 4
+### Property 4
 
 For a given large change in basis points, the **percentage price increase is greater than the percentage price decrease**.
 
@@ -138,8 +193,6 @@ The main bond characteristics affecting price volatility are:
 
 - Time to maturity
 - Coupon rate
-- Yield to maturity
-- Embedded options
 
 For option-free bonds:
 
@@ -159,6 +212,8 @@ Consider three bonds with the same required yield:
 The 25-year coupon bond is more volatile than the 5-year coupon bond because its cash flows extend farther into the future. The 25-year zero-coupon bond is typically even more volatile because all of its cash flow arrives at maturity.
 :::
 
+
+
 ## Effects of Yield to Maturity
 
 For two otherwise identical option-free bonds, the bond with the lower yield to maturity will exhibit greater percentage price volatility for a given change in yield. This effect is related to the curvature of the present value function.
@@ -175,7 +230,7 @@ Several measures are used to summarize how sensitive a bond’s price is to chan
 
 ## Price Value of a Basis Point
 
-The **price value of a basis point (PVBP)** measures the change in the price of a bond for a one-basis-point change in yield.
+The **price value of a basis point (PVBP)**, a.k.a. dollar value of an 01 (DV01), measures the change in the price of a bond for a one-basis-point change in yield.
 
 A basis point is
 
@@ -200,6 +255,12 @@ $$
 $$
 
 So a one-basis-point yield increase would reduce the position value by about \$4,000. Traders often use PVBP or DV01 because it converts rate exposure into dollars immediately.
+
+| Measure | 5-year 9% coupon | 25-year 9% coupon | 5-year 6% coupon | 25-year 6% coupon | 5-year zero-coupon | 25-year zero-coupon |
+|---|---:|---:|---:|---:|---:|---:|
+| Initial Price (9% yield) | 100.0000 | 100.0000 | 88.1309 | 70.3570 | 64.3928 | 11.0710 |
+| Price at 9.01% | 99.9604 | 99.9013 | 88.0945 | 70.2824 | 64.3620 | 11.0445 |
+| DV01 | 0.0396 | 0.0987 | 0.0364 | 0.0746 | 0.0308 | 0.0265 |
 
 ## Yield Value of a Price Change
 
@@ -310,12 +371,131 @@ $$
 
 The derivative gives the slope of the price-yield curve at the current yield. Duration is therefore a **local** risk measure: it describes the slope at one point, not the full curve. This is why duration works well for small changes in yield but becomes less accurate for large changes.
 
+::: {.callout-note title="Example: Macaulay and Modified Duration"}
+Suppose a 3-year bond has:
+
+- Face value = \$1,000
+- Annual coupon rate = 8%
+- Annual coupon payment = \$80
+- Yield to maturity = 6%
+
+The bond price is the present value of its promised cash flows:
+
+$$
+P = \frac{80}{1.06} + \frac{80}{1.06^2} + \frac{1080}{1.06^3}
+= 1053.4602.
+$$
+
+| Year | Cash Flow | Present Value at 6% | PV Weight | Contribution to Duration |
+|---:|---:|---:|---:|---:|
+| 1 | 80 | 75.4717 | 0.0716 | 0.0716 |
+| 2 | 80 | 71.1997 | 0.0676 | 0.1352 |
+| 3 | 1,080 | 906.7888 | 0.8608 | 2.5823 |
+| **Total** |  | **1,053.4602** | **1.0000** | **2.7891** |
+
+The Macaulay duration is the sum of the contribution column:
+
+$$
+D_M = 0.0716 + 0.1352 + 2.5823 = 2.7891 \text{ years}.
+$$
+
+The modified duration is:
+
+$$
+D^* = \frac{D_M}{1+y}
+= \frac{2.7891}{1.06}
+= 2.6313.
+$$
+
+This means a small 100-basis-point increase in yield would reduce the bond price by approximately 2.6313%, before accounting for convexity.
+:::
+
+### Alternative Duration Formula
+
+Instead of calculating Macaulay duration from each cash-flow weight and then converting it to modified duration, we can derive modified duration directly from the bond price formula.
+
+For a standard fixed-coupon bond, price can be written as the sum of two components:
+
+- The present value of the coupon annuity
+- The present value of the face value
+
+$$
+P
+= C\left(\frac{1 - (1+y)^{-n}}{y}\right)
++ \frac{F}{(1+y)^n},
+$$
+
+where $C$ is the coupon payment, $F$ is face value, $y$ is the yield per period, and $n$ is the number of periods.
+
+Taking the first derivative with respect to yield gives:
+
+$$
+\frac{dP}{dy}
+=
+C\left[
+\frac{ny(1+y)^{-n-1} - \left(1 - (1+y)^{-n}\right)}{y^2}
+\right]
+- nF(1+y)^{-n-1}.
+$$
+
+Modified duration is the negative of the percentage price derivative:
+
+$$
+D^* = -\frac{1}{P}\frac{dP}{dy}.
+$$
+
+Substituting the derivative into this expression gives the alternative modified duration formula:
+
+$$
+D^*
+=
+\frac{
+\frac{C}{y^2}\left[1 - (1+y)^{-n}\right]
++ n\left(F - \frac{C}{y}\right)(1+y)^{-n-1}
+}{P}.
+$$
+
+Once modified duration is known, Macaulay duration is:
+
+$$
+D_M = D^*(1+y).
+$$
+
+::: {.callout-note title="Example: Alternative Duration Formula"}
+Use the same 3-year bond:
+
+- Face value = \$1,000
+- Annual coupon payment = \$80
+- Yield to maturity = 6%
+- Price = \$1,053.4602
+
+First calculate modified duration:
+
+$$
+D^*
+=
+\frac{
+\frac{80}{0.06^2}\left[1 - 1.06^{-3}\right]
++ 3\left(1000 - \frac{80}{0.06}\right)1.06^{-4}
+}{1053.4602}
+= 2.6313.
+$$
+
+Then convert modified duration to Macaulay duration:
+
+$$
+D_M = 2.6313(1.06) = 2.7891 \text{ years}.
+$$
+
+This matches the cash-flow contribution method. The alternative formula simply gets the same duration by differentiating the annuity-plus-face-value price formula.
+:::
+
 ## Properties of Duration
 
 For option-free bonds:
 
 - Duration is less than maturity for coupon bonds.
-- Zero-coupon bond duration equals its maturity.
+- Zero-coupon bond Macaulay duration equals its maturity.
 - Duration increases with maturity, but at a decreasing rate.
 - Duration decreases as coupon rate increases.
 - Duration decreases as yield increases.
@@ -323,6 +503,72 @@ For option-free bonds:
 These properties match the price-volatility patterns discussed earlier. Longer maturity and lower coupon both push more value into later cash flows, increasing duration. Higher yields discount distant cash flows more heavily, reducing their present value weights and lowering duration.
 
 One qualification is that the maturity-duration relationship is strongest for ordinary coupon bonds near normal yield levels. For very long-maturity deep-discount bonds, duration behavior can be less intuitive, so the general rule should not be applied mechanically.
+
+::: {.callout-note title="Example: When Longer Maturity Does Not Imply Proportionally Higher Duration"}
+
+**Scenario:**
+Consider two long-term bonds in a high-yield environment where discounting is strong.
+
+* Yield to maturity: 10%
+* Both bonds have very low coupons (≈ 1%), so they behave close to deep-discount bonds
+
+**Bond A:**
+
+* Maturity: 30 years
+* Coupon: 1%
+* Approximate duration: ~20–22
+
+**Bond B:**
+
+* Maturity: 100 years
+* Coupon: 1%
+* Approximate duration: ~35–40
+
+---
+
+**Naive expectation:**
+One might expect the 100-year bond to have a duration close to 100, making it vastly more sensitive to interest rates than the 30-year bond.
+
+---
+
+**What actually happens:**
+
+* The 100-year bond’s duration is **far below its maturity**
+* Extending maturity from 30 to 100 years increases duration, but **not proportionally**
+
+---
+
+**Why?**
+
+* Even small coupons generate intermediate cash flows
+* These earlier cash flows **pull duration inward**
+* At a 10% yield, very distant payments are **heavily discounted** and contribute little to present value
+
+---
+
+**Implication:**
+
+* Increasing maturity from 30 → 50 years has a noticeable impact on duration
+* Increasing maturity from 50 → 100 years has **much smaller incremental impact**
+
+---
+
+**More counterintuitive case:**
+
+* **Bond C:** 30-year zero-coupon → duration ≈ 30
+* **Bond D:** 100-year bond with 2% coupon → duration can be **less than 30**
+
+So:
+
+> A shorter-maturity bond can have **higher duration** than a much longer-maturity bond.
+
+---
+
+**Conclusion:**
+The rule “longer maturity ⇒ higher duration” holds for standard bonds at typical maturities, but **breaks down for very long-maturity deep-discount bonds**, where duration increases at a diminishing rate and may even be lower than that of shorter bonds.
+
+:::
+
 
 ## Approximating the Percentage Price Change
 
@@ -332,24 +578,36 @@ $$
 \frac{\Delta P}{P} \approx -D^* \Delta y
 $$
 
-Example: if a 25-year bond has modified duration of 10.62 and yield rises by 10 basis points, then
+::: {.callout-note title="Example: Duration Approximation vs. Actual Price Change"}
+Consider the **25-year, 6% coupon** bond from earlier in this lecture, priced at **9%** yield to maturity ($P_0 = 70.357$ per \$100 par, modified duration $D^* = 10.62$). If yield rises, the duration estimate is
 
 $$
-\frac{\Delta P}{P}
-\approx
--10.62(0.0010)
-= -0.01062.
+\frac{\Delta P}{P} \approx -D^* \Delta y.
 $$
 
-The estimated price decline is about 1.06%. For a small shock like 10 basis points, this approximation is usually close to the actual price change for an option-free bond.
+Compare that linear estimate to the **actual** percentage price change from repricing the bond (same cash flows, new yield):
 
-For a 200-basis-point shock, the same formula gives:
+| Yield shock | New yield | New price | Duration estimate | Actual change | Difference |
+|:--:|--:|--:|--:|--:|--:|
+| +100 bp | 10.00% | 63.488 | $-10.62\%$ | $-9.76\%$ | 0.86 pp |
+| +200 bp | 11.00% | 57.671 | $-21.24\%$ | $-18.03\%$ | 3.21 pp |
+
+For the **100-basis-point** increase:
 
 $$
--10.62(0.0200) = -21.24\%.
+\frac{\Delta P}{P} \approx -10.62(0.01) = -10.62\%,
 $$
 
-This is less reliable because the formula is forcing a curved relationship into a straight-line estimate.
+but the true price change is $(63.488/70.357 - 1) \approx -9.76\%$. The duration rule is close but still **overstates** the loss by about 0.86 percentage points.
+
+For the **200-basis-point** increase:
+
+$$
+\frac{\Delta P}{P} \approx -10.62(0.02) = -21.24\%,
+$$
+
+while the actual change is $(57.671/70.357 - 1) \approx -18.03\%$. The gap widens to about **3.21 percentage points** because duration forces a curved price–yield relationship into a straight-line estimate. Convexity (developed below) corrects part of this error for larger shocks.
+:::
 
 ## Approximating the Dollar Price Change
 
@@ -394,13 +652,13 @@ $$
 
 Treasury duration measures exposure to changes in benchmark rates. Spread duration measures exposure to changes in the extra compensation investors require for credit, liquidity, or sector risk.
 
-Example: a corporate bond with spread duration of 5 would be expected to lose about 5% if its credit spread widens by 100 basis points, assuming Treasury rates are unchanged. A Treasury bond has no credit spread relative to itself, so its spread duration is zero.
+A corporate bond with spread duration of 5 would be expected to lose about 5% if its credit spread widens by 100 basis points, assuming Treasury rates are unchanged. A Treasury bond has no credit spread relative to itself, so its spread duration is zero.
 
 For floating-rate securities, spread duration is also important because the coupon resets with short-term rates, but the quoted margin is fixed. If the market demands a higher margin than the security pays, the floater's price falls.
 
 ## Portfolio Duration
 
-Portfolio duration is the weighted average duration of the holdings when weights are based on market value:
+Portfolio duration measures the interest-rate sensitivity of the whole portfolio. It is the market-value-weighted average duration of the individual holdings:
 
 $$
 D_P = \sum_{i=1}^{N} w_i D_i
@@ -412,28 +670,63 @@ $$
 w_i = \frac{\text{Market Value of Bond } i}{\text{Total Portfolio Market Value}}.
 $$
 
-The market-value weights are important. A small position in a high-duration bond may contribute less total portfolio risk than a large position in a moderate-duration bond.
+The market-value weights are essential. A small position in a high-duration bond may contribute less portfolio risk than a large position in a moderate-duration bond. For that reason, managers usually focus on each holding's **contribution to portfolio duration**:
 
-::: {.callout-note title="Example: Contribution to Portfolio Duration"}
+$$
+\text{Contribution to portfolio duration}
+=
+\text{portfolio weight} \times \text{duration of issue}.
+$$
+
+::: {.callout-note title="Example: Bond-Level Contribution to Portfolio Duration"}
 Suppose a portfolio has four bonds:
 
-| Bond | Market Value | Weight | Duration | Contribution |
+| Bond | Market Value | Weight in Portfolio | Duration | Contribution to Portfolio Duration |
 |---|---:|---:|---:|---:|
-| A | \$10 million | 0.10 | 4 | 0.40 |
-| B | \$40 million | 0.40 | 7 | 2.80 |
-| C | \$30 million | 0.30 | 6 | 1.80 |
-| D | \$20 million | 0.20 | 2 | 0.40 |
+| A | \$10,000,000 | 0.10 | 4 | 0.40 |
+| B | \$40,000,000 | 0.40 | 7 | 2.80 |
+| C | \$30,000,000 | 0.30 | 6 | 1.80 |
+| D | \$20,000,000 | 0.20 | 2 | 0.40 |
+| **Total** | **\$100,000,000** | **1.00** |  | **5.40** |
 
-The portfolio duration is
-
-$$
-0.40 + 2.80 + 1.80 + 0.40 = 5.40.
-$$
-
-The largest contribution comes from Bond B because it combines a large weight with a high duration.
+The portfolio duration is 5.40. Bond B contributes the most because it has both a large portfolio weight and a high duration.
 :::
 
-Portfolio managers also compute duration by sector. A portfolio may have the same total duration as its benchmark but very different duration exposure by Treasury, corporate, mortgage-backed, or agency sectors. This matters because different sectors do not always move together.
+The same logic can be applied to sectors. This is useful because two portfolios can have similar total duration but different exposure to Treasury, corporate, mortgage-backed, or agency-related sectors.
+
+::: {.callout-note title="Example: Portfolio Duration vs. Benchmark by Sector"}
+Consider a portfolio with the following sector weights and durations:
+
+| Sector | Portfolio Sector Weight | Sector Duration | Contribution to Portfolio Duration |
+|---|---:|---:|---:|
+| Treasury | 0.295 | 7.25 | 2.14 |
+| Government Related | 0.036 | 1.94 | 0.07 |
+| Agency MBS | 0.290 | 5.17 | 1.50 |
+| Corporates | 0.379 | 4.85 | 1.84 |
+| **Total** | **1.000** |  | **5.55** |
+
+Compare that portfolio with its benchmark (e.g. the Barclays US Aggregate Bond Index):
+
+| Sector | Benchmark Weight | Benchmark Sector Duration | Contribution to Benchmark Duration |
+|---|---:|---:|---:|
+| Treasury | 0.333 | 5.32 | 1.77 |
+| Government Related | 0.068 | 5.88 | 0.40 |
+| Agency MBS | 0.333 | 4.53 | 1.51 |
+| Corporates | 0.266 | 6.50 | 1.73 |
+| **Total** | **1.000** |  | **5.41** |
+
+The total durations are close: 5.55 for the portfolio versus 5.41 for the benchmark. The portfolio is therefore approximately duration neutral relative to the benchmark. But the sector contributions are not identical:
+
+| Sector | Portfolio Contribution | Benchmark Contribution | Difference |
+|---|---:|---:|---:|
+| Treasury | 2.14 | 1.77 | 0.37 |
+| Government Related | 0.07 | 0.40 | -0.33 |
+| Agency MBS | 1.50 | 1.51 | -0.01 |
+| Corporates | 1.84 | 1.73 | 0.11 |
+| **Total** | **5.55** | **5.41** | **0.14** |
+
+Sector yields and spreads do not always move together. A portfolio can be close to benchmark duration overall while still taking active bets on where that duration exposure is located.
+:::
 
 ## Analytical versus Empirical Duration
 

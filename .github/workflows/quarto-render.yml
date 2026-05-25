@@ -11,6 +11,8 @@ concurrency:
 jobs:
   render:
     runs-on: ubuntu-latest
+    # Hard cap so a stuck Jupyter kernel can't burn an hour of CI time.
+    timeout-minutes: 25
     env:
       # Use Node 24 for JS-based actions (checkout, setup-python, etc.); see
       # https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

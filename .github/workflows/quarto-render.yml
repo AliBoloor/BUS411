@@ -6,13 +6,13 @@ on:
 
 concurrency:
   group: quarto-render-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  # Let each push finish; cancelling leaves docs/ stale when pushes are close together.
+  cancel-in-progress: false
 
 jobs:
   render:
     runs-on: ubuntu-latest
-    # Hard cap so a stuck Jupyter kernel can't burn an hour of CI time.
-    timeout-minutes: 25
+    timeout-minutes: 20
     env:
       # Use Node 24 for JS-based actions (checkout, setup-python, etc.); see
       # https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
@@ -30,22 +30,14 @@ jobs:
       - name: Setup Quarto
         uses: quarto-dev/quarto-actions/setup@v2
         env:
-          # Avoids GitHub API rate limits when downloading Quarto / TinyTeX bundles.
           GH_TOKEN: ${{ github.token }}
         with:
-          # Pin so HTML and site_libs hashes stay aligned across runs (avoid mixing
-          # with a different local Quarto when committing docs from a laptop).
           version: "1.9.37"
-          tinytex: true
+          # HTML-only in CI; run `quarto render` locally to refresh PDFs in docs/.
+          tinytex: false
 
       - name: Report Quarto version
         run: quarto --version
-
-      - name: Install TeX fonts for syllabus PDF (Linux)
-        run: |
-          if command -v tlmgr >/dev/null 2>&1; then
-            tlmgr install --no-dependents tex-gyre || true
-          fi
 
       - name: Setup Python for Quarto execution
         uses: actions/setup-python@v6
@@ -56,11 +48,10 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install numpy matplotlib pandas ipykernel jupyter
-          # Ensure the "python3" kernel name referenced by `jupyter: python3` is available.
           python -m ipykernel install --user --name python3 --display-name "Python 3"
 
-      - name: Render website
-        run: quarto render
+      - name: Render website (HTML only)
+        run: quarto render --to html
 
       - name: Commit and push docs
         run: |

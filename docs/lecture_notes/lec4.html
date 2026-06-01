@@ -1,0 +1,2793 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.37">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Lecture 4: Benchmark Spreads and the Term Structure of Interest Rates – BUS 411 — Fixed Income Security Analysis and Valuation</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-d0ae9245876894da5ac7e18953ecc5cc.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-6121138e699ad824e852c9e8b41cc68e.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-81e8bcade493de2668280996f2822cb0.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-6121138e699ad824e852c9e8b41cc68e.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="docked nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">BUS 411 — Fixed Income Security Analysis and Valuation</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../lecture_notes/index.html"> 
+<span class="menu-text">Lecture Notes</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../assignments/index.html"> 
+<span class="menu-text">Assignments</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#learning-objectives" id="toc-learning-objectives" class="nav-link active" data-scroll-target="#learning-objectives">Learning Objectives</a></li>
+  <li><a href="#base-interest-rate" id="toc-base-interest-rate" class="nav-link" data-scroll-target="#base-interest-rate"><span class="header-section-number">1</span> Base Interest Rate</a></li>
+  <li><a href="#benchmark-spread" id="toc-benchmark-spread" class="nav-link" data-scroll-target="#benchmark-spread"><span class="header-section-number">2</span> Benchmark Spread</a>
+  <ul class="collapse">
+  <li><a href="#types-of-issuers" id="toc-types-of-issuers" class="nav-link" data-scroll-target="#types-of-issuers"><span class="header-section-number">2.1</span> Types of Issuers</a></li>
+  <li><a href="#perceived-creditworthiness-of-issuer" id="toc-perceived-creditworthiness-of-issuer" class="nav-link" data-scroll-target="#perceived-creditworthiness-of-issuer"><span class="header-section-number">2.2</span> Perceived Creditworthiness of Issuer</a></li>
+  <li><a href="#inclusion-of-options" id="toc-inclusion-of-options" class="nav-link" data-scroll-target="#inclusion-of-options"><span class="header-section-number">2.3</span> Inclusion of Options</a></li>
+  <li><a href="#taxability-of-interest" id="toc-taxability-of-interest" class="nav-link" data-scroll-target="#taxability-of-interest"><span class="header-section-number">2.4</span> Taxability of Interest</a></li>
+  <li><a href="#expected-liquidity-of-an-issue" id="toc-expected-liquidity-of-an-issue" class="nav-link" data-scroll-target="#expected-liquidity-of-an-issue"><span class="header-section-number">2.5</span> Expected Liquidity of an Issue</a></li>
+  <li><a href="#financeability-of-an-issue" id="toc-financeability-of-an-issue" class="nav-link" data-scroll-target="#financeability-of-an-issue"><span class="header-section-number">2.6</span> Financeability of an Issue</a></li>
+  <li><a href="#term-to-maturity" id="toc-term-to-maturity" class="nav-link" data-scroll-target="#term-to-maturity"><span class="header-section-number">2.7</span> Term to Maturity</a></li>
+  </ul></li>
+  <li><a href="#term-structure-of-interest-rate" id="toc-term-structure-of-interest-rate" class="nav-link" data-scroll-target="#term-structure-of-interest-rate"><span class="header-section-number">3</span> Term Structure of Interest Rate</a>
+  <ul class="collapse">
+  <li><a href="#yield-curve" id="toc-yield-curve" class="nav-link" data-scroll-target="#yield-curve"><span class="header-section-number">3.1</span> Yield Curve</a></li>
+  <li><a href="#why-the-yield-curve-should-not-be-used-to-price-a-bond" id="toc-why-the-yield-curve-should-not-be-used-to-price-a-bond" class="nav-link" data-scroll-target="#why-the-yield-curve-should-not-be-used-to-price-a-bond"><span class="header-section-number">3.2</span> Why the Yield Curve Should Not Be Used to Price a Bond</a></li>
+  <li><a href="#constructing-the-theoretical-spot-rate-curve-for-treasuries" id="toc-constructing-the-theoretical-spot-rate-curve-for-treasuries" class="nav-link" data-scroll-target="#constructing-the-theoretical-spot-rate-curve-for-treasuries"><span class="header-section-number">3.3</span> Constructing the Theoretical Spot Rate Curve for Treasuries</a>
+  <ul class="collapse">
+  <li><a href="#on-the-run-treasury-issues" id="toc-on-the-run-treasury-issues" class="nav-link" data-scroll-target="#on-the-run-treasury-issues">On-the-Run Treasury Issues</a></li>
+  <li><a href="#on-the-run-and-selected-off-the-run-treasury-issues" id="toc-on-the-run-and-selected-off-the-run-treasury-issues" class="nav-link" data-scroll-target="#on-the-run-and-selected-off-the-run-treasury-issues">On-the-Run and Selected Off-the-Run Treasury Issues</a></li>
+  <li><a href="#all-treasury-coupon-securities-and-bills" id="toc-all-treasury-coupon-securities-and-bills" class="nav-link" data-scroll-target="#all-treasury-coupon-securities-and-bills">All Treasury Coupon Securities and Bills</a></li>
+  <li><a href="#treasury-coupon-strips" id="toc-treasury-coupon-strips" class="nav-link" data-scroll-target="#treasury-coupon-strips">Treasury Coupon Strips</a></li>
+  </ul></li>
+  <li><a href="#using-the-theoretical-spot-rate-curve" id="toc-using-the-theoretical-spot-rate-curve" class="nav-link" data-scroll-target="#using-the-theoretical-spot-rate-curve"><span class="header-section-number">3.4</span> Using the Theoretical Spot Rate Curve</a>
+  <ul class="collapse">
+  <li><a href="#spot-rates-and-the-base-interest-rate" id="toc-spot-rates-and-the-base-interest-rate" class="nav-link" data-scroll-target="#spot-rates-and-the-base-interest-rate">Spot Rates and the Base Interest Rate</a></li>
+  <li><a href="#forward-rates" id="toc-forward-rates" class="nav-link" data-scroll-target="#forward-rates">Forward Rates</a></li>
+  <li><a href="#relationship-between-six-month-forward-rates-and-spot-rates" id="toc-relationship-between-six-month-forward-rates-and-spot-rates" class="nav-link" data-scroll-target="#relationship-between-six-month-forward-rates-and-spot-rates">Relationship Between Six-Month Forward Rates and Spot Rates</a></li>
+  <li><a href="#other-forward-rates" id="toc-other-forward-rates" class="nav-link" data-scroll-target="#other-forward-rates">Other Forward Rates</a></li>
+  <li><a href="#forward-rate-as-a-hedgeable-rate" id="toc-forward-rate-as-a-hedgeable-rate" class="nav-link" data-scroll-target="#forward-rate-as-a-hedgeable-rate">Forward Rate as a Hedgeable Rate</a></li>
+  </ul></li>
+  <li><a href="#determinants-of-the-shape-of-the-term-structure" id="toc-determinants-of-the-shape-of-the-term-structure" class="nav-link" data-scroll-target="#determinants-of-the-shape-of-the-term-structure"><span class="header-section-number">3.5</span> Determinants of the Shape of the Term Structure</a>
+  <ul class="collapse">
+  <li><a href="#pure-expectations-theory" id="toc-pure-expectations-theory" class="nav-link" data-scroll-target="#pure-expectations-theory">Pure Expectations Theory</a></li>
+  <li><a href="#liquidity-theory" id="toc-liquidity-theory" class="nav-link" data-scroll-target="#liquidity-theory">Liquidity Theory</a></li>
+  <li><a href="#preferred-habitat-theory" id="toc-preferred-habitat-theory" class="nav-link" data-scroll-target="#preferred-habitat-theory">Preferred Habitat Theory</a></li>
+  <li><a href="#market-segmentation-theory" id="toc-market-segmentation-theory" class="nav-link" data-scroll-target="#market-segmentation-theory">Market Segmentation Theory</a></li>
+  </ul></li>
+  <li><a href="#the-main-influences-on-the-shape-of-the-yield-curve" id="toc-the-main-influences-on-the-shape-of-the-yield-curve" class="nav-link" data-scroll-target="#the-main-influences-on-the-shape-of-the-yield-curve"><span class="header-section-number">3.6</span> The Main Influences on the Shape of the Yield Curve</a>
+  <ul class="collapse">
+  <li><a href="#the-markets-expectations-of-future-rate-changes" id="toc-the-markets-expectations-of-future-rate-changes" class="nav-link" data-scroll-target="#the-markets-expectations-of-future-rate-changes">1. The Market’s Expectations of Future Rate Changes</a></li>
+  <li><a href="#bond-risk-premiums" id="toc-bond-risk-premiums" class="nav-link" data-scroll-target="#bond-risk-premiums">2. Bond Risk Premiums</a></li>
+  <li><a href="#convexity-bias" id="toc-convexity-bias" class="nav-link" data-scroll-target="#convexity-bias">3. Convexity Bias</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#swap-rate-yield-curve" id="toc-swap-rate-yield-curve" class="nav-link" data-scroll-target="#swap-rate-yield-curve"><span class="header-section-number">4</span> Swap Rate Yield Curve</a></li>
+  <li><a href="#curve-strategies" id="toc-curve-strategies" class="nav-link" data-scroll-target="#curve-strategies"><span class="header-section-number">5</span> Curve Strategies</a>
+  <ul class="collapse">
+  <li><a href="#bull-steepener" id="toc-bull-steepener" class="nav-link" data-scroll-target="#bull-steepener"><span class="header-section-number">5.1</span> Bull Steepener</a></li>
+  <li><a href="#bear-steepener" id="toc-bear-steepener" class="nav-link" data-scroll-target="#bear-steepener"><span class="header-section-number">5.2</span> Bear Steepener</a></li>
+  <li><a href="#bull-flattener" id="toc-bull-flattener" class="nav-link" data-scroll-target="#bull-flattener"><span class="header-section-number">5.3</span> Bull Flattener</a></li>
+  <li><a href="#bear-flattener" id="toc-bear-flattener" class="nav-link" data-scroll-target="#bear-flattener"><span class="header-section-number">5.4</span> Bear Flattener</a></li>
+  <li><a href="#butterfly-strategy" id="toc-butterfly-strategy" class="nav-link" data-scroll-target="#butterfly-strategy"><span class="header-section-number">5.5</span> Butterfly Strategy</a></li>
+  <li><a href="#carry-and-roll-down" id="toc-carry-and-roll-down" class="nav-link" data-scroll-target="#carry-and-roll-down"><span class="header-section-number">5.6</span> Carry and Roll-Down</a></li>
+  <li><a href="#risk-controls-in-curve-strategies" id="toc-risk-controls-in-curve-strategies" class="nav-link" data-scroll-target="#risk-controls-in-curve-strategies"><span class="header-section-number">5.7</span> Risk Controls in Curve Strategies</a></li>
+  </ul></li>
+  <li><a href="#broad-picture" id="toc-broad-picture" class="nav-link" data-scroll-target="#broad-picture">Broad Picture</a></li>
+  <li><a href="#key-points" id="toc-key-points" class="nav-link" data-scroll-target="#key-points">Key Points</a></li>
+  </ul>
+<div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="lec4.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></nav>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Lecture 4: Benchmark Spreads and the Term Structure of Interest Rates</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="learning-objectives" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="learning-objectives">Learning Objectives</h2>
+<p>By the end of this lecture you should be able to:</p>
+<ul>
+<li>Explain why a bond’s required yield can be decomposed into a base interest rate and a benchmark spread.</li>
+<li>Identify the main issuer, credit, tax, liquidity, financeability, option, and maturity characteristics that affect benchmark spreads.</li>
+<li>Distinguish between a yield curve and a theoretical spot rate curve.</li>
+<li>Explain why coupon bond yields are not the correct discount rates for valuing individual cash flows.</li>
+<li>Construct a simple Treasury spot rate curve by bootstrapping from Treasury bill and coupon security prices.</li>
+<li>Use spot rates to value a bond and to measure its spread over the Treasury curve.</li>
+<li>Derive forward rates from spot rates and interpret forward rates as hedgeable break-even rates.</li>
+<li>Compare the pure expectations, liquidity, preferred habitat, and market segmentation theories of the term structure.</li>
+<li>Explain why swap rates are widely used as benchmark rates in fixed income markets.</li>
+<li>Design curve strategies based on the shape of the yield curve and a trader’s view about future curve movements.</li>
+</ul>
+<hr>
+</section>
+<section id="base-interest-rate" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Base Interest Rate</h1>
+<p>The <strong>base interest rate</strong> is the benchmark rate used as the starting point for valuing a bond. It is meant to represent the return required on a security with minimal default risk over the same maturity or cash-flow horizon.</p>
+<p>In U.S. dollar fixed income markets, the base rate is often taken from:</p>
+<ul>
+<li>U.S. Treasury rates,</li>
+<li>the Treasury spot rate curve,</li>
+<li>the swap rate curve, or</li>
+<li>overnight indexed swap rates for collateralized derivative valuation.</li>
+</ul>
+<p>The base rate is not the full required yield on most bonds. A corporate bond, municipal bond, mortgage-backed security, or structured product usually requires compensation for additional risks and contractual features. The required yield can be summarized as:</p>
+<p><span class="math display">\[
+\text{Required yield} = \text{Base interest rate} + \text{Benchmark spread}.
+\]</span></p>
+<p>This decomposition is useful because it separates broad market interest-rate risk from issuer-specific and security-specific risk.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Conceptual Example">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Conceptual Example
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Suppose the 5-year Treasury yield is 3.80% and a 5-year industrial corporate bond trades at a yield of 5.05%.</p>
+<p><span class="math display">\[
+\text{Benchmark spread} = 5.05\% - 3.80\% = 1.25\%.
+\]</span></p>
+<p>The bond trades at a spread of 125 basis points over the 5-year Treasury benchmark.</p>
+</div>
+</div>
+<hr>
+</section>
+<section id="benchmark-spread" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> Benchmark Spread</h1>
+<p>The <strong>benchmark spread</strong> is the yield difference between a bond and a benchmark security or benchmark curve. It compensates investors for risks and features not captured by the base interest rate.</p>
+<p>For a simple bond quoted against a Treasury benchmark:</p>
+<p><span class="math display">\[
+\text{Benchmark spread} = y_{\text{bond}} - y_{\text{benchmark}}.
+\]</span></p>
+<p>If the corporate bond yield is 6.20% and the Treasury benchmark yield is 4.70%, the benchmark spread is:</p>
+<p><span class="math display">\[
+6.20\% - 4.70\% = 1.50\% = 150 \text{ basis points}.
+\]</span></p>
+<p>The spread is not fixed. It changes as credit conditions, market liquidity, investor risk appetite, and the bond’s own characteristics change.</p>
+<div id="cell-fig-benchmark-spread" class="cell" data-message="false" data-execution_count="1">
+<div class="cell-output cell-output-display">
+<div id="fig-benchmark-spread" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-benchmark-spread-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lec4_files/figure-html/fig-benchmark-spread-output-1.png" width="550" height="283" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-benchmark-spread-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Yield decomposition into a base interest rate and a benchmark spread.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<section id="types-of-issuers" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="types-of-issuers"><span class="header-section-number">2.1</span> Types of Issuers</h2>
+<p>Different issuer types usually trade at different spreads because investors assign different risks and legal protections to each sector.</p>
+<p>Common issuer categories include:</p>
+<ul>
+<li>sovereign governments,</li>
+<li>government agencies,</li>
+<li>supranational institutions,</li>
+<li>municipalities,</li>
+<li>financial corporations,</li>
+<li>industrial corporations,</li>
+<li>utilities,</li>
+<li>structured finance issuers,</li>
+<li>mortgage-backed security issuers.</li>
+</ul>
+<p>Treasury securities usually define the lowest-yielding benchmark in the domestic currency because they are backed by the sovereign taxing authority and are highly liquid. Corporate bonds trade at positive spreads because investors require compensation for default risk, downgrade risk, and lower liquidity.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Issuer Spread Example">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Issuer Spread Example
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Assume the 10-year Treasury yield is 4.00%. Three 10-year bonds trade at:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Issuer type</th>
+<th style="text-align: right;">Yield</th>
+<th style="text-align: right;">Spread over Treasury</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Federal agency</td>
+<td style="text-align: right;">4.35%</td>
+<td style="text-align: right;">35 bps</td>
+</tr>
+<tr class="even">
+<td>Utility company</td>
+<td style="text-align: right;">4.95%</td>
+<td style="text-align: right;">95 bps</td>
+</tr>
+<tr class="odd">
+<td>High-yield industrial company</td>
+<td style="text-align: right;">7.25%</td>
+<td style="text-align: right;">325 bps</td>
+</tr>
+</tbody>
+</table>
+<p>The spread increases as investors require more compensation for credit and liquidity risk.</p>
+</div>
+</div>
+</section>
+<section id="perceived-creditworthiness-of-issuer" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="perceived-creditworthiness-of-issuer"><span class="header-section-number">2.2</span> Perceived Creditworthiness of Issuer</h2>
+<p>Creditworthiness is the market’s assessment of the issuer’s ability and willingness to make promised payments. It depends on:</p>
+<ul>
+<li>leverage (e.g., high debt-to-EBITDA versus low debt-to-EBITDA),</li>
+<li>earnings stability (e.g., predictable utility earnings versus cyclical commodity earnings),</li>
+<li>cash-flow coverage (e.g., strong interest coverage versus weak interest coverage),</li>
+<li>asset quality (e.g., liquid collateral versus specialized assets with few buyers),</li>
+<li>business risk (e.g., diversified revenue versus dependence on one product),</li>
+<li>industry cyclicality (e.g., consumer staples versus autos or airlines),</li>
+<li>legal protections for creditors (e.g., secured debt versus subordinated debt),</li>
+<li>recovery value if default occurs (e.g., high-value collateral versus limited recoverable assets).</li>
+</ul>
+<p>Credit ratings summarize some of this information, but market spreads often react faster than ratings. A widening spread can signal that investors are demanding more compensation for default or downgrade risk.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Credit Spread Example">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Credit Spread Example
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A 7-year A-rated bond trades at 85 bps over Treasuries. A similar BBB-rated bond from the same sector trades at 145 bps. The 60 bps difference reflects the market’s higher required compensation for the weaker credit profile.</p>
+</div>
+</div>
+</section>
+<section id="inclusion-of-options" class="level2" data-number="2.3">
+<h2 data-number="2.3" class="anchored" data-anchor-id="inclusion-of-options"><span class="header-section-number">2.3</span> Inclusion of Options</h2>
+<p>Embedded options change a bond’s cash flows and therefore affect its benchmark spread. The direction of the effect depends on who benefits from the option.</p>
+<p>An option that is favorable to the <strong>issuer</strong> usually increases the required benchmark spread. A <strong>callable bond</strong>, for example, gives the issuer the right to redeem the bond before maturity. If interest rates fall, the issuer can call the bond and refinance at a lower rate, limiting the investor’s price upside. Investors therefore require extra spread compensation for accepting call risk and reinvestment risk.</p>
+<p>An option that is favorable to the <strong>investor</strong> usually lowers the required benchmark spread. A <strong>putable bond</strong> gives the investor the right to sell the bond back to the issuer at a specified price. A <strong>convertible bond</strong> gives the investor the right to convert the bond into equity. Because these options have value to the investor, the bond may trade at a lower yield than an otherwise comparable issue. In some cases, the yield may even be below the yield on a comparable benchmark security.</p>
+<p>Because the benchmark spread includes compensation for embedded options, it can be misleading to compare raw spreads across bonds with different option features. Analysts therefore use the <strong>option-adjusted spread (OAS)</strong> to estimate the spread after removing the value of embedded options. OAS is not a simple yield calculation; it requires a valuation model for bonds with embedded options.</p>
+<p>For now, the key idea is:</p>
+<p><span class="math display">\[
+\text{Benchmark spread} = \text{option-adjusted spread} + \text{value of embedded option effects}.
+\]</span></p>
+<div class="callout callout-style-default callout-note callout-titled" title="Embedded Option Spread Example">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Embedded Option Spread Example
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Suppose two corporate bonds are observed in the market:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Bond</th>
+<th>Rating</th>
+<th>Embedded option</th>
+<th>Possible spread effect</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Bond A</td>
+<td>AAA</td>
+<td>Callable</td>
+<td>Higher spread due to call risk</td>
+</tr>
+<tr class="even">
+<td>Bond B</td>
+<td>AA</td>
+<td>Putable or convertible</td>
+<td>Lower spread because the option benefits investors</td>
+</tr>
+</tbody>
+</table>
+<p>Even though Bond B has the lower credit rating, it could trade at a lower benchmark spread than Bond A if Bond A’s callable feature adds enough compensation for call risk or if Bond B’s investor-friendly option is valuable enough.</p>
+</div>
+</div>
+</section>
+<section id="taxability-of-interest" class="level2" data-number="2.4">
+<h2 data-number="2.4" class="anchored" data-anchor-id="taxability-of-interest"><span class="header-section-number">2.4</span> Taxability of Interest</h2>
+<p>Tax treatment affects after-tax yield. Investors compare bonds based on what they keep after taxes, not only the quoted pretax yield.</p>
+<p>For a taxable bond:</p>
+<p><span class="math display">\[
+\text{After-tax yield} = y_{\text{taxable}}(1 - t),
+\]</span></p>
+<p>where <span class="math inline">\(t\)</span> is the investor’s marginal tax rate.</p>
+<p>For a tax-exempt municipal bond, investors often compute the <strong>taxable-equivalent yield</strong>:</p>
+<p><span class="math display">\[
+\text{Taxable-equivalent yield} = \frac{y_{\text{tax-exempt}}}{1 - t}.
+\]</span></p>
+<div class="callout callout-style-default callout-note callout-titled" title="Taxable-Equivalent Yield Example">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Taxable-Equivalent Yield Example
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A municipal bond yields 3.00% and the investor’s marginal tax rate is 35%.</p>
+<p><span class="math display">\[
+\text{Taxable-equivalent yield} = \frac{0.0300}{1 - 0.35} = 0.0462.
+\]</span></p>
+<p>The municipal bond is equivalent to a taxable bond yielding 4.62% for this investor.</p>
+</div>
+</div>
+</section>
+<section id="expected-liquidity-of-an-issue" class="level2" data-number="2.5">
+<h2 data-number="2.5" class="anchored" data-anchor-id="expected-liquidity-of-an-issue"><span class="header-section-number">2.5</span> Expected Liquidity of an Issue</h2>
+<p>Liquidity is the ability to buy or sell a bond quickly, in size, and at low transaction cost. Less liquid bonds usually require higher yields.</p>
+<p>Liquidity depends on:</p>
+<ul>
+<li>issue size,</li>
+<li>dealer inventory,</li>
+<li>trading frequency,</li>
+<li>transparency of market prices,</li>
+<li>eligibility for major indexes,</li>
+<li>whether the bond is newly issued or seasoned,</li>
+<li>investor concentration.</li>
+</ul>
+<p>The liquidity premium is often small in calm markets but can become large during stress.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Liquidity Example">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Liquidity Example
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Two BBB-rated bonds have the same maturity and similar credit risk. Bond A is a $2 billion benchmark issue that trades daily. Bond B is a $150 million issue that rarely trades. If Bond A trades at 140 bps and Bond B trades at 175 bps over Treasuries, the 35 bps difference may largely reflect liquidity.</p>
+</div>
+</div>
+</section>
+<section id="financeability-of-an-issue" class="level2" data-number="2.6">
+<h2 data-number="2.6" class="anchored" data-anchor-id="financeability-of-an-issue"><span class="header-section-number">2.6</span> Financeability of an Issue</h2>
+<p>Financeability refers to how easily a bond can be financed in the repo or secured financing market. A bond that can be financed cheaply and reliably is more attractive to leveraged investors.</p>
+<p>Financeability depends on:</p>
+<ul>
+<li>whether the bond is accepted as collateral,</li>
+<li>the repo rate on the bond,</li>
+<li>the haircut required by lenders,</li>
+<li>whether the issue is special in the repo market,</li>
+<li>how easily the position can be rolled.</li>
+</ul>
+<p>If a bond is difficult to finance, investors may require a higher yield. If it is easy to finance, especially at favorable repo rates, investors may accept a lower yield.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Financeability Example">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Financeability Example
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A hedge fund can finance Treasury Bond A at a repo rate of 4.00% with a 2% haircut. A less liquid corporate bond requires a 15% haircut and a repo rate of 5.50%. Even if both bonds have attractive yields, the corporate bond consumes more capital and has higher financing risk, so its required spread must be higher.</p>
+</div>
+</div>
+</section>
+<section id="term-to-maturity" class="level2" data-number="2.7">
+<h2 data-number="2.7" class="anchored" data-anchor-id="term-to-maturity"><span class="header-section-number">2.7</span> Term to Maturity</h2>
+<p>The time remaining in a bond’s life is called its <strong>term to maturity</strong>, or simply its <strong>maturity</strong>. A bond’s price changes over its life as market yields change, and the size of that price change depends partly on maturity.</p>
+<p>All else equal, the longer the term to maturity, the greater the bond’s price volatility for a given change in market yields. A 20-year bond is more sensitive to a yield change than a 2-year bond because more of its cash flows are received farther in the future.</p>
+<p>Bonds are often grouped into three maturity sectors:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Maturity sector</th>
+<th style="text-align: right;">Term to maturity</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Short term</td>
+<td style="text-align: right;">1 to 5 years</td>
+</tr>
+<tr class="even">
+<td>Intermediate term</td>
+<td style="text-align: right;">5 to 12 years</td>
+</tr>
+<tr class="odd">
+<td>Long term</td>
+<td style="text-align: right;">More than 12 years</td>
+</tr>
+</tbody>
+</table>
+<p>The yield difference between two maturity sectors is called a <strong>maturity spread</strong>. For example, the difference between a 10-year yield and a 2-year yield is a maturity spread. The relationship between yields on otherwise comparable securities with different maturities is called the <strong>term structure of interest rates</strong>.</p>
+<div id="cell-fig-maturity-spreads" class="cell" data-message="false" data-execution_count="2">
+<div class="cell-output cell-output-display">
+<div id="fig-maturity-spreads" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-maturity-spreads-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lec4_files/figure-html/fig-maturity-spreads-output-1.png" width="599" height="372" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-maturity-spreads-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Illustrative yields across maturity sectors and the maturity spread.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="term-structure-of-interest-rate" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Term Structure of Interest Rate</h1>
+<p>The <strong>term structure of interest rates</strong> describes how interest rates vary across maturities. It is one of the central tools in fixed income valuation because bond cash flows occur at different dates.</p>
+<p>A term structure can be expressed using:</p>
+<ul>
+<li>par yields,</li>
+<li>spot rates,</li>
+<li>forward rates,</li>
+<li>swap rates,</li>
+<li>credit spread curves.</li>
+</ul>
+<p>Each curve answers a different question. A par yield curve tells us the coupon rate that would price a new bond at par. A spot rate curve gives the discount rate for a single cash flow at each maturity. A forward curve gives implied future rates between future dates.</p>
+<section id="yield-curve" class="level2" data-number="3.1">
+<h2 data-number="3.1" class="anchored" data-anchor-id="yield-curve"><span class="header-section-number">3.1</span> Yield Curve</h2>
+<p>A <strong>yield curve</strong> plots yields against maturities. The most common version is the Treasury yield curve, which plots yields on Treasury securities from short maturities to long maturities.</p>
+<p>Yield curves may be:</p>
+<ul>
+<li>upward sloping,</li>
+<li>flat,</li>
+<li>inverted,</li>
+<li>humped.</li>
+</ul>
+<div id="cell-fig-yield-curves" class="cell" data-message="false" data-execution_count="3">
+<div class="cell-output cell-output-display">
+<div id="fig-yield-curves" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-yield-curves-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lec4_files/figure-html/fig-yield-curves-output-1.png" width="597" height="376" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-yield-curves-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: Common yield curve shapes.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="why-the-yield-curve-should-not-be-used-to-price-a-bond" class="level2" data-number="3.2">
+<h2 data-number="3.2" class="anchored" data-anchor-id="why-the-yield-curve-should-not-be-used-to-price-a-bond"><span class="header-section-number">3.2</span> Why the Yield Curve Should Not Be Used to Price a Bond</h2>
+<p>A coupon bond has multiple cash flows. A single yield-to-maturity applies one discount rate to all cash flows, but the market may require different discount rates for different cash-flow dates.</p>
+<p>If a 5-year bond pays coupons every six months, it has 10 cash flows. The first coupon should be discounted using a 6-month rate, the second coupon using a 1-year rate, and so on. Using only the 5-year yield ignores the fact that the earlier cash flows are less risky with respect to time.</p>
+<p>The correct discounting approach is:</p>
+<p><span class="math display">\[
+P = \sum_{t=1}^{n} \frac{CF_t}{(1 + z_t)^t},
+\]</span></p>
+<p>where <span class="math inline">\(z_t\)</span> is the spot rate for maturity <span class="math inline">\(t\)</span>.</p>
+<div class="callout callout-style-default callout-important callout-titled" title="Definition: Spot Rate">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>Definition: Spot Rate
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A <strong>spot rate</strong> (also called a <strong>zero-coupon rate</strong>) is the yield on a zero-coupon bond for a specific maturity. It represents the annualized return earned by investing in a zero-coupon security that pays no coupons—only a single payment at maturity. The spot rate for a given maturity reflects the market’s required rate of return for receiving a cash flow at exactly that future date, with no interim payments.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Why One Yield Can Misprice a Bond">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Why One Yield Can Misprice a Bond
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Consider a 2-year annual-pay bond with $50 coupon payments and $1,000 principal. Suppose the 1-year spot rate is 3% and the 2-year spot rate is 5%.</p>
+<p>Correct spot-rate price:</p>
+<p><span class="math display">\[
+P = \frac{50}{1.03} + \frac{1050}{1.05^2} = 1000.65.
+\]</span></p>
+<p>If an investor incorrectly discounts both cash flows at the 2-year rate:</p>
+<p><span class="math display">\[
+P = \frac{50}{1.05} + \frac{1050}{1.05^2} = 999.72.
+\]</span></p>
+<p>The difference is small in this simple example, but it becomes material for large portfolios, steep curves, and securities with unusual cash-flow timing.</p>
+</div>
+</div>
+</section>
+<section id="constructing-the-theoretical-spot-rate-curve-for-treasuries" class="level2" data-number="3.3">
+<h2 data-number="3.3" class="anchored" data-anchor-id="constructing-the-theoretical-spot-rate-curve-for-treasuries"><span class="header-section-number">3.3</span> Constructing the Theoretical Spot Rate Curve for Treasuries</h2>
+<p>The <strong>theoretical spot rate curve</strong> is the set of zero-coupon Treasury rates implied by Treasury market prices. It is called theoretical because most maturities do not have directly traded zero-coupon Treasury securities.</p>
+<p>In practice, the starting point is a set of observed yields to maturity for Treasury bills, notes, and bonds. These observed yields are useful market summaries, but they are not homogeneous discount rates. Each yield depends on the security’s maturity, coupon rate, cash-flow timing, liquidity, tax treatment, and financing characteristics. A 10-year Treasury with a 1.50% coupon and a 10-year Treasury with a 4.50% coupon can have different yields even when they are exposed to similar Treasury discount rates.</p>
+<p>Because yield to maturity is a single internal rate of return for all of a bond’s cash flows, it should not be used to discount individual future cash flows. To value a cash flow due in exactly 7 years, we need the 7-year spot rate, not the yield to maturity on a coupon bond whose cash flows occur over many dates.</p>
+<p>The construction process is therefore:</p>
+<ol type="1">
+<li>Observe Treasury yields to maturity across benchmark maturities.</li>
+<li>Fit a smooth <strong>par coupon curve</strong> from those observed yields.</li>
+<li>Interpolate the par coupon curve so that it has a rate at every needed cash-flow date.</li>
+<li>Bootstrap the theoretical spot rate curve from the smoothed and interpolated par coupon curve.</li>
+</ol>
+<p>The par coupon curve is the set of coupon rates that would make hypothetical Treasury securities trade at par at each maturity. It is a more standardized curve than the raw observed YTM curve because each point refers to a par bond rather than to a specific seasoned Treasury issue.</p>
+<p>Observed YTMs are first adjusted and smoothed to obtain benchmark par coupon rates. The smoothing step reduces issue-specific noise from liquidity, coupon, tax, and financing effects. The interpolation step fills missing maturities. For example, if the fitted par coupon rates are available at 1 year and 2 years but not at 1.5 years, linear interpolation gives:</p>
+<p><span class="math display">\[
+c_{1.5}
+= c_1 + \frac{1.5-1.0}{2.0-1.0}(c_2-c_1).
+\]</span></p>
+<p>After the par coupon curve has been smoothed and interpolated, bootstrapping converts it into spot rates. With semiannual coupon payments, the annual par coupon rate at maturity <span class="math inline">\(m\)</span> half-year periods is <span class="math inline">\(c_m\)</span>, so each semiannual coupon payment is <span class="math inline">\(c_m/2\)</span> dollars per $100 face value. The par bond equation is:</p>
+<p><span class="math display">\[
+100 =
+\sum_{j=1}^{m-1}\frac{c_m/2}{(1+z_j/2)^j}
++ \frac{100+c_m/2}{(1+z_m/2)^m}.
+\]</span></p>
+<p>The earlier spot rates <span class="math inline">\(z_1,\ldots,z_{m-1}\)</span> are already known from shorter maturities. The only unknown is <span class="math inline">\(z_m\)</span>, so the next spot rate can be solved recursively:</p>
+<p><span class="math display">\[
+z_m =
+2\left[
+\left(
+\frac{100+c_m/2}
+{100-\sum_{j=1}^{m-1}\frac{c_m/2}{(1+z_j/2)^j}}
+\right)^{1/m}
+-1
+\right].
+\]</span></p>
+<div class="callout callout-style-default callout-note callout-titled" title="Semiannual Example: From YTM Curve to Par Curve to Spot Curve">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Semiannual Example: From YTM Curve to Par Curve to Spot Curve
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Assume face value $100, semiannual coupon payments, and annualized rates quoted with semiannual compounding.</p>
+<p>First, suppose we observe Treasury YTMs at standard benchmark maturities:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: right;">Benchmark maturity</th>
+<th style="text-align: right;">Observed YTM</th>
+<th style="text-align: right;">Smoothed par coupon rate</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">0.5 year</td>
+<td style="text-align: right;">3.58%</td>
+<td style="text-align: right;">3.60%</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1 year</td>
+<td style="text-align: right;">3.82%</td>
+<td style="text-align: right;">3.80%</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">2 years</td>
+<td style="text-align: right;">4.08%</td>
+<td style="text-align: right;">4.10%</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">3 years</td>
+<td style="text-align: right;">4.38%</td>
+<td style="text-align: right;">4.35%</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">5 years</td>
+<td style="text-align: right;">4.57%</td>
+<td style="text-align: right;">4.60%</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">7 years</td>
+<td style="text-align: right;">4.78%</td>
+<td style="text-align: right;">4.75%</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">10 years</td>
+<td style="text-align: right;">4.88%</td>
+<td style="text-align: right;">4.90%</td>
+</tr>
+</tbody>
+</table>
+<p>The observed YTMs are not used directly as spot rates. They are first converted into a smooth par coupon curve. Then the missing half-year points are interpolated. For example:</p>
+<p><span class="math display">\[
+c_{1.5}
+= 3.80\% + \frac{1.5-1.0}{2.0-1.0}(4.10\%-3.80\%)
+= 3.95\%.
+\]</span></p>
+<p>Similarly:</p>
+<p><span class="math display">\[
+c_{4.0}
+= 4.35\% + \frac{4.0-3.0}{5.0-3.0}(4.60\%-4.35\%)
+= 4.475\%.
+\]</span></p>
+<p>Now bootstrap the spot rates from the half-year par coupon curve.</p>
+<p>For the 6-month par bond, there is only one cash flow:</p>
+<p><span class="math display">\[
+100 = \frac{100+3.60/2}{1+z_{0.5}/2}.
+\]</span></p>
+<p>Solving gives:</p>
+<p><span class="math display">\[
+z_{0.5} = 3.600\%.
+\]</span></p>
+<p>For the 1-year par bond, the annual par coupon is 3.80%, so each semiannual coupon is 1.90:</p>
+<p><span class="math display">\[
+100 =
+\frac{1.90}{1+0.0360/2}
++ \frac{101.90}{(1+z_{1.0}/2)^2}.
+\]</span></p>
+<p>Solving gives:</p>
+<p><span class="math display">\[
+z_{1.0} = 3.802\%.
+\]</span></p>
+<p>For the 1.5-year par bond, the interpolated annual par coupon is 3.95%, so each semiannual coupon is 1.975:</p>
+<p><span class="math display">\[
+100 =
+\frac{1.975}{1+0.0360/2}
++ \frac{1.975}{(1+0.03802/2)^2}
++ \frac{101.975}{(1+z_{1.5}/2)^3}.
+\]</span></p>
+<p>Solving gives:</p>
+<p><span class="math display">\[
+z_{1.5} = 3.954\%.
+\]</span></p>
+<p>The same recursion is repeated every six months through 10 years:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: right;">Period</th>
+<th style="text-align: right;">Maturity</th>
+<th style="text-align: right;">Par coupon rate</th>
+<th style="text-align: right;">Bootstrapped spot rate</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.5 year</td>
+<td style="text-align: right;">3.600%</td>
+<td style="text-align: right;">3.600%</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">1.0 year</td>
+<td style="text-align: right;">3.800%</td>
+<td style="text-align: right;">3.802%</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">1.5 years</td>
+<td style="text-align: right;">3.950%</td>
+<td style="text-align: right;">3.954%</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">2.0 years</td>
+<td style="text-align: right;">4.100%</td>
+<td style="text-align: right;">4.108%</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">2.5 years</td>
+<td style="text-align: right;">4.225%</td>
+<td style="text-align: right;">4.237%</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">3.0 years</td>
+<td style="text-align: right;">4.350%</td>
+<td style="text-align: right;">4.367%</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">3.5 years</td>
+<td style="text-align: right;">4.412%</td>
+<td style="text-align: right;">4.432%</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">4.0 years</td>
+<td style="text-align: right;">4.475%</td>
+<td style="text-align: right;">4.497%</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">4.5 years</td>
+<td style="text-align: right;">4.537%</td>
+<td style="text-align: right;">4.564%</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">5.0 years</td>
+<td style="text-align: right;">4.600%</td>
+<td style="text-align: right;">4.631%</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">5.5 years</td>
+<td style="text-align: right;">4.637%</td>
+<td style="text-align: right;">4.671%</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">6.0 years</td>
+<td style="text-align: right;">4.675%</td>
+<td style="text-align: right;">4.711%</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">6.5 years</td>
+<td style="text-align: right;">4.713%</td>
+<td style="text-align: right;">4.752%</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">7.0 years</td>
+<td style="text-align: right;">4.750%</td>
+<td style="text-align: right;">4.793%</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">7.5 years</td>
+<td style="text-align: right;">4.775%</td>
+<td style="text-align: right;">4.820%</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">8.0 years</td>
+<td style="text-align: right;">4.800%</td>
+<td style="text-align: right;">4.848%</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">17</td>
+<td style="text-align: right;">8.5 years</td>
+<td style="text-align: right;">4.825%</td>
+<td style="text-align: right;">4.876%</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">9.0 years</td>
+<td style="text-align: right;">4.850%</td>
+<td style="text-align: right;">4.904%</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">19</td>
+<td style="text-align: right;">9.5 years</td>
+<td style="text-align: right;">4.875%</td>
+<td style="text-align: right;">4.933%</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">10.0 years</td>
+<td style="text-align: right;">4.900%</td>
+<td style="text-align: right;">4.963%</td>
+</tr>
+</tbody>
+</table>
+<p>For example, at 10 years the annual par coupon is 4.90%, so each semiannual coupon is 2.45. The 10-year spot rate is solved from:</p>
+<p><span class="math display">\[
+100 =
+\sum_{j=1}^{19}
+\frac{2.45}{(1+z_j/2)^j}
++ \frac{102.45}{(1+z_{10}/2)^{20}}.
+\]</span></p>
+<p>Using the previously bootstrapped spot rates for periods 1 through 19 gives:</p>
+<p><span class="math display">\[
+z_{10} = 4.963\%.
+\]</span></p>
+<p>The result is a theoretical spot curve at every six-month cash-flow date from 6 months to 10 years.</p>
+</div>
+</div>
+<div id="cell-fig-bootstrapped-spot-curve" class="cell" data-message="false" data-execution_count="4">
+<div class="cell-output cell-output-display">
+<div id="fig-bootstrapped-spot-curve" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-bootstrapped-spot-curve-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lec4_files/figure-html/fig-bootstrapped-spot-curve-output-1.png" width="589" height="376" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bootstrapped-spot-curve-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: Observed YTMs are smoothed and interpolated into a par curve, then bootstrapped into a spot curve.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<section id="on-the-run-treasury-issues" class="level3">
+<h3 class="anchored" data-anchor-id="on-the-run-treasury-issues">On-the-Run Treasury Issues</h3>
+<p><strong>On-the-run Treasuries</strong> are the most recently issued Treasury securities at standard maturities. They are usually the most liquid securities in the Treasury market.</p>
+<p>Advantages:</p>
+<ul>
+<li>They are highly liquid and actively quoted.</li>
+<li>Their prices are usually reliable and easy to observe.</li>
+<li>They are useful for market benchmarks and trader communication.</li>
+</ul>
+<p>Disadvantages:</p>
+<ul>
+<li>There are only a few on-the-run maturities, so the curve has limited data points.</li>
+<li>They may trade rich because of liquidity and financing demand.</li>
+<li>Their yields may be lower than older issues for reasons unrelated to pure discount rates.</li>
+</ul>
+<p>For example, the current 10-year Treasury note may yield 4.20%, while an older 9.8-year Treasury note may yield 4.25%. The 5 bps difference may reflect liquidity rather than a true difference in the Treasury spot rate.</p>
+</section>
+<section id="on-the-run-and-selected-off-the-run-treasury-issues" class="level3">
+<h3 class="anchored" data-anchor-id="on-the-run-and-selected-off-the-run-treasury-issues">On-the-Run and Selected Off-the-Run Treasury Issues</h3>
+<p><strong>Off-the-run Treasuries</strong> are older Treasury securities that are no longer the most recently issued securities at their original maturities. A curve can be built using on-the-run securities plus selected off-the-run issues that are liquid and close to the desired maturities.</p>
+<p>Advantages:</p>
+<ul>
+<li>More data points than an on-the-run-only curve.</li>
+<li>Better maturity coverage, especially between benchmark maturities.</li>
+<li>Less dependence on a small number of securities that may be unusually rich.</li>
+</ul>
+<p>Disadvantages:</p>
+<ul>
+<li>Off-the-run issues are usually less liquid than on-the-run issues.</li>
+<li>Selection matters; including stale or special issues can distort the curve.</li>
+<li>Coupon, tax, and financing differences still need to be controlled.</li>
+</ul>
+</section>
+<section id="all-treasury-coupon-securities-and-bills" class="level3">
+<h3 class="anchored" data-anchor-id="all-treasury-coupon-securities-and-bills">All Treasury Coupon Securities and Bills</h3>
+<p>One approach to constructing the Treasury curve uses all available Treasury bills, notes, and bonds. This approach has more data points than an on-the-run curve.</p>
+<p>Advantages:</p>
+<ul>
+<li>More observations across maturities.</li>
+<li>Less dependence on a small number of benchmark issues.</li>
+<li>Better ability to fit a smooth curve.</li>
+</ul>
+<p>Disadvantages:</p>
+<ul>
+<li>Different issues may have different liquidity.</li>
+<li>Some issues may be rich or cheap due to supply and demand.</li>
+<li>Tax and financing effects may affect particular securities.</li>
+<li>Coupon effects can make YTMs difficult to compare directly.</li>
+</ul>
+<p>In practice, curve construction often uses statistical fitting methods to smooth observed Treasury prices while controlling for outliers.</p>
+</section>
+<section id="treasury-coupon-strips" class="level3">
+<h3 class="anchored" data-anchor-id="treasury-coupon-strips">Treasury Coupon Strips</h3>
+<p>Treasury STRIPS are securities created by separating Treasury coupon and principal payments into individual zero-coupon instruments. STRIPS provide direct market prices for zero-coupon cash flows.</p>
+<p>Advantages:</p>
+<ul>
+<li>Each STRIP has one cash flow, so its yield is directly interpretable as a spot rate.</li>
+<li>Coupon effects are removed because there are no interim coupon payments.</li>
+<li>STRIPS are especially useful for estimating long-maturity zero-coupon rates.</li>
+</ul>
+<p>Disadvantages:</p>
+<ul>
+<li>STRIPS may be less liquid than on-the-run Treasuries.</li>
+<li>STRIPS may reflect special supply-demand conditions from pension funds and long-duration investors.</li>
+<li>The STRIPS market may not provide enough reliable observations at every desired maturity.</li>
+</ul>
+<div class="callout callout-style-default callout-note callout-titled" title="STRIPS Example">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>STRIPS Example
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Suppose a Treasury STRIP paying $100 in 10 years trades at $62.00.</p>
+<p>The 10-year annual spot rate is:</p>
+<p><span class="math display">\[
+z_{10} = \left(\frac{100}{62}\right)^{1/10} - 1 = 4.91\%.
+\]</span></p>
+<p>Because the STRIP has only one cash flow, its yield is directly interpretable as a spot rate.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="using-the-theoretical-spot-rate-curve" class="level2" data-number="3.4">
+<h2 data-number="3.4" class="anchored" data-anchor-id="using-the-theoretical-spot-rate-curve"><span class="header-section-number">3.4</span> Using the Theoretical Spot Rate Curve</h2>
+<p>The spot rate curve is used to discount each cash flow of a bond at the rate appropriate for that cash-flow date.</p>
+<p>For cash flows <span class="math inline">\(CF_t\)</span> and spot rates <span class="math inline">\(z_t\)</span>:</p>
+<p><span class="math display">\[
+P = \sum_{t=1}^{n} \frac{CF_t}{(1+z_t)^t}.
+\]</span></p>
+<div class="callout callout-style-default callout-note callout-titled" title="Spot Curve Valuation Example">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Spot Curve Valuation Example
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Consider a 3-year annual-pay Treasury with a 4% coupon and face value $100. Assume:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: right;">Maturity</th>
+<th style="text-align: right;">Spot rate</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1 year</td>
+<td style="text-align: right;">3.50%</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2 years</td>
+<td style="text-align: right;">4.00%</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3 years</td>
+<td style="text-align: right;">4.40%</td>
+</tr>
+</tbody>
+</table>
+<p>The price is:</p>
+<p><span class="math display">\[
+P = \frac{4}{1.035} + \frac{4}{1.04^2} + \frac{104}{1.044^3} = 98.54.
+\]</span></p>
+<p>This price uses the correct discount rate for each cash-flow maturity.</p>
+</div>
+</div>
+<section id="spot-rates-and-the-base-interest-rate" class="level3">
+<h3 class="anchored" data-anchor-id="spot-rates-and-the-base-interest-rate">Spot Rates and the Base Interest Rate</h3>
+<p>The base interest rate for a cash flow is best represented by the spot rate for that cash-flow date. A bond’s Treasury benchmark spread can therefore be measured relative to the spot curve rather than a single benchmark maturity.</p>
+<p>If a risky bond has cash flows <span class="math inline">\(CF_t\)</span>, its price can be expressed as:</p>
+<p><span class="math display">\[
+P = \sum_{t=1}^{n} \frac{CF_t}{(1 + z_t + s)^t},
+\]</span></p>
+<p>where:</p>
+<ul>
+<li><span class="math inline">\(z_t\)</span> is the Treasury spot rate for maturity <span class="math inline">\(t\)</span>,</li>
+<li><span class="math inline">\(s\)</span> is the constant spread over the spot curve.</li>
+</ul>
+<p>This spread is conceptually closer to valuation than a simple spread to one Treasury maturity because it respects the timing of each cash flow.</p>
+</section>
+<section id="forward-rates" class="level3">
+<h3 class="anchored" data-anchor-id="forward-rates">Forward Rates</h3>
+<p>A <strong>forward rate</strong> is an interest rate implied today for a loan or investment that begins in the future. Forward rates are derived from spot rates.</p>
+<p>For annual compounding, the one-year forward rate from year 1 to year 2 is:</p>
+<p><span class="math display">\[
+1 + f_{1,2} = \frac{(1+z_2)^2}{1+z_1}.
+\]</span></p>
+<p>Forward rates are break-even rates. If investors can invest for two years at the 2-year spot rate or invest for one year and then reinvest for another year, the forward rate is the reinvestment rate that makes the two strategies equivalent.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Forward Rate Example">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Forward Rate Example
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Suppose the 1-year spot rate is 4.00% and the 2-year spot rate is 4.80%.</p>
+<p><span class="math display">\[
+1 + f_{1,2} = \frac{1.048^2}{1.04} = 1.0561.
+\]</span></p>
+<p>The one-year forward rate beginning one year from now is 5.61%.</p>
+</div>
+</div>
+</section>
+<section id="relationship-between-six-month-forward-rates-and-spot-rates" class="level3">
+<h3 class="anchored" data-anchor-id="relationship-between-six-month-forward-rates-and-spot-rates">Relationship Between Six-Month Forward Rates and Spot Rates</h3>
+<p>Treasury notes and bonds pay semiannual coupons, so six-month rates are especially important.</p>
+<p>Let <span class="math inline">\(z_t\)</span> be the spot rate for maturity <span class="math inline">\(t\)</span> six-month periods, stated as a six-month periodic rate. Let <span class="math inline">\(z_1\)</span> be the current six-month spot rate, and let <span class="math inline">\(f_i\)</span> be the six-month forward rate beginning <span class="math inline">\(i\)</span> six-month periods from now.</p>
+<p>The <span class="math inline">\(t\)</span>-period spot rate is the geometric average of the current six-month spot rate and the sequence of six-month forward rates:</p>
+<p><span class="math display">\[
+z_t =
+\left[
+(1+z_1)(1+f_1)(1+f_2)\cdots(1+f_{t-1})
+\right]^{1/t} - 1.
+\]</span></p>
+<p>The same relationship can be written as:</p>
+<p><span class="math display">\[
+(1+z_t)^t =
+(1+z_1)(1+f_1)(1+f_2)\cdots(1+f_{t-1}).
+\]</span></p>
+<p>This means that investing for <span class="math inline">\(t\)</span> six-month periods at the <span class="math inline">\(t\)</span>-period spot rate must produce the same ending value as investing for six months at today’s six-month spot rate and then rolling the investment through the sequence of implied six-month forward rates.</p>
+<p>Usually the starting point is not the forward curve. The starting point is the spot curve. Once the spot rates are known, the implied six-month forward rates are calculated from adjacent spot rates:</p>
+<p><span class="math display">\[
+1+f_i =
+\frac{(1+z_{i+1})^{i+1}}{(1+z_i)^i}.
+\]</span></p>
+<p>Equivalently:</p>
+<p><span class="math display">\[
+f_i =
+\frac{(1+z_{i+1})^{i+1}}{(1+z_i)^i} - 1.
+\]</span></p>
+<p>The forward rate tells us the future six-month reinvestment rate that would make an investor indifferent between two strategies:</p>
+<ul>
+<li>invest today for <span class="math inline">\(i+1\)</span> six-month periods at the spot rate <span class="math inline">\(z_{i+1}\)</span>, or</li>
+<li>invest today for <span class="math inline">\(i\)</span> six-month periods at <span class="math inline">\(z_i\)</span> and then reinvest for one more six-month period at <span class="math inline">\(f_i\)</span>.</li>
+</ul>
+<div class="callout callout-style-default callout-note callout-titled" title="Complete Example: From Spot Rates to Forward Rates and Back">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Complete Example: From Spot Rates to Forward Rates and Back
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Suppose the current spot curve is:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: right;">Period</th>
+<th style="text-align: right;">Maturity</th>
+<th style="text-align: right;">Spot rate per six months</th>
+<th style="text-align: right;">Bond-equivalent spot rate</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.5 year</td>
+<td style="text-align: right;">2.625%</td>
+<td style="text-align: right;">5.250%</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">1.0 year</td>
+<td style="text-align: right;">2.750%</td>
+<td style="text-align: right;">5.500%</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">1.5 years</td>
+<td style="text-align: right;">2.880%</td>
+<td style="text-align: right;">5.760%</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">2.0 years</td>
+<td style="text-align: right;">3.077%</td>
+<td style="text-align: right;">6.154%</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">2.5 years</td>
+<td style="text-align: right;">3.250%</td>
+<td style="text-align: right;">6.500%</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">3.0 years</td>
+<td style="text-align: right;">3.427%</td>
+<td style="text-align: right;">6.855%</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">3.5 years</td>
+<td style="text-align: right;">3.453%</td>
+<td style="text-align: right;">6.906%</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">4.0 years</td>
+<td style="text-align: right;">3.578%</td>
+<td style="text-align: right;">7.155%</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">4.5 years</td>
+<td style="text-align: right;">3.635%</td>
+<td style="text-align: right;">7.271%</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">5.0 years</td>
+<td style="text-align: right;">3.660%</td>
+<td style="text-align: right;">7.321%</td>
+</tr>
+</tbody>
+</table>
+<p>The first implied six-month forward rate, <span class="math inline">\(f_1\)</span>, begins six months from now. It is calculated from the 6-month and 1-year spot rates:</p>
+<p><span class="math display">\[
+f_1 =
+\frac{(1.02750)^2}{1.02625} - 1 = 0.02875 = 2.875\%.
+\]</span></p>
+<p>The second implied six-month forward rate, <span class="math inline">\(f_2\)</span>, begins one year from now. It is calculated from the 1-year and 1.5-year spot rates:</p>
+<p><span class="math display">\[
+f_2 =
+\frac{(1.02880)^3}{(1.02750)^2} - 1 = 0.03140 = 3.140\%.
+\]</span></p>
+<p>Repeating the calculation produces the full forward curve:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Forward rate</th>
+<th>Period covered</th>
+<th style="text-align: right;">Six-month rate</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(f_1\)</span></td>
+<td>0.5 to 1.0 year</td>
+<td style="text-align: right;">2.875%</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(f_2\)</span></td>
+<td>1.0 to 1.5 years</td>
+<td style="text-align: right;">3.140%</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(f_3\)</span></td>
+<td>1.5 to 2.0 years</td>
+<td style="text-align: right;">3.670%</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(f_4\)</span></td>
+<td>2.0 to 2.5 years</td>
+<td style="text-align: right;">3.945%</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(f_5\)</span></td>
+<td>2.5 to 3.0 years</td>
+<td style="text-align: right;">4.320%</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(f_6\)</span></td>
+<td>3.0 to 3.5 years</td>
+<td style="text-align: right;">3.605%</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(f_7\)</span></td>
+<td>3.5 to 4.0 years</td>
+<td style="text-align: right;">4.455%</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(f_8\)</span></td>
+<td>4.0 to 4.5 years</td>
+<td style="text-align: right;">4.100%</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(f_9\)</span></td>
+<td>4.5 to 5.0 years</td>
+<td style="text-align: right;">3.885%</td>
+</tr>
+</tbody>
+</table>
+<p>These forward rates are not new market observations. They are the rates implied by the spot curve. What they tell us is the break-even reinvestment path embedded in today’s spot rates. For example, the 5-year spot rate can be decomposed into today’s 6-month spot rate plus nine future six-month forward rates.</p>
+<p>A 5-year maturity equals 10 six-month periods, so using the current 6-month spot rate and the nine forward rates:</p>
+<p><span class="math display">\[
+z_{10} =
+\left[
+(1.02625)(1.02875)(1.03140)(1.03670)(1.03945)
+(1.04320)(1.03605)(1.04455)(1.04100)(1.03885)
+\right]^{1/10} - 1.
+\]</span></p>
+<p>The product inside the brackets is:</p>
+<p><span class="math display">\[
+1.43261.
+\]</span></p>
+<p>Therefore:</p>
+<p><span class="math display">\[
+z_{10} = (1.43261)^{1/10} - 1 = 0.03660 = 3.660\%.
+\]</span></p>
+<p>This is the 5-year spot rate stated as a six-month periodic rate. On a bond-equivalent annual basis, it is approximately:</p>
+<p><span class="math display">\[
+2(3.660\%) = 7.320\%.
+\]</span></p>
+<p>The calculation confirms internal consistency: the 5-year spot rate and the sequence of six-month forward rates describe the same total 5-year return. The forward curve is useful because it shows where the spot curve embeds higher or lower future short-rate assumptions. In this example, forward rates rise through <span class="math inline">\(f_5\)</span>, fall at <span class="math inline">\(f_6\)</span>, and then move unevenly afterward, information that is hidden inside the single 5-year spot rate.</p>
+</div>
+</div>
+<div id="cell-fig-forward-rates" class="cell" data-message="false" data-execution_count="5">
+<div class="cell-output cell-output-display">
+<div id="fig-forward-rates" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-forward-rates-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lec4_files/figure-html/fig-forward-rates-output-1.png" width="589" height="376" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-forward-rates-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5: Forward rates implied by an upward-sloping spot curve.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="other-forward-rates" class="level3">
+<h3 class="anchored" data-anchor-id="other-forward-rates">Other Forward Rates</h3>
+<p>Forward rates can be constructed for any future interval, not only one-year or six-month intervals.</p>
+<p>The forward rate from time <span class="math inline">\(a\)</span> to time <span class="math inline">\(b\)</span> is:</p>
+<p><span class="math display">\[
+1 + f_{a,b} =
+\left(
+\frac{(1+z_b)^b}{(1+z_a)^a}
+\right)^{1/(b-a)}.
+\]</span></p>
+<p>This formula assumes annual compounding and maturities measured in years.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Two-Year Forward Rate Beginning Three Years from Now">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Two-Year Forward Rate Beginning Three Years from Now
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Suppose the 3-year spot rate is 4.00% and the 5-year spot rate is 4.60%.</p>
+<p><span class="math display">\[
+1 + f_{3,5} =
+\left(
+\frac{1.046^5}{1.040^3}
+\right)^{1/2}.
+\]</span></p>
+<p>The 2-year forward rate beginning in year 3 is 5.51%.</p>
+</div>
+</div>
+</section>
+<section id="forward-rate-as-a-hedgeable-rate" class="level3">
+<h3 class="anchored" data-anchor-id="forward-rate-as-a-hedgeable-rate">Forward Rate as a Hedgeable Rate</h3>
+<p>A forward rate should not be interpreted mechanically as the market’s forecast of the future spot rate. Forward rates often do a poor job predicting realized future rates because risk premiums, liquidity effects, and changing macroeconomic conditions affect the curve.</p>
+<p>Forward rates are still important because they are <strong>break-even rates</strong>. They tell an investor what future short rate would make two investment strategies equivalent. The investor can then compare that hedgeable break-even rate with their own expectation.</p>
+<p>The intuition is simple: the forward rate is the future reinvestment rate already embedded in today’s spot curve. If an investor disagrees with that implied rate, they can choose the strategy that benefits from their view.</p>
+<p>Some market participants therefore prefer to call forward rates <strong>hedgeable rates</strong> rather than market consensus forecasts. By buying a longer-maturity security today, an investor can hedge the risk that the future short rate is worse than the forward rate implied by the current curve.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Forward Rate as a Break-Even and Hedgeable Rate">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Forward Rate as a Break-Even and Hedgeable Rate
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Suppose an investor has a 1-year horizon and can choose between two strategies:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Strategy</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Alternative 1</td>
+<td>Buy a 1-year Treasury today</td>
+</tr>
+<tr class="even">
+<td>Alternative 2</td>
+<td>Buy a 6-month Treasury today, then reinvest for another 6 months</td>
+</tr>
+</tbody>
+</table>
+<p>Assume:</p>
+<ul>
+<li>the 6-month spot rate is 5.00% on a bond-equivalent basis, or 2.50% for six months,</li>
+<li>the 1-year spot rate is 5.37% on a bond-equivalent basis, or 2.685% per six-month period.</li>
+</ul>
+<p>The implied six-month forward rate beginning six months from now is:</p>
+<p><span class="math display">\[
+f_1 =
+\frac{(1.02685)^2}{1.0250} - 1 = 0.02875.
+\]</span></p>
+<p>So:</p>
+<p><span class="math display">\[
+f_1 = 2.875\% \text{ for six months}
+= 5.75\% \text{ on a bond-equivalent basis}.
+\]</span></p>
+<p>This 5.75% is not necessarily a forecast of the actual 6-month rate six months from now. It is the break-even reinvestment rate.</p>
+<p>If the investor expects the 6-month rate six months from now to be <strong>less than 5.75%</strong>, Alternative 1 is better because the 1-year Treasury locks in a rate above the expected reinvestment rate.</p>
+<p>If the investor expects the future 6-month rate to be <strong>greater than 5.75%</strong>, Alternative 2 is better because rolling the 6-month Treasury is expected to earn more.</p>
+<p>By buying the 1-year Treasury, the investor hedges the uncertainty about the 6-month reinvestment rate six months from now. The investor no longer needs the future 6-month rate to be realized; the 1-year return is locked in today.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="determinants-of-the-shape-of-the-term-structure" class="level2" data-number="3.5">
+<h2 data-number="3.5" class="anchored" data-anchor-id="determinants-of-the-shape-of-the-term-structure"><span class="header-section-number">3.5</span> Determinants of the Shape of the Term Structure</h2>
+<p>The yield curve shape reflects several forces:</p>
+<ul>
+<li>market expectations about future short-term rates,</li>
+<li>compensation for interest-rate risk,</li>
+<li>investor demand for specific maturities,</li>
+<li>supply of securities at different maturities,</li>
+<li>central bank policy,</li>
+<li>inflation expectations,</li>
+<li>economic growth expectations,</li>
+<li>safe-haven demand,</li>
+<li>balance-sheet and regulatory constraints.</li>
+</ul>
+<p>No single theory explains the curve at all times. In practice, the observed curve is the result of expectations, risk premiums, preferred maturity demand, and institutional constraints.</p>
+<section id="pure-expectations-theory" class="level3">
+<h3 class="anchored" data-anchor-id="pure-expectations-theory">Pure Expectations Theory</h3>
+<p>The <strong>pure expectations theory</strong> states that forward rates reflect only expected future short-term rates. Under this theory, investors are risk neutral across maturities and do not require a maturity risk premium.</p>
+<p>If the yield curve is upward sloping, the theory says the market expects future short-term rates to rise. If the yield curve is inverted, the market expects future short-term rates to fall.</p>
+<p>The limitation is that long-term bonds are riskier than rolling short-term bonds, so investors usually require compensation for bearing duration risk.</p>
+</section>
+<section id="liquidity-theory" class="level3">
+<h3 class="anchored" data-anchor-id="liquidity-theory">Liquidity Theory</h3>
+<p>The <strong>liquidity theory</strong> states that investors prefer shorter maturities because short-term bonds have less price risk and are more liquid. Therefore, long-term bonds must offer a positive liquidity premium.</p>
+<p>Under this theory:</p>
+<p><span class="math display">\[
+\text{Long-term rate} = \text{Expected average future short rates} + \text{Liquidity premium}.
+\]</span></p>
+<p>The liquidity premium tends to make the yield curve slope upward even if expected future short rates are unchanged.</p>
+</section>
+<section id="preferred-habitat-theory" class="level3">
+<h3 class="anchored" data-anchor-id="preferred-habitat-theory">Preferred Habitat Theory</h3>
+<p>The <strong>preferred habitat theory</strong> says investors and borrowers prefer certain maturity ranges but can be induced to move outside those ranges if compensated.</p>
+<p>For example:</p>
+<ul>
+<li>money market funds prefer short maturities,</li>
+<li>banks may prefer intermediate maturities,</li>
+<li>pension funds and insurers may prefer long maturities to match liabilities.</li>
+</ul>
+<p>If long-maturity investors have strong demand for 30-year bonds, long-term yields may be lower than expectations alone would imply.</p>
+</section>
+<section id="market-segmentation-theory" class="level3">
+<h3 class="anchored" data-anchor-id="market-segmentation-theory">Market Segmentation Theory</h3>
+<p>The <strong>market segmentation theory</strong> is stronger than preferred habitat theory. It says different maturity sectors are largely separate markets, with yields determined by supply and demand in each maturity segment.</p>
+<p>For example, the 2-year Treasury yield may be dominated by central bank policy expectations, while the 30-year Treasury yield may be dominated by pension demand, inflation uncertainty, and long-duration supply.</p>
+<p>The limitation is that arbitrage and relative-value trading connect maturity sectors, so markets are not completely segmented.</p>
+</section>
+</section>
+<section id="the-main-influences-on-the-shape-of-the-yield-curve" class="level2" data-number="3.6">
+<h2 data-number="3.6" class="anchored" data-anchor-id="the-main-influences-on-the-shape-of-the-yield-curve"><span class="header-section-number">3.6</span> The Main Influences on the Shape of the Yield Curve</h2>
+<p>In practice, the yield curve shape is driven by three broad forces: expected future rate changes, bond risk premiums, and convexity bias. The observed curve combines all three, so the shape of the curve should not be interpreted as a pure forecast of future short-term rates.</p>
+<section id="the-markets-expectations-of-future-rate-changes" class="level3">
+<h3 class="anchored" data-anchor-id="the-markets-expectations-of-future-rate-changes">1. The Market’s Expectations of Future Rate Changes</h3>
+<p>Expected future short-term rates are a major driver of the yield curve. If investors expect central banks to raise policy rates, short- and intermediate-maturity yields usually rise. If investors expect future rate cuts, those maturities usually fall.</p>
+<p>The intuition is that a longer-term yield reflects the return from holding a longer bond versus rolling over a sequence of shorter bonds. If the market expects future short rates to be higher, longer yields need to compensate investors for locking in today’s rate.</p>
+<p>Examples:</p>
+<ul>
+<li>Expected monetary tightening can raise 1-year to 5-year yields and flatten or invert the curve.</li>
+<li>Expected monetary easing can pull down 2-year to 5-year yields and steepen the curve.</li>
+<li>A recession expectation can lower intermediate and long yields if investors expect future rate cuts.</li>
+</ul>
+</section>
+<section id="bond-risk-premiums" class="level3">
+<h3 class="anchored" data-anchor-id="bond-risk-premiums">2. Bond Risk Premiums</h3>
+<p>Bond risk premiums are the extra compensation investors require for bearing risks that are not captured by expected future short rates. Longer-maturity bonds have more price sensitivity to yield changes, so investors often require a term premium to hold them.</p>
+<p>The intuition is that a 30-year bond can lose much more value than a 2-year bond when yields rise. Even if expected future short rates are unchanged, investors may demand a higher long-term yield as compensation for duration risk, inflation uncertainty, liquidity risk, or supply pressure.</p>
+<p>Examples:</p>
+<ul>
+<li>Higher inflation uncertainty can increase the long-term term premium and steepen the curve.</li>
+<li>Heavy long-term Treasury issuance can cheapen long maturities and push long yields higher.</li>
+<li>Strong pension or insurance demand for long-duration bonds can lower long-term risk premiums and flatten the long end.</li>
+<li>Safe-haven demand can lower Treasury yields, especially in highly liquid benchmark maturities.</li>
+</ul>
+</section>
+<section id="convexity-bias" class="level3">
+<h3 class="anchored" data-anchor-id="convexity-bias">3. Convexity Bias</h3>
+<p>Convexity bias arises because bond prices do not move linearly with yields. Long-duration bonds usually have more convexity, meaning their prices rise more when yields fall than they fall when yields rise by the same amount. This convexity has value.</p>
+<p>The intuition is that investors may accept a lower yield on bonds with more desirable convexity, especially when rates are volatile. However, securities with negative convexity, such as callable bonds or mortgage-backed securities, usually require extra yield because their price upside is limited when rates fall.</p>
+<p>Examples:</p>
+<ul>
+<li>A long Treasury bond may trade at a slightly lower yield than otherwise expected because investors value its positive convexity.</li>
+<li>A callable bond may trade at a higher yield because the issuer can call the bond when rates fall.</li>
+<li>Mortgage-backed securities can cheapen when rates fall because prepayment risk increases and investors lose some upside.</li>
+</ul>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Category</th>
+<th>Main intuition</th>
+<th>Example effect</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Expectations of future rate changes</td>
+<td>The curve embeds expected future short rates</td>
+<td>Expected rate cuts can lower intermediate yields</td>
+</tr>
+<tr class="even">
+<td>Bond risk premiums</td>
+<td>Investors require compensation for duration, inflation, liquidity, and supply risk</td>
+<td>Higher inflation uncertainty can raise long yields</td>
+</tr>
+<tr class="odd">
+<td>Convexity bias</td>
+<td>Investors value or penalize nonlinear price behavior</td>
+<td>Callable bonds require extra yield for negative convexity</td>
+</tr>
+</tbody>
+</table>
+<div id="cell-fig-curve-drivers" class="cell" data-message="false" data-execution_count="6">
+<div class="cell-output cell-output-display">
+<div id="fig-curve-drivers" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-curve-drivers-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lec4_files/figure-html/fig-curve-drivers-output-1.png" width="597" height="376" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-curve-drivers-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6: Illustrative effects of rate expectations on the yield curve.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<hr>
+</section>
+</section>
+</section>
+<section id="swap-rate-yield-curve" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> Swap Rate Yield Curve</h1>
+<div class="callout callout-style-default callout-important callout-titled" title="Definition: Interest Rate Swap">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>Definition: Interest Rate Swap
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>An <strong>interest rate swap</strong> is a contract in which two parties exchange interest payments based on a notional principal amount. In a plain-vanilla fixed-for-floating swap, one party pays a fixed interest rate and receives a floating reference rate; the other party receives the fixed rate and pays the floating rate.</p>
+<p>For example, suppose two parties enter a 5-year swap with a notional principal of $100 million. Party A agrees to pay a fixed rate of 4.50% per year and receive 6-month SOFR. Party B receives the fixed 4.50% and pays 6-month SOFR. The $100 million notional is not exchanged; it is only used to calculate the interest payments.</p>
+<p>Assume payments are exchanged semiannually. The fixed payment each six months is:</p>
+<p><span class="math display">\[
+\$100{,}000{,}000 \times \frac{4.50\%}{2} = \$2{,}250{,}000.
+\]</span></p>
+<p>The floating payment changes with 6-month SOFR:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Scenario for 6-month SOFR</th>
+<th style="text-align: right;">Floating payment</th>
+<th>Net cash flow</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>SOFR = 3.50%</td>
+<td style="text-align: right;">$1,750,000</td>
+<td>Party A pays Party B $500,000</td>
+</tr>
+<tr class="even">
+<td>SOFR = 4.50%</td>
+<td style="text-align: right;">$2,250,000</td>
+<td>No net payment</td>
+</tr>
+<tr class="odd">
+<td>SOFR = 5.50%</td>
+<td style="text-align: right;">$2,750,000</td>
+<td>Party B pays Party A $500,000</td>
+</tr>
+</tbody>
+</table>
+<p>Party A benefits when floating rates rise above 4.50% because it receives the higher floating payment while paying the fixed rate. Party B benefits when floating rates fall below 4.50% because it receives the fixed payment while paying the lower floating rate.</p>
+</div>
+</div>
+<p>The <strong>swap rate yield curve</strong> plots fixed rates on plain-vanilla interest rate swaps across maturities. In a fixed-for-floating swap, one party pays a fixed rate and receives a floating reference rate, while the other party receives fixed and pays floating.</p>
+<p>The swap rate is the fixed rate that makes the initial value of the swap approximately zero.</p>
+<p>Swap curves are important because:</p>
+<ul>
+<li>swaps are actively traded across many maturities,</li>
+<li>swap rates are used to price corporate bonds and structured products,</li>
+<li>swaps reflect bank funding, collateral, and credit conditions,</li>
+<li>swap spreads compare swap rates with Treasury rates.</li>
+</ul>
+<p>The <strong>swap spread</strong> is:</p>
+<p><span class="math display">\[
+\text{Swap spread} = \text{Swap rate} - \text{Treasury yield}.
+\]</span></p>
+<div class="callout callout-style-default callout-note callout-titled" title="Swap Spread Example">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Swap Spread Example
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Suppose the 10-year swap rate is 4.65% and the 10-year Treasury yield is 4.25%.</p>
+<p><span class="math display">\[
+\text{10-year swap spread} = 4.65\% - 4.25\% = 0.40\%.
+\]</span></p>
+<p>The 10-year swap spread is 40 basis points.</p>
+</div>
+</div>
+<div id="cell-fig-swap-curve" class="cell" data-message="false" data-execution_count="7">
+<div class="cell-output cell-output-display">
+<div id="fig-swap-curve" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-swap-curve-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lec4_files/figure-html/fig-swap-curve-output-1.png" width="589" height="376" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-swap-curve-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7: Illustrative Treasury and swap curves.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The swap curve is not risk free in the same way as a Treasury curve. It reflects the economics of collateralized derivatives markets, bank balance sheets, and floating-rate reference rates. However, it is often a better benchmark than Treasuries for valuing corporate and derivative-linked cash flows because many market participants hedge interest-rate risk using swaps rather than cash Treasuries.</p>
+<hr>
+</section>
+<section id="curve-strategies" class="level1" data-number="5">
+<h1 data-number="5"><span class="header-section-number">5</span> Curve Strategies</h1>
+<p>Curve strategies use positions in bonds, futures, swaps, or other rate instruments to express a view about changes in the level, slope, or curvature of the yield curve.</p>
+<p>The main idea is to separate:</p>
+<ul>
+<li><strong>level risk</strong>: all rates move up or down together,</li>
+<li><strong>slope risk</strong>: short and long rates move by different amounts,</li>
+<li><strong>curvature risk</strong>: intermediate maturities move differently from short and long maturities.</li>
+</ul>
+<p>Curve trades are often structured to be approximately duration neutral so the profit or loss depends mainly on curve shape rather than the overall level of rates.</p>
+<section id="bull-steepener" class="level2" data-number="5.1">
+<h2 data-number="5.1" class="anchored" data-anchor-id="bull-steepener"><span class="header-section-number">5.1</span> Bull Steepener</h2>
+<p>A <strong>bull steepener</strong> is a strategy that benefits when yields fall and short-term yields fall more than long-term yields. This often occurs when the market expects central bank easing.</p>
+<p>Example position:</p>
+<ul>
+<li>long 2-year Treasury notes,</li>
+<li>short 10-year Treasury notes in a duration-adjusted amount.</li>
+</ul>
+<div class="callout callout-style-default callout-note callout-titled" title="Bull Steepener Example">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Bull Steepener Example
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Suppose the 2-year yield is 4.80% and the 10-year yield is 4.20%. The 2s10s slope is:</p>
+<p><span class="math display">\[
+4.20\% - 4.80\% = -0.60\%.
+\]</span></p>
+<p>The curve is inverted by 60 bps. A trader expects recession risk to rise and the central bank to cut rates. One month later:</p>
+<ul>
+<li>2-year yield falls to 4.10%,</li>
+<li>10-year yield falls to 3.95%.</li>
+</ul>
+<p>The new 2s10s slope is:</p>
+<p><span class="math display">\[
+3.95\% - 4.10\% = -0.15\%.
+\]</span></p>
+<p>The curve steepened by 45 bps. A long 2-year / short 10-year duration-neutral trade profits because the long 2-year position gains more from the larger yield decline than the short 10-year position loses.</p>
+</div>
+</div>
+<div id="cell-fig-bull-steepener" class="cell" data-message="false" data-execution_count="8">
+<div class="cell-output cell-output-display">
+<div id="fig-bull-steepener" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-bull-steepener-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lec4_files/figure-html/fig-bull-steepener-output-1.png" width="589" height="383" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bull-steepener-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;8: Bull steepener: yields fall, with the short end falling more than the long end.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="bear-steepener" class="level2" data-number="5.2">
+<h2 data-number="5.2" class="anchored" data-anchor-id="bear-steepener"><span class="header-section-number">5.2</span> Bear Steepener</h2>
+<p>A <strong>bear steepener</strong> benefits when yields rise and long-term yields rise more than short-term yields. This can occur when inflation risk rises or investors demand a larger term premium.</p>
+<p>Example position:</p>
+<ul>
+<li>short 30-year Treasury bonds,</li>
+<li>long 5-year Treasury notes in a duration-adjusted amount.</li>
+</ul>
+<div class="callout callout-style-default callout-note callout-titled" title="Bear Steepener Example">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Bear Steepener Example
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The 5-year yield is 4.00% and the 30-year yield is 4.40%, so the 5s30s slope is 40 bps. A trader believes long-term inflation risk is underpriced. Two weeks later:</p>
+<ul>
+<li>5-year yield rises to 4.10%,</li>
+<li>30-year yield rises to 4.80%.</li>
+</ul>
+<p>The 5s30s slope becomes 70 bps. The curve steepened by 30 bps. A short long-bond position gains from the larger yield increase at the long end, while the long 5-year hedge loses less.</p>
+</div>
+</div>
+<div id="cell-fig-bear-steepener" class="cell" data-message="false" data-execution_count="9">
+<div class="cell-output cell-output-display">
+<div id="fig-bear-steepener" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-bear-steepener-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lec4_files/figure-html/fig-bear-steepener-output-1.png" width="589" height="412" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bear-steepener-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;9: Bear steepener: yields rise, with the long end rising more than the short or intermediate sector.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="bull-flattener" class="level2" data-number="5.3">
+<h2 data-number="5.3" class="anchored" data-anchor-id="bull-flattener"><span class="header-section-number">5.3</span> Bull Flattener</h2>
+<p>A <strong>bull flattener</strong> benefits when yields fall and long-term yields fall more than short-term yields. This often occurs when inflation expectations decline or investors seek duration.</p>
+<p>Example position:</p>
+<ul>
+<li>long 10-year Treasury notes,</li>
+<li>short 2-year Treasury notes in a duration-adjusted amount.</li>
+</ul>
+<p>If the 10-year yield falls by 50 bps while the 2-year yield falls by only 15 bps, the long 10-year position gains more than the short 2-year position loses.</p>
+<div id="cell-fig-bull-flattener" class="cell" data-message="false" data-execution_count="10">
+<div class="cell-output cell-output-display">
+<div id="fig-bull-flattener" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-bull-flattener-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lec4_files/figure-html/fig-bull-flattener-output-1.png" width="589" height="376" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bull-flattener-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;10: Bull flattener: yields fall, with the long end falling more than the short end.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="bear-flattener" class="level2" data-number="5.4">
+<h2 data-number="5.4" class="anchored" data-anchor-id="bear-flattener"><span class="header-section-number">5.4</span> Bear Flattener</h2>
+<p>A <strong>bear flattener</strong> benefits when yields rise and short-term yields rise more than long-term yields. This often occurs when the central bank is expected to tighten policy.</p>
+<p>Example position:</p>
+<ul>
+<li>short 2-year Treasury notes,</li>
+<li>long 10-year Treasury notes in a duration-adjusted amount.</li>
+</ul>
+<p>If the 2-year yield rises by 75 bps and the 10-year yield rises by 25 bps, the curve flattens. The short 2-year position gains more than the long 10-year position loses.</p>
+<div id="cell-fig-bear-flattener" class="cell" data-message="false" data-execution_count="11">
+<div class="cell-output cell-output-display">
+<div id="fig-bear-flattener" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-bear-flattener-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lec4_files/figure-html/fig-bear-flattener-output-1.png" width="589" height="451" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bear-flattener-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;11: Bear flattener: yields rise, with the short end rising more than the long end.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="butterfly-strategy" class="level2" data-number="5.5">
+<h2 data-number="5.5" class="anchored" data-anchor-id="butterfly-strategy"><span class="header-section-number">5.5</span> Butterfly Strategy</h2>
+<p>A <strong>butterfly</strong> strategy expresses a view on curvature. It compares an intermediate maturity with a weighted average of shorter and longer maturities.</p>
+<p>A common 2s5s10s butterfly is:</p>
+<p><span class="math display">\[
+\text{Butterfly} = 2y_5 - y_2 - y_{10}.
+\]</span></p>
+<p>If the 5-year yield is high relative to the 2-year and 10-year yields, the 5-year sector is cheap on the curve. A trader may buy 5-year notes and short 2-year and 10-year notes in duration-adjusted amounts.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Butterfly Example">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Butterfly Example
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Suppose:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: right;">Maturity</th>
+<th style="text-align: right;">Yield</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">2-year</td>
+<td style="text-align: right;">4.00%</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">5-year</td>
+<td style="text-align: right;">4.50%</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">10-year</td>
+<td style="text-align: right;">4.30%</td>
+</tr>
+</tbody>
+</table>
+<p>The butterfly is:</p>
+<p><span class="math display">\[
+2(4.50\%) - 4.00\% - 4.30\% = 0.70\%.
+\]</span></p>
+<p>The 5-year point is high relative to the wings. A trader who expects the curve to become smoother may buy the 5-year note and short the 2-year and 10-year notes. If the 5-year yield later falls relative to the wings, the trade profits.</p>
+</div>
+</div>
+<div id="cell-fig-butterfly-strategy" class="cell" data-message="false" data-execution_count="12">
+<div class="cell-output cell-output-display">
+<div id="fig-butterfly-strategy" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-butterfly-strategy-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lec4_files/figure-html/fig-butterfly-strategy-output-1.png" width="589" height="394" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-butterfly-strategy-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;12: Butterfly trade: the intermediate maturity richens relative to the wings.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="carry-and-roll-down" class="level2" data-number="5.6">
+<h2 data-number="5.6" class="anchored" data-anchor-id="carry-and-roll-down"><span class="header-section-number">5.6</span> Carry and Roll-Down</h2>
+<p>Curve strategies are not driven only by future yield changes. They also earn or lose <strong>carry</strong> and <strong>roll-down</strong>.</p>
+<p><strong>Carry</strong> is the return from holding a position if the yield curve does not change. For a bond, carry includes coupon income minus financing cost.</p>
+<p><strong>Roll-down</strong> is the price effect from a bond moving to a shorter maturity on an unchanged yield curve. On an upward-sloping curve, a bond may roll down to a lower yield and gain price.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Carry and Roll-Down Example">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Carry and Roll-Down Example
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A 5-year Treasury yields 4.30%. The 4-year point on the curve yields 4.00%. If the curve is unchanged after one year, the bond is now a 4-year bond and its required yield falls by 30 bps. The investor earns coupon income and may also gain from roll-down.</p>
+<p>However, if market yields rise enough, the mark-to-market loss can offset the carry and roll-down benefit.</p>
+</div>
+</div>
+</section>
+<section id="risk-controls-in-curve-strategies" class="level2" data-number="5.7">
+<h2 data-number="5.7" class="anchored" data-anchor-id="risk-controls-in-curve-strategies"><span class="header-section-number">5.7</span> Risk Controls in Curve Strategies</h2>
+<p>Curve strategies should be evaluated with explicit risk controls:</p>
+<ul>
+<li>duration exposure,</li>
+<li>key rate duration exposure,</li>
+<li>convexity exposure,</li>
+<li>financing cost,</li>
+<li>liquidity risk,</li>
+<li>stop-loss levels,</li>
+<li>scenario analysis.</li>
+</ul>
+<p>A trade that appears to be a curve trade may still lose money if it has unintended exposure to the overall level of rates.</p>
+<div class="callout callout-style-default callout-warning callout-titled" title="Implementation Risk">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Implementation Risk
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A duration-neutral steepener is only neutral for small parallel shifts. It can still lose money if volatility rises, financing conditions change, the curve moves in an unexpected maturity sector, or the hedge instrument does not track the cash bond being hedged.</p>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="broad-picture" class="level1 unnumbered">
+<h1 class="unnumbered">Broad Picture</h1>
+<style>
+.lecture-roadmap {
+  --blue-bg: #d9eaf7;
+  --blue-border: #3a6ea5;
+  --red-bg: #f8d7da;
+  --red-border: #b94a48;
+  --yellow-bg: #fff3cd;
+  --yellow-border: #b08a00;
+  --green-bg: #d4edda;
+  --green-border: #4f8a5b;
+  --purple-bg: #d6d8f5;
+  --purple-border: #595daa;
+  --orange-bg: #fce4d6;
+  --orange-border: #b6612e;
+  max-width: 980px;
+  margin: 1rem auto 1.5rem auto;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #1f2933;
+}
+.lecture-roadmap * { box-sizing: border-box; }
+.lecture-roadmap__title {
+  text-align: center;
+  font-weight: 750;
+  font-size: 1.15rem;
+  margin-bottom: 0.25rem;
+}
+.lecture-roadmap__subtitle {
+  text-align: center;
+  color: #4b5563;
+  font-size: 0.78rem;
+  margin-bottom: 1rem;
+}
+.lecture-roadmap__canvas {
+  display: grid;
+  grid-template-columns: 1.05fr 0.24fr 1.05fr 0.24fr 1.36fr;
+  grid-template-rows: auto auto auto auto auto;
+  gap: 0.45rem 0.46rem;
+  align-items: center;
+}
+.lecture-card {
+  border: 1.5px solid;
+  border-radius: 10px;
+  padding: 0.7rem 0.72rem;
+  box-shadow: 0 4px 9px rgba(15, 23, 42, 0.13);
+  min-height: 112px;
+}
+.lecture-card h3 {
+  margin: 0 0 0.35rem 0;
+  font-size: 0.86rem;
+  line-height: 1.12;
+  text-align: center;
+}
+.lecture-card p {
+  margin: 0;
+  font-size: 0.72rem;
+  line-height: 1.27;
+  text-align: center;
+}
+.lecture-card--blue { background: var(--blue-bg); border-color: var(--blue-border); }
+.lecture-card--green { background: var(--green-bg); border-color: var(--green-border); }
+.lecture-card--purple { background: var(--purple-bg); border-color: var(--purple-border); }
+.lecture-card--orange { background: var(--orange-bg); border-color: var(--orange-border); }
+.lecture-card--small { min-height: 78px; padding: 0.52rem 0.6rem; }
+.lecture-cloud {
+  border: 1.4px solid;
+  border-radius: 999px;
+  padding: 0.58rem 0.72rem;
+  min-height: 78px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-shadow: 0 3px 8px rgba(15, 23, 42, 0.10);
+}
+.lecture-cloud h3 {
+  margin: 0 0 0.25rem 0;
+  font-size: 0.75rem;
+  text-align: center;
+  line-height: 1.1;
+}
+.lecture-cloud p {
+  margin: 0;
+  font-size: 0.65rem;
+  line-height: 1.2;
+  text-align: center;
+}
+.lecture-cloud--red { background: var(--red-bg); border-color: var(--red-border); }
+.lecture-cloud--yellow { background: var(--yellow-bg); border-color: var(--yellow-border); }
+.lecture-chip-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.18rem;
+  margin-top: 0.34rem;
+}
+.lecture-chip {
+  border: 1px solid var(--yellow-border);
+  background: #fff8db;
+  border-radius: 999px;
+  padding: 0.1rem 0.18rem;
+  font-size: 0.54rem;
+  text-align: center;
+  white-space: nowrap;
+}
+.lecture-arrow {
+  align-self: center;
+  justify-self: center;
+  color: #374151;
+  font-weight: 800;
+  font-size: 1.28rem;
+  line-height: 1;
+  text-align: center;
+}
+.lecture-arrow span {
+  display: block;
+  margin-top: 0.18rem;
+  font-size: 0.54rem;
+  font-weight: 650;
+  line-height: 1.08;
+  color: #4b5563;
+}
+.lecture-connector {
+  align-self: center;
+  justify-self: center;
+  color: #6b7280;
+  font-weight: 800;
+  font-size: 1.02rem;
+  line-height: 1;
+  text-align: center;
+}
+.lecture-connector span {
+  display: block;
+  font-size: 0.5rem;
+  font-weight: 650;
+  margin-top: 0.06rem;
+}
+.lecture-branch {
+  grid-column: 5;
+  grid-row: 3 / 6;
+  display: grid;
+  grid-template-columns: 1fr 0.18fr 1fr;
+  grid-template-rows: auto auto auto auto;
+  gap: 0.28rem 0.35rem;
+  align-items: stretch;
+}
+.lecture-down-arrow {
+  color: #374151;
+  font-weight: 800;
+  font-size: 1.15rem;
+  text-align: center;
+  line-height: 1;
+}
+.lecture-down-arrow span {
+  display: block;
+  font-size: 0.5rem;
+  color: #4b5563;
+  margin-top: 0.05rem;
+}
+@media (max-width: 780px) {
+  .lecture-roadmap__canvas,
+  .lecture-branch {
+    grid-template-columns: 1fr;
+  }
+  .lecture-branch { grid-column: auto; grid-row: auto; }
+  .lecture-arrow,
+  .lecture-connector { transform: rotate(90deg); margin: 0.2rem 0; }
+  .lecture-arrow span,
+  .lecture-connector span { display: none; }
+}
+</style>
+
+<div class="lecture-roadmap" role="img" aria-label="Broad picture of the lecture from observed Treasury yields to the par curve, spot rate curve, pricing, forward rates, and hedging or trading.">
+  <div class="lecture-roadmap__title">Broad Picture: From Treasury Yields to Pricing and Hedging Rates</div>
+  <div class="lecture-roadmap__subtitle">The main path is: observe Treasury YTMs, build the par curve, bootstrap the spot rate curve, then use spots and forwards.</div>
+
+  <div class="lecture-roadmap__canvas">
+    <div class="lecture-card lecture-card--blue" style="grid-column: 1; grid-row: 2;">
+      <h3 class="anchored" data-anchor-id="broad-picture">1. Observe</h3>
+      <p>Treasury issue prices and YTMs across maturities.</p>
+    </div>
+
+    <div class="lecture-cloud lecture-cloud--red" style="grid-column: 1; grid-row: 3;">
+      <h3 class="anchored">Raw YTMs Fail</h3>
+      <p>A YTM is one IRR for a bundle of cash flows, not a one-date discount rate.</p>
+    </div>
+
+    <div class="lecture-cloud lecture-cloud--yellow" style="grid-column: 1; grid-row: 4;">
+      <p>Observed Treasury yields are heterogeneous.</p>
+      <div class="lecture-chip-grid">
+        <div class="lecture-chip">coupon</div>
+        <div class="lecture-chip">maturity</div>
+        <div class="lecture-chip">cash-flow</div>
+        <div class="lecture-chip">liquidity</div>
+        <div class="lecture-chip">tax</div>
+        <div class="lecture-chip">financing</div>
+      </div>
+    </div>
+
+    <div class="lecture-arrow" style="grid-column: 2; grid-row: 2;">→<span>standardize</span></div>
+
+    <div class="lecture-card lecture-card--green" style="grid-column: 3; grid-row: 2;">
+      <h3 class="anchored">2. Par Curve</h3>
+      <p>Move to par coupon space. Smooth the curve, interpolate missing maturities, and identify the coupon that prices each new Treasury at par.</p>
+    </div>
+
+    <div class="lecture-arrow" style="grid-column: 4; grid-row: 2;">→<span>bootstrap</span></div>
+
+    <div class="lecture-card lecture-card--purple" style="grid-column: 5; grid-row: 2;">
+      <h3 class="anchored">3. Spot Rate Curve</h3>
+      <p>Bootstrap spot rates for each maturity: <em>z</em><sub>0.5</sub>, <em>z</em><sub>1</sub>, ..., <em>z</em><sub>10</sub>.</p>
+    </div>
+
+    <div class="lecture-branch">
+      <div class="lecture-down-arrow" style="grid-column: 1; grid-row: 1;">↓<span>use spots</span></div>
+      <div></div>
+      <div class="lecture-down-arrow" style="grid-column: 3; grid-row: 1;">↓<span>derive</span></div>
+
+      <div class="lecture-card lecture-card--purple lecture-card--small" style="grid-column: 1; grid-row: 2;">
+        <h3 class="anchored">4. Price Cash Flows</h3>
+        <p>Discount each cash flow using the spot rate for its payment date.</p>
+      </div>
+      <div></div>
+      <div class="lecture-card lecture-card--orange lecture-card--small" style="grid-column: 3; grid-row: 2;">
+        <h3 class="anchored">5. Derive Forwards</h3>
+        <p>Forward rates describe future start dates and tenors implied by spot rates.</p>
+      </div>
+
+      <div></div>
+      <div></div>
+      <div class="lecture-down-arrow" style="grid-column: 3; grid-row: 3;">↓<span>apply</span></div>
+
+      <div></div>
+      <div></div>
+      <div class="lecture-card lecture-card--orange lecture-card--small" style="grid-column: 3; grid-row: 4;">
+        <h3 class="anchored">6. Hedge or Trade</h3>
+        <p>Use forwards to express views on future rates or hedge future rate exposure.</p>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+<section id="key-points" class="level1 unnumbered">
+<h1 class="unnumbered">Key Points</h1>
+<ul>
+<li>A bond’s required yield can be decomposed into a base interest rate plus a benchmark spread.</li>
+<li>Benchmark spreads compensate investors for issuer type, creditworthiness, embedded options, tax treatment, liquidity, financeability, and maturity.</li>
+<li>Issuer-friendly options, such as call options, usually increase benchmark spreads; investor-friendly options, such as put or conversion options, can reduce them.</li>
+<li>Option-adjusted spread removes the estimated value of embedded options from the observed benchmark spread.</li>
+<li>Longer-maturity bonds generally have greater price volatility, and yield differences across maturity sectors are called maturity spreads.</li>
+<li>A yield curve summarizes yields across maturities, but coupon bond YTMs are not homogeneous discount rates for individual cash flows.</li>
+<li>The theoretical Treasury spot rate curve is built by smoothing and interpolating the par coupon curve, then bootstrapping spot rates from the par curve.</li>
+<li>On-the-run Treasuries, selected off-the-run issues, all Treasury securities, and STRIPS each offer different tradeoffs for curve construction.</li>
+<li>Spot rates are the correct discount rates for valuing each cash flow at its own maturity.</li>
+<li>Forward rates are implied by spot rates; they are break-even and hedgeable rates, not reliable forecasts of future spot rates.</li>
+<li>The shape of the yield curve reflects expected future rate changes, bond risk premiums, and convexity bias.</li>
+<li>Term structure theories explain different parts of curve behavior: expectations, liquidity premiums, preferred habitats, and market segmentation.</li>
+<li>Swap rates are fixed rates on interest rate swaps and are widely used as benchmarks for valuation, hedging, and swap spread analysis.</li>
+<li>Curve strategies express views about level, slope, curvature, carry, and roll-down, but require explicit risk controls.</li>
+</ul>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/aliboloor\.github\.io\/BUS411\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

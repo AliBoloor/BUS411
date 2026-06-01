@@ -1,0 +1,1810 @@
+---
+title: "Lecture 4: Benchmark Spreads and the Term Structure of Interest Rates"
+format:
+  html:
+    toc: true
+    toc-location: left
+    number-sections: true
+    number-depth: 2
+  pdf:
+    toc: true
+    number-sections: true
+    number-depth: 2
+jupyter: python3
+---
+
+## Learning Objectives {.unnumbered}
+
+By the end of this lecture you should be able to:
+
+- Explain why a bond's required yield can be decomposed into a base interest rate and a benchmark spread.
+- Identify the main issuer, credit, tax, liquidity, financeability, option, and maturity characteristics that affect benchmark spreads.
+- Distinguish between a yield curve and a theoretical spot rate curve.
+- Explain why coupon bond yields are not the correct discount rates for valuing individual cash flows.
+- Construct a simple Treasury spot rate curve by bootstrapping from Treasury bill and coupon security prices.
+- Use spot rates to value a bond and to measure its spread over the Treasury curve.
+- Derive forward rates from spot rates and interpret forward rates as hedgeable break-even rates.
+- Compare the pure expectations, liquidity, preferred habitat, and market segmentation theories of the term structure.
+- Explain why swap rates are widely used as benchmark rates in fixed income markets.
+- Design curve strategies based on the shape of the yield curve and a trader's view about future curve movements.
+
+---
+
+# Base Interest Rate
+
+The **base interest rate** is the benchmark rate used as the starting point for valuing a bond. It is meant to represent the return required on a security with minimal default risk over the same maturity or cash-flow horizon.
+
+In U.S. dollar fixed income markets, the base rate is often taken from:
+
+- U.S. Treasury rates,
+- the Treasury spot rate curve,
+- the swap rate curve, or
+- overnight indexed swap rates for collateralized derivative valuation.
+
+The base rate is not the full required yield on most bonds. A corporate bond, municipal bond, mortgage-backed security, or structured product usually requires compensation for additional risks and contractual features. The required yield can be summarized as:
+
+$$
+\text{Required yield} = \text{Base interest rate} + \text{Benchmark spread}.
+$$
+
+This decomposition is useful because it separates broad market interest-rate risk from issuer-specific and security-specific risk.
+
+::: {.callout-note title="Conceptual Example"}
+Suppose the 5-year Treasury yield is 3.80% and a 5-year industrial corporate bond trades at a yield of 5.05%.
+
+$$
+\text{Benchmark spread} = 5.05\% - 3.80\% = 1.25\%.
+$$
+
+The bond trades at a spread of 125 basis points over the 5-year Treasury benchmark.
+:::
+
+---
+
+# Benchmark Spread
+
+The **benchmark spread** is the yield difference between a bond and a benchmark security or benchmark curve. It compensates investors for risks and features not captured by the base interest rate.
+
+For a simple bond quoted against a Treasury benchmark:
+
+$$
+\text{Benchmark spread} = y_{\text{bond}} - y_{\text{benchmark}}.
+$$
+
+If the corporate bond yield is 6.20% and the Treasury benchmark yield is 4.70%, the benchmark spread is:
+
+$$
+6.20\% - 4.70\% = 1.50\% = 150 \text{ basis points}.
+$$
+
+The spread is not fixed. It changes as credit conditions, market liquidity, investor risk appetite, and the bond's own characteristics change.
+
+```{python}
+#| label: fig-benchmark-spread
+#| fig-cap: "Yield decomposition into a base interest rate and a benchmark spread."
+#| echo: false
+#| warning: false
+#| message: false
+
+import matplotlib.pyplot as plt
+
+base_rate = 3.80
+benchmark_spread = 1.25
+required_yield = base_rate + benchmark_spread
+
+fig, ax = plt.subplots(figsize=(5, 3))
+labels = ["Treasury benchmark", "Corporate bond"]
+yields = [base_rate, required_yield]
+colors = ["#4C78A8", "#F58518"]
+
+ax.scatter(labels, yields, s=260, color=colors, zorder=3)
+ax.plot(labels, yields, color="#666666", linewidth=2, alpha=0.6, zorder=2)
+
+for label, yld in zip(labels, yields):
+    ax.text(label, yld + 0.14, f"{yld:.2f}%", ha="center", va="bottom", fontsize=11)
+
+ax.annotate(
+    "Benchmark spread\n1.25% = 125 bps",
+    xy=(1, required_yield),
+    xytext=(1, base_rate),
+    ha="left",
+    va="center",
+    arrowprops={"arrowstyle": "<->", "color": "#333333", "linewidth": 1.5},
+    bbox={"boxstyle": "round,pad=0.3", "facecolor": "white", "edgecolor": "#CCCCCC"},
+)
+
+ax.axhline(base_rate, color="#4C78A8", linestyle="--", linewidth=1, alpha=0.7)
+ax.set_ylabel("Yield (%)")
+ax.set_ylim(0, 5.6)
+ax.set_title("Corporate Bond Yield = Benchmark Rate + Spread")
+ax.grid(axis="y", alpha=0.25)
+ax.spines[["top", "right"]].set_visible(False)
+plt.show()
+```
+
+## Types of Issuers
+
+Different issuer types usually trade at different spreads because investors assign different risks and legal protections to each sector.
+
+Common issuer categories include:
+
+- sovereign governments,
+- government agencies,
+- supranational institutions,
+- municipalities,
+- financial corporations,
+- industrial corporations,
+- utilities,
+- structured finance issuers,
+- mortgage-backed security issuers.
+
+Treasury securities usually define the lowest-yielding benchmark in the domestic currency because they are backed by the sovereign taxing authority and are highly liquid. Corporate bonds trade at positive spreads because investors require compensation for default risk, downgrade risk, and lower liquidity.
+
+::: {.callout-note title="Issuer Spread Example"}
+Assume the 10-year Treasury yield is 4.00%. Three 10-year bonds trade at:
+
+| Issuer type | Yield | Spread over Treasury |
+|---|---:|---:|
+| Federal agency | 4.35% | 35 bps |
+| Utility company | 4.95% | 95 bps |
+| High-yield industrial company | 7.25% | 325 bps |
+
+The spread increases as investors require more compensation for credit and liquidity risk.
+:::
+
+## Perceived Creditworthiness of Issuer
+
+Creditworthiness is the market's assessment of the issuer's ability and willingness to make promised payments. It depends on:
+
+- leverage (e.g., high debt-to-EBITDA versus low debt-to-EBITDA),
+- earnings stability (e.g., predictable utility earnings versus cyclical commodity earnings),
+- cash-flow coverage (e.g., strong interest coverage versus weak interest coverage),
+- asset quality (e.g., liquid collateral versus specialized assets with few buyers),
+- business risk (e.g., diversified revenue versus dependence on one product),
+- industry cyclicality (e.g., consumer staples versus autos or airlines),
+- legal protections for creditors (e.g., secured debt versus subordinated debt),
+- recovery value if default occurs (e.g., high-value collateral versus limited recoverable assets).
+
+Credit ratings summarize some of this information, but market spreads often react faster than ratings. A widening spread can signal that investors are demanding more compensation for default or downgrade risk.
+
+::: {.callout-note title="Credit Spread Example"}
+A 7-year A-rated bond trades at 85 bps over Treasuries. A similar BBB-rated bond from the same sector trades at 145 bps. The 60 bps difference reflects the market's higher required compensation for the weaker credit profile.
+:::
+
+## Inclusion of Options
+
+Embedded options change a bond's cash flows and therefore affect its benchmark spread. The direction of the effect depends on who benefits from the option.
+
+An option that is favorable to the **issuer** usually increases the required benchmark spread. A **callable bond**, for example, gives the issuer the right to redeem the bond before maturity. If interest rates fall, the issuer can call the bond and refinance at a lower rate, limiting the investor's price upside. Investors therefore require extra spread compensation for accepting call risk and reinvestment risk.
+
+An option that is favorable to the **investor** usually lowers the required benchmark spread. A **putable bond** gives the investor the right to sell the bond back to the issuer at a specified price. A **convertible bond** gives the investor the right to convert the bond into equity. Because these options have value to the investor, the bond may trade at a lower yield than an otherwise comparable issue. In some cases, the yield may even be below the yield on a comparable benchmark security.
+
+Because the benchmark spread includes compensation for embedded options, it can be misleading to compare raw spreads across bonds with different option features. Analysts therefore use the **option-adjusted spread (OAS)** to estimate the spread after removing the value of embedded options. OAS is not a simple yield calculation; it requires a valuation model for bonds with embedded options.
+
+For now, the key idea is:
+
+$$
+\text{Benchmark spread} = \text{option-adjusted spread} + \text{value of embedded option effects}.
+$$
+
+::: {.callout-note title="Embedded Option Spread Example"}
+Suppose two corporate bonds are observed in the market:
+
+| Bond | Rating | Embedded option | Possible spread effect |
+|---|---|---|---|
+| Bond A | AAA | Callable | Higher spread due to call risk |
+| Bond B | AA | Putable or convertible | Lower spread because the option benefits investors |
+
+Even though Bond B has the lower credit rating, it could trade at a lower benchmark spread than Bond A if Bond A's callable feature adds enough compensation for call risk or if Bond B's investor-friendly option is valuable enough.
+:::
+
+## Taxability of Interest
+
+Tax treatment affects after-tax yield. Investors compare bonds based on what they keep after taxes, not only the quoted pretax yield.
+
+For a taxable bond:
+
+$$
+\text{After-tax yield} = y_{\text{taxable}}(1 - t),
+$$
+
+where $t$ is the investor's marginal tax rate.
+
+For a tax-exempt municipal bond, investors often compute the **taxable-equivalent yield**:
+
+$$
+\text{Taxable-equivalent yield} = \frac{y_{\text{tax-exempt}}}{1 - t}.
+$$
+
+::: {.callout-note title="Taxable-Equivalent Yield Example"}
+A municipal bond yields 3.00% and the investor's marginal tax rate is 35%.
+
+$$
+\text{Taxable-equivalent yield} = \frac{0.0300}{1 - 0.35} = 0.0462.
+$$
+
+The municipal bond is equivalent to a taxable bond yielding 4.62% for this investor.
+:::
+
+## Expected Liquidity of an Issue
+
+Liquidity is the ability to buy or sell a bond quickly, in size, and at low transaction cost. Less liquid bonds usually require higher yields.
+
+Liquidity depends on:
+
+- issue size,
+- dealer inventory,
+- trading frequency,
+- transparency of market prices,
+- eligibility for major indexes,
+- whether the bond is newly issued or seasoned,
+- investor concentration.
+
+The liquidity premium is often small in calm markets but can become large during stress.
+
+::: {.callout-note title="Liquidity Example"}
+Two BBB-rated bonds have the same maturity and similar credit risk. Bond A is a \$2 billion benchmark issue that trades daily. Bond B is a \$150 million issue that rarely trades. If Bond A trades at 140 bps and Bond B trades at 175 bps over Treasuries, the 35 bps difference may largely reflect liquidity.
+:::
+
+## Financeability of an Issue
+
+Financeability refers to how easily a bond can be financed in the repo or secured financing market. A bond that can be financed cheaply and reliably is more attractive to leveraged investors.
+
+Financeability depends on:
+
+- whether the bond is accepted as collateral,
+- the repo rate on the bond,
+- the haircut required by lenders,
+- whether the issue is special in the repo market,
+- how easily the position can be rolled.
+
+If a bond is difficult to finance, investors may require a higher yield. If it is easy to finance, especially at favorable repo rates, investors may accept a lower yield.
+
+::: {.callout-note title="Financeability Example"}
+A hedge fund can finance Treasury Bond A at a repo rate of 4.00% with a 2% haircut. A less liquid corporate bond requires a 15% haircut and a repo rate of 5.50%. Even if both bonds have attractive yields, the corporate bond consumes more capital and has higher financing risk, so its required spread must be higher.
+:::
+
+## Term to Maturity
+
+The time remaining in a bond's life is called its **term to maturity**, or simply its **maturity**. A bond's price changes over its life as market yields change, and the size of that price change depends partly on maturity.
+
+All else equal, the longer the term to maturity, the greater the bond's price volatility for a given change in market yields. A 20-year bond is more sensitive to a yield change than a 2-year bond because more of its cash flows are received farther in the future.
+
+Bonds are often grouped into three maturity sectors:
+
+| Maturity sector | Term to maturity |
+|---|---:|
+| Short term | 1 to 5 years |
+| Intermediate term | 5 to 12 years |
+| Long term | More than 12 years |
+
+The yield difference between two maturity sectors is called a **maturity spread**. For example, the difference between a 10-year yield and a 2-year yield is a maturity spread. The relationship between yields on otherwise comparable securities with different maturities is called the **term structure of interest rates**.
+
+```{python}
+#| label: fig-maturity-spreads
+#| fig-cap: "Illustrative yields across maturity sectors and the maturity spread."
+#| echo: false
+#| warning: false
+#| message: false
+
+import matplotlib.pyplot as plt
+
+sectors = ["Short term\n(2-year)", "Intermediate\n(10-year)", "Long term\n(20-year)"]
+yields = [3.80, 4.35, 4.75]
+
+fig, ax = plt.subplots(figsize=(7, 4))
+ax.plot(sectors, yields, marker="o", linewidth=2, color="#4C78A8")
+
+for sector, yld in zip(sectors, yields):
+    ax.text(sector, yld + 0.06, f"{yld:.2f}%", ha="center", va="bottom")
+
+ax.annotate(
+    "Maturity spread\n0.95%",
+    xy=(2, yields[2]),
+    xytext=(0, yields[0]),
+    ha="center",
+    va="center",
+    arrowprops={"arrowstyle": "<->", "color": "#333333", "linewidth": 1.4},
+    bbox={"boxstyle": "round,pad=0.3", "facecolor": "white", "edgecolor": "#CCCCCC"},
+)
+
+ax.set_ylabel("Yield (%)")
+ax.set_ylim(3.4, 5.1)
+ax.set_title("Yields Often Differ Across Maturity Sectors")
+ax.grid(alpha=0.25)
+ax.spines[["top", "right"]].set_visible(False)
+plt.show()
+```
+
+---
+
+# Term Structure of Interest Rate
+
+The **term structure of interest rates** describes how interest rates vary across maturities. It is one of the central tools in fixed income valuation because bond cash flows occur at different dates.
+
+A term structure can be expressed using:
+
+- par yields,
+- spot rates,
+- forward rates,
+- swap rates,
+- credit spread curves.
+
+Each curve answers a different question. A par yield curve tells us the coupon rate that would price a new bond at par. A spot rate curve gives the discount rate for a single cash flow at each maturity. A forward curve gives implied future rates between future dates.
+
+## Yield Curve
+
+A **yield curve** plots yields against maturities. The most common version is the Treasury yield curve, which plots yields on Treasury securities from short maturities to long maturities.
+
+Yield curves may be:
+
+- upward sloping,
+- flat,
+- inverted,
+- humped.
+
+```{python}
+#| label: fig-yield-curves
+#| fig-cap: "Common yield curve shapes."
+#| echo: false
+#| warning: false
+#| message: false
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+m = np.array([0.5, 1, 2, 3, 5, 7, 10, 20, 30])
+upward = np.array([3.0, 3.2, 3.5, 3.7, 4.0, 4.15, 4.30, 4.50, 4.60])
+flat = np.array([4.0, 4.02, 4.03, 4.02, 4.01, 4.00, 4.00, 4.01, 4.02])
+inverted = np.array([5.0, 4.9, 4.7, 4.5, 4.25, 4.10, 3.95, 3.80, 3.75])
+humped = np.array([3.4, 3.7, 4.1, 4.35, 4.25, 4.10, 3.95, 3.85, 3.80])
+
+fig, ax = plt.subplots(figsize=(7, 4))
+for curve, label in [(upward, "Upward sloping"), (flat, "Flat"), (inverted, "Inverted"), (humped, "Humped")]:
+    ax.plot(m, curve, marker="o", label=label)
+ax.set_xlabel("Maturity (years)")
+ax.set_ylabel("Yield (%)")
+ax.set_title("Yield Curve Shapes")
+ax.grid(alpha=0.25)
+ax.legend()
+plt.show()
+```
+
+## Why the Yield Curve Should Not Be Used to Price a Bond
+
+A coupon bond has multiple cash flows. A single yield-to-maturity applies one discount rate to all cash flows, but the market may require different discount rates for different cash-flow dates.
+
+If a 5-year bond pays coupons every six months, it has 10 cash flows. The first coupon should be discounted using a 6-month rate, the second coupon using a 1-year rate, and so on. Using only the 5-year yield ignores the fact that the earlier cash flows are less risky with respect to time.
+
+The correct discounting approach is:
+
+$$
+P = \sum_{t=1}^{n} \frac{CF_t}{(1 + z_t)^t},
+$$
+
+where $z_t$ is the spot rate for maturity $t$.
+
+
+::: {.callout-important title="Definition: Spot Rate"}
+A **spot rate** (also called a **zero-coupon rate**) is the yield on a zero-coupon bond for a specific maturity. It represents the annualized return earned by investing in a zero-coupon security that pays no coupons—only a single payment at maturity. The spot rate for a given maturity reflects the market's required rate of return for receiving a cash flow at exactly that future date, with no interim payments.
+:::
+
+
+::: {.callout-note title="Why One Yield Can Misprice a Bond"}
+Consider a 2-year annual-pay bond with \$50 coupon payments and \$1,000 principal. Suppose the 1-year spot rate is 3% and the 2-year spot rate is 5%.
+
+Correct spot-rate price:
+
+$$
+P = \frac{50}{1.03} + \frac{1050}{1.05^2} = 1000.65.
+$$
+
+If an investor incorrectly discounts both cash flows at the 2-year rate:
+
+$$
+P = \frac{50}{1.05} + \frac{1050}{1.05^2} = 999.72.
+$$
+
+The difference is small in this simple example, but it becomes material for large portfolios, steep curves, and securities with unusual cash-flow timing.
+:::
+
+## Constructing the Theoretical Spot Rate Curve for Treasuries
+
+The **theoretical spot rate curve** is the set of zero-coupon Treasury rates implied by Treasury market prices. It is called theoretical because most maturities do not have directly traded zero-coupon Treasury securities.
+
+In practice, the starting point is a set of observed yields to maturity for Treasury bills, notes, and bonds. These observed yields are useful market summaries, but they are not homogeneous discount rates. Each yield depends on the security's maturity, coupon rate, cash-flow timing, liquidity, tax treatment, and financing characteristics. A 10-year Treasury with a 1.50% coupon and a 10-year Treasury with a 4.50% coupon can have different yields even when they are exposed to similar Treasury discount rates.
+
+Because yield to maturity is a single internal rate of return for all of a bond's cash flows, it should not be used to discount individual future cash flows. To value a cash flow due in exactly 7 years, we need the 7-year spot rate, not the yield to maturity on a coupon bond whose cash flows occur over many dates.
+
+The construction process is therefore:
+
+1. Observe Treasury yields to maturity across benchmark maturities.
+2. Fit a smooth **par coupon curve** from those observed yields.
+3. Interpolate the par coupon curve so that it has a rate at every needed cash-flow date.
+4. Bootstrap the theoretical spot rate curve from the smoothed and interpolated par coupon curve.
+
+The par coupon curve is the set of coupon rates that would make hypothetical Treasury securities trade at par at each maturity. It is a more standardized curve than the raw observed YTM curve because each point refers to a par bond rather than to a specific seasoned Treasury issue.
+
+Observed YTMs are first adjusted and smoothed to obtain benchmark par coupon rates. The smoothing step reduces issue-specific noise from liquidity, coupon, tax, and financing effects. The interpolation step fills missing maturities. For example, if the fitted par coupon rates are available at 1 year and 2 years but not at 1.5 years, linear interpolation gives:
+
+$$
+c_{1.5}
+= c_1 + \frac{1.5-1.0}{2.0-1.0}(c_2-c_1).
+$$
+
+After the par coupon curve has been smoothed and interpolated, bootstrapping converts it into spot rates. With semiannual coupon payments, the annual par coupon rate at maturity $m$ half-year periods is $c_m$, so each semiannual coupon payment is $c_m/2$ dollars per \$100 face value. The par bond equation is:
+
+$$
+100 =
+\sum_{j=1}^{m-1}\frac{c_m/2}{(1+z_j/2)^j}
++ \frac{100+c_m/2}{(1+z_m/2)^m}.
+$$
+
+The earlier spot rates $z_1,\ldots,z_{m-1}$ are already known from shorter maturities. The only unknown is $z_m$, so the next spot rate can be solved recursively:
+
+$$
+z_m =
+2\left[
+\left(
+\frac{100+c_m/2}
+{100-\sum_{j=1}^{m-1}\frac{c_m/2}{(1+z_j/2)^j}}
+\right)^{1/m}
+-1
+\right].
+$$
+
+::: {.callout-note title="Semiannual Example: From YTM Curve to Par Curve to Spot Curve"}
+Assume face value \$100, semiannual coupon payments, and annualized rates quoted with semiannual compounding.
+
+First, suppose we observe Treasury YTMs at standard benchmark maturities:
+
+| Benchmark maturity | Observed YTM | Smoothed par coupon rate |
+|---:|---:|---:|
+| 0.5 year | 3.58% | 3.60% |
+| 1 year | 3.82% | 3.80% |
+| 2 years | 4.08% | 4.10% |
+| 3 years | 4.38% | 4.35% |
+| 5 years | 4.57% | 4.60% |
+| 7 years | 4.78% | 4.75% |
+| 10 years | 4.88% | 4.90% |
+
+The observed YTMs are not used directly as spot rates. They are first converted into a smooth par coupon curve. Then the missing half-year points are interpolated. For example:
+
+$$
+c_{1.5}
+= 3.80\% + \frac{1.5-1.0}{2.0-1.0}(4.10\%-3.80\%)
+= 3.95\%.
+$$
+
+Similarly:
+
+$$
+c_{4.0}
+= 4.35\% + \frac{4.0-3.0}{5.0-3.0}(4.60\%-4.35\%)
+= 4.475\%.
+$$
+
+Now bootstrap the spot rates from the half-year par coupon curve.
+
+For the 6-month par bond, there is only one cash flow:
+
+$$
+100 = \frac{100+3.60/2}{1+z_{0.5}/2}.
+$$
+
+Solving gives:
+
+$$
+z_{0.5} = 3.600\%.
+$$
+
+For the 1-year par bond, the annual par coupon is 3.80%, so each semiannual coupon is 1.90:
+
+$$
+100 =
+\frac{1.90}{1+0.0360/2}
++ \frac{101.90}{(1+z_{1.0}/2)^2}.
+$$
+
+Solving gives:
+
+$$
+z_{1.0} = 3.802\%.
+$$
+
+For the 1.5-year par bond, the interpolated annual par coupon is 3.95%, so each semiannual coupon is 1.975:
+
+$$
+100 =
+\frac{1.975}{1+0.0360/2}
++ \frac{1.975}{(1+0.03802/2)^2}
++ \frac{101.975}{(1+z_{1.5}/2)^3}.
+$$
+
+Solving gives:
+
+$$
+z_{1.5} = 3.954\%.
+$$
+
+The same recursion is repeated every six months through 10 years:
+
+| Period | Maturity | Par coupon rate | Bootstrapped spot rate |
+|---:|---:|---:|---:|
+| 1 | 0.5 year | 3.600% | 3.600% |
+| 2 | 1.0 year | 3.800% | 3.802% |
+| 3 | 1.5 years | 3.950% | 3.954% |
+| 4 | 2.0 years | 4.100% | 4.108% |
+| 5 | 2.5 years | 4.225% | 4.237% |
+| 6 | 3.0 years | 4.350% | 4.367% |
+| 7 | 3.5 years | 4.412% | 4.432% |
+| 8 | 4.0 years | 4.475% | 4.497% |
+| 9 | 4.5 years | 4.537% | 4.564% |
+| 10 | 5.0 years | 4.600% | 4.631% |
+| 11 | 5.5 years | 4.637% | 4.671% |
+| 12 | 6.0 years | 4.675% | 4.711% |
+| 13 | 6.5 years | 4.713% | 4.752% |
+| 14 | 7.0 years | 4.750% | 4.793% |
+| 15 | 7.5 years | 4.775% | 4.820% |
+| 16 | 8.0 years | 4.800% | 4.848% |
+| 17 | 8.5 years | 4.825% | 4.876% |
+| 18 | 9.0 years | 4.850% | 4.904% |
+| 19 | 9.5 years | 4.875% | 4.933% |
+| 20 | 10.0 years | 4.900% | 4.963% |
+
+For example, at 10 years the annual par coupon is 4.90%, so each semiannual coupon is 2.45. The 10-year spot rate is solved from:
+
+$$
+100 =
+\sum_{j=1}^{19}
+\frac{2.45}{(1+z_j/2)^j}
++ \frac{102.45}{(1+z_{10}/2)^{20}}.
+$$
+
+Using the previously bootstrapped spot rates for periods 1 through 19 gives:
+
+$$
+z_{10} = 4.963\%.
+$$
+
+The result is a theoretical spot curve at every six-month cash-flow date from 6 months to 10 years.
+:::
+
+```{python}
+#| label: fig-bootstrapped-spot-curve
+#| fig-cap: "Observed YTMs are smoothed and interpolated into a par curve, then bootstrapped into a spot curve."
+#| echo: false
+#| warning: false
+#| message: false
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+observed_maturities = np.array([0.5, 1, 2, 3, 5, 7, 10])
+observed_ytm = np.array([3.58, 3.82, 4.08, 4.38, 4.57, 4.78, 4.88])
+par_maturities = np.arange(0.5, 10.5, 0.5)
+par_curve = np.array([
+    3.600, 3.800, 3.950, 4.100, 4.225,
+    4.350, 4.412, 4.475, 4.537, 4.600,
+    4.637, 4.675, 4.713, 4.750, 4.775,
+    4.800, 4.825, 4.850, 4.875, 4.900,
+])
+spot_curve = np.array([
+    3.600, 3.802, 3.954, 4.108, 4.237,
+    4.367, 4.432, 4.497, 4.564, 4.631,
+    4.671, 4.711, 4.752, 4.793, 4.820,
+    4.848, 4.876, 4.904, 4.933, 4.963,
+])
+
+fig, ax = plt.subplots(figsize=(7, 4))
+ax.scatter(observed_maturities, observed_ytm, color="#666666", label="Observed Treasury YTMs", zorder=3)
+ax.plot(par_maturities, par_curve, marker="o", markersize=3, color="#4C78A8", label="Smoothed/interpolated par curve")
+ax.plot(par_maturities, spot_curve, marker="s", markersize=3, color="#F58518", label="Bootstrapped spot curve")
+ax.set_xlabel("Maturity (years)")
+ax.set_ylabel("Rate (%)")
+ax.set_title("From Observed YTMs to Semiannual Spot Rates")
+ax.set_xticks([0.5, 1, 2, 3, 5, 7, 10])
+ax.grid(alpha=0.25)
+ax.legend()
+ax.spines[["top", "right"]].set_visible(False)
+plt.show()
+```
+
+### On-the-Run Treasury Issues
+
+**On-the-run Treasuries** are the most recently issued Treasury securities at standard maturities. They are usually the most liquid securities in the Treasury market.
+
+Advantages:
+
+- They are highly liquid and actively quoted.
+- Their prices are usually reliable and easy to observe.
+- They are useful for market benchmarks and trader communication.
+
+Disadvantages:
+
+- There are only a few on-the-run maturities, so the curve has limited data points.
+- They may trade rich because of liquidity and financing demand.
+- Their yields may be lower than older issues for reasons unrelated to pure discount rates.
+
+For example, the current 10-year Treasury note may yield 4.20%, while an older 9.8-year Treasury note may yield 4.25%. The 5 bps difference may reflect liquidity rather than a true difference in the Treasury spot rate.
+
+### On-the-Run and Selected Off-the-Run Treasury Issues
+
+**Off-the-run Treasuries** are older Treasury securities that are no longer the most recently issued securities at their original maturities. A curve can be built using on-the-run securities plus selected off-the-run issues that are liquid and close to the desired maturities.
+
+Advantages:
+
+- More data points than an on-the-run-only curve.
+- Better maturity coverage, especially between benchmark maturities.
+- Less dependence on a small number of securities that may be unusually rich.
+
+Disadvantages:
+
+- Off-the-run issues are usually less liquid than on-the-run issues.
+- Selection matters; including stale or special issues can distort the curve.
+- Coupon, tax, and financing differences still need to be controlled.
+
+### All Treasury Coupon Securities and Bills
+
+One approach to constructing the Treasury curve uses all available Treasury bills, notes, and bonds. This approach has more data points than an on-the-run curve.
+
+Advantages:
+
+- More observations across maturities.
+- Less dependence on a small number of benchmark issues.
+- Better ability to fit a smooth curve.
+
+Disadvantages:
+
+- Different issues may have different liquidity.
+- Some issues may be rich or cheap due to supply and demand.
+- Tax and financing effects may affect particular securities.
+- Coupon effects can make YTMs difficult to compare directly.
+
+In practice, curve construction often uses statistical fitting methods to smooth observed Treasury prices while controlling for outliers.
+
+### Treasury Coupon Strips
+
+Treasury STRIPS are securities created by separating Treasury coupon and principal payments into individual zero-coupon instruments. STRIPS provide direct market prices for zero-coupon cash flows.
+
+Advantages:
+
+- Each STRIP has one cash flow, so its yield is directly interpretable as a spot rate.
+- Coupon effects are removed because there are no interim coupon payments.
+- STRIPS are especially useful for estimating long-maturity zero-coupon rates.
+
+Disadvantages:
+
+- STRIPS may be less liquid than on-the-run Treasuries.
+- STRIPS may reflect special supply-demand conditions from pension funds and long-duration investors.
+- The STRIPS market may not provide enough reliable observations at every desired maturity.
+
+::: {.callout-note title="STRIPS Example"}
+Suppose a Treasury STRIP paying \$100 in 10 years trades at \$62.00.
+
+The 10-year annual spot rate is:
+
+$$
+z_{10} = \left(\frac{100}{62}\right)^{1/10} - 1 = 4.91\%.
+$$
+
+Because the STRIP has only one cash flow, its yield is directly interpretable as a spot rate.
+:::
+
+## Using the Theoretical Spot Rate Curve
+
+The spot rate curve is used to discount each cash flow of a bond at the rate appropriate for that cash-flow date.
+
+For cash flows $CF_t$ and spot rates $z_t$:
+
+$$
+P = \sum_{t=1}^{n} \frac{CF_t}{(1+z_t)^t}.
+$$
+
+::: {.callout-note title="Spot Curve Valuation Example"}
+Consider a 3-year annual-pay Treasury with a 4% coupon and face value \$100. Assume:
+
+| Maturity | Spot rate |
+|---:|---:|
+| 1 year | 3.50% |
+| 2 years | 4.00% |
+| 3 years | 4.40% |
+
+The price is:
+
+$$
+P = \frac{4}{1.035} + \frac{4}{1.04^2} + \frac{104}{1.044^3} = 98.54.
+$$
+
+This price uses the correct discount rate for each cash-flow maturity.
+:::
+
+### Spot Rates and the Base Interest Rate
+
+The base interest rate for a cash flow is best represented by the spot rate for that cash-flow date. A bond's Treasury benchmark spread can therefore be measured relative to the spot curve rather than a single benchmark maturity.
+
+If a risky bond has cash flows $CF_t$, its price can be expressed as:
+
+$$
+P = \sum_{t=1}^{n} \frac{CF_t}{(1 + z_t + s)^t},
+$$
+
+where:
+
+- $z_t$ is the Treasury spot rate for maturity $t$,
+- $s$ is the constant spread over the spot curve.
+
+This spread is conceptually closer to valuation than a simple spread to one Treasury maturity because it respects the timing of each cash flow.
+
+### Forward Rates
+
+A **forward rate** is an interest rate implied today for a loan or investment that begins in the future. Forward rates are derived from spot rates.
+
+For annual compounding, the one-year forward rate from year 1 to year 2 is:
+
+$$
+1 + f_{1,2} = \frac{(1+z_2)^2}{1+z_1}.
+$$
+
+Forward rates are break-even rates. If investors can invest for two years at the 2-year spot rate or invest for one year and then reinvest for another year, the forward rate is the reinvestment rate that makes the two strategies equivalent.
+
+::: {.callout-note title="Forward Rate Example"}
+Suppose the 1-year spot rate is 4.00% and the 2-year spot rate is 4.80%.
+
+$$
+1 + f_{1,2} = \frac{1.048^2}{1.04} = 1.0561.
+$$
+
+The one-year forward rate beginning one year from now is 5.61%.
+:::
+
+### Relationship Between Six-Month Forward Rates and Spot Rates
+
+Treasury notes and bonds pay semiannual coupons, so six-month rates are especially important.
+
+Let $z_t$ be the spot rate for maturity $t$ six-month periods, stated as a six-month periodic rate. Let $z_1$ be the current six-month spot rate, and let $f_i$ be the six-month forward rate beginning $i$ six-month periods from now.
+
+The $t$-period spot rate is the geometric average of the current six-month spot rate and the sequence of six-month forward rates:
+
+$$
+z_t =
+\left[
+(1+z_1)(1+f_1)(1+f_2)\cdots(1+f_{t-1})
+\right]^{1/t} - 1.
+$$
+
+The same relationship can be written as:
+
+$$
+(1+z_t)^t =
+(1+z_1)(1+f_1)(1+f_2)\cdots(1+f_{t-1}).
+$$
+
+This means that investing for $t$ six-month periods at the $t$-period spot rate must produce the same ending value as investing for six months at today's six-month spot rate and then rolling the investment through the sequence of implied six-month forward rates.
+
+Usually the starting point is not the forward curve. The starting point is the spot curve. Once the spot rates are known, the implied six-month forward rates are calculated from adjacent spot rates:
+
+$$
+1+f_i =
+\frac{(1+z_{i+1})^{i+1}}{(1+z_i)^i}.
+$$
+
+Equivalently:
+
+$$
+f_i =
+\frac{(1+z_{i+1})^{i+1}}{(1+z_i)^i} - 1.
+$$
+
+The forward rate tells us the future six-month reinvestment rate that would make an investor indifferent between two strategies:
+
+- invest today for $i+1$ six-month periods at the spot rate $z_{i+1}$, or
+- invest today for $i$ six-month periods at $z_i$ and then reinvest for one more six-month period at $f_i$.
+
+::: {.callout-note title="Complete Example: From Spot Rates to Forward Rates and Back"}
+Suppose the current spot curve is:
+
+| Period | Maturity | Spot rate per six months | Bond-equivalent spot rate |
+|---:|---:|---:|---:|
+| 1 | 0.5 year | 2.625% | 5.250% |
+| 2 | 1.0 year | 2.750% | 5.500% |
+| 3 | 1.5 years | 2.880% | 5.760% |
+| 4 | 2.0 years | 3.077% | 6.154% |
+| 5 | 2.5 years | 3.250% | 6.500% |
+| 6 | 3.0 years | 3.427% | 6.855% |
+| 7 | 3.5 years | 3.453% | 6.906% |
+| 8 | 4.0 years | 3.578% | 7.155% |
+| 9 | 4.5 years | 3.635% | 7.271% |
+| 10 | 5.0 years | 3.660% | 7.321% |
+
+The first implied six-month forward rate, $f_1$, begins six months from now. It is calculated from the 6-month and 1-year spot rates:
+
+$$
+f_1 =
+\frac{(1.02750)^2}{1.02625} - 1 = 0.02875 = 2.875\%.
+$$
+
+The second implied six-month forward rate, $f_2$, begins one year from now. It is calculated from the 1-year and 1.5-year spot rates:
+
+$$
+f_2 =
+\frac{(1.02880)^3}{(1.02750)^2} - 1 = 0.03140 = 3.140\%.
+$$
+
+Repeating the calculation produces the full forward curve:
+
+| Forward rate | Period covered | Six-month rate |
+|---|---|---:|
+| $f_1$ | 0.5 to 1.0 year | 2.875% |
+| $f_2$ | 1.0 to 1.5 years | 3.140% |
+| $f_3$ | 1.5 to 2.0 years | 3.670% |
+| $f_4$ | 2.0 to 2.5 years | 3.945% |
+| $f_5$ | 2.5 to 3.0 years | 4.320% |
+| $f_6$ | 3.0 to 3.5 years | 3.605% |
+| $f_7$ | 3.5 to 4.0 years | 4.455% |
+| $f_8$ | 4.0 to 4.5 years | 4.100% |
+| $f_9$ | 4.5 to 5.0 years | 3.885% |
+
+These forward rates are not new market observations. They are the rates implied by the spot curve. What they tell us is the break-even reinvestment path embedded in today's spot rates. For example, the 5-year spot rate can be decomposed into today's 6-month spot rate plus nine future six-month forward rates.
+
+A 5-year maturity equals 10 six-month periods, so using the current 6-month spot rate and the nine forward rates:
+
+$$
+z_{10} =
+\left[
+(1.02625)(1.02875)(1.03140)(1.03670)(1.03945)
+(1.04320)(1.03605)(1.04455)(1.04100)(1.03885)
+\right]^{1/10} - 1.
+$$
+
+The product inside the brackets is:
+
+$$
+1.43261.
+$$
+
+Therefore:
+
+$$
+z_{10} = (1.43261)^{1/10} - 1 = 0.03660 = 3.660\%.
+$$
+
+This is the 5-year spot rate stated as a six-month periodic rate. On a bond-equivalent annual basis, it is approximately:
+
+$$
+2(3.660\%) = 7.320\%.
+$$
+
+The calculation confirms internal consistency: the 5-year spot rate and the sequence of six-month forward rates describe the same total 5-year return. The forward curve is useful because it shows where the spot curve embeds higher or lower future short-rate assumptions. In this example, forward rates rise through $f_5$, fall at $f_6$, and then move unevenly afterward, information that is hidden inside the single 5-year spot rate.
+:::
+
+```{python}
+#| label: fig-forward-rates
+#| fig-cap: "Forward rates implied by an upward-sloping spot curve."
+#| echo: false
+#| warning: false
+#| message: false
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+periods = np.array([1, 2, 3, 4, 5, 6])
+spot = np.array([0.018, 0.020, 0.022, 0.024, 0.025, 0.026])
+forward = [spot[0]]
+for i in range(1, len(spot)):
+    f = ((1 + spot[i]) ** (i + 1) / (1 + spot[i - 1]) ** i) - 1
+    forward.append(f)
+forward = np.array(forward)
+
+fig, ax = plt.subplots(figsize=(7, 4))
+ax.plot(periods / 2, spot * 2 * 100, marker="o", label="Annualized spot rates")
+ax.plot(periods / 2, forward * 2 * 100, marker="s", label="Annualized six-month forwards")
+ax.set_xlabel("Maturity / forward end date (years)")
+ax.set_ylabel("Annualized rate (%)")
+ax.set_title("Spot Rates and Implied Forward Rates")
+ax.grid(alpha=0.25)
+ax.legend()
+plt.show()
+```
+
+### Other Forward Rates
+
+Forward rates can be constructed for any future interval, not only one-year or six-month intervals.
+
+The forward rate from time $a$ to time $b$ is:
+
+$$
+1 + f_{a,b} =
+\left(
+\frac{(1+z_b)^b}{(1+z_a)^a}
+\right)^{1/(b-a)}.
+$$
+
+This formula assumes annual compounding and maturities measured in years.
+
+::: {.callout-note title="Two-Year Forward Rate Beginning Three Years from Now"}
+Suppose the 3-year spot rate is 4.00% and the 5-year spot rate is 4.60%.
+
+$$
+1 + f_{3,5} =
+\left(
+\frac{1.046^5}{1.040^3}
+\right)^{1/2}.
+$$
+
+The 2-year forward rate beginning in year 3 is 5.51%.
+:::
+
+### Forward Rate as a Hedgeable Rate
+
+A forward rate should not be interpreted mechanically as the market's forecast of the future spot rate. Forward rates often do a poor job predicting realized future rates because risk premiums, liquidity effects, and changing macroeconomic conditions affect the curve.
+
+Forward rates are still important because they are **break-even rates**. They tell an investor what future short rate would make two investment strategies equivalent. The investor can then compare that hedgeable break-even rate with their own expectation.
+
+The intuition is simple: the forward rate is the future reinvestment rate already embedded in today's spot curve. If an investor disagrees with that implied rate, they can choose the strategy that benefits from their view.
+
+Some market participants therefore prefer to call forward rates **hedgeable rates** rather than market consensus forecasts. By buying a longer-maturity security today, an investor can hedge the risk that the future short rate is worse than the forward rate implied by the current curve.
+
+::: {.callout-note title="Forward Rate as a Break-Even and Hedgeable Rate"}
+Suppose an investor has a 1-year horizon and can choose between two strategies:
+
+| Strategy | Description |
+|---|---|
+| Alternative 1 | Buy a 1-year Treasury today |
+| Alternative 2 | Buy a 6-month Treasury today, then reinvest for another 6 months |
+
+Assume:
+
+- the 6-month spot rate is 5.00% on a bond-equivalent basis, or 2.50% for six months,
+- the 1-year spot rate is 5.37% on a bond-equivalent basis, or 2.685% per six-month period.
+
+The implied six-month forward rate beginning six months from now is:
+
+$$
+f_1 =
+\frac{(1.02685)^2}{1.0250} - 1 = 0.02875.
+$$
+
+So:
+
+$$
+f_1 = 2.875\% \text{ for six months}
+= 5.75\% \text{ on a bond-equivalent basis}.
+$$
+
+This 5.75% is not necessarily a forecast of the actual 6-month rate six months from now. It is the break-even reinvestment rate.
+
+If the investor expects the 6-month rate six months from now to be **less than 5.75%**, Alternative 1 is better because the 1-year Treasury locks in a rate above the expected reinvestment rate.
+
+If the investor expects the future 6-month rate to be **greater than 5.75%**, Alternative 2 is better because rolling the 6-month Treasury is expected to earn more.
+
+By buying the 1-year Treasury, the investor hedges the uncertainty about the 6-month reinvestment rate six months from now. The investor no longer needs the future 6-month rate to be realized; the 1-year return is locked in today.
+:::
+
+## Determinants of the Shape of the Term Structure
+
+The yield curve shape reflects several forces:
+
+- market expectations about future short-term rates,
+- compensation for interest-rate risk,
+- investor demand for specific maturities,
+- supply of securities at different maturities,
+- central bank policy,
+- inflation expectations,
+- economic growth expectations,
+- safe-haven demand,
+- balance-sheet and regulatory constraints.
+
+No single theory explains the curve at all times. In practice, the observed curve is the result of expectations, risk premiums, preferred maturity demand, and institutional constraints.
+
+### Pure Expectations Theory
+
+The **pure expectations theory** states that forward rates reflect only expected future short-term rates. Under this theory, investors are risk neutral across maturities and do not require a maturity risk premium.
+
+If the yield curve is upward sloping, the theory says the market expects future short-term rates to rise. If the yield curve is inverted, the market expects future short-term rates to fall.
+
+The limitation is that long-term bonds are riskier than rolling short-term bonds, so investors usually require compensation for bearing duration risk.
+
+### Liquidity Theory
+
+The **liquidity theory** states that investors prefer shorter maturities because short-term bonds have less price risk and are more liquid. Therefore, long-term bonds must offer a positive liquidity premium.
+
+Under this theory:
+
+$$
+\text{Long-term rate} = \text{Expected average future short rates} + \text{Liquidity premium}.
+$$
+
+The liquidity premium tends to make the yield curve slope upward even if expected future short rates are unchanged.
+
+### Preferred Habitat Theory
+
+The **preferred habitat theory** says investors and borrowers prefer certain maturity ranges but can be induced to move outside those ranges if compensated.
+
+For example:
+
+- money market funds prefer short maturities,
+- banks may prefer intermediate maturities,
+- pension funds and insurers may prefer long maturities to match liabilities.
+
+If long-maturity investors have strong demand for 30-year bonds, long-term yields may be lower than expectations alone would imply.
+
+### Market Segmentation Theory
+
+The **market segmentation theory** is stronger than preferred habitat theory. It says different maturity sectors are largely separate markets, with yields determined by supply and demand in each maturity segment.
+
+For example, the 2-year Treasury yield may be dominated by central bank policy expectations, while the 30-year Treasury yield may be dominated by pension demand, inflation uncertainty, and long-duration supply.
+
+The limitation is that arbitrage and relative-value trading connect maturity sectors, so markets are not completely segmented.
+
+## The Main Influences on the Shape of the Yield Curve
+
+In practice, the yield curve shape is driven by three broad forces: expected future rate changes, bond risk premiums, and convexity bias. The observed curve combines all three, so the shape of the curve should not be interpreted as a pure forecast of future short-term rates.
+
+### 1. The Market's Expectations of Future Rate Changes
+
+Expected future short-term rates are a major driver of the yield curve. If investors expect central banks to raise policy rates, short- and intermediate-maturity yields usually rise. If investors expect future rate cuts, those maturities usually fall.
+
+The intuition is that a longer-term yield reflects the return from holding a longer bond versus rolling over a sequence of shorter bonds. If the market expects future short rates to be higher, longer yields need to compensate investors for locking in today's rate.
+
+Examples:
+
+- Expected monetary tightening can raise 1-year to 5-year yields and flatten or invert the curve.
+- Expected monetary easing can pull down 2-year to 5-year yields and steepen the curve.
+- A recession expectation can lower intermediate and long yields if investors expect future rate cuts.
+
+### 2. Bond Risk Premiums
+
+Bond risk premiums are the extra compensation investors require for bearing risks that are not captured by expected future short rates. Longer-maturity bonds have more price sensitivity to yield changes, so investors often require a term premium to hold them.
+
+The intuition is that a 30-year bond can lose much more value than a 2-year bond when yields rise. Even if expected future short rates are unchanged, investors may demand a higher long-term yield as compensation for duration risk, inflation uncertainty, liquidity risk, or supply pressure.
+
+Examples:
+
+- Higher inflation uncertainty can increase the long-term term premium and steepen the curve.
+- Heavy long-term Treasury issuance can cheapen long maturities and push long yields higher.
+- Strong pension or insurance demand for long-duration bonds can lower long-term risk premiums and flatten the long end.
+- Safe-haven demand can lower Treasury yields, especially in highly liquid benchmark maturities.
+
+### 3. Convexity Bias
+
+Convexity bias arises because bond prices do not move linearly with yields. Long-duration bonds usually have more convexity, meaning their prices rise more when yields fall than they fall when yields rise by the same amount. This convexity has value.
+
+The intuition is that investors may accept a lower yield on bonds with more desirable convexity, especially when rates are volatile. However, securities with negative convexity, such as callable bonds or mortgage-backed securities, usually require extra yield because their price upside is limited when rates fall.
+
+Examples:
+
+- A long Treasury bond may trade at a slightly lower yield than otherwise expected because investors value its positive convexity.
+- A callable bond may trade at a higher yield because the issuer can call the bond when rates fall.
+- Mortgage-backed securities can cheapen when rates fall because prepayment risk increases and investors lose some upside.
+
+| Category | Main intuition | Example effect |
+|---|---|---|
+| Expectations of future rate changes | The curve embeds expected future short rates | Expected rate cuts can lower intermediate yields |
+| Bond risk premiums | Investors require compensation for duration, inflation, liquidity, and supply risk | Higher inflation uncertainty can raise long yields |
+| Convexity bias | Investors value or penalize nonlinear price behavior | Callable bonds require extra yield for negative convexity |
+
+```{python}
+#| label: fig-curve-drivers
+#| fig-cap: "Illustrative effects of rate expectations on the yield curve."
+#| echo: false
+#| warning: false
+#| message: false
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+m = np.array([0.5, 1, 2, 5, 10, 30])
+base = np.array([4.2, 4.1, 4.0, 4.1, 4.3, 4.5])
+tightening = np.array([5.0, 4.9, 4.7, 4.4, 4.35, 4.45])
+easing = np.array([3.2, 3.3, 3.5, 3.9, 4.2, 4.45])
+
+fig, ax = plt.subplots(figsize=(7, 4))
+ax.plot(m, base, marker="o", label="Current curve")
+ax.plot(m, tightening, marker="o", label="Tightening priced in")
+ax.plot(m, easing, marker="o", label="Easing priced in")
+ax.set_xlabel("Maturity (years)")
+ax.set_ylabel("Yield (%)")
+ax.set_title("Rate Expectations Can Change Curve Shape")
+ax.grid(alpha=0.25)
+ax.legend()
+plt.show()
+```
+
+---
+
+# Swap Rate Yield Curve
+
+::: {.callout-important title="Definition: Interest Rate Swap"}
+An **interest rate swap** is a contract in which two parties exchange interest payments based on a notional principal amount. In a plain-vanilla fixed-for-floating swap, one party pays a fixed interest rate and receives a floating reference rate; the other party receives the fixed rate and pays the floating rate.
+
+For example, suppose two parties enter a 5-year swap with a notional principal of \$100 million. Party A agrees to pay a fixed rate of 4.50% per year and receive 6-month SOFR. Party B receives the fixed 4.50% and pays 6-month SOFR. The \$100 million notional is not exchanged; it is only used to calculate the interest payments.
+
+Assume payments are exchanged semiannually. The fixed payment each six months is:
+
+$$
+\$100{,}000{,}000 \times \frac{4.50\%}{2} = \$2{,}250{,}000.
+$$
+
+The floating payment changes with 6-month SOFR:
+
+| Scenario for 6-month SOFR | Floating payment | Net cash flow |
+|---|---:|---|
+| SOFR = 3.50% | \$1,750,000 | Party A pays Party B \$500,000 |
+| SOFR = 4.50% | \$2,250,000 | No net payment |
+| SOFR = 5.50% | \$2,750,000 | Party B pays Party A \$500,000 |
+
+Party A benefits when floating rates rise above 4.50% because it receives the higher floating payment while paying the fixed rate. Party B benefits when floating rates fall below 4.50% because it receives the fixed payment while paying the lower floating rate.
+:::
+
+The **swap rate yield curve** plots fixed rates on plain-vanilla interest rate swaps across maturities. In a fixed-for-floating swap, one party pays a fixed rate and receives a floating reference rate, while the other party receives fixed and pays floating.
+
+The swap rate is the fixed rate that makes the initial value of the swap approximately zero.
+
+Swap curves are important because:
+
+- swaps are actively traded across many maturities,
+- swap rates are used to price corporate bonds and structured products,
+- swaps reflect bank funding, collateral, and credit conditions,
+- swap spreads compare swap rates with Treasury rates.
+
+The **swap spread** is:
+
+$$
+\text{Swap spread} = \text{Swap rate} - \text{Treasury yield}.
+$$
+
+::: {.callout-note title="Swap Spread Example"}
+Suppose the 10-year swap rate is 4.65% and the 10-year Treasury yield is 4.25%.
+
+$$
+\text{10-year swap spread} = 4.65\% - 4.25\% = 0.40\%.
+$$
+
+The 10-year swap spread is 40 basis points.
+:::
+
+```{python}
+#| label: fig-swap-curve
+#| fig-cap: "Illustrative Treasury and swap curves."
+#| echo: false
+#| warning: false
+#| message: false
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+m = np.array([1, 2, 3, 5, 7, 10, 20, 30])
+treasury = np.array([3.9, 4.0, 4.05, 4.15, 4.22, 4.30, 4.45, 4.55])
+swap = treasury + np.array([0.30, 0.34, 0.36, 0.38, 0.39, 0.40, 0.36, 0.32])
+
+fig, ax = plt.subplots(figsize=(7, 4))
+ax.plot(m, treasury, marker="o", label="Treasury curve")
+ax.plot(m, swap, marker="s", label="Swap curve")
+ax.set_xlabel("Maturity (years)")
+ax.set_ylabel("Rate (%)")
+ax.set_title("Swap Rate Yield Curve")
+ax.grid(alpha=0.25)
+ax.legend()
+plt.show()
+```
+
+The swap curve is not risk free in the same way as a Treasury curve. It reflects the economics of collateralized derivatives markets, bank balance sheets, and floating-rate reference rates. However, it is often a better benchmark than Treasuries for valuing corporate and derivative-linked cash flows because many market participants hedge interest-rate risk using swaps rather than cash Treasuries.
+
+---
+
+# Curve Strategies
+
+Curve strategies use positions in bonds, futures, swaps, or other rate instruments to express a view about changes in the level, slope, or curvature of the yield curve.
+
+The main idea is to separate:
+
+- **level risk**: all rates move up or down together,
+- **slope risk**: short and long rates move by different amounts,
+- **curvature risk**: intermediate maturities move differently from short and long maturities.
+
+Curve trades are often structured to be approximately duration neutral so the profit or loss depends mainly on curve shape rather than the overall level of rates.
+
+## Bull Steepener
+
+A **bull steepener** is a strategy that benefits when yields fall and short-term yields fall more than long-term yields. This often occurs when the market expects central bank easing.
+
+Example position:
+
+- long 2-year Treasury notes,
+- short 10-year Treasury notes in a duration-adjusted amount.
+
+::: {.callout-note title="Bull Steepener Example"}
+Suppose the 2-year yield is 4.80% and the 10-year yield is 4.20%. The 2s10s slope is:
+
+$$
+4.20\% - 4.80\% = -0.60\%.
+$$
+
+The curve is inverted by 60 bps. A trader expects recession risk to rise and the central bank to cut rates. One month later:
+
+- 2-year yield falls to 4.10%,
+- 10-year yield falls to 3.95%.
+
+The new 2s10s slope is:
+
+$$
+3.95\% - 4.10\% = -0.15\%.
+$$
+
+The curve steepened by 45 bps. A long 2-year / short 10-year duration-neutral trade profits because the long 2-year position gains more from the larger yield decline than the short 10-year position loses.
+:::
+
+```{python}
+#| label: fig-bull-steepener
+#| fig-cap: "Bull steepener: yields fall, with the short end falling more than the long end."
+#| echo: false
+#| warning: false
+#| message: false
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+maturities = np.array([2, 5, 10, 30])
+initial = np.array([4.80, 4.55, 4.20, 4.25])
+after = np.array([4.10, 4.15, 3.95, 4.05])
+
+fig, ax = plt.subplots(figsize=(7, 4))
+ax.plot(maturities, initial, marker="o", linewidth=2, label="Initial curve")
+ax.plot(maturities, after, marker="o", linewidth=2, label="After bull steepener")
+
+ax.annotate(
+    "Short rates fall more\n2-year: -70 bps",
+    xy=(2, after[0]),
+    xytext=(5, 4.85),
+    arrowprops={"arrowstyle": "->", "linewidth": 1.2, "color": "#333333"},
+    bbox={"boxstyle": "round,pad=0.3", "facecolor": "white", "edgecolor": "#CCCCCC"},
+)
+ax.annotate(
+    "Long rates fall less\n10-year: -25 bps",
+    xy=(10, after[2]),
+    xytext=(13, 4.35),
+    arrowprops={"arrowstyle": "->", "linewidth": 1.2, "color": "#333333"},
+    bbox={"boxstyle": "round,pad=0.3", "facecolor": "white", "edgecolor": "#CCCCCC"},
+)
+
+ax.set_xlabel("Maturity (years)")
+ax.set_ylabel("Yield (%)")
+ax.set_title("Bull Steepener")
+ax.grid(alpha=0.25)
+ax.legend()
+ax.spines[["top", "right"]].set_visible(False)
+plt.show()
+```
+
+## Bear Steepener
+
+A **bear steepener** benefits when yields rise and long-term yields rise more than short-term yields. This can occur when inflation risk rises or investors demand a larger term premium.
+
+Example position:
+
+- short 30-year Treasury bonds,
+- long 5-year Treasury notes in a duration-adjusted amount.
+
+::: {.callout-note title="Bear Steepener Example"}
+The 5-year yield is 4.00% and the 30-year yield is 4.40%, so the 5s30s slope is 40 bps. A trader believes long-term inflation risk is underpriced. Two weeks later:
+
+- 5-year yield rises to 4.10%,
+- 30-year yield rises to 4.80%.
+
+The 5s30s slope becomes 70 bps. The curve steepened by 30 bps. A short long-bond position gains from the larger yield increase at the long end, while the long 5-year hedge loses less.
+:::
+
+```{python}
+#| label: fig-bear-steepener
+#| fig-cap: "Bear steepener: yields rise, with the long end rising more than the short or intermediate sector."
+#| echo: false
+#| warning: false
+#| message: false
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+maturities = np.array([2, 5, 10, 30])
+initial = np.array([3.90, 4.00, 4.20, 4.40])
+after = np.array([3.95, 4.10, 4.45, 4.80])
+
+fig, ax = plt.subplots(figsize=(7, 4))
+ax.plot(maturities, initial, marker="o", linewidth=2, label="Initial curve")
+ax.plot(maturities, after, marker="o", linewidth=2, label="After bear steepener")
+
+ax.annotate(
+    "Long end sells off\n30-year: +40 bps",
+    xy=(30, after[-1]),
+    xytext=(16, 4.95),
+    arrowprops={"arrowstyle": "->", "linewidth": 1.2, "color": "#333333"},
+    bbox={"boxstyle": "round,pad=0.3", "facecolor": "white", "edgecolor": "#CCCCCC"},
+)
+ax.annotate(
+    "5-year rises less\n+10 bps",
+    xy=(5, after[1]),
+    xytext=(7, 3.78),
+    arrowprops={"arrowstyle": "->", "linewidth": 1.2, "color": "#333333"},
+    bbox={"boxstyle": "round,pad=0.3", "facecolor": "white", "edgecolor": "#CCCCCC"},
+)
+
+ax.set_xlabel("Maturity (years)")
+ax.set_ylabel("Yield (%)")
+ax.set_title("Bear Steepener")
+ax.grid(alpha=0.25)
+ax.legend()
+ax.spines[["top", "right"]].set_visible(False)
+plt.show()
+```
+
+## Bull Flattener
+
+A **bull flattener** benefits when yields fall and long-term yields fall more than short-term yields. This often occurs when inflation expectations decline or investors seek duration.
+
+Example position:
+
+- long 10-year Treasury notes,
+- short 2-year Treasury notes in a duration-adjusted amount.
+
+If the 10-year yield falls by 50 bps while the 2-year yield falls by only 15 bps, the long 10-year position gains more than the short 2-year position loses.
+
+```{python}
+#| label: fig-bull-flattener
+#| fig-cap: "Bull flattener: yields fall, with the long end falling more than the short end."
+#| echo: false
+#| warning: false
+#| message: false
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+maturities = np.array([2, 5, 10, 30])
+initial = np.array([4.50, 4.65, 4.90, 5.10])
+after = np.array([4.35, 4.35, 4.40, 4.55])
+
+fig, ax = plt.subplots(figsize=(7, 4))
+ax.plot(maturities, initial, marker="o", linewidth=2, label="Initial curve")
+ax.plot(maturities, after, marker="o", linewidth=2, label="After bull flattener")
+
+ax.annotate(
+    "Long rates rally more\n10-year: -50 bps",
+    xy=(10, after[2]),
+    xytext=(13, 4.85),
+    arrowprops={"arrowstyle": "->", "linewidth": 1.2, "color": "#333333"},
+    bbox={"boxstyle": "round,pad=0.3", "facecolor": "white", "edgecolor": "#CCCCCC"},
+)
+ax.annotate(
+    "Short rates fall less\n2-year: -15 bps",
+    xy=(2, after[0]),
+    xytext=(4, 4.95),
+    arrowprops={"arrowstyle": "->", "linewidth": 1.2, "color": "#333333"},
+    bbox={"boxstyle": "round,pad=0.3", "facecolor": "white", "edgecolor": "#CCCCCC"},
+)
+
+ax.set_xlabel("Maturity (years)")
+ax.set_ylabel("Yield (%)")
+ax.set_title("Bull Flattener")
+ax.grid(alpha=0.25)
+ax.legend()
+ax.spines[["top", "right"]].set_visible(False)
+plt.show()
+```
+
+## Bear Flattener
+
+A **bear flattener** benefits when yields rise and short-term yields rise more than long-term yields. This often occurs when the central bank is expected to tighten policy.
+
+Example position:
+
+- short 2-year Treasury notes,
+- long 10-year Treasury notes in a duration-adjusted amount.
+
+If the 2-year yield rises by 75 bps and the 10-year yield rises by 25 bps, the curve flattens. The short 2-year position gains more than the long 10-year position loses.
+
+```{python}
+#| label: fig-bear-flattener
+#| fig-cap: "Bear flattener: yields rise, with the short end rising more than the long end."
+#| echo: false
+#| warning: false
+#| message: false
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+maturities = np.array([2, 5, 10, 30])
+initial = np.array([3.80, 4.05, 4.30, 4.45])
+after = np.array([4.55, 4.60, 4.55, 4.60])
+
+fig, ax = plt.subplots(figsize=(7, 4))
+ax.plot(maturities, initial, marker="o", linewidth=2, label="Initial curve")
+ax.plot(maturities, after, marker="o", linewidth=2, label="After bear flattener")
+
+ax.annotate(
+    "Short rates sell off more\n2-year: +75 bps",
+    xy=(2, after[0]),
+    xytext=(5, 4.85),
+    arrowprops={"arrowstyle": "->", "linewidth": 1.2, "color": "#333333"},
+    bbox={"boxstyle": "round,pad=0.3", "facecolor": "white", "edgecolor": "#CCCCCC"},
+)
+ax.annotate(
+    "Long rates rise less\n10-year: +25 bps",
+    xy=(10, after[2]),
+    xytext=(13, 4.25),
+    arrowprops={"arrowstyle": "->", "linewidth": 1.2, "color": "#333333"},
+    bbox={"boxstyle": "round,pad=0.3", "facecolor": "white", "edgecolor": "#CCCCCC"},
+)
+
+ax.set_xlabel("Maturity (years)")
+ax.set_ylabel("Yield (%)")
+ax.set_title("Bear Flattener")
+ax.grid(alpha=0.25)
+ax.legend()
+ax.spines[["top", "right"]].set_visible(False)
+plt.show()
+```
+
+## Butterfly Strategy
+
+A **butterfly** strategy expresses a view on curvature. It compares an intermediate maturity with a weighted average of shorter and longer maturities.
+
+A common 2s5s10s butterfly is:
+
+$$
+\text{Butterfly} = 2y_5 - y_2 - y_{10}.
+$$
+
+If the 5-year yield is high relative to the 2-year and 10-year yields, the 5-year sector is cheap on the curve. A trader may buy 5-year notes and short 2-year and 10-year notes in duration-adjusted amounts.
+
+::: {.callout-note title="Butterfly Example"}
+Suppose:
+
+| Maturity | Yield |
+|---:|---:|
+| 2-year | 4.00% |
+| 5-year | 4.50% |
+| 10-year | 4.30% |
+
+The butterfly is:
+
+$$
+2(4.50\%) - 4.00\% - 4.30\% = 0.70\%.
+$$
+
+The 5-year point is high relative to the wings. A trader who expects the curve to become smoother may buy the 5-year note and short the 2-year and 10-year notes. If the 5-year yield later falls relative to the wings, the trade profits.
+:::
+
+```{python}
+#| label: fig-butterfly-strategy
+#| fig-cap: "Butterfly trade: the intermediate maturity richens relative to the wings."
+#| echo: false
+#| warning: false
+#| message: false
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+maturities = np.array([2, 5, 10])
+initial = np.array([4.00, 4.50, 4.30])
+after = np.array([4.05, 4.15, 4.25])
+
+fig, ax = plt.subplots(figsize=(7, 4))
+ax.plot(maturities, initial, marker="o", linewidth=2, label="Initial curve")
+ax.plot(maturities, after, marker="o", linewidth=2, label="After 5-year richens")
+ax.vlines(5, after[1], initial[1], color="#333333", linestyle="--", linewidth=1.3)
+ax.annotate(
+    "Belly yield falls\nrelative to wings",
+    xy=(5, after[1]),
+    xytext=(6.1, 4.55),
+    arrowprops={"arrowstyle": "->", "linewidth": 1.2, "color": "#333333"},
+    bbox={"boxstyle": "round,pad=0.3", "facecolor": "white", "edgecolor": "#CCCCCC"},
+)
+ax.annotate(
+    "Wings move less",
+    xy=(10, after[2]),
+    xytext=(7.7, 4.02),
+    arrowprops={"arrowstyle": "->", "linewidth": 1.2, "color": "#333333"},
+    bbox={"boxstyle": "round,pad=0.3", "facecolor": "white", "edgecolor": "#CCCCCC"},
+)
+ax.set_xlabel("Maturity (years)")
+ax.set_ylabel("Yield (%)")
+ax.set_title("2s5s10s Butterfly")
+ax.set_xticks(maturities)
+ax.grid(alpha=0.25)
+ax.legend()
+ax.spines[["top", "right"]].set_visible(False)
+plt.show()
+```
+
+## Carry and Roll-Down
+
+Curve strategies are not driven only by future yield changes. They also earn or lose **carry** and **roll-down**.
+
+**Carry** is the return from holding a position if the yield curve does not change. For a bond, carry includes coupon income minus financing cost.
+
+**Roll-down** is the price effect from a bond moving to a shorter maturity on an unchanged yield curve. On an upward-sloping curve, a bond may roll down to a lower yield and gain price.
+
+::: {.callout-note title="Carry and Roll-Down Example"}
+A 5-year Treasury yields 4.30%. The 4-year point on the curve yields 4.00%. If the curve is unchanged after one year, the bond is now a 4-year bond and its required yield falls by 30 bps. The investor earns coupon income and may also gain from roll-down.
+
+However, if market yields rise enough, the mark-to-market loss can offset the carry and roll-down benefit.
+:::
+
+## Risk Controls in Curve Strategies
+
+Curve strategies should be evaluated with explicit risk controls:
+
+- duration exposure,
+- key rate duration exposure,
+- convexity exposure,
+- financing cost,
+- liquidity risk,
+- stop-loss levels,
+- scenario analysis.
+
+A trade that appears to be a curve trade may still lose money if it has unintended exposure to the overall level of rates.
+
+::: {.callout-warning title="Implementation Risk"}
+A duration-neutral steepener is only neutral for small parallel shifts. It can still lose money if volatility rises, financing conditions change, the curve moves in an unexpected maturity sector, or the hedge instrument does not track the cash bond being hedged.
+:::
+
+---
+
+# Broad Picture {.unnumbered}
+
+```{=html}
+<style>
+.lecture-roadmap {
+  --blue-bg: #d9eaf7;
+  --blue-border: #3a6ea5;
+  --red-bg: #f8d7da;
+  --red-border: #b94a48;
+  --yellow-bg: #fff3cd;
+  --yellow-border: #b08a00;
+  --green-bg: #d4edda;
+  --green-border: #4f8a5b;
+  --purple-bg: #d6d8f5;
+  --purple-border: #595daa;
+  --orange-bg: #fce4d6;
+  --orange-border: #b6612e;
+  max-width: 980px;
+  margin: 1rem auto 1.5rem auto;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #1f2933;
+}
+.lecture-roadmap * { box-sizing: border-box; }
+.lecture-roadmap__title {
+  text-align: center;
+  font-weight: 750;
+  font-size: 1.15rem;
+  margin-bottom: 0.25rem;
+}
+.lecture-roadmap__subtitle {
+  text-align: center;
+  color: #4b5563;
+  font-size: 0.78rem;
+  margin-bottom: 1rem;
+}
+.lecture-roadmap__canvas {
+  display: grid;
+  grid-template-columns: 1.05fr 0.24fr 1.05fr 0.24fr 1.36fr;
+  grid-template-rows: auto auto auto auto auto;
+  gap: 0.45rem 0.46rem;
+  align-items: center;
+}
+.lecture-card {
+  border: 1.5px solid;
+  border-radius: 10px;
+  padding: 0.7rem 0.72rem;
+  box-shadow: 0 4px 9px rgba(15, 23, 42, 0.13);
+  min-height: 112px;
+}
+.lecture-card h3 {
+  margin: 0 0 0.35rem 0;
+  font-size: 0.86rem;
+  line-height: 1.12;
+  text-align: center;
+}
+.lecture-card p {
+  margin: 0;
+  font-size: 0.72rem;
+  line-height: 1.27;
+  text-align: center;
+}
+.lecture-card--blue { background: var(--blue-bg); border-color: var(--blue-border); }
+.lecture-card--green { background: var(--green-bg); border-color: var(--green-border); }
+.lecture-card--purple { background: var(--purple-bg); border-color: var(--purple-border); }
+.lecture-card--orange { background: var(--orange-bg); border-color: var(--orange-border); }
+.lecture-card--small { min-height: 78px; padding: 0.52rem 0.6rem; }
+.lecture-cloud {
+  border: 1.4px solid;
+  border-radius: 999px;
+  padding: 0.58rem 0.72rem;
+  min-height: 78px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-shadow: 0 3px 8px rgba(15, 23, 42, 0.10);
+}
+.lecture-cloud h3 {
+  margin: 0 0 0.25rem 0;
+  font-size: 0.75rem;
+  text-align: center;
+  line-height: 1.1;
+}
+.lecture-cloud p {
+  margin: 0;
+  font-size: 0.65rem;
+  line-height: 1.2;
+  text-align: center;
+}
+.lecture-cloud--red { background: var(--red-bg); border-color: var(--red-border); }
+.lecture-cloud--yellow { background: var(--yellow-bg); border-color: var(--yellow-border); }
+.lecture-chip-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.18rem;
+  margin-top: 0.34rem;
+}
+.lecture-chip {
+  border: 1px solid var(--yellow-border);
+  background: #fff8db;
+  border-radius: 999px;
+  padding: 0.1rem 0.18rem;
+  font-size: 0.54rem;
+  text-align: center;
+  white-space: nowrap;
+}
+.lecture-arrow {
+  align-self: center;
+  justify-self: center;
+  color: #374151;
+  font-weight: 800;
+  font-size: 1.28rem;
+  line-height: 1;
+  text-align: center;
+}
+.lecture-arrow span {
+  display: block;
+  margin-top: 0.18rem;
+  font-size: 0.54rem;
+  font-weight: 650;
+  line-height: 1.08;
+  color: #4b5563;
+}
+.lecture-connector {
+  align-self: center;
+  justify-self: center;
+  color: #6b7280;
+  font-weight: 800;
+  font-size: 1.02rem;
+  line-height: 1;
+  text-align: center;
+}
+.lecture-connector span {
+  display: block;
+  font-size: 0.5rem;
+  font-weight: 650;
+  margin-top: 0.06rem;
+}
+.lecture-branch {
+  grid-column: 5;
+  grid-row: 3 / 6;
+  display: grid;
+  grid-template-columns: 1fr 0.18fr 1fr;
+  grid-template-rows: auto auto auto auto;
+  gap: 0.28rem 0.35rem;
+  align-items: stretch;
+}
+.lecture-down-arrow {
+  color: #374151;
+  font-weight: 800;
+  font-size: 1.15rem;
+  text-align: center;
+  line-height: 1;
+}
+.lecture-down-arrow span {
+  display: block;
+  font-size: 0.5rem;
+  color: #4b5563;
+  margin-top: 0.05rem;
+}
+@media (max-width: 780px) {
+  .lecture-roadmap__canvas,
+  .lecture-branch {
+    grid-template-columns: 1fr;
+  }
+  .lecture-branch { grid-column: auto; grid-row: auto; }
+  .lecture-arrow,
+  .lecture-connector { transform: rotate(90deg); margin: 0.2rem 0; }
+  .lecture-arrow span,
+  .lecture-connector span { display: none; }
+}
+</style>
+
+<div class="lecture-roadmap" role="img" aria-label="Broad picture of the lecture from observed Treasury yields to the par curve, spot rate curve, pricing, forward rates, and hedging or trading.">
+  <div class="lecture-roadmap__title">Broad Picture: From Treasury Yields to Pricing and Hedging Rates</div>
+  <div class="lecture-roadmap__subtitle">The main path is: observe Treasury YTMs, build the par curve, bootstrap the spot rate curve, then use spots and forwards.</div>
+
+  <div class="lecture-roadmap__canvas">
+    <div class="lecture-card lecture-card--blue" style="grid-column: 1; grid-row: 2;">
+      <h3>1. Observe</h3>
+      <p>Treasury issue prices and YTMs across maturities.</p>
+    </div>
+
+    <div class="lecture-cloud lecture-cloud--red" style="grid-column: 1; grid-row: 3;">
+      <h3>Raw YTMs Fail</h3>
+      <p>A YTM is one IRR for a bundle of cash flows, not a one-date discount rate.</p>
+    </div>
+
+    <div class="lecture-cloud lecture-cloud--yellow" style="grid-column: 1; grid-row: 4;">
+      <p>Observed Treasury yields are heterogeneous.</p>
+      <div class="lecture-chip-grid">
+        <div class="lecture-chip">coupon</div>
+        <div class="lecture-chip">maturity</div>
+        <div class="lecture-chip">cash-flow</div>
+        <div class="lecture-chip">liquidity</div>
+        <div class="lecture-chip">tax</div>
+        <div class="lecture-chip">financing</div>
+      </div>
+    </div>
+
+    <div class="lecture-arrow" style="grid-column: 2; grid-row: 2;">&rarr;<span>standardize</span></div>
+
+    <div class="lecture-card lecture-card--green" style="grid-column: 3; grid-row: 2;">
+      <h3>2. Par Curve</h3>
+      <p>Move to par coupon space. Smooth the curve, interpolate missing maturities, and identify the coupon that prices each new Treasury at par.</p>
+    </div>
+
+    <div class="lecture-arrow" style="grid-column: 4; grid-row: 2;">&rarr;<span>bootstrap</span></div>
+
+    <div class="lecture-card lecture-card--purple" style="grid-column: 5; grid-row: 2;">
+      <h3>3. Spot Rate Curve</h3>
+      <p>Bootstrap spot rates for each maturity: <em>z</em><sub>0.5</sub>, <em>z</em><sub>1</sub>, ..., <em>z</em><sub>10</sub>.</p>
+    </div>
+
+    <div class="lecture-branch">
+      <div class="lecture-down-arrow" style="grid-column: 1; grid-row: 1;">&#8595;<span>use spots</span></div>
+      <div></div>
+      <div class="lecture-down-arrow" style="grid-column: 3; grid-row: 1;">&#8595;<span>derive</span></div>
+
+      <div class="lecture-card lecture-card--purple lecture-card--small" style="grid-column: 1; grid-row: 2;">
+        <h3>4. Price Cash Flows</h3>
+        <p>Discount each cash flow using the spot rate for its payment date.</p>
+      </div>
+      <div></div>
+      <div class="lecture-card lecture-card--orange lecture-card--small" style="grid-column: 3; grid-row: 2;">
+        <h3>5. Derive Forwards</h3>
+        <p>Forward rates describe future start dates and tenors implied by spot rates.</p>
+      </div>
+
+      <div></div>
+      <div></div>
+      <div class="lecture-down-arrow" style="grid-column: 3; grid-row: 3;">&#8595;<span>apply</span></div>
+
+      <div></div>
+      <div></div>
+      <div class="lecture-card lecture-card--orange lecture-card--small" style="grid-column: 3; grid-row: 4;">
+        <h3>6. Hedge or Trade</h3>
+        <p>Use forwards to express views on future rates or hedge future rate exposure.</p>
+      </div>
+    </div>
+  </div>
+</div>
+```
+
+# Key Points {.unnumbered}
+
+- A bond's required yield can be decomposed into a base interest rate plus a benchmark spread.
+- Benchmark spreads compensate investors for issuer type, creditworthiness, embedded options, tax treatment, liquidity, financeability, and maturity.
+- Issuer-friendly options, such as call options, usually increase benchmark spreads; investor-friendly options, such as put or conversion options, can reduce them.
+- Option-adjusted spread removes the estimated value of embedded options from the observed benchmark spread.
+- Longer-maturity bonds generally have greater price volatility, and yield differences across maturity sectors are called maturity spreads.
+- A yield curve summarizes yields across maturities, but coupon bond YTMs are not homogeneous discount rates for individual cash flows.
+- The theoretical Treasury spot rate curve is built by smoothing and interpolating the par coupon curve, then bootstrapping spot rates from the par curve.
+- On-the-run Treasuries, selected off-the-run issues, all Treasury securities, and STRIPS each offer different tradeoffs for curve construction.
+- Spot rates are the correct discount rates for valuing each cash flow at its own maturity.
+- Forward rates are implied by spot rates; they are break-even and hedgeable rates, not reliable forecasts of future spot rates.
+- The shape of the yield curve reflects expected future rate changes, bond risk premiums, and convexity bias.
+- Term structure theories explain different parts of curve behavior: expectations, liquidity premiums, preferred habitats, and market segmentation.
+- Swap rates are fixed rates on interest rate swaps and are widely used as benchmarks for valuation, hedging, and swap spread analysis.
+- Curve strategies express views about level, slope, curvature, carry, and roll-down, but require explicit risk controls.

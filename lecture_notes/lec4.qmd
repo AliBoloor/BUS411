@@ -248,20 +248,61 @@ Two BBB-rated bonds have the same maturity and similar credit risk. Bond A is a 
 
 ## Financeability of an Issue
 
-Financeability refers to how easily a bond can be financed in the repo or secured financing market. A bond that can be financed cheaply and reliably is more attractive to leveraged investors.
+Financeability refers to how easily an issue can be used as collateral to borrow funds. This matters because portfolio managers often finance bond positions with borrowed money. Borrowing against the bond allows the manager to create leverage: the manager owns the bond, pledges it as collateral, and uses the borrowed funds to support a larger position.
 
-Financeability depends on:
+The main secured financing market for this activity is the **repurchase agreement market**, usually called the **repo market**. In a repo transaction, the portfolio manager effectively borrows cash from a dealer and provides the security as collateral. The interest rate charged on the cash borrowing is the **repo rate**.
 
-- whether the bond is accepted as collateral,
-- the repo rate on the bond,
-- the haircut required by lenders,
-- whether the issue is special in the repo market,
-- how easily the position can be rolled.
+There is no single repo rate. Repo rates vary by:
 
-If a bond is difficult to finance, investors may require a higher yield. If it is easy to finance, especially at favorable repo rates, investors may accept a lower yield.
+- term of the repo loan,
+- quality and liquidity of the collateral,
+- haircut required by the cash lender,
+- dealer demand for the specific issue,
+- whether the issue is easy or difficult to source in the market.
+
+Sometimes a dealer needs a specific security to cover a short position. In that case, the dealer may be willing to lend cash against that security at a repo rate below the general market repo rate. The issue is then said to trade **special** in the repo market. The lower repo rate gives the holder a financing advantage, so investors bid up the price of that issue. Because bond prices and yields move in opposite directions, the issue's yield falls relative to otherwise comparable securities.
+
+This is one reason on-the-run Treasury issues often yield less than nearby off-the-run Treasury issues. The observed spread may reflect both better liquidity and a financing advantage in the repo market.
 
 ::: {.callout-note title="Financeability Example"}
-A hedge fund can finance Treasury Bond A at a repo rate of 4.00% with a 2% haircut. A less liquid corporate bond requires a 15% haircut and a repo rate of 5.50%. Even if both bonds have attractive yields, the corporate bond consumes more capital and has higher financing risk, so its required spread must be higher.
+Suppose two Treasury notes have nearly the same maturity and credit risk:
+
+| Issue | Cash yield | Repo rate | Financing status |
+|---|---:|---:|---|
+| On-the-run 5-year Treasury | 4.18% | 3.70% | Special collateral |
+| Off-the-run 5-year Treasury | 4.28% | 4.10% | General collateral |
+
+The on-the-run issue yields 10 bps less:
+
+$$
+4.28\% - 4.18\% = 0.10\% = 10 \text{ bps}.
+$$
+
+At first glance, the off-the-run issue looks more attractive because it has the higher yield. But a leveraged investor also cares about the cost of financing the position. A simple way to see the financing advantage is to compare the yield earned on the bond with the repo rate paid to finance it:
+
+$$
+\text{Financing carry} = \text{bond yield} - \text{repo rate}.
+$$
+
+For the on-the-run issue:
+
+$$
+4.18\% - 3.70\% = 0.48\%.
+$$
+
+For the off-the-run issue:
+
+$$
+4.28\% - 4.10\% = 0.18\%.
+$$
+
+Even though the on-the-run Treasury has a lower cash yield, it provides 30 bps more financing carry:
+
+$$
+0.48\% - 0.18\% = 0.30\% = 30 \text{ bps}.
+$$
+
+Investors may therefore accept the lower yield on the on-the-run issue because its below-market repo rate makes it cheaper to finance. The yield spread between the two notes reflects not only liquidity, but also the value of this financing advantage.
 :::
 
 ## Term to Maturity
@@ -334,6 +375,24 @@ Each curve answers a different question. A par yield curve tells us the coupon r
 
 ## Yield Curve
 
+::: {.callout-important title="Review: Yield to Maturity"}
+Yield to maturity (YTM) is the single discount rate that equates a bond's market price to the present value of its promised cash flows:
+
+$$
+P = \sum_{t=1}^{n} \frac{CF_t}{(1+y)^t}.
+$$
+
+For a plain coupon bond, the cash flows include periodic coupon payments and the repayment of face value at maturity. The YTM is therefore the bond's internal rate of return if:
+
+- the bond is held to maturity,
+- all coupon payments are reinvested at the YTM,
+- all promised payments are made on time.
+
+Because most coupon bonds have many cash flows, YTM usually has to be solved numerically. It is a convenient summary yield, but it is not the same as the realized return unless the assumptions above are satisfied.
+
+This distinction matters for yield curves. A point on a coupon-bond yield curve usually reports the YTM for a bond of a given maturity. That YTM summarizes all of the bond's cash flows with one rate, even though the cash flows occur at different dates.
+:::
+
 A **yield curve** plots yields against maturities. The most common version is the Treasury yield curve, which plots yields on Treasury securities from short maturities to long maturities.
 
 Yield curves may be:
@@ -369,6 +428,17 @@ ax.grid(alpha=0.25)
 ax.legend()
 plt.show()
 ```
+
+The shape of the yield curve often reflects market expectations about growth, inflation, and future central bank policy.
+
+| Shape | Typical economy | Signal |
+|---|---|---|
+| Upward sloping | Expansion or recovery | Growth and inflation expectations are rising. |
+| Flat | Transition period | The outlook is uncertain. |
+| Inverted | Late cycle or recession risk | Policy is tight and rate cuts may be expected. |
+| Humped | Uneven outlook | Near-term pressure is high, but longer-term expectations are lower. |
+
+These interpretations are useful, but they are not mechanical rules. Yield curve shapes can also be affected by central bank purchases, liquidity conditions, Treasury supply, and investor demand for specific maturities.
 
 ## Why the Yield Curve Should Not Be Used to Price a Bond
 
@@ -628,6 +698,22 @@ Disadvantages:
 
 For example, the current 10-year Treasury note may yield 4.20%, while an older 9.8-year Treasury note may yield 4.25%. The 5 bps difference may reflect liquidity rather than a true difference in the Treasury spot rate.
 
+::: {.callout-note title="How Often Treasury Securities Are Issued"}
+Treasury auction patterns vary by maturity and can change with financing needs, but the standard pattern is approximately:
+
+| Security | Maturities | Typical auction frequency |
+|---|---|---|
+| Bills | 4-, 6-, 8-, 13-, 17-, and 26-week | Weekly |
+| Bills | 52-week | Every 4 weeks |
+| Notes | 2-, 3-, 5-, and 7-year | Monthly |
+| Notes | 10-year | Quarterly original issue, with reopenings in other months |
+| Bonds | 20- and 30-year | Quarterly original issue, with reopenings in other months |
+| TIPS | 5-, 10-, and 30-year | Less frequent; varies by maturity |
+| FRNs | 2-year | Quarterly original issue, with reopenings in other months |
+
+Source: U.S. Treasury auction schedule pattern.
+:::
+
 ### On-the-Run and Selected Off-the-Run Treasury Issues
 
 **Off-the-run Treasuries** are older Treasury securities that are no longer the most recently issued securities at their original maturities. A curve can be built using on-the-run securities plus selected off-the-run issues that are liquid and close to the desired maturities.
@@ -664,6 +750,29 @@ Disadvantages:
 In practice, curve construction often uses statistical fitting methods to smooth observed Treasury prices while controlling for outliers.
 
 ### Treasury Coupon Strips
+
+::: {.callout-important title="Coupon Bond as a Portfolio of Zero-Coupon Bonds"}
+A coupon bond can be viewed as a package of separate zero-coupon bonds. Each promised cash flow is equivalent to a zero-coupon bond that pays exactly that amount on exactly that date.
+
+For example, a 3-year annual-pay Treasury with a 5% coupon and \$100 face value has the following cash flows:
+
+| Date | Coupon payment | Principal payment | Total cash flow | Equivalent zero-coupon bond |
+|---:|---:|---:|---:|---|
+| Year 1 | \$5 | \$0 | \$5 | 1-year zero paying \$5 |
+| Year 2 | \$5 | \$0 | \$5 | 2-year zero paying \$5 |
+| Year 3 | \$5 | \$100 | \$105 | 3-year zero paying \$105 |
+
+Therefore, the coupon bond's value is the sum of the values of these zero-coupon components:
+
+$$
+P
+= \frac{5}{(1+z_1)}
++ \frac{5}{(1+z_2)^2}
++ \frac{105}{(1+z_3)^3}.
+$$
+
+This is the key idea behind STRIPS. If the Treasury cash flows can be separated and traded individually, each separated cash flow behaves like a zero-coupon bond. Its price reveals the discount rate for that specific maturity.
+:::
 
 Treasury STRIPS are securities created by separating Treasury coupon and principal payments into individual zero-coupon instruments. STRIPS provide direct market prices for zero-coupon cash flows.
 
@@ -736,6 +845,33 @@ where:
 
 This spread is conceptually closer to valuation than a simple spread to one Treasury maturity because it respects the timing of each cash flow.
 
+::: {.callout-note title="Example: Spot Rates as Base Rates"}
+Suppose a 2-year corporate bond promises annual cash flows of \$5 in year 1 and \$105 in year 2. The Treasury spot rates are:
+
+| Maturity | Treasury spot rate |
+|---:|---:|
+| 1 year | 3.00% |
+| 2 years | 3.50% |
+
+If the bond had no credit or liquidity risk, the Treasury spot curve would give the base value:
+
+$$
+P_{\text{Treasury base}}
+= \frac{5}{1.03} + \frac{105}{1.035^2}
+= 102.91.
+$$
+
+Now suppose investors require a constant 120 bps spread over the Treasury spot curve. The discount rates become 4.20% for year 1 and 4.70% for year 2:
+
+$$
+P_{\text{risky}}
+= \frac{5}{1.042} + \frac{105}{1.047^2}
+= 100.63.
+$$
+
+The Treasury spot rates are the base interest rates for the cash-flow dates. The spread adjusts those base rates for the bond's additional risks.
+:::
+
 ### Forward Rates
 
 A **forward rate** is an interest rate implied today for a loan or investment that begins in the future. Forward rates are derived from spot rates.
@@ -756,6 +892,60 @@ $$
 $$
 
 The one-year forward rate beginning one year from now is 5.61%.
+:::
+
+::: {.callout-important title="No-Arbitrage Requirement for Forward Rates"}
+Forward rates come from a no-arbitrage condition: two risk-free investment strategies that end at the same date must produce the same future value.
+
+For example, investing for two years at the 2-year spot rate must match investing for one year at the 1-year spot rate and locking in the one-year forward rate from year 1 to year 2:
+
+$$
+(1+z_2)^2 = (1+z_1)(1+f_{1,2}).
+$$
+
+Solving for the forward rate:
+
+$$
+1+f_{1,2} = \frac{(1+z_2)^2}{1+z_1}.
+$$
+
+Suppose the 1-year spot rate is 4.00% and the 2-year spot rate is 5.00%. The no-arbitrage forward rate is:
+
+$$
+1+f_{1,2} = \frac{1.05^2}{1.04} = 1.0601,
+$$
+
+so:
+
+$$
+f_{1,2} = 6.01\%.
+$$
+
+If the market forward rate is too high, say 7.00%, an investor can:
+
+1. Borrow for two years at the 2-year spot rate.
+2. Invest for one year at the 1-year spot rate.
+3. Lock in reinvestment for year 2 at the 7.00% forward rate.
+
+For each \$100 borrowed, the amount owed after two years is:
+
+$$
+100(1.05)^2 = 110.25.
+$$
+
+The investment strategy grows to:
+
+$$
+100(1.04)(1.07) = 111.28.
+$$
+
+The arbitrage profit is:
+
+$$
+111.28 - 110.25 = 1.03.
+$$
+
+If the market forward rate is too low, investors would do the reverse: invest for two years at the 2-year spot rate and finance that position by borrowing for one year and locking in the low forward borrowing rate for year 2.
 :::
 
 ### Relationship Between Six-Month Forward Rates and Spot Rates

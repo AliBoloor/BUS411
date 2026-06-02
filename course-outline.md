@@ -82,9 +82,9 @@ Classes are primarily lecture-based; discussion is encouraged. Materials include
 | Item                | Date           |
 |---------------------|---------------|
 | Exam 1              | June 23, 2026 |
-| Exam 2              | Aug. 11, 2026 |
+| Exam 2              | Aug. 04, 2026 |
 | Assignment 1 Due    | June 23, 2026 |
-| Assignment 2 Due    | Aug. 11, 2026 |
+| Assignment 2 Due    | Aug. 04, 2026 |
 
 # Topics
 

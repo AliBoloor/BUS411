@@ -6,16 +6,13 @@ on:
 
 concurrency:
   group: quarto-render-${{ github.workflow }}-${{ github.ref }}
-  # Let each push finish; cancelling leaves docs/ stale when pushes are close together.
   cancel-in-progress: false
 
 jobs:
   render:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 45
     env:
-      # Use Node 24 for JS-based actions (checkout, setup-python, etc.); see
-      # https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     permissions:
       contents: write
@@ -33,11 +30,16 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         with:
           version: "1.9.37"
-          # HTML-only in CI; run `quarto render` locally to refresh PDFs in docs/.
-          tinytex: false
+          tinytex: true
 
       - name: Report Quarto version
         run: quarto --version
+
+      - name: Install TeX fonts for syllabus PDF (Linux)
+        run: |
+          if command -v tlmgr >/dev/null 2>&1; then
+            tlmgr install --no-dependents tex-gyre || true
+          fi
 
       - name: Setup Python for Quarto execution
         uses: actions/setup-python@v6
@@ -50,8 +52,8 @@ jobs:
           python -m pip install numpy matplotlib pandas ipykernel jupyter
           python -m ipykernel install --user --name python3 --display-name "Python 3"
 
-      - name: Render website (HTML only)
-        run: quarto render --to html
+      - name: Render website (HTML + PDF)
+        run: quarto render
 
       - name: Commit and push docs
         run: |

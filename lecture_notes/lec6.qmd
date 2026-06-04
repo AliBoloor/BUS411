@@ -5,12 +5,29 @@ format:
     toc: true
     toc-location: left
     number-sections: true
-    number-depth: 3
+    number-depth: 2
   pdf:
     toc: true
     number-sections: true
-    number-depth: 3
+    number-depth: 2
+jupyter: python3
 ---
+
+```{python}
+#| echo: false
+#| message: false
+#| warning: false
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+plt.rcParams["figure.figsize"] = (7.5, 4.2)
+plt.rcParams["axes.grid"] = True
+plt.rcParams["grid.alpha"] = 0.25
+plt.rcParams["axes.spines.top"] = False
+plt.rcParams["axes.spines.right"] = False
+```
 
 ## Learning Objectives {.unnumbered}
 
@@ -29,237 +46,1028 @@ By the end of this lecture you should be able to:
 
 ---
 
-# Origination of Residential Mortgage Loans
+# Residential Mortgage Loans
 
-Mortgage origination refers to the process by which lenders (often banks or mortgage companies) approve and fund loans that allow individuals to buy homes. The underwriting process determines whether a borrower meets the lender’s standards.
+Residential mortgage finance connects household borrowing, real estate, bank underwriting, government housing policy, and fixed-income markets. A mortgage is a loan secured by residential property. A mortgage-backed security (MBS) is a claim on the cash flows from a pool of mortgage loans.
+
+The central intuition for this lecture is:
+
+> A residential mortgage gives the borrower a long-term loan and an embedded prepayment option. An MBS investor owns the loan cash flows but is short that borrower option.
+
+This is why mortgages are more complicated than ordinary coupon bonds. A Treasury bond has promised coupon and principal dates. A mortgage has scheduled principal, scheduled interest, and unscheduled principal because borrowers can move, refinance, default, or voluntarily pay down balances.
+
+Top fixed-income and real estate capital markets courses usually frame mortgages this way: start with the loan contract, then study how pooling changes credit and liquidity, then analyze how prepayments make valuation path-dependent. NYU Stern mortgage-backed securities materials emphasize CPR, SMM, PSA, sequential tranches, PACs, IOs, POs, and negative convexity. MIT real estate capital markets materials emphasize that securitization turns real estate debt cash flows into tradable capital-market instruments.
+
+::: {.callout-note title="Market Snapshot: Why Mortgages Matter"}
+The residential mortgage market is one of the largest U.S. credit markets. Agency MBS are especially important because Fannie Mae, Freddie Mac, and Ginnie Mae securities create a liquid secondary market for mortgage credit. FHFA announced that the 2026 baseline conforming loan limit for one-unit properties is **$832,750**, with a high-cost area ceiling of **$1,249,125**. These limits help define which loans can flow into the agency securitization channel.
+:::
+
+```{mermaid}
+%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Inter, Arial, sans-serif", "lineColor": "#64748b"}}}%%
+flowchart LR
+  A["Household borrower<br/>monthly mortgage payments"] --> B["Originator / servicer<br/>underwrites and collects"]
+  B --> C["Mortgage pool<br/>many similar loans"]
+  C --> D["Agency MBS<br/>pass-through security"]
+  D --> E["Investors<br/>principal + interest + prepayments"]
+  C --> F["CMO / REMIC<br/>cash-flow tranching"]
+  F --> G["Different investors<br/>different timing risk"]
+  classDef borrower fill:#dbeafe,stroke:#2563eb,stroke-width:3px,color:#0f172a;
+  classDef intermediary fill:#dcfce7,stroke:#16a34a,stroke-width:2.5px,color:#052e16;
+  classDef pool fill:#fef3c7,stroke:#d97706,stroke-width:2.5px,color:#451a03;
+  classDef security fill:#ede9fe,stroke:#7c3aed,stroke-width:2.5px,color:#2e1065;
+  classDef investor fill:#fee2e2,stroke:#dc2626,stroke-width:2.5px,color:#450a0a;
+  class A borrower;
+  class B intermediary;
+  class C pool;
+  class D,F security;
+  class E,G investor;
+  linkStyle 0 stroke:#2563eb,stroke-width:2.8px;
+  linkStyle 1 stroke:#16a34a,stroke-width:2.8px;
+  linkStyle 2 stroke:#7c3aed,stroke-width:2.8px;
+  linkStyle 3 stroke:#dc2626,stroke-width:2.8px;
+  linkStyle 4 stroke:#7c3aed,stroke-width:2.8px;
+  linkStyle 5 stroke:#dc2626,stroke-width:2.8px;
+```
+
+## Origination of Residential Mortgage Loans
+
+Origination is the process of creating the loan. It includes borrower application, credit checks, income verification, property appraisal, underwriting, closing, funding, and usually sale or delivery into a secondary-market channel.
+
+The reason origination standards exist is that mortgage credit risk depends on both the borrower and the collateral. A borrower with strong income but little equity may default if home prices fall. A borrower with substantial equity but unstable income may default if cash flow is interrupted. Good underwriting evaluates both capacity to pay and incentive to keep paying.
+
+```{mermaid}
+%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Inter, Arial, sans-serif", "lineColor": "#64748b"}}}%%
+flowchart LR
+  A["Application<br/>income, assets, credit"] --> B["Underwriting<br/>PTI, LTV, documentation"]
+  B --> C["Appraisal<br/>collateral value"]
+  C --> D["Closing<br/>loan funded"]
+  D --> E["Servicing<br/>payments collected"]
+  E --> F["Sale or securitization<br/>agency or private-label"]
+  classDef start fill:#dbeafe,stroke:#2563eb,stroke-width:2.5px,color:#0f172a;
+  classDef check fill:#fef3c7,stroke:#d97706,stroke-width:2.5px,color:#451a03;
+  classDef close fill:#dcfce7,stroke:#16a34a,stroke-width:2.5px,color:#052e16;
+  classDef market fill:#ede9fe,stroke:#7c3aed,stroke-width:2.5px,color:#2e1065;
+  class A start;
+  class B,C check;
+  class D,E close;
+  class F market;
+  linkStyle default stroke:#64748b,stroke-width:2.5px;
+```
 
 ### Underwriting Standards
 
-Underwriters examine the borrower's ability and willingness to repay the loan. Two key ratios are used:
+Underwriting standards translate borrower and property information into measurable risk controls. The main quantitative ratios are payment-to-income and loan-to-value. Other important inputs include credit score, employment history, liquid reserves, documentation quality, property type, occupancy status, and debt-to-income ratios.
 
-- **Payment‑to‑Income (PTI) ratio** – The PTI compares a borrower’s monthly housing payment to their monthly income. Lenders typically require a PTI ratio below 28–36%, meaning that no more than one‑third of income is devoted to housing expenses.
+These standards serve three purposes:
 
-- **Loan‑to‑Value (LTV) ratio** – The LTV is the loan amount divided by the appraised value of the property. A lower LTV indicates more borrower equity, reducing credit risk. Conventional mortgages often require an LTV of 80% or lower, implying a down payment of at least 20%.
+- **Borrower protection:** reduce the chance that the borrower takes on an unaffordable payment.
+- **Investor protection:** reduce default probability and expected loss.
+- **Securitization standardization:** make loans comparable enough to pool and sell.
 
-### Documentation and Credit Scores
+::: {.callout-tip title="Underwriting Intuition"}
+PTI asks whether the borrower can make the payment. LTV asks whether the borrower has enough equity to keep paying and whether the lender has collateral protection if default occurs.
+:::
 
-Underwriters also verify employment history, credit scores and assets. High credit scores allow borrowers to qualify for lower interest rates. Documents such as pay stubs, W‑2 forms and tax returns verify income; bank statements verify assets for down payment and reserves.
+#### Payment-to-Income Ratio
 
----
+The payment-to-income ratio measures the scheduled mortgage payment relative to borrower income:
 
-# Types of Residential Mortgage Loans
+$$
+\text{PTI} =
+\frac{\text{Monthly mortgage payment}}{\text{Monthly gross income}}.
+$$
 
-Mortgage loans vary widely. Below we classify loans by key features.
+The mortgage payment often includes principal and interest. A broader housing-expense view can also include property taxes, homeowners insurance, mortgage insurance, and homeowners association fees.
+
+::: {.callout-note title="Worked Example: PTI"}
+Suppose a borrower earns $9,000 per month before tax. The proposed monthly principal and interest payment is $2,250.
+
+$$
+\text{PTI} = \frac{2{,}250}{9{,}000}=25\%.
+$$
+
+If taxes, insurance, and other housing costs add $750, the broader housing expense ratio is:
+
+$$
+\frac{2{,}250+750}{9{,}000}=33.3\%.
+$$
+:::
+
+The reason lenders use PTI is simple: default often starts as a cash-flow problem. Even if the property is valuable, a borrower who cannot meet the monthly payment may become delinquent.
+
+#### Loan-to-Value Ratio
+
+The loan-to-value ratio measures the loan balance relative to the property value:
+
+$$
+\text{LTV} =
+\frac{\text{Mortgage balance}}{\text{Appraised property value or purchase price}}.
+$$
+
+::: {.callout-note title="Worked Example: LTV"}
+A borrower buys a home for $700,000 and makes a $140,000 down payment. The mortgage balance is $560,000.
+
+$$
+\text{LTV} = \frac{560{,}000}{700{,}000}=80\%.
+$$
+
+If the home value falls by 15% to $595,000, the same $560,000 loan now has an LTV of about 94.1%.
+:::
+
+The reason LTV matters is incentive and recovery. A borrower with more equity has more to lose by defaulting. A lender with lower LTV has a larger collateral cushion if foreclosure occurs.
+
+## Types of Residential Mortgage Loans
+
+Residential mortgages differ along several dimensions. These differences determine who bears interest-rate risk, credit risk, liquidity risk, and prepayment risk.
+
+```{python}
+#| echo: false
+#| message: false
+#| warning: false
+
+loan_taxonomy = pd.DataFrame(
+    {
+        "Dimension": [
+            "Lien status",
+            "Credit classification",
+            "Interest-rate type",
+            "Amortization type",
+            "Guarantee",
+            "Loan balance",
+            "Prepayment terms",
+        ],
+        "Examples": [
+            "First lien, second lien, HELOC",
+            "Prime, nonprime, subprime",
+            "Fixed-rate, ARM, hybrid ARM",
+            "Fully amortizing, interest-only, balloon",
+            "Agency, FHA/VA/USDA, private-label",
+            "Conforming, high-balance, jumbo",
+            "Open prepay, penalty period, lockout",
+        ],
+        "Main risk affected": [
+            "Recovery priority",
+            "Default probability",
+            "Rate sensitivity and payment shock",
+            "Principal timing and affordability",
+            "Credit loss allocation",
+            "Liquidity and securitization channel",
+            "Prepayment option value",
+        ],
+    }
+)
+loan_taxonomy
+```
 
 ### Lien Status
 
-A **first‑lien** mortgage has priority over other claims on the property; if the borrower defaults, the first‑lien holder receives proceeds from foreclosure before junior liens. **Second liens** or **home equity loans** carry higher risk and generally higher interest rates.
+A lien is the lender's legal claim on the property. A **first-lien mortgage** has first priority against the property after taxes and certain senior claims. A **second-lien mortgage** or home equity loan is junior to the first lien. A home equity line of credit (HELOC) is usually a revolving second-lien facility.
+
+The reason lien status matters is recovery priority. If a property is sold after default, the first-lien lender is paid before junior lienholders. Second-lien credit can be attractive because it often carries a higher rate, but it is much more exposed to home-price declines.
+
+::: {.callout-note title="Example: Lien Priority"}
+A home sells in foreclosure for $500,000. The first mortgage balance is $450,000 and the second lien is $100,000. Ignoring costs, the first lien is repaid in full, while only $50,000 remains for the second lien. The second-lien recovery is 50%.
+:::
 
 ### Credit Classification
 
-Borrowers are often grouped by credit quality:
+Mortgage loans are often described as prime, near-prime, nonprime, or subprime. These labels summarize borrower credit quality, documentation strength, loan structure, and collateral protection.
 
-- **Prime mortgages**: borrowers have high credit scores, stable income and low debt, resulting in lower default risk.
-- **Alt‑A**: credit quality is between prime and subprime; borrowers may have limited documentation or higher LTVs but still relatively good credit histories.
-- **Subprime mortgages**: borrowers have lower credit scores and higher default risk; these loans typically have higher interest rates and may feature structures such as adjustable rates or significant fees.
+Credit classification is not only about credit score. A high-score borrower with limited documentation, high LTV, investor occupancy, and payment shock can still be risky. A lower-score borrower with low LTV, stable income, and reserves may be less risky than the label suggests.
 
-### Interest Rate Type
+The reason credit categories exist is portfolio segmentation. Investors need to know whether they are buying mostly agency-eligible prime credit, government-insured credit, or private-label credit where losses are absorbed by the deal structure.
 
-- **Fixed‑rate mortgages (FRMs)** have constant interest rates for the life of the loan, making monthly payments predictable. A 30‑year FRM is a common example.
-- **Adjustable‑rate mortgages (ARMs)** have rates that reset periodically based on a reference index plus a margin. For instance, a 5/1 ARM has a fixed rate for five years and adjusts annually thereafter.
+### Interest-Rate Type
+
+The most common mortgage rate types are:
+
+- **Fixed-rate mortgage (FRM):** the note rate and scheduled payment are fixed.
+- **Adjustable-rate mortgage (ARM):** the rate resets based on an index plus a margin.
+- **Hybrid ARM:** the rate is fixed for an initial period, such as 5 or 7 years, then resets.
+
+Fixed-rate mortgages shift interest-rate risk to investors. Borrowers keep the same payment when rates rise and can refinance when rates fall. ARMs shift more rate risk to borrowers because payments can rise after reset, although caps limit the adjustment.
+
+::: {.callout-tip title="Why the 30-Year Fixed-Rate Mortgage Is Special"}
+A long fixed-rate mortgage gives the household payment stability and a valuable refinancing option. The investor receives a higher yield than Treasuries partly because the investor is short that option.
+:::
 
 ### Amortization Type
 
-- **Fully amortizing loans** require payments that cover both principal and interest so that the loan balance declines to zero by maturity.
-- **Interest‑only loans** require only interest payments for an initial period; principal payments start later or at maturity, increasing repayment risk.
-- **Balloon mortgages** amortize partially but require a large lump‑sum payment at the end; they have refinance risk.
+A fully amortizing mortgage has a level scheduled payment that gradually pays interest and principal so the loan balance reaches zero by maturity. Early payments are mostly interest; later payments are mostly principal.
 
-### Credit Guarantees and Insurance
+Interest-only mortgages require interest payments for a period before principal amortization begins. Balloon mortgages have a large principal payment at maturity. These structures can lower early payments but increase refinancing or payment-shock risk.
 
-Some loans carry **government guarantees**. For example, Federal Housing Administration (FHA) loans are insured by the U.S. government, and Veterans Affairs (VA) loans are guaranteed for qualified military borrowers. These loans enable higher LTVs with lower down payments.
+```{python}
+#| label: fig-mortgage-amortization
+#| fig-cap: "Example amortization pattern for a 30-year fixed-rate mortgage. Early payments are mostly interest; later payments are mostly principal."
+#| echo: false
+#| message: false
+#| warning: false
+
+principal = 500_000
+annual_rate = 0.06
+months = 360
+monthly_rate = annual_rate / 12
+payment = principal * monthly_rate / (1 - (1 + monthly_rate) ** (-months))
+
+balances = np.empty(months + 1)
+interest = np.empty(months)
+scheduled_principal = np.empty(months)
+balances[0] = principal
+for m in range(months):
+    interest[m] = balances[m] * monthly_rate
+    scheduled_principal[m] = payment - interest[m]
+    balances[m + 1] = balances[m] - scheduled_principal[m]
+
+plot_months = np.arange(1, months + 1)
+fig, ax = plt.subplots()
+ax.stackplot(
+    plot_months,
+    scheduled_principal,
+    interest,
+    labels=["Scheduled principal", "Interest"],
+    colors=["#60a5fa", "#f59e0b"],
+    alpha=0.85,
+)
+ax.set_title("Monthly Mortgage Payment Composition")
+ax.set_xlabel("Month")
+ax.set_ylabel("Dollars")
+ax.legend(loc="center right")
+plt.tight_layout()
+plt.show()
+```
+
+The reason amortization matters for MBS investors is that scheduled principal already shortens the balance over time. Prepayments add an extra, uncertain principal component on top of scheduled amortization.
+
+### Credit Guarantees
+
+Mortgage credit guarantees decide who absorbs losses when borrowers default. In the agency market:
+
+- **Ginnie Mae** guarantees timely payment on securities backed by federally insured or guaranteed loans, such as FHA, VA, USDA, or Public and Indian Housing loans.
+- **Fannie Mae and Freddie Mac** guarantee timely payment on their agency MBS, but they are GSEs, not Treasury securities.
+- **Private-label RMBS** rely on deal credit enhancement, such as subordination, excess spread, reserve accounts, insurance, or overcollateralization.
+
+The reason guarantees exist is to separate credit risk from interest-rate and prepayment risk. Agency MBS investors mainly analyze prepayment and option risk because the agency guarantee reduces direct mortgage credit loss exposure.
 
 ### Loan Balances
 
-Loans are described as **conforming** or **jumbo** based on size. Conforming loans must meet agency guidelines, including a maximum loan amount. Jumbo loans exceed these limits and typically carry higher rates due to lower liquidity and lack of government guarantee.
+Loan balance affects eligibility, liquidity, and investor base. Conforming loans meet Fannie Mae and Freddie Mac loan-size limits and underwriting standards. Jumbo loans exceed conforming limits or otherwise do not qualify for agency purchase.
+
+Larger loan balances can prepay differently. A borrower with a large balance has more dollar savings from refinancing after a rate decline, so high-balance pools may be more refinance-sensitive than smaller-balance pools.
+
+The reason investors segment pools by loan balance is adverse selection. If one pool has mostly large loans with strong refinance incentives, it may prepay faster when rates fall, lowering returns for investors who paid a premium.
 
 ### Prepayments and Prepayment Penalties
 
-Borrowers often have the right to **prepay** part or all of the mortgage balance without penalty. Lenders sometimes charge prepayment penalties to deter early refinancing and protect interest income. Penalties may be a percentage of the outstanding balance if the loan is paid off within a specified period.
+Prepayment is unscheduled principal repayment before maturity. It can occur because the borrower refinances, sells the home, pays extra principal, defaults and the loan is liquidated, or the loan is repurchased from a pool.
 
----
+Prepayment penalties require borrowers to pay a fee if they repay during a specified period. They are less common in prime agency residential mortgages than in some other lending markets.
 
-# Conforming Loans
+The reason prepayment penalties exist is option pricing. If the borrower has a free option to refinance, the lender or investor bears reinvestment risk. A penalty partially compensates the investor for the option. The tradeoff is borrower flexibility and consumer protection.
 
-**Conforming loans** meet the underwriting guidelines of the government‑sponsored enterprises (GSEs) Fannie Mae and Freddie Mac. Key criteria include:
+## Conforming Loans
 
-- Loan balance below the conforming loan limit (which changes annually and varies by region).
-- Borrower credit score above a minimum threshold (often 620+).
-- Maximum LTV ratio, typically 80% (higher with mortgage insurance).
-- Documentation of income and assets.
+Conforming loans meet Fannie Mae and Freddie Mac eligibility standards, including loan-size limits, documentation requirements, underwriting criteria, and property rules. The FHFA sets conforming loan limits annually under the Housing and Economic Recovery Act framework.
 
-Because conforming loans can be packaged into agency mortgage‑backed securities, they generally have lower interest rates and greater liquidity than non‑conforming or jumbo loans.
+The reason conforming status matters is securitization. Loans that fit agency rules can enter the agency MBS market, where liquidity is much deeper than for one-off whole loans. Standardization lowers funding costs because investors can analyze pools using common rules and data fields.
 
----
+::: {.callout-note title="2026 Conforming Loan Limit"}
+FHFA announced that the 2026 baseline conforming loan limit for one-unit properties is **$832,750**. The general high-cost area ceiling is **$1,249,125**, or 150% of the baseline limit. Alaska, Hawaii, Guam, and the U.S. Virgin Islands have special statutory limits.
+:::
 
-# Risks Associated with Investing in Mortgage Loans
+```{python}
+#| echo: false
+#| message: false
+#| warning: false
 
-Investing in mortgages involves several sources of risk.
+limits = pd.DataFrame(
+    {
+        "Category": ["2026 baseline one-unit CLL", "2026 general high-cost ceiling"],
+        "Limit": [832_750, 1_249_125],
+        "Why it matters": [
+            "Main national cutoff for agency-eligible one-unit loans",
+            "Maximum for many high-cost areas under the 150% ceiling",
+        ],
+    }
+)
+limits
+```
 
-- **Credit risk**: the risk that borrowers will default. Higher‑LTV and lower‑credit‑score loans have more credit risk. Government insurance and credit enhancement reduce this risk.
+## Risks Associated with Investing in Mortgage Loans
 
-- **Liquidity risk**: mortgages are less liquid than Treasury securities. Secondary market depth varies by loan type; large institutional investors may sell pools or securitised mortgages more easily than individual whole loans.
+Mortgage investors face risks that ordinary corporate or Treasury investors do not face in the same way. The core problem is that the borrower controls part of the cash-flow timing.
 
-- **Price risk**: the market value of mortgages fluctuates with interest rates. Because mortgages contain prepayment options, their effective duration changes as rates move, making hedging complex.
+```{mermaid}
+%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Inter, Arial, sans-serif", "lineColor": "#64748b"}}}%%
+flowchart TB
+  A["Mortgage investor"] --> B["Credit risk<br/>borrower may default"]
+  A --> C["Liquidity risk<br/>loan may be hard to sell"]
+  A --> D["Price risk<br/>rates and spreads move"]
+  A --> E["Prepayment risk<br/>cash-flow timing changes"]
+  E --> F["Contraction risk<br/>principal returns too fast"]
+  E --> G["Extension risk<br/>principal returns too slowly"]
+  classDef investor fill:#dbeafe,stroke:#2563eb,stroke-width:3px,color:#0f172a;
+  classDef risk fill:#fee2e2,stroke:#dc2626,stroke-width:2.5px,color:#450a0a;
+  classDef timing fill:#fef3c7,stroke:#d97706,stroke-width:2.5px,color:#451a03;
+  class A investor;
+  class B,C,D risk;
+  class E,F,G timing;
+  linkStyle default stroke:#64748b,stroke-width:2.5px;
+```
 
-- **Prepayment and cash‑flow uncertainty**: borrowers may prepay their mortgages whenever interest rates fall or life events prompt relocation. Investors therefore face reinvestment risk when prepayments occur and extension risk when prepayments slow.
+### Credit Risk
 
----
+Credit risk is the risk that borrowers fail to make payments and collateral recoveries are insufficient. For whole loans and private-label RMBS, credit risk is central. For agency pass-through securities, direct credit risk is largely replaced by agency guarantee risk and prepayment risk.
 
-# Sectors of the Residential Mortgage‑Backed Security Market
+Credit risk rises when underwriting is weak, LTV is high, borrower income is unstable, home prices fall, unemployment rises, or legal foreclosure timelines are long.
 
-Residential mortgage loans are often pooled and sold as securities. The main sectors include:
+::: {.callout-note title="Expected Loss Intuition"}
+If a mortgage pool has a 3% default probability and a 35% loss severity after property recovery and expenses, the expected credit loss is:
 
-- **Agency pass‑through securities**: pools of conforming mortgages guaranteed by GSEs (Fannie Mae, Freddie Mac) or the Government National Mortgage Association (GNMA). Investors receive pro‑rata shares of principal and interest cash flows, with the guarantee of timely payments (GNMA) or guarantee of principal (Fannie/Freddie).
+$$
+0.03 \times 0.35 = 1.05\%.
+$$
+:::
 
-- **Agency collateralized mortgage obligations (CMOs)**: multi‑tranche structures that redirect principal and prepayment risk among various classes to meet different investor needs.
+### Liquidity Risk
 
-- **Non‑agency RMBS**: securities backed by non‑conforming or subprime mortgages without GSE guarantees. Credit enhancements such as senior/subordinate tranches or reserve funds mitigate default risk.
+Liquidity risk is the risk that the investor cannot sell the loan or security quickly at a fair price. Whole mortgage loans are relatively illiquid because each loan has unique borrower, property, documentation, and servicing features.
 
-- **Whole‑loan trading**: transactions of pools of mortgages that are not securitized. Banks and insurance companies often hold whole loans.
+Agency MBS are more liquid because they are standardized and trade in large markets, including the to-be-announced (TBA) market. Private-label RMBS and bespoke mortgage pools are less liquid because investors must analyze collateral details and deal structures.
 
-The agency sector dominates in size because of the GSEs’ guarantee. Non‑agency and private‑label securities became significant during periods of active securitization (e.g., mid‑2000s) but are more vulnerable to credit risk.
+The reason securitization improves liquidity is pooling and standardization. A pool of thousands of conforming loans is easier to trade than thousands of individual mortgages.
 
----
+### Price Risk
 
-# General Description of an Agency Mortgage
+Price risk is the risk that mortgage asset values change when interest rates, spreads, volatility, or prepayment expectations change. Fixed-rate mortgage prices rise when rates fall, but not as much as noncallable bond prices because borrowers refinance.
 
-Agency mortgages are loans that conform to GSE guidelines and are either guaranteed or insured. The loan pools are assembled by originators and sold to GSEs or securitised into pass‑throughs.
+Mortgage securities often show negative convexity: when rates fall, prepayments accelerate and shorten cash flows; when rates rise, prepayments slow and extend cash flows.
 
-Investors in agency pass‑throughs face prepayment risk but are protected from credit losses through the GSE guarantee. Cash flows consist of scheduled principal and interest plus unscheduled prepayments.
+```{python}
+#| label: fig-mbs-negative-convexity
+#| fig-cap: "Stylized mortgage price behavior. Prepayments limit upside when rates fall and extension risk hurts when rates rise."
+#| echo: false
+#| message: false
+#| warning: false
 
----
+rates = np.linspace(0.02, 0.09, 100)
+noncallable_price = 100 + 850 * (0.055 - rates) + 6200 * (0.055 - rates) ** 2
+mbs_price = 100 + 620 * (0.055 - rates) - 9000 * np.maximum(0.055 - rates, 0) ** 2 - 2500 * np.maximum(rates - 0.055, 0) ** 2
 
-# Issuers of Agency Pass‑Through Securities
+fig, ax = plt.subplots()
+ax.plot(rates * 100, noncallable_price, linewidth=2.5, label="Option-free bond", color="#2563eb")
+ax.plot(rates * 100, mbs_price, linewidth=2.5, label="Mortgage pass-through", color="#dc2626")
+ax.axhline(100, color="#64748b", linewidth=1, linestyle="--")
+ax.set_title("Mortgage Prices and Negative Convexity")
+ax.set_xlabel("Market mortgage rate (%)")
+ax.set_ylabel("Stylized price")
+ax.legend(loc="best")
+plt.tight_layout()
+plt.show()
+```
 
-- **Fannie Mae** (Federal National Mortgage Association) – purchases mortgages from lenders and issues pass‑through securities; guarantees timely payment of principal and interest.
+### Prepayments and Cash Flow Uncertainty
 
-- **Freddie Mac** (Federal Home Loan Mortgage Corporation) – similar role; historically focused on savings institutions and thrifts.
+Prepayment uncertainty is the defining risk of residential mortgages. Borrowers prepay for rate-driven and non-rate-driven reasons. Rate-driven prepayments are refinancing behavior. Non-rate-driven prepayments include home sales, divorce, job relocation, inheritance, curtailments, defaults, and loan buyouts.
 
-- **GNMA (Ginnie Mae)** – a government agency that guarantees mortgage pools composed of FHA/VA loans. GNMA securities carry the full faith and credit of the U.S. government and guarantee timely payment of principal and interest.
+The reason this is difficult to value is that the investor does not control the option exercise. The borrower prepays when it is good for the borrower, not when it is good for the investor.
 
----
+::: {.callout-tip title="Contraction and Extension"}
+When rates fall, premium MBS investors fear contraction: principal returns early and must be reinvested at lower yields. When rates rise, investors fear extension: principal comes back slowly and the investor is stuck with below-market coupons for longer.
+:::
 
-# Prepayment Conventions and Cash Flow
+# Agency Mortgage Pass-Through Securities
 
-Accurately projecting the cash flows of mortgage pools requires assumptions about prepayment behaviour. Several conventions are used.
+An agency pass-through security passes monthly principal and interest from a mortgage pool to investors after servicing and guarantee fees. The investor receives scheduled interest, scheduled principal, and unscheduled prepayments.
+
+The agency pass-through is the basic building block for more complex mortgage securities. CMOs and stripped MBS reallocate the same pool cash flows, but they do not eliminate the underlying prepayment option.
+
+## Sectors of the Residential Mortgage-Backed Security Market
+
+The residential MBS market can be divided into:
+
+- **Agency MBS:** issued or guaranteed by Ginnie Mae, Fannie Mae, or Freddie Mac.
+- **Agency CMO / REMIC securities:** agency collateral cash flows reallocated into tranches.
+- **Agency stripped MBS:** principal-only, interest-only, or synthetic-coupon forms.
+- **Private-label RMBS:** non-agency securities backed by mortgages outside agency programs.
+
+The reason this sector distinction matters is credit allocation. Agency MBS investors mainly analyze prepayment risk. Private-label RMBS investors must analyze both prepayment risk and credit losses because the guarantee is not the same.
+
+## General Description of an Agency Mortgage Pass-Through Security
+
+In a pass-through, each investor owns a pro rata interest in a pool. If the investor owns 1% of the pool, the investor receives roughly 1% of the pool's monthly principal and interest, net of fees.
+
+```{mermaid}
+%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Inter, Arial, sans-serif", "lineColor": "#64748b"}}}%%
+flowchart LR
+  A["Borrowers<br/>P&I payments + prepayments"] --> B["Servicer<br/>collects payments"]
+  B --> C["Agency guarantor<br/>credit wrap"]
+  C --> D["Pass-through pool"]
+  D --> E["Investor 1<br/>pro rata cash flow"]
+  D --> F["Investor 2<br/>pro rata cash flow"]
+  D --> G["Investor 3<br/>pro rata cash flow"]
+  classDef borrower fill:#dbeafe,stroke:#2563eb,stroke-width:2.5px,color:#0f172a;
+  classDef service fill:#dcfce7,stroke:#16a34a,stroke-width:2.5px,color:#052e16;
+  classDef agency fill:#fef3c7,stroke:#d97706,stroke-width:2.5px,color:#451a03;
+  classDef pool fill:#ede9fe,stroke:#7c3aed,stroke-width:3px,color:#2e1065;
+  classDef investor fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#450a0a;
+  class A borrower;
+  class B service;
+  class C agency;
+  class D pool;
+  class E,F,G investor;
+  linkStyle default stroke:#64748b,stroke-width:2.5px;
+```
+
+The coupon on the MBS is lower than the weighted average coupon on the underlying loans because servicing fees and guarantee fees are deducted. This difference pays the parties that collect payments and absorb credit-related obligations.
+
+## Issuers of Agency Pass-Through Securities
+
+The three major agency channels are Ginnie Mae, Fannie Mae, and Freddie Mac. They all support mortgage securitization, but their legal status and collateral types differ.
+
+| Issuer | Legal status | Typical collateral | Main investor issue |
+|---|---|---|---|
+| Ginnie Mae | U.S. government corporation | FHA, VA, USDA, PIH loans | Explicit full faith and credit guarantee |
+| Fannie Mae | Government-sponsored enterprise | Conventional conforming loans | GSE guarantee and conservatorship context |
+| Freddie Mac | Government-sponsored enterprise | Conventional conforming loans | GSE guarantee and UMBS/TBA liquidity |
+
+### Ginnie Mae
+
+Ginnie Mae does not originate loans or buy mortgages for its own portfolio. Approved private issuers pool eligible government-insured or government-guaranteed loans and issue Ginnie Mae MBS. Ginnie Mae guarantees timely payment of principal and interest on the securities.
+
+The reason Ginnie Mae exists is to connect federally insured mortgage programs to capital markets. FHA and VA lending would be less liquid if investors had to buy individual loans. Ginnie Mae standardizes the security and adds the federal guarantee.
+
+Ginnie Mae I and Ginnie Mae II securities differ in pooling and payment mechanics. Ginnie Mae II allows more flexibility in loan characteristics and uses a central paying agent, which supports broader pooling.
+
+### Fannie Mae and Freddie Mac
+
+Fannie Mae and Freddie Mac buy eligible conventional mortgages, guarantee MBS, and support the TBA market. Their guarantees are not the same legal obligation as Treasury debt, but their conservatorship and policy role are central to market confidence.
+
+The reason Fannie Mae and Freddie Mac matter is scale and standardization. By defining eligible collateral, guarantee terms, disclosure data, and settlement conventions, they make mortgage pools tradable for investors who do not personally underwrite every loan.
+
+The Uniform Mortgage-Backed Security (UMBS) framework was designed to align Fannie Mae and Freddie Mac TBA deliverability and improve liquidity across the two GSE markets.
+
+## Prepayment Conventions and Cash Flow
+
+Prepayment conventions turn uncertain borrower behavior into a measurable assumption. The three core terms are CPR, SMM, and PSA.
+
+The reason conventions exist is communication. A trader, portfolio manager, and risk model need a compact way to describe an assumed prepayment path. "150 PSA" is not a forecast by itself; it is a standardized speed assumption.
 
 ### Conditional Prepayment Rate (CPR)
 
-The CPR is an annualised rate expressing the percentage of the outstanding principal that is expected to be prepaid in a year. For example, a CPR of 6% implies that 6% of the mortgage pool’s remaining principal will be prepaid over the next year.
+The Conditional Prepayment Rate is an annualized prepayment rate applied to the remaining balance after scheduled principal. A CPR of 6% means the model assumes about 6% of the relevant remaining balance prepays over a year, conditional on not having prepaid already.
 
-### Single Monthly Mortality (SMM) Rate
+CPR is useful because it is annualized and easy to compare across pools. It is not directly the monthly prepayment rate used in cash-flow construction.
 
-The SMM converts the annual CPR into a monthly probability of prepayment:
+#### Single-Monthly Mortality (SMM) Rate
 
-$$\text{SMM} = 1 - (1 - \text{CPR})^{1/12}.$$
+The Single-Monthly Mortality rate converts CPR into a monthly prepayment rate:
 
-If CPR = 6%, then \(\text{SMM} \approx 0.516%\). This means that approximately 0.516% of the outstanding principal will prepay each month.
+$$
+\text{SMM}=1-(1-\text{CPR})^{1/12}.
+$$
 
-### SMM and Monthly Prepayment
+Equivalently:
 
-The expected prepayment for month *t* is:
+$$
+\text{CPR}=1-(1-\text{SMM})^{12}.
+$$
 
-$$\text{Prepayment}_t = \text{SMM} \times (\text{Beginning balance}_t - \text{Scheduled principal}_t).$$
+::: {.callout-note title="Worked Example: CPR to SMM"}
+If CPR is 6%:
 
-Scheduled principal is the amount of principal included in the regular monthly mortgage payment.
+$$
+\text{SMM}=1-(1-0.06)^{1/12}=0.5143\%.
+$$
 
-### Public Securities Association (PSA) Benchmark
+This means about 0.5143% of the post-scheduled-principal balance prepays that month.
+:::
 
-The PSA benchmark is a prepayment standard used to model mortgage pools. Under **100% PSA**, prepayments start at 0.2% CPR in the first month and increase by 0.2% each month until reaching 6% CPR at month 30, after which the CPR remains at 6%.
+#### Single-Monthly Mortality Rate and Monthly Prepayment
 
-Higher PSA speeds (e.g., 150% PSA) scale the benchmark by that factor. Thus 150% PSA means the prepayment curve ramps up 50% faster than the benchmark.
+Monthly prepayment is calculated after scheduled principal is removed:
+
+$$
+\text{Prepayment}_t =
+(\text{Beginning Balance}_t-\text{Scheduled Principal}_t)
+\times \text{SMM}_t.
+$$
+
+The order matters. Scheduled principal is contractual amortization. Prepayment is unscheduled principal on the balance that remains after scheduled amortization.
+
+::: {.callout-note title="Worked Example: Monthly Prepayment"}
+A pool begins the month with $100,000,000. Scheduled principal is $120,000. CPR is 6%, so SMM is 0.5143%.
+
+$$
+\text{Prepayment}
+=(100{,}000{,}000-120{,}000)\times0.005143
+\approx 513{,}700.
+$$
+:::
+
+### Public Securities Association (PSA) Prepayment Benchmark
+
+The PSA benchmark is a standard prepayment path for 30-year mortgages. At 100 PSA, CPR starts at 0.2% in month 1, rises by 0.2 percentage points per month until month 30, and then remains at 6% CPR. A multiple of PSA scales this path.
+
+For 100 PSA:
+
+$$
+\text{CPR}_t =
+\begin{cases}
+0.06 \times \frac{t}{30}, & t \le 30 \\
+0.06, & t > 30.
+\end{cases}
+$$
+
+For 150 PSA, multiply the CPR path by 1.5. For 50 PSA, multiply by 0.5.
+
+```{python}
+#| label: fig-psa-speeds
+#| fig-cap: "PSA benchmark prepayment paths. 100 PSA ramps to 6% CPR by month 30; other speeds scale the path."
+#| echo: false
+#| message: false
+#| warning: false
+
+months_psa = np.arange(1, 121)
+base_cpr = np.where(months_psa <= 30, 0.06 * months_psa / 30, 0.06)
+fig, ax = plt.subplots()
+for speed, color in [(50, "#2563eb"), (100, "#16a34a"), (150, "#d97706"), (300, "#dc2626")]:
+    ax.plot(months_psa, base_cpr * speed / 100 * 100, linewidth=2.3, label=f"{speed} PSA", color=color)
+ax.set_title("PSA Prepayment Benchmark")
+ax.set_xlabel("Month after origination")
+ax.set_ylabel("CPR (%)")
+ax.legend(loc="lower right")
+plt.tight_layout()
+plt.show()
+```
 
 ### Monthly Cash Flow Construction
 
-For each month, the cash flow consists of:
+A mortgage pool cash-flow model usually follows this monthly order:
 
-1. **Interest**: computed on the previous month’s balance.
-2. **Scheduled principal**: the portion of the payment allocated to principal.
-3. **Prepayment**: derived from SMM.
+1. Start with beginning balance.
+2. Calculate scheduled interest.
+3. Calculate scheduled principal from the mortgage payment.
+4. Calculate prepayment using SMM on the post-scheduled-principal balance.
+5. End with the new balance.
 
-The sum of scheduled principal and prepayment gives the total principal paydown. The remaining balance is reduced accordingly.
+```{python}
+#| label: fig-pool-cashflows
+#| fig-cap: "Illustrative monthly cash flows for a mortgage pool under 100 PSA."
+#| echo: false
+#| message: false
+#| warning: false
+
+def mortgage_pool_cashflows(balance, mortgage_rate, months, psa_speed):
+    monthly_rate = mortgage_rate / 12
+    payment = balance * monthly_rate / (1 - (1 + monthly_rate) ** (-months))
+    records = []
+    beg = balance
+    for t in range(1, months + 1):
+        sched_int = beg * monthly_rate
+        sched_prin = min(payment - sched_int, beg)
+        cpr = (0.06 * min(t, 30) / 30) * psa_speed / 100
+        smm = 1 - (1 - cpr) ** (1 / 12)
+        prepay = max(beg - sched_prin, 0) * smm
+        end = max(beg - sched_prin - prepay, 0)
+        records.append((t, beg, sched_int, sched_prin, prepay, end))
+        beg = end
+        if beg <= 1e-6:
+            break
+    return pd.DataFrame(
+        records,
+        columns=["month", "begin_balance", "interest", "scheduled_principal", "prepayment", "end_balance"],
+    )
+
+pool_cf = mortgage_pool_cashflows(100_000_000, 0.055, 360, 100)
+first_120 = pool_cf.head(120)
+
+fig, ax = plt.subplots()
+ax.plot(first_120["month"], first_120["interest"] / 1_000_000, label="Interest", color="#d97706", linewidth=2)
+ax.plot(first_120["month"], first_120["scheduled_principal"] / 1_000_000, label="Scheduled principal", color="#2563eb", linewidth=2)
+ax.plot(first_120["month"], first_120["prepayment"] / 1_000_000, label="Prepayment", color="#dc2626", linewidth=2)
+ax.set_title("Mortgage Pool Cash Flow Components")
+ax.set_xlabel("Month")
+ax.set_ylabel("Monthly cash flow ($ millions)")
+ax.legend(loc="best")
+plt.tight_layout()
+plt.show()
+```
+
+The economic lesson is that the investor receives two forms of principal: scheduled amortization and borrower-controlled prepayment. Prepayment can dominate scheduled principal when rates fall or when borrowers have strong turnover incentives.
 
 ### Beware of Conventions
 
-While CPR, SMM and PSA provide useful frameworks, actual prepayments depend on many factors, and models may misestimate future behaviour. Analysts should examine historical data, current economic conditions and borrower incentives when choosing a prepayment assumption.
+Mortgage conventions are easy to misread. CPR is annualized; SMM is monthly. PSA is a path, not a single CPR. Pool factors report remaining balance as a percentage of original balance. Average life depends on assumed speeds. Yield depends on price, coupon, fees, and the prepayment path.
 
----
+::: {.callout-warning title="Common Mistake"}
+Do not apply CPR directly as a monthly prepayment rate. A 6% CPR corresponds to about 0.514% SMM, not 6% per month.
+:::
 
-# Factors Affecting Prepayments and Prepayment Modelling
+The reason conventions are dangerous is that small timing errors compound. A model that prepays principal too early or too late can materially misstate yield, duration, and tranche average life.
 
-Prepayments are influenced by borrower behaviour and interest rates. Key components include:
+## Factors Affecting Prepayments and Prepayment Modeling
+
+Prepayment models usually combine rate incentives, borrower characteristics, housing turnover, seasonality, burnout, credit availability, and policy or servicer behavior.
+
+The most important rate-driven concept is refinance incentive:
+
+$$
+\text{Refinance incentive}
+\approx
+\text{Borrower's current mortgage rate}
+-
+\text{Available new mortgage rate}
+-
+\text{Refinancing costs}.
+$$
+
+If the incentive is positive and large enough, borrowers are more likely to refinance. But prepayments are not purely optimal because borrowers face frictions: credit scores, documentation, moving costs, search costs, tax considerations, inertia, and capacity constraints in the mortgage industry.
+
+```{python}
+#| label: fig-prepayment-incentive
+#| fig-cap: "Stylized refinance response. Prepayments rise with refinance incentive but level off because not all borrowers respond immediately."
+#| echo: false
+#| message: false
+#| warning: false
+
+incentive = np.linspace(-2.5, 3.0, 120)
+cpr_response = 3 + 32 / (1 + np.exp(-1.6 * (incentive - 0.5)))
+fig, ax = plt.subplots()
+ax.plot(incentive, cpr_response, color="#7c3aed", linewidth=2.6)
+ax.axvline(0, color="#64748b", linestyle="--", linewidth=1.2)
+ax.set_title("Stylized Prepayment Response to Refinance Incentive")
+ax.set_xlabel("Current mortgage rate - available mortgage rate - costs (%)")
+ax.set_ylabel("Annualized CPR (%)")
+plt.tight_layout()
+plt.show()
+```
 
 ### Housing Turnover Component
 
-Borrowers may prepay when they sell their homes. Housing turnover rates are influenced by labour mobility, household life events (marriage, childbirth, divorce) and regional economic conditions.
+Housing turnover prepayments occur when borrowers sell their homes. Turnover depends on household mobility, job changes, family formation, divorce, retirement, local housing liquidity, and seasonality.
 
-### Cash‑Out Refinancing Component
+The reason turnover matters is that it creates prepayments even when refinancing is unattractive. A borrower who moves must usually repay the old mortgage, so the MBS investor receives principal whether rates are high or low.
 
-When home values rise, borrowers may refinance to extract equity for consumption or investment. Cash‑out refinancing is more common when housing prices are appreciating rapidly.
+Turnover is often seasonal, with higher activity in spring and summer housing markets. Seasonality makes monthly prepayment analysis more useful than annual averages.
 
-### Rate/Term Refinancing Component
+### Cash-Out Refinancing Component
 
-Borrowers refinance to obtain lower interest rates or shorten/lengthen the term of their mortgages. The incentive to refinance is often measured by the difference between the borrower’s current mortgage rate and prevailing rates minus the costs of refinancing.
+Cash-out refinancing occurs when the borrower refinances into a larger loan and takes out home equity in cash. It depends on home-price appreciation, borrower equity, credit availability, and household demand for funds.
 
-### Modelling Approaches
+The reason cash-out refinancing matters is that it can generate prepayments even if rate savings are modest. A borrower may refinance to consolidate debt, renovate, pay expenses, or extract equity after home prices rise.
 
-Prepayment models typically separate the above components and include variables such as current and lagged mortgage rates, borrower equity and macroeconomic factors. Large institutions use econometric models or option‑adjusted spread (OAS) frameworks to value mortgage instruments under different interest rate scenarios.
+Cash-out behavior links mortgage prepayments to the broader credit cycle. When home values rise and underwriting is loose, cash-out refi activity can increase. When home prices fall or lending standards tighten, cash-out prepayments can slow sharply.
 
----
+## Cash Flow Yield
 
-# Cash Flow Yield and Related Measures
+Cash flow yield is the discount rate that equates an MBS price to projected cash flows under an assumed prepayment path:
 
-### Cash Flow Yield
+$$
+P = \sum_{t=1}^{T} \frac{\text{Projected Cash Flow}_t}{(1+y_m)^t}.
+$$
 
-The **cash flow yield** (CFY) is the discount rate that equates the present value of expected cash flows of a mortgage pool to its market price. Because prepayments shorten the effective maturity, the CFY is often higher than the mortgage’s coupon if prepayment speeds are rapid.
+Here $y_m$ is a monthly yield. It can be annualized into a bond-equivalent yield. The important phrase is **projected cash flows**. Unlike Treasury yield-to-maturity, mortgage cash-flow yield depends on the assumed prepayment model.
 
-### Bond‑Equivalent Yield
+::: {.callout-note title="Worked Example: Cash Flow Yield Intuition"}
+If an investor pays 103 for a premium MBS and the pool prepays quickly, high coupon cash flows disappear faster and the premium is amortized over fewer months. The realized yield may be much lower than the initial cash-flow yield.
+:::
 
-To compare mortgage yields with Treasury yields, analysts convert the CFY to a **bond‑equivalent yield** (BEY) by doubling the semi‑annual yield. BEY = 2 × (semi‑annual yield).
+### Bond-Equivalent Yield
+
+Bond-equivalent yield annualizes a monthly mortgage yield by doubling the semiannual yield equivalent:
+
+$$
+\text{BEY} = 2\left((1+y_m)^6-1\right).
+$$
+
+If the monthly yield is 0.40%, then:
+
+$$
+\text{BEY}=2\left((1.004)^6-1\right)=4.86\%.
+$$
+
+The reason BEY is used is comparison. Treasury and corporate bond yields are often quoted on a semiannual bond-equivalent basis, so converting mortgage yields makes relative-value discussion easier.
 
 ### Limitations of Cash Flow Yield Measure
 
-The CFY assumes the assumed prepayment pattern will occur exactly as forecast. If actual prepayments differ, the realised yield will deviate from CFY. Mortgage‑backed securities therefore often trade on the basis of **option‑adjusted spread** (OAS), which accounts for interest rate volatility and prepayment option value.
+Cash-flow yield has three major limitations:
 
-### Yield Spread to Treasuries and Average Life
+- It assumes a particular prepayment path.
+- It ignores the value of the borrower's prepayment option unless the cash-flow path is scenario-based.
+- It can rank bonds incorrectly when securities have different option exposure.
 
-Investors compare mortgage pools to risk‑free Treasuries by quoting a **spread** over the Treasury curve. **Average life** is the weighted average time to receipt of principal payments and reflects how prepayments shorten the effective maturity. Two pools with the same average life can have different prepayment profiles.
+The reason this measure is still used is convenience. It is transparent and easy to compute. But serious mortgage valuation usually uses scenario analysis, option-adjusted spread, duration, convexity, and prepayment model sensitivity.
+
+### Yield Spread to Treasuries
+
+Mortgage investors often compare MBS yields or option-adjusted spreads to Treasury yields. The spread compensates for prepayment risk, liquidity, model uncertainty, guarantee fees, and supply-demand technicals.
+
+The spread is not directly comparable to a corporate credit spread. Agency MBS usually have much less direct credit risk, but much more borrower-option risk.
+
+::: {.callout-tip title="Spread Intuition"}
+Treasury spreads compensate investors for taking mortgage cash-flow uncertainty. If rates fall, the MBS investor may not keep the high coupon. If rates rise, the investor may keep the low coupon for longer than expected.
+:::
+
+### Average Life
+
+Average life is the weighted average time until principal is received:
+
+$$
+\text{Average Life}
+=
+\frac{\sum_{t=1}^{T} t \times \text{Principal}_t}
+{12 \times \sum_{t=1}^{T} \text{Principal}_t}.
+$$
+
+It is measured in years. It is not the same as maturity. A 30-year mortgage pool can have a much shorter average life because scheduled principal and prepayments return principal before final maturity.
+
+```{python}
+#| echo: false
+#| message: false
+#| warning: false
+
+avg_life_records = []
+for speed in [0, 50, 100, 150, 300]:
+    cf = mortgage_pool_cashflows(100_000_000, 0.055, 360, speed)
+    principal_cf = cf["scheduled_principal"] + cf["prepayment"]
+    avg_life = (cf["month"] * principal_cf).sum() / principal_cf.sum() / 12
+    avg_life_records.append({"PSA speed": f"{speed} PSA", "Average life (years)": round(avg_life, 2)})
+pd.DataFrame(avg_life_records)
+```
+
+The reason average life is useful is asset/liability matching. A bank, insurer, or pension investor cares when principal comes back, not only when the final legal maturity occurs.
+
+## Prepayment Risk and Asset/Liability Management
+
+Prepayment risk creates asset/liability management problems because mortgage asset duration changes when rates change.
+
+When rates fall:
+
+- borrowers refinance;
+- MBS principal returns faster;
+- asset duration shortens;
+- investors must reinvest at lower yields.
+
+When rates rise:
+
+- refinancing slows;
+- MBS principal returns more slowly;
+- asset duration extends;
+- funding costs may rise while asset coupons remain low.
+
+```{mermaid}
+%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Inter, Arial, sans-serif", "lineColor": "#64748b"}}}%%
+flowchart TB
+  A["Interest rates fall"] --> B["Refinancing incentive rises"]
+  B --> C["Prepayments accelerate"]
+  C --> D["MBS duration contracts"]
+  D --> E["Reinvestment risk"]
+  F["Interest rates rise"] --> G["Refinancing incentive disappears"]
+  G --> H["Prepayments slow"]
+  H --> I["MBS duration extends"]
+  I --> J["Extension risk"]
+  classDef fall fill:#dbeafe,stroke:#2563eb,stroke-width:2.5px,color:#0f172a;
+  classDef rise fill:#fee2e2,stroke:#dc2626,stroke-width:2.5px,color:#450a0a;
+  classDef risk fill:#ede9fe,stroke:#7c3aed,stroke-width:2.5px,color:#2e1065;
+  class A,B,C,D fall;
+  class F,G,H,I rise;
+  class E,J risk;
+  linkStyle 0,1,2,3 stroke:#2563eb,stroke-width:2.5px;
+  linkStyle 4,5,6,7 stroke:#dc2626,stroke-width:2.5px;
+```
+
+The reason mortgage investors hedge dynamically is that duration is not stable. A Treasury portfolio can be duration-matched more mechanically. A mortgage portfolio can become shorter or longer precisely when the investor does not want that change.
+
+## Secondary Market Trading
+
+Agency MBS trade in specified-pool markets and in the TBA market. In a TBA trade, buyer and seller agree on general parameters such as agency, coupon, maturity, settlement month, and face amount, but the exact pools are announced shortly before settlement.
+
+The TBA market exists because standardization creates liquidity. Instead of negotiating every loan-level detail at trade date, market participants trade fungible agency MBS characteristics and deliver eligible pools later.
+
+Specified pools trade when investors care about particular collateral characteristics, such as low loan balance, geographic concentration, seasoning, high LTV, or other prepayment-relevant features. A pool with slower expected prepayments can trade at a pay-up over generic TBA collateral.
+
+::: {.callout-note title="Example: Specified Pool Pay-Up"}
+If generic 5.5% agency MBS trade at 101-16 and a low-loan-balance pool trades at 102-00, the investor pays extra for collateral expected to prepay more slowly when rates fall. The pay-up is valuable only if the prepayment advantage is large enough.
+:::
+
+# Agency Collateralized Mortgage Obligations and Stripped Mortgage-Backed Securities
+
+Agency CMOs and stripped MBS do not create new mortgage cash flows. They reallocate cash-flow timing and risk from the same underlying collateral.
+
+The reason structuring exists is investor segmentation. Some investors want short average life, some want stable principal windows, some want floating coupons, and some want leveraged exposure to prepayment changes. A CMO turns one pool into multiple securities with different risk profiles.
+
+## Agency Collateralized Mortgage Obligations
+
+A collateralized mortgage obligation (CMO), often issued as a REMIC, takes mortgage collateral and creates tranches. Interest and principal are allocated according to deal rules.
+
+```{mermaid}
+%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Inter, Arial, sans-serif", "lineColor": "#64748b"}}}%%
+flowchart LR
+  A["Agency pass-through collateral<br/>monthly P&I + prepayments"] --> B["CMO / REMIC trust"]
+  B --> C["Sequential tranches<br/>timing priority"]
+  B --> D["PAC / TAC tranches<br/>planned principal"]
+  B --> E["Floaters / inverse floaters<br/>coupon reshaping"]
+  B --> F["IO / PO / NIO<br/>cash-flow stripping"]
+  B --> G["Support bonds<br/>absorb variability"]
+  classDef collateral fill:#dbeafe,stroke:#2563eb,stroke-width:3px,color:#0f172a;
+  classDef trust fill:#ede9fe,stroke:#7c3aed,stroke-width:3px,color:#2e1065;
+  classDef stable fill:#dcfce7,stroke:#16a34a,stroke-width:2.5px,color:#052e16;
+  classDef option fill:#fef3c7,stroke:#d97706,stroke-width:2.5px,color:#451a03;
+  classDef risky fill:#fee2e2,stroke:#dc2626,stroke-width:2.5px,color:#450a0a;
+  class A collateral;
+  class B trust;
+  class C,D stable;
+  class E,F option;
+  class G risky;
+  linkStyle default stroke:#64748b,stroke-width:2.5px;
+```
+
+### Sequential-Pay Tranches
+
+Sequential-pay tranches receive principal in order. Tranche A receives all principal until it is paid off; then tranche B receives principal; then tranche C, and so on. While waiting for principal, later tranches usually receive interest on their outstanding balances.
+
+The reason sequential structures exist is to create different average lives from one collateral pool. Short-duration investors buy early tranches. Longer-duration investors buy later tranches.
+
+::: {.callout-note title="Sequential-Pay Example"}
+Suppose a CMO has A, B, and C tranches. In month 1, the collateral pays $2 million principal. If A is still outstanding, all $2 million goes to A. B and C receive only interest. Once A is fully retired, principal begins flowing to B.
+:::
+
+### Accrual Bonds
+
+An accrual bond, or Z bond, does not receive current interest for a period. Instead, the interest accrues and is added to the bond's principal balance. After earlier tranches are paid down, the Z bond begins receiving cash flows.
+
+The reason accrual bonds exist is cash-flow support. By withholding current interest from the Z tranche, the structure can redirect cash to pay down earlier tranches faster or support more stable schedules. The Z investor receives a longer-duration, compounding position.
+
+### Floating-Rate Tranches
+
+Floating-rate CMO tranches have coupons tied to an index plus a spread, usually subject to caps and floors. They can be paired with inverse floaters so that the total coupon paid by the collateral is allocated between two tranches.
+
+The reason floaters exist is investor demand for low-duration assets. A money-market or short-duration investor may prefer a mortgage-backed instrument whose coupon resets with rates, while accepting that principal timing still depends on prepayments.
+
+### Planned Amortization Class (PAC) Tranches
+
+PAC tranches are designed to receive a planned principal schedule as long as collateral prepayments stay within a specified range. Support bonds absorb extra or shortfall principal to protect the PAC.
+
+The reason PACs exist is to reduce average-life uncertainty. They are not risk-free, but they are more stable than raw pass-throughs or simple sequential tranches over a defined prepayment band.
+
+#### Creating a Series of PAC Bonds
+
+A CMO can create several PAC bonds with different planned windows. The structurer chooses schedules that allocate expected principal across time while leaving enough support bonds to absorb prepayment variation.
+
+The reason for a series of PACs is investor matching. One investor may want principal in years 2-4, another in years 5-7, and another in years 8-10. A PAC series makes those windows more predictable than a single pass-through.
+
+#### Planned Amortization Class Window
+
+The PAC window is the period during which the PAC is expected to receive principal according to schedule. It is usually shorter and more stable than the collateral's final maturity.
+
+The reason the window matters is risk communication. Investors do not only ask "What is the average life?" They ask "When will principal actually arrive?" A narrow window is easier to match against liabilities.
+
+#### Effective Collars and Actual Prepayments
+
+The PAC collar is the range of prepayment speeds over which the PAC schedule is expected to hold. If actual prepayments stay inside the collar, support bonds absorb the variation. If actual speeds move outside the collar for long enough, the PAC can lose protection.
+
+::: {.callout-tip title="PAC Collar Intuition"}
+The support bond is the shock absorber. Once the shock absorber is used up, the PAC starts feeling the road.
+:::
+
+#### Providing Greater Prepayment Protection for PACs
+
+Greater PAC protection can be created by allocating more collateral cash-flow variability to support bonds, using wider initial bands, or creating PAC groups with priority over other scheduled tranches.
+
+The tradeoff is yield. More protected PACs usually offer lower yields because support bonds are taking more prepayment variability. Support bonds demand higher expected returns for that risk.
+
+#### Other Planned Amortization Class Tranches
+
+Other planned classes may have different priority levels or schedules. A PAC II, for example, may have planned protection only after the primary PAC has been supported. These structures create a hierarchy of prepayment protection.
+
+The reason these variants exist is fine-tuning. Structurers can create securities that sit between highly protected PACs and volatile support bonds.
+
+### Targeted Amortization Class (TAC) Bonds
+
+A targeted amortization class has a principal schedule targeted to a single prepayment speed rather than a broad band. It generally protects against one-sided prepayment risk less effectively than a PAC.
+
+The reason TACs exist is that some investors have a view about prepayment speed and want a cheaper structure than a PAC. The investor receives some schedule targeting but accepts more risk if speeds differ from the target.
+
+### Very Accurately Determined Maturity (VADM) Bonds
+
+Very Accurately Determined Maturity bonds are designed to have a highly predictable final maturity under specified assumptions, often by using support from other tranches.
+
+The reason VADMs exist is final-maturity targeting. Some investors care less about monthly principal stability and more about avoiding unexpected final maturity extension.
+
+### Interest-Only (IO) and Principal-Only (PO) Tranches
+
+IO and PO tranches split interest and principal cash flows. A PO receives principal payments but no interest. An IO receives interest payments based on a notional or principal amount but no principal.
+
+The prepayment exposure is opposite:
+
+- **PO:** benefits when prepayments are faster because principal arrives sooner.
+- **IO:** suffers when prepayments are faster because the interest-bearing balance disappears sooner.
+
+```{python}
+#| label: fig-io-po-sensitivity
+#| fig-cap: "Stylized IO and PO sensitivity to prepayment speed. Faster prepayments help POs but hurt IOs."
+#| echo: false
+#| message: false
+#| warning: false
+
+speeds = np.array([50, 100, 150, 200, 300, 400])
+po_value = np.array([78, 86, 92, 96, 101, 104])
+io_value = np.array([24, 19, 15, 12, 8, 6])
+
+fig, ax = plt.subplots()
+ax.plot(speeds, po_value, marker="o", linewidth=2.5, label="PO value", color="#2563eb")
+ax.plot(speeds, io_value, marker="o", linewidth=2.5, label="IO value", color="#dc2626")
+ax.set_title("Stylized IO / PO Prepayment Exposure")
+ax.set_xlabel("Prepayment speed (PSA)")
+ax.set_ylabel("Relative value")
+ax.legend(loc="best")
+plt.tight_layout()
+plt.show()
+```
+
+The reason IOs and POs exist is risk transfer. A hedge fund or mortgage specialist may want concentrated prepayment exposure. A liability investor may want principal timing. Stripping lets the market separate these exposures.
+
+### Notional Interest-Only (NIO) Tranches
+
+A notional IO has no principal balance that will be repaid. Instead, it receives interest calculated on a notional amount that declines according to rules tied to other tranches or collateral balances.
+
+The reason NIOs exist is to allocate excess interest or coupon differences. They can be very sensitive to prepayment speed because the notional balance can decline quickly when principal pays down.
+
+### Support Bonds
+
+Support bonds, or companion bonds, absorb prepayment variability so PACs or other planned tranches can maintain their schedules. They receive principal earlier or later depending on actual collateral prepayments.
+
+The reason support bonds offer higher yields is that they carry the instability the PAC investor does not want. They can contract sharply when prepayments are fast and extend sharply when prepayments are slow.
+
+### Actual Transaction
+
+Actual CMO transactions are defined by prospectus supplements. The supplement specifies collateral, tranche balances, coupon formulas, principal priority rules, accrual rules, support relationships, trigger events, tax status, and risk factors.
+
+The reason investors read the supplement carefully is that names like PAC, TAC, IO, and support bond are categories, not complete descriptions. Two PACs can behave differently if their support levels, collars, collateral, and priority rules differ.
+
+::: {.callout-note title="Transaction Reading Checklist"}
+For any actual CMO, identify the collateral, tranche priority, coupon formula, prepayment assumptions, average-life table, stress scenarios, support bond size, and what happens when prepayments fall outside the stated band.
+:::
+
+## Agency Stripped Mortgage-Backed Securities
+
+Agency stripped MBS split mortgage cash flows into securities with different coupon exposure. The simplest form separates principal-only and interest-only cash flows. More complex forms create synthetic coupon pass-throughs or CMO strips.
+
+The reason stripped MBS are useful is that they expose the mortgage option more directly. IO prices are highly sensitive to faster prepayments; PO prices are highly sensitive to discount rates and principal timing.
+
+### Synthetic-Coupon Pass-Throughs
+
+A synthetic-coupon pass-through is created by recombining strips to produce an artificial coupon different from the original collateral coupon. For example, an investor can combine IO and PO pieces to create a security with a lower or higher effective coupon.
+
+The reason synthetic coupons exist is relative value. Different investors may prefer different coupon exposures depending on their prepayment view, hedge needs, or accounting constraints.
+
+#### Interest-Only / Principal-Only Securities
+
+IO and PO securities are the cleanest examples of mortgage cash-flow stripping. The PO receives principal and is usually priced at a discount. The IO receives interest and may decline in value when rates fall because faster prepayments reduce future interest.
+
+::: {.callout-tip title="IO / PO Intuition"}
+PO investors want their principal back sooner if the price is below par. IO investors want the mortgage balance to stay outstanding so interest keeps arriving.
+:::
+
+This is the opposite of a normal premium pass-through investor, who may dislike fast prepayments because premium principal is returned at par. It is also why IO/PO markets are useful for extracting market-implied prepayment views.
+
+#### Collateralized Mortgage Obligation Strips
+
+CMO strips are IO or PO interests tied to specific CMO tranches rather than directly to a whole pass-through pool. Their behavior depends on both collateral prepayments and tranche allocation rules.
+
+The reason CMO strips are especially complex is layering. The investor is exposed to borrower prepayment behavior and to the CMO waterfall. A strip off a support bond can behave very differently from a strip off a PAC because the underlying tranche receives principal under different rules.
 
 ---
 
-# Prepayment Risk and Asset/Liability Management
+# Key Points
 
-Mortgage investors such as banks and insurance companies face **prepayment risk**: the risk that mortgages will be repaid earlier (forcing reinvestment at lower rates) or later (exposing investors to higher market yields). Institutions managing liabilities (e.g., savings accounts) must match asset cash flows to liability outflows.
-
-**Asset/liability management (ALM)** strategies involve:
-
-- Adjusting the composition of mortgage assets to target a desired average life and duration.
-- Using derivatives (e.g., interest rate swaps, swaptions) to hedge interest rate exposure and prepayment risk.
-- Diversifying across sectors (agency vs non‑agency) and coupon levels to manage convexity risk.
-
----
-
-# Secondary Market Trading
-
-The secondary market for mortgages includes:
-
-- **Whole loan trading**: banks and institutional investors buy and sell pools of loans. Transactions are negotiated bilaterally or through brokers.
-- **Agency pass‑through trading**: GSE‑guaranteed pools trade over the counter with dealers quoting prices in 32nds. Settlement occurs monthly.
-- **Mortgage‑backed derivatives**: CMOs, stripped mortgage securities and interest‑only/principal‑only (IO/PO) securities trade to allow investors to tailor prepayment exposure.
-- **TBA (To Be Announced) market**: standardized forward contracts for agency pass‑throughs. Buyers and sellers agree on general characteristics (coupon, maturity, agency) but not the specific pool; the actual pool is delivered at settlement. The TBA market provides liquidity comparable to Treasuries and is essential for mortgage rate locks.
+- Residential mortgages combine a loan secured by property with a borrower prepayment option. Mortgage investors receive principal and interest, but they are exposed to uncertain timing.
+- Origination quality matters because mortgage risk depends on both borrower capacity and collateral value. PTI and LTV are central underwriting ratios.
+- Mortgage loans differ by lien status, credit classification, interest-rate type, amortization type, credit guarantee, loan balance, and prepayment restrictions.
+- Conforming loans matter because they can enter the agency securitization channel. Nonconforming loans usually face different liquidity, credit, and pricing conditions.
+- Mortgage-loan investors face credit risk, liquidity risk, price risk, and prepayment risk. Prepayment risk is the defining feature of residential mortgage investing.
+- Agency pass-through securities pass borrower mortgage payments through to investors after servicing and guarantee fees. They reduce credit risk but do not remove prepayment risk.
+- Ginnie Mae securities carry explicit U.S. government backing, while Fannie Mae and Freddie Mac securities are agency MBS backed by their guarantee frameworks and conservatorship support.
+- CPR is an annualized prepayment measure; SMM is the monthly prepayment probability implied by CPR. PSA is a benchmark path that ramps prepayments over time.
+- Mortgage cash flows require monthly construction because each month includes scheduled interest, scheduled principal, and unscheduled prepayments.
+- Cash-flow yield depends on assumed prepayment speed, so it is not a model-free return measure. A different prepayment assumption can produce a different yield.
+- Average life measures the weighted average timing of principal payments and is more useful than final maturity for amortizing and prepayable mortgage securities.
+- MBS investors are short the borrower prepayment option. When rates fall, borrowers refinance faster; when rates rise, prepayments slow and investors may be stuck with lower-coupon exposure for longer.
+- CMOs reallocate mortgage cash-flow timing across tranches. Sequential-pay, accrual, floater, PAC, TAC, VADM, IO, PO, NIO, and support tranches each target different investor needs.
+- PAC tranches offer more stable principal schedules only because support bonds absorb more prepayment variability. Protection depends on the PAC collar and available support.
+- IO and PO securities isolate opposite prepayment exposures. Faster prepayments help POs but hurt IOs.
+- CMO and stripped-MBS analysis requires reading the actual prospectus supplement because tranche labels alone do not fully define cash-flow priority, triggers, or risk.
 
 ---
 
-## Conclusion
+# Suggested Readings
 
-Residential mortgage finance underpins a major portion of the fixed‑income market. Understanding underwriting standards, loan classifications and prepayment behaviour is crucial for valuing and managing mortgage investments. Mortgage‑backed securities introduce complexity because of embedded prepayment options, but they also provide diversified income streams, potential yield premiums over Treasuries and tools for asset/liability management. Investors must carefully assess prepayment risk, credit quality and liquidity when allocating capital to this sector.
+Fabozzi – *Bond Markets, Analysis, and Strategies*:  
+**Chapter 10: residential Mortgage Loans**  
+**Chapter 11: agency Mortgage Pass-through securities**  
+**Chapter 12: agency collateralized Mortgage Obligations and stripped Mortgage-backed securities**  
+
+---
+
+*Sources used for market grounding and lecture framing include NYU Stern mortgage-backed securities lecture materials, MIT OpenCourseWare real estate capital markets materials, Ginnie Mae program descriptions, Fannie Mae and Freddie Mac MBS materials, FHFA conforming loan limit releases, and academic prepayment-risk research emphasizing the option-like and model-dependent nature of agency MBS valuation.*

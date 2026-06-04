@@ -63,17 +63,39 @@ The central intuition is:
 
 > Treasuries define the price of time in U.S. dollars. Agency and corporate securities are usually priced as Treasury cash flows plus additional compensation for credit, liquidity, optionality, and structure.
 
+This benchmark role exists for practical reasons, not just theoretical ones. The Treasury issues across the maturity spectrum, the securities are standardized, the secondary market is deep, and the cash flows are simple enough to serve as discounting inputs. A corporate bond analyst does not usually ask, "What is the bond worth in isolation?" The practical question is, "What yield spread over the matched Treasury compensates for the extra risks?"
+
+Top fixed-income courses usually emphasize this separation: first value default-free cash flows, then add layers for credit, liquidity, taxes, and embedded options. MIT OCW fixed-income materials classify Treasuries, federal agency securities, and corporate securities as distinct building blocks of the debt market, while NYU fixed-income materials emphasize the zero-coupon curve, duration, convexity, option-adjusted spreads, and floating-rate note conventions as the tools used across those sectors.
+
 ::: {.callout-note title="Market Snapshot: Why Treasuries Matter"}
 FRED reported the 10-year Treasury constant maturity yield at **4.46% on June 2, 2026** and the 10-year breakeven inflation rate at **2.38% on June 3, 2026**. On June 2, 2026, broad U.S. corporate option-adjusted spreads were about **0.74%**, while high-yield spreads were about **2.71%**. These numbers summarize the lecture in one line: nominal Treasury rates set the base rate, TIPS help reveal inflation compensation, and corporate spreads price credit risk.
 :::
 
 ```{mermaid}
+%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Inter, Arial, sans-serif", "primaryBorderColor": "#1d4ed8", "lineColor": "#64748b"}}}%%
 flowchart LR
   A["U.S. Treasury securities<br/>base interest-rate curve"] --> B["Agency debt<br/>Treasury + agency/liquidity spread"]
   A --> C["Investment-grade corporates<br/>Treasury + credit/liquidity spread"]
   A --> D["High-yield bonds and loans<br/>Treasury or SOFR + larger credit spread"]
   A --> E["TIPS<br/>real yield + inflation adjustment"]
   A --> F["STRIPS<br/>zero-coupon Treasury cash flows"]
+  classDef treasury fill:#dbeafe,stroke:#1d4ed8,stroke-width:3px,color:#0f172a;
+  classDef agency fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#052e16;
+  classDef ig fill:#ede9fe,stroke:#7c3aed,stroke-width:2px,color:#2e1065;
+  classDef hy fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#450a0a;
+  classDef tips fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#451a03;
+  classDef strips fill:#cffafe,stroke:#0891b2,stroke-width:2px,color:#083344;
+  class A treasury;
+  class B agency;
+  class C ig;
+  class D hy;
+  class E tips;
+  class F strips;
+  linkStyle 0 stroke:#16a34a,stroke-width:2.5px;
+  linkStyle 1 stroke:#7c3aed,stroke-width:2.5px;
+  linkStyle 2 stroke:#dc2626,stroke-width:2.5px;
+  linkStyle 3 stroke:#d97706,stroke-width:2.5px;
+  linkStyle 4 stroke:#0891b2,stroke-width:2.5px;
 ```
 
 ## Types of Treasury Securities
@@ -87,6 +109,37 @@ Marketable Treasury securities can be grouped into:
 - **Stripped securities:** STRIPS, created when coupon and principal payments are separated into zero-coupon pieces.
 
 This classification is based on cash-flow design. A bill is one future payment. A coupon note is many future payments. A TIPS is a coupon bond whose principal changes with inflation. A STRIP is one separated cash flow from a larger Treasury security.
+
+The reason the Treasury issues multiple security types is that the government has multiple financing needs and investors have multiple risk preferences. Bills help the Treasury manage short-term cash balances. Notes and bonds lock in longer-term funding. FRNs appeal to investors who want Treasury credit quality with less duration risk. TIPS help the Treasury reach investors who care about real purchasing power. STRIPS exist because some investors want one certain future cash flow rather than a package of coupon payments.
+
+```{python}
+#| echo: false
+#| message: false
+#| warning: false
+
+security_map = pd.DataFrame(
+    {
+        "Security": ["Bill", "Note", "Bond", "FRN", "TIPS", "STRIP"],
+        "Dominant exposure": [
+            "Short rate / cash yield",
+            "Nominal duration",
+            "Long nominal duration",
+            "Short-rate reset",
+            "Real rate + inflation",
+            "Pure zero-coupon duration",
+        ],
+        "Why it exists": [
+            "Low-cost short-term funding",
+            "Benchmark funding across the curve",
+            "Long-term funding and duration supply",
+            "Floating-rate Treasury funding",
+            "Inflation-linked financing",
+            "Exact future cash-flow matching",
+        ],
+    }
+)
+security_map
+```
 
 ### Fixed-Principal Treasury Securities
 
@@ -102,9 +155,40 @@ Treasury bills are zero-coupon instruments: the investor pays less than par and 
 
 Treasuries are noncallable. This matters because the price-yield relationship from Lectures 2 and 3 applies cleanly: the promised nominal cash flows do not change when rates fall. A callable corporate bond behaves differently because the issuer can redeem it when refinancing becomes attractive.
 
+The maturity labels also tell you which risk dominates. Bills have little duration risk but high reinvestment risk because the investor must reinvest soon. Long bonds have large duration risk because most present value comes from distant cash flows. FRNs shift risk away from price sensitivity and toward coupon uncertainty: the coupon resets, so the price usually stays closer to par, but future income is not locked in.
+
 ::: {.callout-tip title="Intuition"}
 A Treasury bill is mostly a promise about **one future dollar**. A Treasury note or bond is a package of many future dollars. That is why a bill quote is naturally about the discount from par, while a coupon Treasury quote is naturally about the price of a stream of cash flows.
 :::
+
+```{mermaid}
+%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Inter, Arial, sans-serif", "lineColor": "#64748b"}}}%%
+flowchart LR
+  subgraph Bills["Treasury bill"]
+    A["Pay discounted price today"] --> B["Receive one par payment<br/>at maturity"]
+  end
+  subgraph Coupons["Treasury note or bond"]
+    C["Pay clean + accrued price"] --> D["Receive semiannual coupons"]
+    D --> E["Receive final coupon + par"]
+  end
+  subgraph FRNs["Treasury FRN"]
+    F["Pay price today"] --> G["Coupon resets quarterly<br/>with short rates"]
+    G --> H["Receive par at maturity"]
+  end
+  classDef today fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#082f49;
+  classDef cash fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#052e16;
+  classDef reset fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#451a03;
+  classDef group fill:#f8fafc,stroke:#94a3b8,stroke-width:1.5px,color:#0f172a;
+  class A,C,F today;
+  class B,D,E,H cash;
+  class G reset;
+  class Bills,Coupons,FRNs group;
+  linkStyle 0 stroke:#0284c7,stroke-width:2.5px;
+  linkStyle 1 stroke:#16a34a,stroke-width:2.5px;
+  linkStyle 2 stroke:#16a34a,stroke-width:2.5px;
+  linkStyle 3 stroke:#d97706,stroke-width:2.5px;
+  linkStyle 4 stroke:#16a34a,stroke-width:2.5px;
+```
 
 ::: {.callout-note title="Worked Example: Pricing a Treasury Bill"}
 A 13-week Treasury bill with face value $10,000 is quoted at a discount yield of 4.75%. The price is calculated using:
@@ -133,6 +217,8 @@ TIPS separate two ideas that are mixed together in nominal Treasuries:
 
 At maturity, the investor receives the greater of the inflation-adjusted principal or the original principal. This floor protects the investor against cumulative deflation over the life of the bond, although TIPS prices before maturity can still fall if real yields rise.
 
+The reason TIPS exist is risk sharing. Nominal Treasuries put inflation risk on investors: the government repays fixed dollars, and the investor bears the risk those dollars buy less. TIPS shift realized CPI inflation risk back to the government. In exchange, investors accept a real yield that is usually lower than the nominal Treasury yield.
+
 The difference between a nominal Treasury yield and a TIPS real yield of the same maturity is often called the **breakeven inflation rate**:
 
 $$
@@ -140,6 +226,8 @@ $$
 $$
 
 If actual inflation over the holding period is higher than the breakeven rate, TIPS tend to outperform a comparable nominal Treasury. If actual inflation is lower, nominal Treasuries tend to outperform.
+
+Breakeven inflation is not a pure inflation forecast. It also includes liquidity differences, inflation-risk premiums, taxes, and temporary supply-demand effects. The practical interpretation is: "What average inflation rate would make the nominal Treasury and the TIPS roughly competitive before these frictions?"
 
 ::: {.callout-note title="Worked Example: TIPS Principal Adjustment"}
 Consider a $1,000 TIPS with a 3% annual coupon. Over the first six months, the CPI index increases by 1%. The adjusted principal after six months is:
@@ -159,6 +247,10 @@ If inflation cumulatively rises 3% by maturity, the principal will be $1,030. If
 
 ::: {.callout-note title="History Box: Why TIPS Became Important"}
 The United States introduced TIPS in 1997. Their importance rose after investors experienced periods when inflation uncertainty became central to portfolio construction, including the 2008 crisis period and the 2021-2022 inflation surge. TIPS are useful because they provide a traded market measure of real yields and inflation compensation.
+:::
+
+::: {.callout-tip title="Investor Decision Rule"}
+If you care about the number of dollars you receive, nominal Treasuries are simpler. If you care about purchasing power, TIPS are the closer match. The tradeoff is that TIPS protect realized CPI inflation but still expose the investor to real-yield changes before maturity.
 :::
 
 ```{python}
@@ -207,17 +299,35 @@ There are two bid types:
 
 The Treasury uses a single-price auction format. All successful bidders receive the same rate, yield, or discount margin: the highest accepted competitive bid. That highest accepted yield is the **stop-out yield**.
 
+The auction design solves two problems. First, Treasury needs to raise a large amount of money predictably. Second, investors need confidence that the allocation process is transparent. Noncompetitive bidding gives small investors access without requiring them to forecast the clearing yield. Competitive bidding lets large institutions reveal demand and set the market-clearing price.
+
 ```{mermaid}
+%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Inter, Arial, sans-serif", "lineColor": "#475569"}}}%%
 flowchart TB
   A["Treasury announces security<br/>amount, maturity, auction date"] --> B["Noncompetitive tenders accepted first"]
   B --> C["Competitive bids ranked<br/>lowest yield to highest yield"]
   C --> D["Treasury accepts bids<br/>until offering is filled"]
   D --> E["Stop-out yield determines<br/>single auction price"]
   E --> F["Securities settle and trade<br/>in secondary market"]
+  classDef announce fill:#dbeafe,stroke:#2563eb,stroke-width:2.5px,color:#0f172a;
+  classDef access fill:#dcfce7,stroke:#16a34a,stroke-width:2.5px,color:#052e16;
+  classDef rank fill:#fef3c7,stroke:#d97706,stroke-width:2.5px,color:#451a03;
+  classDef clear fill:#fee2e2,stroke:#dc2626,stroke-width:2.5px,color:#450a0a;
+  classDef market fill:#ede9fe,stroke:#7c3aed,stroke-width:2.5px,color:#2e1065;
+  class A announce;
+  class B access;
+  class C,D rank;
+  class E clear;
+  class F market;
+  linkStyle default stroke:#475569,stroke-width:2.5px;
 ```
 
 ::: {.callout-note title="Auction Example"}
 Suppose Treasury offers $100 billion of 2-year notes. Noncompetitive bids total $10 billion, leaving $90 billion for competitive bidders. Competitive bids are accepted from the lowest yields upward. If the last accepted yield is 4.52%, all successful competitive bidders and all noncompetitive bidders receive the security at the price implied by 4.52%. Bidders asking for yields above 4.52% receive no allocation.
+:::
+
+::: {.callout-tip title="Why Single-Price Auctions Matter"}
+In a single-price auction, a bidder who asked for a lower yield than the stop-out yield still receives the stop-out yield. This reduces the penalty for bidding aggressively and can improve auction participation.
 :::
 
 ## Secondary Market
@@ -231,6 +341,12 @@ Important terms:
 - **When-issued market:** trading in a Treasury security after the auction is announced but before the security is issued.
 
 This section connects directly to Lecture 4. Benchmark Treasury yields are not abstract numbers; they come from actively traded securities. Those securities anchor the base curve used to price agency debt, corporate bonds, swaps, mortgages, and structured products.
+
+Secondary-market trading is also where liquidity premia become visible. Two Treasuries can have nearly identical cash-flow timing but different yields because one is easier to finance, hedge, or sell quickly. That is why fixed-income desks distinguish "rate risk" from "liquidity and specialness" even inside the Treasury market.
+
+::: {.callout-note title="Example: On-the-Run Liquidity Premium"}
+Suppose the current 10-year on-the-run note yields 4.45%, while an older off-the-run note with nearly the same duration yields 4.50%. The 5 basis point difference is not mainly credit risk. It reflects liquidity, benchmark demand, repo financing value, and relative scarcity.
+:::
 
 ### Price Quotes for Treasury Bills
 
@@ -271,6 +387,8 @@ $$
 
 The BEY is higher because it divides by the actual investment, not face value, and uses a 365-day year.
 :::
+
+The reason this convention survives is market history and operational convenience. Money-market traders compare short discount instruments quickly, and the bank discount yield made arithmetic simple. For valuation, however, the economic yield should be based on dollars invested and the investor's actual holding period.
 
 ### Quotes on Treasury Coupon Securities
 
@@ -324,6 +442,8 @@ $$
 If the clean price is 99.75, the clean dollar price is $997,500 and the dirty settlement amount is $1,002,445.05.
 :::
 
+Clean-price quoting keeps market price movements easier to interpret. If bonds were quoted dirty, the quoted price would mechanically rise each day as accrued interest builds and then drop on the coupon date. Separating clean price from accrued interest lets traders see the change caused by yields and credit conditions rather than coupon-calendar mechanics.
+
 # Stripped Treasury Securities
 
 **Separate Trading of Registered Interest and Principal Securities (STRIPS)** are created when the coupon and principal payments of an eligible Treasury security are separated into individual zero-coupon securities. A 10-year note with 20 remaining semiannual coupons can be transformed into 21 separate securities: 20 coupon STRIPS and one principal STRIP.
@@ -342,11 +462,39 @@ $$
 z_{10} = \left(\frac{100}{62}\right)^{1/10}-1 \approx 4.90\%.
 $$
 
+The economic reason for stripping is matching. A coupon Treasury delivers cash repeatedly; a STRIP delivers cash once. If an insurer knows it must pay a claim reserve in exactly 12 years, a 12-year principal STRIP is cleaner than buying a coupon bond and reinvesting intermediate coupons. STRIPS also make duration exposure more concentrated because no cash comes back before maturity.
+
+```{mermaid}
+%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Inter, Arial, sans-serif", "lineColor": "#64748b"}}}%%
+flowchart LR
+  A["10-year coupon Treasury<br/>one bundled security"] --> B["Coupon STRIP 1"]
+  A --> C["Coupon STRIP 2"]
+  A --> D["..."]
+  A --> E["Coupon STRIP 20"]
+  A --> F["Principal STRIP"]
+  F --> G["One known cash flow<br/>at maturity"]
+  B --> H["Liability matching<br/>specific coupon date"]
+  E --> I["Zero-coupon pricing<br/>specific future date"]
+  classDef source fill:#dbeafe,stroke:#2563eb,stroke-width:3px,color:#0f172a;
+  classDef coupon fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#451a03;
+  classDef principal fill:#dcfce7,stroke:#16a34a,stroke-width:2.5px,color:#052e16;
+  classDef usecase fill:#ede9fe,stroke:#7c3aed,stroke-width:2px,color:#2e1065;
+  class A source;
+  class B,C,D,E coupon;
+  class F,G principal;
+  class H,I usecase;
+  linkStyle 0,1,2,3 stroke:#d97706,stroke-width:2.2px;
+  linkStyle 4,5 stroke:#16a34a,stroke-width:2.8px;
+  linkStyle 6,7 stroke:#7c3aed,stroke-width:2px,stroke-dasharray: 5 4;
+```
+
 ## Tax Treatment
 
 STRIPS produce no cash coupon before maturity, but taxable investors generally must report imputed interest each year. This is often called **phantom income**: taxable income is recognized before cash is received.
 
 That tax treatment makes STRIPS more natural for tax-deferred accounts, pension funds, insurance companies, or investors with specific long-dated liability needs. A pension plan, for example, may buy STRIPS because it wants a known cash amount on a known future date.
+
+The tax rule matters because it changes the investor base. A taxable household that buys a long STRIP in a regular brokerage account may owe annual tax without receiving annual cash. A pension fund or retirement account can often tolerate this better because the account's tax treatment already differs from a taxable account.
 
 ## Reconstituting a Bond
 
@@ -358,6 +506,8 @@ This creates an arbitrage force:
 - If the pieces are cheap relative to the coupon Treasury, dealers can buy the STRIPS, reconstitute the bond, and sell the bond.
 
 This arbitrage helps keep the STRIPS curve and coupon Treasury curve aligned, though liquidity, taxes, and financing costs prevent perfect equality.
+
+The broader lesson is no-arbitrage pricing. If two portfolios deliver the same Treasury cash flows on the same dates, their prices should be close. When they are not, dealers have an incentive to transform one form into the other until the pricing gap is reduced.
 
 # Federal Agency Securities
 
@@ -371,11 +521,19 @@ $$
 \text{Agency yield} = \text{Treasury yield} + \text{agency spread}.
 $$
 
+The reason these institutions exist is policy specialization. Instead of having Treasury directly fund every mortgage, agricultural loan, member-bank advance, or power project, Congress created specialized entities that can fund targeted sectors in capital markets. The tradeoff is that investors must distinguish explicit federal obligations from GSE obligations that may have strong policy support but are not identical to Treasury debt.
+
+::: {.callout-tip title="Agency Debt Intuition"}
+Agency spreads are usually small when investors believe liquidity is strong and government support is credible. They widen when investors question either the issuer's sector exposure or the exact form of government support.
+:::
+
 ## Fannie Mae and Freddie Mac
 
 Fannie Mae and Freddie Mac are GSEs central to the U.S. residential mortgage market. They buy mortgages, guarantee mortgage-backed securities, and issue agency debt. Their debt programs have historically included benchmark notes, discount notes, callable notes, structured notes, and global debt.
 
 The key historical event is the 2008 conservatorship. During the housing and credit crisis, the Federal Housing Finance Agency placed Fannie Mae and Freddie Mac into conservatorship, and the U.S. Treasury entered support agreements to stabilize their obligations.
+
+Their business model explains the policy importance. The agencies support mortgage liquidity by buying mortgages, guaranteeing mortgage-backed securities, and funding retained portfolios. If investors suddenly refused to buy their debt or MBS, mortgage credit could become more expensive or less available across the economy.
 
 ::: {.callout-note title="History Box: 2008 and Implicit Support"}
 Before 2008, many investors treated Fannie Mae and Freddie Mac debt as if the government would support it in a crisis, even though the guarantee was not the same as a Treasury guarantee. The conservatorship showed why this belief mattered: the government chose support because failure would have damaged the mortgage market and global fixed-income portfolios.
@@ -387,11 +545,15 @@ The Federal Farm Credit Bank System supports lending to farmers, ranchers, and a
 
 The economic logic is sectoral credit support. Agriculture can be capital-intensive, seasonal, and exposed to commodity-price and weather risk. Farm Credit institutions help channel funds to that sector through a GSE structure.
 
+From an investor's perspective, Farm Credit debt is a way to buy high-quality agency exposure that is tied to a different policy mission than housing. The risk question is not only "Will the borrower pay?" but also "How liquid is this issuer's debt compared with larger benchmark agency programs?"
+
 ## Federal Agricultural Mortgage Corporation
 
 Farmer Mac supports a secondary market for agricultural real estate and rural utility loans. It can issue discount notes and medium-term notes, and it can guarantee agricultural mortgage-backed securities.
 
 Farmer Mac is smaller and less liquid than the largest housing GSEs. Its debt therefore illustrates a general fixed-income principle: similar government-related status does not imply identical liquidity or spread.
+
+Farmer Mac exists because agricultural real estate and rural utility loans are not as standardized as conforming residential mortgages. A secondary-market guarantor can make those loans easier to fund by turning idiosyncratic rural credit into securities with more standardized terms.
 
 ## Federal Home Loan Bank System
 
@@ -399,11 +561,15 @@ The Federal Home Loan Bank System provides advances to member banks and other el
 
 FHLB debt is widely viewed as very high quality. During periods of banking stress, FHLB advances can become especially important because member institutions use them as a source of collateralized liquidity.
 
+This is why FHLB debt connects to bank liquidity risk. A member institution can pledge eligible collateral and receive an advance, reducing the need to sell assets quickly. Investors in FHLB debt therefore care about the joint-and-several structure of consolidated obligations, collateral practices, and the fact that FHLB obligations are not the same legal obligation as Treasury debt.
+
 ## Tennessee Valley Authority
 
 The Tennessee Valley Authority (TVA) is a corporate agency of the U.S. government created in 1933. It operates a large public power system and issues debt to fund its power program. TVA obligations are not Treasury securities, but they have historically carried high credit quality because of TVA's federal status and operating role.
 
 TVA bonds also show that federal-related debt can finance real assets, not just financial intermediation. The underlying business is power generation and infrastructure.
+
+TVA debt is useful pedagogically because the source of repayment is tied to an operating public-power enterprise. That makes it different from housing GSEs and FHLBs, where the balance sheet is more directly connected to financial intermediation.
 
 ```{python}
 #| echo: false
@@ -454,17 +620,56 @@ $$
 
 But the spread is not just default probability. It also reflects expected recovery, liquidity, covenants, seniority, optionality, taxes, investor demand, and market risk appetite.
 
+Corporate debt exists because it is often cheaper and less dilutive than equity. For investors, it creates a contractual claim with priority over equity but limited upside. This asymmetry explains why bondholders care less about maximum growth and more about downside protection, asset coverage, and restrictions on risk-shifting.
+
+```{mermaid}
+%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Inter, Arial, sans-serif", "lineColor": "#64748b"}}}%%
+flowchart LR
+  A["Company financing need"] --> B["Commercial paper<br/>days to months"]
+  A --> C["Bank loan / revolver<br/>flexible credit facility"]
+  A --> D["MTN<br/>tailored maturity or payoff"]
+  A --> E["Corporate bond<br/>public long-term funding"]
+  A --> F["High-yield bond / leveraged loan<br/>speculative-grade funding"]
+  classDef need fill:#dbeafe,stroke:#2563eb,stroke-width:3px,color:#0f172a;
+  classDef short fill:#cffafe,stroke:#0891b2,stroke-width:2px,color:#083344;
+  classDef bank fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#052e16;
+  classDef custom fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#451a03;
+  classDef public fill:#ede9fe,stroke:#7c3aed,stroke-width:2px,color:#2e1065;
+  classDef risky fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#450a0a;
+  class A need;
+  class B short;
+  class C bank;
+  class D custom;
+  class E public;
+  class F risky;
+  linkStyle 0 stroke:#0891b2,stroke-width:2.4px;
+  linkStyle 1 stroke:#16a34a,stroke-width:2.4px;
+  linkStyle 2 stroke:#d97706,stroke-width:2.4px;
+  linkStyle 3 stroke:#7c3aed,stroke-width:2.4px;
+  linkStyle 4 stroke:#dc2626,stroke-width:2.4px;
+```
+
 ## Seniority of Debt in a Corporation's Capital Structure
 
 Seniority determines who gets paid first if the issuer cannot meet its obligations. A simplified capital structure is:
 
 ```{mermaid}
+%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Inter, Arial, sans-serif", "lineColor": "#64748b"}}}%%
 flowchart TB
   A["Senior secured debt<br/>first claim on pledged collateral"] --> B["Senior unsecured debt<br/>general creditor claim"]
   B --> C["Senior subordinated debt"]
   C --> D["Subordinated debt"]
   D --> E["Preferred stock"]
   E --> F["Common equity<br/>residual claim"]
+  classDef top fill:#dcfce7,stroke:#16a34a,stroke-width:3px,color:#052e16;
+  classDef senior fill:#dbeafe,stroke:#2563eb,stroke-width:2.5px,color:#0f172a;
+  classDef junior fill:#fef3c7,stroke:#d97706,stroke-width:2.5px,color:#451a03;
+  classDef equity fill:#fee2e2,stroke:#dc2626,stroke-width:2.5px,color:#450a0a;
+  class A top;
+  class B senior;
+  class C,D junior;
+  class E,F equity;
+  linkStyle default stroke:#64748b,stroke-width:2.5px;
 ```
 
 Senior secured debt is backed by collateral. Senior unsecured debt has no specific collateral but has a general claim on the issuer's assets after secured claims. Subordinated debt ranks below senior debt. Equity is last.
@@ -475,8 +680,14 @@ $$
 \text{Expected loss} = \text{Probability of default} \times (1-\text{Recovery rate}).
 $$
 
+The reason priority is written into contracts is to control incentives before distress. Senior lenders are willing to lend at lower spreads when they know junior capital absorbs losses first. Junior investors demand higher returns because their claims are more exposed to enterprise-value declines.
+
 ::: {.callout-tip title="Intuition"}
 Default is not a yes-or-no loss. Credit investors care about **how often** default occurs and **how much** is recovered after default. Seniority mainly affects recovery.
+:::
+
+::: {.callout-note title="Example: Same Default Probability, Different Loss"}
+Two bonds issued by the same firm may have the same probability of default but different expected losses. If a senior secured loan is expected to recover 65% and a subordinated bond is expected to recover 25%, a 6% default probability implies expected losses of 2.1% and 4.5%, respectively.
 :::
 
 ## Bankruptcy and Creditor Rights
@@ -487,9 +698,13 @@ Chapter 7 liquidation means the firm's assets are sold and proceeds are distribu
 
 The **absolute priority rule** says senior creditors should be paid in full before junior creditors receive value. In practice, Chapter 11 outcomes are negotiated. Junior creditors or equity holders may receive some value if doing so helps reach agreement, reduces litigation, or preserves the going-concern value of the business.
 
+Bankruptcy rules exist because individual creditor enforcement can destroy value. Without a court-supervised process, each creditor has an incentive to rush for collateral, sue, or force liquidation. Chapter 11 tries to preserve going-concern value when the business is worth more alive than dead.
+
 ::: {.callout-note title="Example: Why Reorganization Can Beat Liquidation"}
 Suppose a retailer has $900 million of debt and assets that would sell for only $500 million in liquidation. If the stores continue operating, the reorganized business may be worth $750 million. Creditors may prefer Chapter 11 because the going-concern value is higher than the fire-sale value.
 :::
+
+Debtor-in-possession financing is allowed because distressed firms often need cash to keep operating during the case. The controversial feature is priority: new lenders may receive a senior claim because otherwise they would not provide money to a borrower already in bankruptcy.
 
 ## Corporate Debt Ratings
 
@@ -498,6 +713,8 @@ Credit ratings summarize rating agencies' opinions about credit risk. Ratings ar
 The boundary between BBB/Baa and BB/Ba is crucial. Bonds rated BBB- or Baa3 and above are **investment grade**. Bonds below that boundary are **noninvestment grade**, **speculative grade**, or **high yield**.
 
 Downgrades through this boundary can matter disproportionately because some investors are forced to sell "fallen angels" when they lose investment-grade status.
+
+Ratings exist partly to reduce information and monitoring costs. A small investor or regulated institution may not have the resources to perform full credit analysis on every issuer. Ratings provide a common language, but they should be treated as a starting point rather than a substitute for spread analysis and covenant review.
 
 ### The Three Major NRSROs
 
@@ -516,11 +733,15 @@ The three major global rating agencies are Moody's, S&P Global Ratings, and Fitc
 
 Rating agencies also place issuers on watch for possible upgrades or downgrades. Markets often react before the rating change because spreads update continuously.
 
+The rating scale is ordinal, not a precise probability table. AAA is better than AA, and AA is better than A, but the market still prices each issuer separately. A BBB utility, a BBB cyclical manufacturer, and a BBB bank can trade at different spreads because their business risk, leverage, liquidity, and recovery prospects differ.
+
 ## Corporate Bonds
 
 Corporate bonds are debt securities issued by corporations. They may be fixed-rate, floating-rate, secured, unsecured, callable, noncallable, senior, subordinated, public, private, investment grade, or high yield.
 
 Corporate bonds are usually less standardized and less liquid than Treasuries. Two bonds from the same issuer can have different spreads because they have different maturities, coupons, covenants, call protection, collateral, and index eligibility.
+
+Issuers choose public bonds when they want broad investor access and long-term capital. Investors accept lower control rights than banks usually receive because public bonds are tradable and standardized enough to fit portfolios and indices. This is the core tradeoff: public bond financing is scalable, but creditor control is weaker than in a private loan.
 
 ### Provisions for Paying Off Bonds Prior to Maturity
 
@@ -534,11 +755,15 @@ The main early-redemption provisions are:
 
 These provisions connect to Lecture 1's embedded-option discussion and Lecture 3's duration and convexity discussion. If the issuer controls redemption, the investor is exposed to reinvestment risk.
 
+Early-redemption terms exist because the issuer and investor value flexibility differently. Issuers want the ability to refinance, deleverage, sell assets, or simplify the capital structure. Investors want predictable cash flows. The call price, call protection period, and make-whole formula are the negotiated price of that flexibility.
+
 #### Traditional Call and Refunding Provisions
 
 A traditional call provision gives the issuer the right to redeem the bond before maturity, usually after a period of call protection. Issuers like calls because they can refinance if rates or spreads fall. Investors dislike calls because upside is capped and reinvestment risk rises.
 
 Refunding means replacing old bonds with a new bond issue. A bond may be callable but nonrefundable for a period, meaning the issuer can call the bond for some reasons but cannot use lower-cost debt issuance to fund the call.
+
+The reason issuers pay for callability is the same reason homeowners value mortgage refinancing: if rates or credit spreads fall, old debt becomes expensive relative to new debt. Investors therefore demand extra yield or a call premium for giving the issuer that option.
 
 ::: {.callout-note title="Connection to Lecture 3"}
 An option-free Treasury has positive convexity. A callable corporate bond can have reduced or even negative effective convexity near the call price because price appreciation is capped when rates fall.
@@ -550,11 +775,19 @@ A make-whole call requires the issuer to pay the present value of remaining prom
 
 The intuition is simple: a make-whole call is designed to "make the investor whole" for the lost future coupon stream.
 
+Make-whole calls are common in investment-grade corporate bonds because they give issuers corporate-finance flexibility without creating the same reinvestment-risk problem as a par call. The issuer can clean up debt after a merger or asset sale, but calling the bond when rates fall is expensive because the call price rises with the present value of the remaining payments.
+
+::: {.callout-note title="Worked Example: Make-Whole Logic"}
+Suppose a bond has $105 of remaining promised value on a present-value basis when discounted at the Treasury rate plus the make-whole spread. A traditional par call at $100 would transfer about $5 of value from bondholders to the issuer. A make-whole call instead requires a price near $105, so the call is mainly used for balance-sheet flexibility rather than cheap refinancing.
+:::
+
 #### Sinking Fund Provision
 
 A sinking fund requires the issuer to retire part of the debt over time. This reduces the amount outstanding and can reduce credit risk, but it may force investors to reinvest principal earlier than expected.
 
 Sinking funds can be especially important when a borrower has large debt outstanding and investors want evidence that leverage will decline over time.
+
+The reason investors like sinking funds is path control. A single bullet maturity can create refinancing risk if all principal comes due at once. A sinking fund reduces the amount outstanding gradually, but it also creates uncertainty about which holders will have bonds retired and when.
 
 ### Covenants
 
@@ -577,6 +810,26 @@ Common negative covenants restrict the issuer from:
 
 Covenants are especially important in high-yield bonds and leveraged loans because small changes in creditor protections can materially affect recovery value.
 
+The reason covenants exist is agency conflict. After debt is issued, shareholders and managers may prefer actions that increase equity upside while increasing creditor downside: more debt, dividends, asset sales, risky acquisitions, or collateral pledges to new lenders. Covenants limit those transfers of value.
+
+```{mermaid}
+%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Inter, Arial, sans-serif", "lineColor": "#64748b"}}}%%
+flowchart TB
+  A["Potential borrower action"] --> B{"Can it harm creditors?"}
+  B -->|More leverage| C["Debt incurrence covenant"]
+  B -->|Cash leaves firm| D["Restricted payments covenant"]
+  B -->|Assets leave firm| E["Asset sale covenant"]
+  B -->|Collateral moves up| F["Lien covenant"]
+  B -->|Business changes| G["Merger covenant"]
+  classDef action fill:#dbeafe,stroke:#2563eb,stroke-width:2.5px,color:#0f172a;
+  classDef decision fill:#fef3c7,stroke:#d97706,stroke-width:3px,color:#451a03;
+  classDef covenant fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#450a0a;
+  class A action;
+  class B decision;
+  class C,D,E,F,G covenant;
+  linkStyle default stroke:#dc2626,stroke-width:2.2px;
+```
+
 ### Special Structures for High-Yield Corporate Bonds
 
 High-yield issuers often need more flexible structures because their cash flows are riskier and their refinancing access is less certain.
@@ -589,6 +842,12 @@ Common features include:
 - **Secured high-yield bonds:** the bond is backed by collateral but often ranks behind bank loans.
 
 These structures allocate flexibility to the issuer and risk to investors. A PIK toggle can prevent immediate default during stress, but it also increases leverage by adding debt.
+
+High-yield structures are best understood as negotiated survival tools. Investors know the issuer may face periods when cash access is tight, so the contract may permit flexibility that avoids an immediate default. The cost is that flexibility often weakens the investor's position if the business does not recover.
+
+::: {.callout-tip title="PIK Toggle Intuition"}
+A PIK toggle can buy time, but it does not create cash. It converts a current interest burden into a larger future debt burden.
+:::
 
 ### Accrued Interest
 
@@ -608,17 +867,23 @@ $$
 If the clean price is 102.25, the clean dollar price is $102,250 and the dirty price is $103,583.33.
 :::
 
+Corporate accrued interest is usually calculated with day-count conventions specified in the bond documents. The practical reason to check the convention is that two bonds with similar coupons can have slightly different settlement cash flows if the accrual basis differs.
+
 ### Secondary Market for Corporate Bonds
 
 Corporate bond trading is mostly over the counter. Liquidity is usually strongest for large, recently issued, investment-grade bonds and weakest for small, older, distressed, or complex bonds.
 
 This is different from exchange-traded equities. A company may have one common stock but dozens of bonds with different coupons, maturities, covenants, and seniority. Fragmentation makes corporate bond liquidity thinner than Treasury liquidity.
 
+This fragmentation explains why transaction-cost analysis is central in corporate credit. A spread that looks attractive on a screen may not be achievable for a large order. Investors therefore care about issue size, dealer inventories, index eligibility, TRACE trade prints, and whether the bond is a current benchmark issue for that borrower.
+
 ### Private-Placement Market for Corporate Bonds
 
 Private placements are debt securities sold to a limited group of institutional investors rather than through a public SEC-registered offering. They often have stronger covenants and less secondary-market liquidity. Investors demand compensation for that illiquidity, but they may also value customized terms and direct borrower relationships.
 
 Private placements are common among insurance companies because insurers often hold debt to maturity and can analyze bespoke creditor protections.
+
+The reason borrowers use private placements is customization. A firm that does not need a large public benchmark bond may prefer negotiating directly with a small set of institutions. The reason investors accept lower liquidity is that they may receive stronger covenants, better information rights, amortization terms, or a spread premium.
 
 ## Medium-Term Notes (MTNs)
 
@@ -627,6 +892,8 @@ Medium-term notes are issued under a shelf-registration program that allows a fi
 MTNs are flexible. Issuers can tailor maturity, currency, fixed or floating coupon, embedded options, principal repayment, and index-linked payoff.
 
 The issuer benefits from timing and customization. The investor benefits from getting a security closer to the desired maturity, currency, or payoff profile.
+
+MTN programs exist because funding needs arrive continuously, not only during large public bond windows. A company can maintain documentation and issue smaller amounts when investor demand appears. This is useful for asset-liability matching: an investor may want a 9-year note or a floating-rate payoff even if the issuer's benchmark bonds are 5-year and 10-year fixed-rate issues.
 
 ### Structured Notes
 
@@ -639,6 +906,12 @@ The investor should separate the note into:
 
 Structured notes can be useful, but they can be difficult to value. Investors must understand the embedded derivative, issuer credit risk, liquidity, fees, and secondary-market pricing.
 
+The reason structured notes are issued is payoff customization. One investor may want principal protection plus equity-index upside; another may want a coupon that rises if rates stay in a range. The issuer or dealer can manufacture that exposure by combining a debt obligation with options. The danger is that the package can hide fees and make the economic exposure harder to compare with buying the bond and derivative separately.
+
+::: {.callout-note title="Example: Decomposing a Structured Note"}
+A five-year note that promises principal repayment plus 70% of S&P 500 upside can be viewed as a zero-coupon bond issued by the bank plus a call option on the index. The investor has both market exposure and bank credit exposure.
+:::
+
 ## Commercial Paper
 
 Commercial paper is short-term unsecured corporate borrowing, usually with maturity less than 270 days. It is used to finance working capital, receivables, inventory, and short-term funding needs.
@@ -650,6 +923,8 @@ P = F\left(1-r_d\frac{t}{360}\right).
 $$
 
 Commercial paper depends heavily on credit quality and market confidence. A high-quality issuer can roll over maturing paper at low cost. A weaker issuer may suddenly lose market access and need a backup bank credit line.
+
+The reason commercial paper has a 270-day convention is regulatory: in the U.S., issuers can often avoid full SEC registration for short-term notes that meet the relevant exemption conditions. Economically, the market is designed for working-capital funding, not permanent capital.
 
 ::: {.callout-note title="History Box: Commercial Paper in 2008"}
 During the 2008 financial crisis, the commercial paper market came under severe stress after investors became unwilling to roll short-term funding. This was dangerous because many firms used commercial paper for routine liquidity. The episode showed that short maturity does not eliminate risk; it can create rollover risk.
@@ -666,17 +941,25 @@ $$
 The firm receives $4,955,000 today and repays $5,000,000 in 60 days. The $45,000 difference is the interest cost.
 :::
 
+::: {.callout-tip title="Why Backup Lines Matter"}
+Commercial paper creates rollover risk because the borrower depends on issuing new paper to repay maturing paper. A committed bank credit line reassures investors that the issuer has another source of liquidity if the CP market closes.
+:::
+
 ### Directly Placed versus Dealer-Placed Paper
 
 **Direct paper** is sold by the issuer directly to investors. It is common among large finance companies that borrow frequently and can justify maintaining their own distribution capability.
 
 **Dealer-placed paper** is sold through dealers, usually banks or securities firms, on a best-efforts basis. Dealer placement is useful for issuers that do not have their own distribution network.
 
+Direct placement lowers distribution cost for frequent, highly rated issuers with a stable investor base. Dealer placement broadens access because dealers maintain investor relationships and can help find buyers when issuance needs are less predictable.
+
 ### Tier-1 and Tier-2 Paper
 
 Commercial paper investors pay close attention to short-term credit ratings. Money market funds face restrictions on the credit quality of eligible paper.
 
 Tier-1 paper is the highest-quality eligible commercial paper. Tier-2 paper is still eligible but lower quality. A move from Tier 1 to Tier 2 can materially reduce investor demand and increase rollover risk.
+
+This tier distinction matters because money-market investors are constrained by rules and risk limits. A downgrade can therefore change not only the price of funding but also the quantity of funding available.
 
 ## Bank Loans
 
@@ -692,11 +975,15 @@ Leveraged loans are usually:
 
 Lecture 1 introduced floating-rate debt. Leveraged loans are a major real-world example. Their coupon resets with short-term rates, so they have less interest-rate duration than fixed-rate high-yield bonds. They still have credit risk, liquidity risk, and refinancing risk.
 
+Bank loans exist because banks can monitor borrowers closely and negotiate covenants more directly than dispersed bondholders can. Revolving credit facilities also provide committed liquidity: the borrower pays for the option to draw funds later, which is valuable when market access becomes uncertain.
+
 ### Syndicated Bank Loans
 
 A syndicated loan is provided by a group of lenders rather than one bank. A lead arranger structures the transaction, negotiates terms, and distributes pieces of the loan to other lenders.
 
 Syndication exists because single-borrower exposures can be too large for one bank. It also allows banks to originate loans while sharing credit exposure with institutional investors.
+
+Syndication also solves relationship and balance-sheet problems. The lead bank can preserve the client relationship and earn arranging fees, while the risk is distributed across lenders with different portfolio needs.
 
 Loan ownership can transfer through:
 
@@ -705,11 +992,15 @@ Loan ownership can transfer through:
 
 Assignments are usually cleaner legally. Participations can be useful but expose the participant to the selling lender's performance.
 
+The distinction matters in distress. An assignee usually has direct lender rights under the credit agreement. A participant may depend on the selling lender to pass through payments and enforce rights, so it has both borrower exposure and counterparty exposure to the seller.
+
 ### Secondary Market for Syndicated Bank Loans
 
 Syndicated loans can trade after origination. This allows banks to reduce exposure and institutional investors to access senior secured floating-rate credit.
 
 The secondary loan market is less transparent than the Treasury market, but standardized documentation and market practices have improved liquidity. Loan prices can decline sharply when investors become concerned about default risk, collateral values, or refinancing conditions.
+
+Loan settlement can also be slower and more operationally complex than bond settlement because assignments require documentation and borrower or agent-bank processes. This affects liquidity premiums, especially when investors want to sell risk quickly.
 
 ### High-Yield Bonds versus Leveraged Loans
 
@@ -726,22 +1017,48 @@ High-yield bonds and leveraged loans are alternative funding sources for specula
 
 The key tradeoff is simple: high-yield bonds usually give investors fixed coupons and more call protection; leveraged loans usually give investors seniority and floating-rate income.
 
+The issuer's choice often depends on the rate environment and desired flexibility. When short rates are high, floating-rate loans can become expensive. When fixed-rate bond markets demand large spreads or weak covenants are unavailable, loans may be more attractive. For investors, the choice is a tradeoff between rate exposure, recovery expectation, liquidity, and covenant protection.
+
 ### Collateralized Loan Obligations (CLOs)
 
 CLOs are structured finance vehicles that buy pools of leveraged loans and issue multiple tranches of debt and equity. The loan portfolio is the asset side. The CLO tranches are the liability side.
 
 ```{mermaid}
+%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Inter, Arial, sans-serif", "lineColor": "#64748b"}}}%%
 flowchart LR
   A["Pool of leveraged loans<br/>assets"] --> B["CLO special purpose vehicle"]
   B --> C["AAA senior notes<br/>paid first, lowest spread"]
   B --> D["A/BBB mezzanine notes"]
   B --> E["BB/B notes"]
   B --> F["Equity tranche<br/>residual cash flow, first loss"]
+  classDef assets fill:#dbeafe,stroke:#2563eb,stroke-width:3px,color:#0f172a;
+  classDef vehicle fill:#ede9fe,stroke:#7c3aed,stroke-width:3px,color:#2e1065;
+  classDef senior fill:#dcfce7,stroke:#16a34a,stroke-width:2.5px,color:#052e16;
+  classDef mezz fill:#fef3c7,stroke:#d97706,stroke-width:2.5px,color:#451a03;
+  classDef junior fill:#fed7aa,stroke:#ea580c,stroke-width:2.5px,color:#431407;
+  classDef equity fill:#fee2e2,stroke:#dc2626,stroke-width:2.5px,color:#450a0a;
+  class A assets;
+  class B vehicle;
+  class C senior;
+  class D mezz;
+  class E junior;
+  class F equity;
+  linkStyle 0 stroke:#2563eb,stroke-width:3px;
+  linkStyle 1 stroke:#16a34a,stroke-width:2.8px;
+  linkStyle 2 stroke:#d97706,stroke-width:2.8px;
+  linkStyle 3 stroke:#ea580c,stroke-width:2.8px;
+  linkStyle 4 stroke:#dc2626,stroke-width:2.8px;
 ```
 
 The CLO waterfall determines how loan interest and principal are distributed. Senior tranches get paid first and therefore can receive investment-grade ratings even though the underlying loans are below investment grade. Equity receives residual cash flow but absorbs first losses.
 
 Coverage tests are central. If loan collateral deteriorates, cash that would have gone to junior tranches can be redirected to repay senior tranches. This protects senior debt but increases risk for junior investors.
+
+The reason CLOs exist is investor segmentation. Some investors want senior, rated floating-rate exposure; others want levered exposure to loan spreads. The CLO structure reallocates the same loan-pool cash flows into tranches with different priority, ratings, yields, and risk.
+
+::: {.callout-note title="CLO Waterfall Intuition"}
+Think of the loan portfolio as one stream of cash. The waterfall decides who drinks first. Senior notes receive scheduled payments before mezzanine notes; equity receives what is left after debt tranches and expenses are paid.
+:::
 
 # Default Risk for Corporate Debt Instruments
 
@@ -753,11 +1070,25 @@ Credit risk has three connected dimensions:
 
 These risks interact. A spread can widen before a downgrade. A downgrade can force selling and widen spreads further. A default crystallizes loss, but the eventual loss depends on recovery.
 
+This is why credit analysis is not just "Will the firm default?" A complete view asks four questions: how likely is default, when could it happen, what would be recovered, and how much spread volatility can the investor tolerate before default occurs?
+
 ## Default Rates
 
 Default rate measures the frequency of default. It can be measured annually, cumulatively over several years, or by rating category.
 
 Investment-grade bonds usually have low default rates. High-yield bonds have higher default rates, which is why investors demand higher spreads. The spread is not pure profit; part of it compensates for expected credit losses.
+
+Default rates are cyclical. They rise when profits fall, refinancing markets close, and highly leveraged firms cannot roll over maturities. They fall when growth is strong, liquidity is abundant, and refinancing is easy. For this reason, a high-yield spread that looks generous in a boom may not be generous if the economy is moving toward recession.
+
+::: {.callout-note title="Example: Cumulative Default Intuition"}
+If a rating category has a 2% annual default rate, the five-year cumulative default probability is not exactly 10%, but 10% is a useful first approximation for intuition. The more precise independent-year approximation is:
+
+$$
+1-(1-0.02)^5 = 9.6\%.
+$$
+
+Credit analysts then adjust this simple calculation because defaults are not independent across time; they cluster in weak economic periods.
+:::
 
 ## Recovery Rates
 
@@ -775,6 +1106,8 @@ $$
 $$
 
 The credit spread must compensate investors not only for expected loss, but also for uncertainty, liquidity risk, downgrade risk, and the fact that defaults tend to cluster in bad economic states.
+
+Recovery depends on collateral, seniority, enterprise value, industry asset specificity, and the legal process. A secured loan backed by receivables and inventory may recover more than an unsecured bond issued by an asset-light business, even if both borrowers have the same rating before default.
 
 ```{python}
 #| echo: false
@@ -830,6 +1163,8 @@ $$
 This uses the spread-duration logic from Lecture 3 and the spread decomposition from Lecture 4.
 :::
 
+Downgrade risk is also a liquidity risk. If many investors are benchmarked to investment-grade indices, a fallen angel can face forced selling at the same time that natural high-yield buyers are still evaluating the credit. The temporary imbalance can move prices more than the rating change alone would suggest.
+
 ## Corporate Credit Spread Risk
 
 Credit spread risk is the risk that the market spread over Treasuries widens. It can occur because of issuer-specific news, sector stress, recession risk, market liquidity, or broad risk aversion.
@@ -846,6 +1181,8 @@ $$
 $$
 
 Spreads are cyclical. They usually narrow when growth is strong, default expectations are low, and investors want risk. They widen when recession risk rises, liquidity falls, or investors demand safety.
+
+For a portfolio manager, spread risk is measured separately from Treasury-rate risk because the two can move in opposite directions. In a flight to quality, Treasury yields may fall while corporate spreads widen. A corporate bond can therefore lose value from wider spreads even if the Treasury component of the discount rate declines.
 
 ```{python}
 #| label: fig-fred-spreads
@@ -879,7 +1216,19 @@ plt.show()
 High-yield spreads are always above broad corporate spreads because high-yield bonds have higher default probability and lower average recovery. Spread spikes are the teaching moments: spread risk can dominate Treasury-rate risk during credit stress.
 :::
 
-# Key Points
+::: {.callout-note title="Example: Separating Rate and Spread Effects"}
+Suppose a corporate bond has Treasury duration of 7 and spread duration of 6. If Treasury yields fall by 40 basis points but the bond's credit spread widens by 90 basis points, the approximate price effect is:
+
+$$
+\Delta P/P \approx -7(-0.0040)-6(0.0090)=2.8\%-5.4\%=-2.6\%.
+$$
+
+The bond loses value even though Treasury rates fell because spread widening dominates.
+:::
+
+---
+
+# Key Points {.unnumbered}
 
 - Treasuries are the base interest-rate market for U.S. dollar fixed income. Other debt instruments are usually priced as Treasury rates plus compensation for credit, liquidity, optionality, taxes, and structure.
 - Treasury bills are discount instruments; Treasury notes and bonds are coupon instruments. This explains why bills are quoted on a bank discount basis while coupon Treasuries are quoted as clean prices in 32nds.
@@ -896,17 +1245,10 @@ High-yield spreads are always above broad corporate spreads because high-yield b
 - CLOs redistribute leveraged-loan risk across tranches. Senior tranches receive priority; equity absorbs first losses and receives residual cash flow.
 - Credit spreads compensate for expected default loss, uncertainty, liquidity risk, downgrade risk, and market risk appetite. Spread widening can create large price losses even without actual default.
 
-# Conclusion
+---
 
-Treasuries are the foundation of U.S. dollar fixed income because they provide liquid benchmark rates across maturities. T-bills, notes, bonds, TIPS, and STRIPS differ in cash-flow structure and quoting conventions, but all connect back to the present-value framework from Lecture 2 and the duration/convexity framework from Lecture 3.
+# Suggested Readings
 
-Agency and corporate debt add layers of spread. Agency securities introduce government-related but non-Treasury risk. Corporate debt introduces capital-structure priority, covenants, bankruptcy outcomes, ratings, liquidity, and default recovery. By combining this lecture with Lecture 4, the basic fixed-income map is now clear:
-
-$$
-\text{Debt price}
-= \text{present value of promised cash flows}
-\quad\text{using}\quad
-\text{Treasury rates + appropriate spreads}.
-$$
-
-Sources used for market grounding and lecture framing include MIT OpenCourseWare fixed-income lecture materials, TreasuryDirect explanations of auctions and STRIPS, and FRED data series for Treasury yields, breakeven inflation, and ICE BofA corporate option-adjusted spreads.
+Fabozzi – *Bond Markets, Analysis, and Strategies*:  
+**Chapter 6: Treasury and Federal Agency Securities**  
+**Chapter 7: Corporate Debt Instruments**  

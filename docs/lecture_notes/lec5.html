@@ -547,7 +547,6 @@ window.Quarto = {
 <p>Treasuries define the price of time in U.S. dollars. Agency and corporate securities are usually priced as Treasury cash flows plus additional compensation for credit, liquidity, optionality, and structure.</p>
 </blockquote>
 <p>This benchmark role exists for practical reasons, not just theoretical ones. The Treasury issues across the maturity spectrum, the securities are standardized, the secondary market is deep, and the cash flows are simple enough to serve as discounting inputs. A corporate bond analyst does not usually ask, “What is the bond worth in isolation?” The practical question is, “What yield spread over the matched Treasury compensates for the extra risks?”</p>
-<p>Top fixed-income courses usually emphasize this separation: first value default-free cash flows, then add layers for credit, liquidity, taxes, and embedded options. MIT OCW fixed-income materials classify Treasuries, federal agency securities, and corporate securities as distinct building blocks of the debt market, while NYU fixed-income materials emphasize the zero-coupon curve, duration, convexity, option-adjusted spreads, and floating-rate note conventions as the tools used across those sectors.</p>
 <div class="callout callout-style-default callout-note callout-titled" title="Market Snapshot: Why Treasuries Matter">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -558,7 +557,7 @@ window.Quarto = {
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>FRED reported the 10-year Treasury constant maturity yield at <strong>4.46% on June 2, 2026</strong> and the 10-year breakeven inflation rate at <strong>2.38% on June 3, 2026</strong>. On June 2, 2026, broad U.S. corporate option-adjusted spreads were about <strong>0.74%</strong>, while high-yield spreads were about <strong>2.71%</strong>. These numbers summarize the lecture in one line: nominal Treasury rates set the base rate, TIPS help reveal inflation compensation, and corporate spreads price credit risk.</p>
+<p>FRED reported the 10-year Treasury constant maturity yield at <strong>4.46% on June 2, 2026</strong> and the 10-year breakeven inflation rate at <strong>2.38% on June 3, 2026</strong>. On June 2, 2026, broad U.S. corporate option-adjusted spreads were about <strong>0.74%</strong>, while high-yield spreads were about <strong>2.71%</strong>. Nominal Treasury rates set the base rate, TIPS help reveal inflation compensation, and corporate spreads price credit risk.</p>
 </div>
 </div>
 <div class="cell" data-layout-align="default">
@@ -603,12 +602,11 @@ flowchart LR
 <ul>
 <li><strong>Fixed-principal securities:</strong> bills, notes, bonds, and floating-rate notes.</li>
 <li><strong>Inflation-protected securities:</strong> TIPS, whose principal is adjusted for CPI inflation.</li>
-<li><strong>Stripped securities:</strong> STRIPS, created when coupon and principal payments are separated into zero-coupon pieces.</li>
 </ul>
 <p>This classification is based on cash-flow design. A bill is one future payment. A coupon note is many future payments. A TIPS is a coupon bond whose principal changes with inflation. A STRIP is one separated cash flow from a larger Treasury security.</p>
 <p>The reason the Treasury issues multiple security types is that the government has multiple financing needs and investors have multiple risk preferences. Bills help the Treasury manage short-term cash balances. Notes and bonds lock in longer-term funding. FRNs appeal to investors who want Treasury credit quality with less duration risk. TIPS help the Treasury reach investors who care about real purchasing power. STRIPS exist because some investors want one certain future cash flow rather than a package of coupon payments.</p>
-<div id="adb9ea36" class="cell" data-message="false" data-execution_count="2">
-<div class="cell-output cell-output-display" data-execution_count="14">
+<div id="cc99e50c" class="cell" data-message="false" data-execution_count="2">
+<div class="cell-output cell-output-display" data-execution_count="8">
 <div>
 
 
@@ -644,7 +642,7 @@ flowchart LR
 <th data-quarto-table-cell-role="th">3</th>
 <td>FRN</td>
 <td>Short-rate reset</td>
-<td>Floating-rate Treasury funding</td>
+<td>Low duration exposure</td>
 </tr>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">4</th>
@@ -719,20 +717,67 @@ flowchart LR
 <p>A Treasury bill is mostly a promise about <strong>one future dollar</strong>. A Treasury note or bond is a package of many future dollars. That is why a bill quote is naturally about the discount from par, while a coupon Treasury quote is naturally about the price of a stream of cash flows.</p>
 </div>
 </div>
+<div style="display: flex; flex-direction: row; gap: 2rem; justify-content: space-around; align-items: flex-start; flex-wrap: wrap;">
+<div style="flex: 1; min-width: 270px;">
 <div class="cell" data-layout-align="default">
 <div class="cell-output-display">
 <div>
 <p></p><figure class="figure"><p></p>
 <div>
 <pre class="mermaid mermaid-js">%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Inter, Arial, sans-serif", "lineColor": "#64748b"}}}%%
-flowchart LR
+flowchart TD
   subgraph Bills["Treasury bill"]
     A["Pay discounted price today"] --&gt; B["Receive one par payment&lt;br/&gt;at maturity"]
   end
+  classDef today fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#082f49;
+  classDef cash fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#052e16;
+  classDef group fill:#f8fafc,stroke:#94a3b8,stroke-width:1.5px,color:#0f172a;
+  class A today;
+  class B cash;
+  class Bills group;
+  linkStyle 0 stroke:#0284c7,stroke-width:2.5px;
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+</div>
+<div style="flex: 1; min-width: 270px;">
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Inter, Arial, sans-serif", "lineColor": "#64748b"}}}%%
+flowchart TD
   subgraph Coupons["Treasury note or bond"]
     C["Pay clean + accrued price"] --&gt; D["Receive semiannual coupons"]
     D --&gt; E["Receive final coupon + par"]
   end
+  classDef today fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#082f49;
+  classDef cash fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#052e16;
+  classDef group fill:#f8fafc,stroke:#94a3b8,stroke-width:1.5px,color:#0f172a;
+  class C today;
+  class D,E cash;
+  class Coupons group;
+  linkStyle 0 stroke:#16a34a,stroke-width:2.5px;
+  linkStyle 1 stroke:#16a34a,stroke-width:2.5px;
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+</div>
+<div style="flex: 1; min-width: 270px;">
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Inter, Arial, sans-serif", "lineColor": "#64748b"}}}%%
+flowchart TD
   subgraph FRNs["Treasury FRN"]
     F["Pay price today"] --&gt; G["Coupon resets quarterly&lt;br/&gt;with short rates"]
     G --&gt; H["Receive par at maturity"]
@@ -741,18 +786,17 @@ flowchart LR
   classDef cash fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#052e16;
   classDef reset fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#451a03;
   classDef group fill:#f8fafc,stroke:#94a3b8,stroke-width:1.5px,color:#0f172a;
-  class A,C,F today;
-  class B,D,E,H cash;
+  class F today;
   class G reset;
-  class Bills,Coupons,FRNs group;
-  linkStyle 0 stroke:#0284c7,stroke-width:2.5px;
+  class H cash;
+  class FRNs group;
+  linkStyle 0 stroke:#d97706,stroke-width:2.5px;
   linkStyle 1 stroke:#16a34a,stroke-width:2.5px;
-  linkStyle 2 stroke:#16a34a,stroke-width:2.5px;
-  linkStyle 3 stroke:#d97706,stroke-width:2.5px;
-  linkStyle 4 stroke:#16a34a,stroke-width:2.5px;
 </pre>
 </div>
 <p></p></figure><p></p>
+</div>
+</div>
 </div>
 </div>
 </div>
@@ -855,30 +899,50 @@ Figure&nbsp;1: Real market data: 10-year nominal Treasury yield and 10-year brea
 </div>
 </div>
 </div>
+<div class="callout callout-style-default callout-tip callout-titled" title="Chart Explanation">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Chart Explanation
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The chart compares the 10-year nominal Treasury yield with the 10-year breakeven inflation rate. Their difference is approximately the 10-year TIPS real yield:</p>
+<p><span class="math display">\[
+y_{\text{real}} \approx y_{\text{nominal}} - \text{breakeven inflation}.
+\]</span></p>
+<p>When the nominal Treasury yield is above breakeven inflation, the implied real yield is positive: investors are being paid inflation compensation plus an additional real return. When breakeven inflation is above the nominal yield, the implied real yield is negative: inflation compensation is larger than the nominal yield. A crossing point means the implied real yield is near zero. In that case, the market is pricing the 10-year nominal Treasury yield as roughly equal to expected inflation compensation, before liquidity premiums, inflation-risk premiums, taxes, and other frictions.</p>
+</div>
+</div>
 </section>
 </section>
 <section id="the-treasury-auction-process" class="level2" data-number="1.2">
 <h2 data-number="1.2" class="anchored" data-anchor-id="the-treasury-auction-process"><span class="header-section-number">1.2</span> The Treasury Auction Process</h2>
-<p>Treasury securities are sold in auctions. The auction is where new government borrowing becomes marketable debt.</p>
-<p>There are two bid types:</p>
+<p>Treasury securities are sold in the primary market through sealed-bid auctions. Each auction is announced several days in advance by the Treasury Department. The announcement states the offering amount, security type, term, auction date, and key auction rules. Treasury auctions are open to all entities.</p>
+<p>Treasury regularly issues new securities, but it also sells additional amounts of already outstanding securities. This is called a <strong>reopening</strong>. Reopenings increase the size of an existing issue rather than creating a new CUSIP, and the Treasury has a regular reopening schedule for 5-year and 10-year issues.</p>
+<p>Two types of bids can be submitted:</p>
 <ul>
-<li><strong>Noncompetitive bids.</strong> The bidder asks for a quantity and agrees to accept the auction-determined rate, yield, or discount margin. This is the practical route for most individual investors.</li>
-<li><strong>Competitive bids.</strong> The bidder specifies both quantity and required return. Bids are ranked from lowest yield to highest yield. The Treasury accepts bids until the offering amount is filled.</li>
+<li><strong>Noncompetitive bids.</strong> The bidder specifies only the quantity and agrees to accept the auction-determined yield. A noncompetitive bid cannot exceed $5 million.</li>
+<li><strong>Competitive bids.</strong> The bidder specifies both the quantity and the yield at which they are willing to buy the security.</li>
 </ul>
-<p>The Treasury uses a single-price auction format. All successful bidders receive the same rate, yield, or discount margin: the highest accepted competitive bid. That highest accepted yield is the <strong>stop-out yield</strong>.</p>
-<p>The auction design solves two problems. First, Treasury needs to raise a large amount of money predictably. Second, investors need confidence that the allocation process is transparent. Noncompetitive bidding gives small investors access without requiring them to forecast the clearing yield. Competitive bidding lets large institutions reveal demand and set the market-clearing price.</p>
+<p>Auction awards are determined in stages. First, total noncompetitive tenders and nonpublic purchases, such as Federal Reserve purchases, are deducted from the total offering amount. The remaining amount is allocated to competitive bidders. Competitive bids are ranked from lowest yield to highest yield, which is equivalent to ranking from highest price to lowest price. The Treasury accepts bids from the lowest yield upward until the competitive allocation is filled.</p>
+<p>The highest accepted yield is the <strong>stop-out yield</strong>, also called the <strong>high yield</strong>. Competitive bids above the stop-out yield receive no allocation. Bids exactly at the stop-out yield may receive only a proportional allocation if there is not enough remaining supply to fill them completely.</p>
+<p>U.S. Treasury auctions are <strong>single-price auctions</strong>. All successful bidders receive the same yield: the stop-out yield. For notes and bonds, the Treasury also sets the coupon rate after the auction. The coupon is chosen in increments of 1/8 of 1% so that the price is as close as possible to par without being above par at the awarded yield.</p>
+<p>Within about an hour after the 1:00 p.m. auction deadline, Treasury announces the results. These include the stop-out yield, associated price, percentage awarded at the stop-out yield, amount of noncompetitive tenders, median-yield bid, bid-to-cover ratio, and, for notes and bonds, the coupon rate.</p>
 <div class="cell" data-layout-align="default">
 <div class="cell-output-display">
 <div>
 <p></p><figure class="figure"><p></p>
 <div>
 <pre class="mermaid mermaid-js">%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Inter, Arial, sans-serif", "lineColor": "#475569"}}}%%
-flowchart TB
-  A["Treasury announces security&lt;br/&gt;amount, maturity, auction date"] --&gt; B["Noncompetitive tenders accepted first"]
-  B --&gt; C["Competitive bids ranked&lt;br/&gt;lowest yield to highest yield"]
-  C --&gt; D["Treasury accepts bids&lt;br/&gt;until offering is filled"]
-  D --&gt; E["Stop-out yield determines&lt;br/&gt;single auction price"]
-  E --&gt; F["Securities settle and trade&lt;br/&gt;in secondary market"]
+flowchart LR
+  A["Announcement"] --&gt; B["Noncompetitive&lt;br/&gt;deducted first"]
+  B --&gt; C["Competitive bids&lt;br/&gt;ranked low yield to high"]
+  C --&gt; D["High yield"]
+  D --&gt; E["Single-price&lt;br/&gt;award"]
+  E --&gt; F["Results&lt;br/&gt;and settlement"]
   classDef announce fill:#dbeafe,stroke:#2563eb,stroke-width:2.5px,color:#0f172a;
   classDef access fill:#dcfce7,stroke:#16a34a,stroke-width:2.5px,color:#052e16;
   classDef rank fill:#fef3c7,stroke:#d97706,stroke-width:2.5px,color:#451a03;
@@ -886,14 +950,96 @@ flowchart TB
   classDef market fill:#ede9fe,stroke:#7c3aed,stroke-width:2.5px,color:#2e1065;
   class A announce;
   class B access;
-  class C,D rank;
-  class E clear;
-  class F market;
+  class C rank;
+  class D clear;
+  class E,F market;
   linkStyle default stroke:#475569,stroke-width:2.5px;
 </pre>
 </div>
 <p></p></figure><p></p>
 </div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Auction Example: Finding the Stop-Out Yield">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Auction Example: Finding the Stop-Out Yield
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Setup</strong></p>
+<ul>
+<li>Treasury offering amount: $20 billion</li>
+<li>Noncompetitive tenders: $4 billion</li>
+<li>Amount left for competitive bids: $16 billion</li>
+</ul>
+<p><strong>Competitive bid stack</strong></p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 16%">
+<col style="width: 22%">
+<col style="width: 22%">
+<col style="width: 22%">
+<col style="width: 16%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Bidder</th>
+<th style="text-align: right;">Bid yield</th>
+<th style="text-align: right;">Amount bid</th>
+<th style="text-align: right;">Cumulative accepted amount</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>A</td>
+<td style="text-align: right;">4.20%</td>
+<td style="text-align: right;">$5 billion</td>
+<td style="text-align: right;">$5 billion</td>
+<td>Filled</td>
+</tr>
+<tr class="even">
+<td>B</td>
+<td style="text-align: right;">4.23%</td>
+<td style="text-align: right;">$6 billion</td>
+<td style="text-align: right;">$11 billion</td>
+<td>Filled</td>
+</tr>
+<tr class="odd">
+<td>C</td>
+<td style="text-align: right;">4.25%</td>
+<td style="text-align: right;">$7 billion</td>
+<td style="text-align: right;">$16 billion target reached</td>
+<td>Partially filled</td>
+</tr>
+<tr class="even">
+<td>D</td>
+<td style="text-align: right;">4.28%</td>
+<td style="text-align: right;">$4 billion</td>
+<td style="text-align: right;">Above target</td>
+<td>Not filled</td>
+</tr>
+<tr class="odd">
+<td>E</td>
+<td style="text-align: right;">4.30%</td>
+<td style="text-align: right;">$3 billion</td>
+<td style="text-align: right;">Above target</td>
+<td>Not filled</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Conclusion</strong></p>
+<ul>
+<li>The <strong>stop-out yield</strong> is 4.25%, the highest accepted yield.</li>
+<li>Bids below 4.25% are filled.</li>
+<li>Bids above 4.25% receive no allocation.</li>
+<li>Bidder C is prorated because only $5 billion remains for a $7 billion bid.</li>
+<li>In a single-price auction, all successful bidders receive the yield of 4.25%.</li>
+</ul>
 </div>
 </div>
 <div class="callout callout-style-default callout-note callout-titled" title="Auction Example">
@@ -906,7 +1052,36 @@ flowchart TB
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Suppose Treasury offers $100 billion of 2-year notes. Noncompetitive bids total $10 billion, leaving $90 billion for competitive bidders. Competitive bids are accepted from the lowest yields upward. If the last accepted yield is 4.52%, all successful competitive bidders and all noncompetitive bidders receive the security at the price implied by 4.52%. Bidders asking for yields above 4.52% receive no allocation.</p>
+<p><strong>Setup</strong></p>
+<ul>
+<li>Amount remaining at the stop-out yield: $1 billion</li>
+<li>Total bids submitted at the stop-out yield: $2 billion</li>
+<li>Allocation rate at the stop-out yield: 50%</li>
+</ul>
+<p><strong>Result</strong></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: right;">Bidder’s tender at stop-out yield</th>
+<th style="text-align: right;">Awarded amount</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">$5 million</td>
+<td style="text-align: right;">$2.5 million</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">$20 million</td>
+<td style="text-align: right;">$10 million</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">$100 million</td>
+<td style="text-align: right;">$50 million</td>
+</tr>
+</tbody>
+</table>
+<p>All bids below the stop-out yield are filled. Bids above the stop-out yield receive no allocation. Bids exactly at the stop-out yield are prorated because demand at that yield exceeds the remaining supply.</p>
 </div>
 </div>
 <div class="callout callout-style-default callout-tip callout-titled" title="Why Single-Price Auctions Matter">
@@ -919,7 +1094,7 @@ flowchart TB
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>In a single-price auction, a bidder who asked for a lower yield than the stop-out yield still receives the stop-out yield. This reduces the penalty for bidding aggressively and can improve auction participation.</p>
+<p>In a single-price Treasury auction, every successful bidder receives the same yield: the stop-out yield. A bidder who submitted a lower accepted yield does not get penalized with that lower yield. This format encourages stronger participation because bidders can reveal demand without worrying that an aggressive bid will lock them into a worse yield than other successful bidders.</p>
 </div>
 </div>
 </section>
@@ -989,51 +1164,179 @@ r_d = \frac{100{,}000-99{,}100}{100{,}000}\times\frac{360}{100}
 </section>
 <section id="quotes-on-treasury-coupon-securities" class="level3">
 <h3 class="anchored" data-anchor-id="quotes-on-treasury-coupon-securities">Quotes on Treasury Coupon Securities</h3>
-<p>Treasury notes and bonds are quoted as clean prices in points and 32nds of a point. One point equals 1% of par.</p>
-<p>A quote of <code>98-24</code> means:</p>
+<p>Treasury coupon securities are quoted differently from Treasury bills. Bills are quoted on a discount-yield basis, while Treasury notes and bonds are quoted on a <strong>price basis</strong> in points. One point equals 1% of par, or $1 per $100 of par value.</p>
+<p>The points are split into <strong>32nds</strong>. A quote of <code>96-14</code> means 96 and 14/32:</p>
 <p><span class="math display">\[
-98 + \frac{24}{32} = 98.75.
+96 + \frac{14}{32} = 96.4375.
 \]</span></p>
-<p>For $1,000 par value, the clean price is:</p>
+<p>The price is quoted per $100 of par value. For $1,000 of par value, a quote of <code>96-14</code> implies:</p>
 <p><span class="math display">\[
-0.9875 \times 1{,}000 = 987.50.
+0.964375 \times 1{,}000 = 964.375.
 \]</span></p>
-<p>Treasury prices can include finer increments. A quote of <code>101-16+</code> means:</p>
+<p>The 32nds can be split into smaller increments:</p>
+<ul>
+<li>A <code>+</code> means one-half of a 32nd, or 1/64.</li>
+<li>A trailing digit means eighths of a 32nd, or 256ths.</li>
+</ul>
+<p>For example, <code>96-14+</code> means:</p>
 <p><span class="math display">\[
-101 + \frac{16}{32} + \frac{1}{64} = 101.515625.
+96 + \frac{14}{32} + \frac{1}{64} = 96.453125.
 \]</span></p>
-<p>Coupon securities are settled at the <strong>dirty price</strong>:</p>
+<p>A quote of <code>96-142</code> means:</p>
 <p><span class="math display">\[
-\text{Dirty price} = \text{Clean price} + \text{Accrued interest}.
+96 + \frac{14}{32} + \frac{2}{256} = 96.4453125.
 \]</span></p>
-<p>Accrued interest compensates the seller for coupon interest earned since the last coupon date:</p>
-<p><span class="math display">\[
-\text{Accrued Interest} =
-\frac{\text{Days since last coupon}}{\text{Days in coupon period}}
-\times \text{Coupon Payment}.
-\]</span></p>
-<div class="callout callout-style-default callout-note callout-titled" title="Worked Example: Accrued Interest">
+<p>Yield to maturity is usually reported alongside the price. In when-issued trading, notes and bonds are quoted in yield terms because the coupon rate is not set until after the auction.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Example: Treasury Quote Conversion">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Worked Example: Accrued Interest
+<span class="screen-reader-only">Note</span>Example: Treasury Quote Conversion
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>An investor buys $1,000,000 par value of a Treasury note with a 4% coupon. Coupons are semiannual, so each coupon is:</p>
-<p><span class="math display">\[
-0.04/2 \times 1{,}000{,}000 = 20{,}000.
-\]</span></p>
-<p>If 45 days have passed since the last coupon and the coupon period has 182 days:</p>
-<p><span class="math display">\[
-\text{Accrued Interest} = \frac{45}{182}\times 20{,}000 = 4{,}945.05.
-\]</span></p>
-<p>If the clean price is 99.75, the clean dollar price is $997,500 and the dirty settlement amount is $1,002,445.05.</p>
+<p><strong>Quotes in 32nds</strong></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Quote</th>
+<th style="text-align: right;">Calculation</th>
+<th style="text-align: right;">Price per 100 par</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>91-19</code></td>
+<td style="text-align: right;"><span class="math inline">\(91 + 19/32\)</span></td>
+<td style="text-align: right;">91.59375</td>
+</tr>
+<tr class="even">
+<td><code>107-22</code></td>
+<td style="text-align: right;"><span class="math inline">\(107 + 22/32\)</span></td>
+<td style="text-align: right;">107.68750</td>
+</tr>
+<tr class="odd">
+<td><code>109-06</code></td>
+<td style="text-align: right;"><span class="math inline">\(109 + 6/32\)</span></td>
+<td style="text-align: right;">109.18750</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Quotes with smaller increments</strong></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Quote</th>
+<th style="text-align: right;">Calculation</th>
+<th style="text-align: right;">Price per 100 par</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>91-19+</code></td>
+<td style="text-align: right;"><span class="math inline">\(91 + 19/32 + 1/64\)</span></td>
+<td style="text-align: right;">91.609375</td>
+</tr>
+<tr class="even">
+<td><code>107-222</code></td>
+<td style="text-align: right;"><span class="math inline">\(107 + 22/32 + 2/256\)</span></td>
+<td style="text-align: right;">107.6953125</td>
+</tr>
+<tr class="odd">
+<td><code>109-066</code></td>
+<td style="text-align: right;"><span class="math inline">\(109 + 6/32 + 6/256\)</span></td>
+<td style="text-align: right;">109.2109375</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
-<p>Clean-price quoting keeps market price movements easier to interpret. If bonds were quoted dirty, the quoted price would mechanically rise each day as accrued interest builds and then drop on the coupon date. Separating clean price from accrued interest lets traders see the change caused by yields and credit conditions rather than coupon-calendar mechanics.</p>
+<p>When an investor buys a Treasury coupon security between coupon dates, the buyer compensates the seller for coupon interest earned since the previous coupon date. This payment is called <strong>accrued interest</strong>.</p>
+<p>For a semiannual coupon Treasury, accrued interest is:</p>
+<p><span class="math display">\[
+\text{AI} =
+\frac{\text{Annual dollar coupon}}{2}
+\times
+\frac{\text{Days in accrued interest period}}{\text{Days in coupon period}}.
+\]</span></p>
+<p>Three inputs are needed:</p>
+<ul>
+<li>the number of days in the accrued interest period,</li>
+<li>the number of days in the coupon period,</li>
+<li>the dollar amount of the coupon payment.</li>
+</ul>
+<p>Treasury coupon securities use the <strong>actual/actual day count convention</strong>. The accrued interest period includes the previous coupon date and excludes the settlement date. For Treasury securities, settlement is normally the next business day after the trade date.</p>
+<p>Coupon securities are settled at the <strong>dirty price</strong>:</p>
+<p><span class="math display">\[
+\text{Dirty price} = \text{Clean price} + \text{Accrued interest}.
+\]</span></p>
+<div class="callout callout-style-default callout-note callout-titled" title="Example: Accrued Interest with Actual/Actual">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Example: Accrued Interest with Actual/Actual
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Setup</strong></p>
+<ul>
+<li>Previous coupon date: May 15</li>
+<li>Settlement date: September 10</li>
+<li>Next coupon date: November 15</li>
+<li>Annual coupon per $100 par: $8</li>
+<li>Semiannual coupon: $4</li>
+</ul>
+<p><strong>Day count</strong></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Period</th>
+<th style="text-align: right;">Days counted</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>May 15 to May 31</td>
+<td style="text-align: right;">17</td>
+</tr>
+<tr class="even">
+<td>June</td>
+<td style="text-align: right;">30</td>
+</tr>
+<tr class="odd">
+<td>July</td>
+<td style="text-align: right;">31</td>
+</tr>
+<tr class="even">
+<td>August</td>
+<td style="text-align: right;">31</td>
+</tr>
+<tr class="odd">
+<td>September 1 to September 10</td>
+<td style="text-align: right;">9</td>
+</tr>
+<tr class="even">
+<td><strong>Accrued interest period</strong></td>
+<td style="text-align: right;"><strong>118</strong></td>
+</tr>
+<tr class="odd">
+<td><strong>Full coupon period: May 15 to November 15</strong></td>
+<td style="text-align: right;"><strong>184</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Accrued interest</strong></p>
+<p><span class="math display">\[
+\text{AI} = 4 \times \frac{118}{184} = 2.5652.
+\]</span></p>
+<p>The buyer pays $2.5652 of accrued interest per $100 of par value, in addition to the quoted clean price.</p>
+</div>
+</div>
+<p>Clean-price quoting keeps market price movements easier to interpret. If bonds were quoted dirty, the quoted price would mechanically rise as accrued interest builds and then drop on the coupon date. Separating clean price from accrued interest lets traders see the price change caused by yield movements rather than the coupon calendar.</p>
 </section>
 </section>
 </section>
@@ -1164,8 +1467,8 @@ flowchart LR
 <p>The Tennessee Valley Authority (TVA) is a corporate agency of the U.S. government created in 1933. It operates a large public power system and issues debt to fund its power program. TVA obligations are not Treasury securities, but they have historically carried high credit quality because of TVA’s federal status and operating role.</p>
 <p>TVA bonds also show that federal-related debt can finance real assets, not just financial intermediation. The underlying business is power generation and infrastructure.</p>
 <p>TVA debt is useful pedagogically because the source of repayment is tied to an operating public-power enterprise. That makes it different from housing GSEs and FHLBs, where the balance sheet is more directly connected to financial intermediation.</p>
-<div id="148bc574" class="cell" data-message="false" data-execution_count="4">
-<div class="cell-output cell-output-display" data-execution_count="16">
+<div id="a6296e35" class="cell" data-message="false" data-execution_count="4">
+<div class="cell-output cell-output-display" data-execution_count="10">
 <div>
 
 
@@ -1888,7 +2191,7 @@ flowchart LR
 \]</span></p>
 <p>The credit spread must compensate investors not only for expected loss, but also for uncertainty, liquidity risk, downgrade risk, and the fact that defaults tend to cluster in bad economic states.</p>
 <p>Recovery depends on collateral, seniority, enterprise value, industry asset specificity, and the legal process. A secured loan backed by receivables and inventory may recover more than an unsecured bond issued by an asset-light business, even if both borrowers have the same rating before default.</p>
-<div id="f764402b" class="cell" data-message="false" data-execution_count="5">
+<div id="06cef602" class="cell" data-message="false" data-execution_count="5">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">

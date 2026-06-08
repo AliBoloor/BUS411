@@ -1,5 +1,5 @@
 ---
-title: "Lecture 6: Residential Mortgages and Mortgage‑Backed Securities"
+title: "Lecture 6: Bond Portfolio Construction"
 format:
   html:
     toc: true
@@ -18,6 +18,9 @@ jupyter: python3
 #| message: false
 #| warning: false
 
+import io
+import urllib.request
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -29,1045 +32,833 @@ plt.rcParams["axes.spines.top"] = False
 plt.rcParams["axes.spines.right"] = False
 ```
 
-## Learning Objectives {.unnumbered}
+# Brief Review of Portfolio Theory and Risk Decomposition
 
-By the end of this lecture you should be able to:
+Bond portfolio construction begins with a simple question:
 
-- Explain how residential mortgage loans are originated and understand underwriting standards such as payment‑to‑income (PTI) and loan‑to‑value (LTV) ratios.
-- Distinguish among different types of residential mortgage loans according to lien status, credit classification, interest rate type, amortization structure, credit guarantees, loan size and the presence of prepayment penalties.
-- Describe the characteristics of conforming loans and understand why they matter for securitization.
-- Identify the risks associated with investing in mortgage loans, including credit risk, liquidity risk, price risk and prepayment/cash‑flow uncertainty.
-- Recognise the major sectors of the residential mortgage‑backed security (RMBS) market and describe agency pass‑through securities.
-- Explain prepayment conventions such as Conditional Prepayment Rate (CPR), Single Monthly Mortality (SMM) and Public Securities Association (PSA) benchmarks, and construct monthly cash flows from these measures.
-- Discuss factors affecting prepayments and the modelling of prepayment behaviour.
-- Compute cash‑flow yield and bond‑equivalent yield for mortgage pools and understand their limitations.
-- Describe the role of average life, yield spreads to Treasuries and prepayment risk in asset/liability management for mortgage investors.
-- Understand how mortgage‑backed securities trade in the secondary market.
+> How do we choose a set of bonds whose risk exposures match the investor's objective?
 
----
+For a benchmark-aware manager, the objective is usually not "minimize total risk." It is "earn active return without taking more active risk than the client allows." That shift changes the relevant risk measure from portfolio volatility to **tracking error**.
 
-# Residential Mortgage Loans
+The starting point is Markowitz mean-variance portfolio theory. For a two-asset portfolio:
 
-Residential mortgage finance connects household borrowing, real estate, bank underwriting, government housing policy, and fixed-income markets. A mortgage is a loan secured by residential property. A mortgage-backed security (MBS) is a claim on the cash flows from a pool of mortgage loans.
+$$
+E(R_p)=w_1E(R_1)+w_2E(R_2),
+$$
 
-The central intuition for this lecture is:
+and
 
-> A residential mortgage gives the borrower a long-term loan and an embedded prepayment option. An MBS investor owns the loan cash flows but is short that borrower option.
+$$
+\sigma_p^2
+=w_1^2\sigma_1^2+w_2^2\sigma_2^2
++2w_1w_2\rho_{12}\sigma_1\sigma_2.
+$$
 
-This is why mortgages are more complicated than ordinary coupon bonds. A Treasury bond has promised coupon and principal dates. A mortgage has scheduled principal, scheduled interest, and unscheduled principal because borrowers can move, refinance, default, or voluntarily pay down balances.
+Expected return is a weighted average. Risk is not. Portfolio risk depends on covariance, or equivalently correlation.
 
-Top fixed-income and real estate capital markets courses usually frame mortgages this way: start with the loan contract, then study how pooling changes credit and liquidity, then analyze how prepayments make valuation path-dependent. NYU Stern mortgage-backed securities materials emphasize CPR, SMM, PSA, sequential tranches, PACs, IOs, POs, and negative convexity. MIT real estate capital markets materials emphasize that securitization turns real estate debt cash flows into tradable capital-market instruments.
-
-::: {.callout-note title="Market Snapshot: Why Mortgages Matter"}
-The residential mortgage market is one of the largest U.S. credit markets. Agency MBS are especially important because Fannie Mae, Freddie Mac, and Ginnie Mae securities create a liquid secondary market for mortgage credit. FHFA announced that the 2026 baseline conforming loan limit for one-unit properties is **$832,750**, with a high-cost area ceiling of **$1,249,125**. These limits help define which loans can flow into the agency securitization channel.
+::: {.callout-tip title="Core Intuition"}
+Diversification works because assets do not move perfectly together. A portfolio of bonds is not risky only because the individual bonds are risky; it is risky because of how their interest-rate, spread, credit, liquidity, and optionality exposures move together.
 :::
 
-```{mermaid}
-%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Inter, Arial, sans-serif", "lineColor": "#64748b"}}}%%
-flowchart LR
-  A["Household borrower<br/>monthly mortgage payments"] --> B["Originator / servicer<br/>underwrites and collects"]
-  B --> C["Mortgage pool<br/>many similar loans"]
-  C --> D["Agency MBS<br/>pass-through security"]
-  D --> E["Investors<br/>principal + interest + prepayments"]
-  C --> F["CMO / REMIC<br/>cash-flow tranching"]
-  F --> G["Different investors<br/>different timing risk"]
-  classDef borrower fill:#dbeafe,stroke:#2563eb,stroke-width:3px,color:#0f172a;
-  classDef intermediary fill:#dcfce7,stroke:#16a34a,stroke-width:2.5px,color:#052e16;
-  classDef pool fill:#fef3c7,stroke:#d97706,stroke-width:2.5px,color:#451a03;
-  classDef security fill:#ede9fe,stroke:#7c3aed,stroke-width:2.5px,color:#2e1065;
-  classDef investor fill:#fee2e2,stroke:#dc2626,stroke-width:2.5px,color:#450a0a;
-  class A borrower;
-  class B intermediary;
-  class C pool;
-  class D,F security;
-  class E,G investor;
-  linkStyle 0 stroke:#2563eb,stroke-width:2.8px;
-  linkStyle 1 stroke:#16a34a,stroke-width:2.8px;
-  linkStyle 2 stroke:#7c3aed,stroke-width:2.8px;
-  linkStyle 3 stroke:#dc2626,stroke-width:2.8px;
-  linkStyle 4 stroke:#7c3aed,stroke-width:2.8px;
-  linkStyle 5 stroke:#dc2626,stroke-width:2.8px;
-```
+::: {.callout-note title="Worked Example: Correlation and Diversification"}
+Suppose two bonds each have annual return volatility of 8%, and the portfolio is 50% in each bond.
 
-## Origination of Residential Mortgage Loans
+If correlation is +1:
 
-Origination is the process of creating the loan. It includes borrower application, credit checks, income verification, property appraisal, underwriting, closing, funding, and usually sale or delivery into a secondary-market channel.
+$$
+\sigma_p = 8.0\%.
+$$
 
-The reason origination standards exist is that mortgage credit risk depends on both the borrower and the collateral. A borrower with strong income but little equity may default if home prices fall. A borrower with substantial equity but unstable income may default if cash flow is interrupted. Good underwriting evaluates both capacity to pay and incentive to keep paying.
+If correlation is 0:
 
-```{mermaid}
-%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Inter, Arial, sans-serif", "lineColor": "#64748b"}}}%%
-flowchart LR
-  A["Application<br/>income, assets, credit"] --> B["Underwriting<br/>PTI, LTV, documentation"]
-  B --> C["Appraisal<br/>collateral value"]
-  C --> D["Closing<br/>loan funded"]
-  D --> E["Servicing<br/>payments collected"]
-  E --> F["Sale or securitization<br/>agency or private-label"]
-  classDef start fill:#dbeafe,stroke:#2563eb,stroke-width:2.5px,color:#0f172a;
-  classDef check fill:#fef3c7,stroke:#d97706,stroke-width:2.5px,color:#451a03;
-  classDef close fill:#dcfce7,stroke:#16a34a,stroke-width:2.5px,color:#052e16;
-  classDef market fill:#ede9fe,stroke:#7c3aed,stroke-width:2.5px,color:#2e1065;
-  class A start;
-  class B,C check;
-  class D,E close;
-  class F market;
-  linkStyle default stroke:#64748b,stroke-width:2.5px;
-```
+$$
+\sigma_p
+=\sqrt{0.5^2(0.08)^2+0.5^2(0.08)^2}
+=5.66\%.
+$$
 
-### Underwriting Standards
+If correlation is -1:
 
-Underwriting standards translate borrower and property information into measurable risk controls. The main quantitative ratios are payment-to-income and loan-to-value. Other important inputs include credit score, employment history, liquid reserves, documentation quality, property type, occupancy status, and debt-to-income ratios.
+$$
+\sigma_p=0.
+$$
 
-These standards serve three purposes:
-
-- **Borrower protection:** reduce the chance that the borrower takes on an unaffordable payment.
-- **Investor protection:** reduce default probability and expected loss.
-- **Securitization standardization:** make loans comparable enough to pool and sell.
-
-::: {.callout-tip title="Underwriting Intuition"}
-PTI asks whether the borrower can make the payment. LTV asks whether the borrower has enough equity to keep paying and whether the lender has collateral protection if default occurs.
+The expected return is unchanged by the correlation assumption, but the risk changes dramatically.
 :::
-
-#### Payment-to-Income Ratio
-
-The payment-to-income ratio measures the scheduled mortgage payment relative to borrower income:
-
-$$
-\text{PTI} =
-\frac{\text{Monthly mortgage payment}}{\text{Monthly gross income}}.
-$$
-
-The mortgage payment often includes principal and interest. A broader housing-expense view can also include property taxes, homeowners insurance, mortgage insurance, and homeowners association fees.
-
-::: {.callout-note title="Worked Example: PTI"}
-Suppose a borrower earns $9,000 per month before tax. The proposed monthly principal and interest payment is $2,250.
-
-$$
-\text{PTI} = \frac{2{,}250}{9{,}000}=25\%.
-$$
-
-If taxes, insurance, and other housing costs add $750, the broader housing expense ratio is:
-
-$$
-\frac{2{,}250+750}{9{,}000}=33.3\%.
-$$
-:::
-
-The reason lenders use PTI is simple: default often starts as a cash-flow problem. Even if the property is valuable, a borrower who cannot meet the monthly payment may become delinquent.
-
-#### Loan-to-Value Ratio
-
-The loan-to-value ratio measures the loan balance relative to the property value:
-
-$$
-\text{LTV} =
-\frac{\text{Mortgage balance}}{\text{Appraised property value or purchase price}}.
-$$
-
-::: {.callout-note title="Worked Example: LTV"}
-A borrower buys a home for $700,000 and makes a $140,000 down payment. The mortgage balance is $560,000.
-
-$$
-\text{LTV} = \frac{560{,}000}{700{,}000}=80\%.
-$$
-
-If the home value falls by 15% to $595,000, the same $560,000 loan now has an LTV of about 94.1%.
-:::
-
-The reason LTV matters is incentive and recovery. A borrower with more equity has more to lose by defaulting. A lender with lower LTV has a larger collateral cushion if foreclosure occurs.
-
-## Types of Residential Mortgage Loans
-
-Residential mortgages differ along several dimensions. These differences determine who bears interest-rate risk, credit risk, liquidity risk, and prepayment risk.
 
 ```{python}
+#| label: fig-correlation-risk
+#| fig-cap: "Portfolio volatility for a two-bond portfolio with equal 8% volatilities and 50/50 weights."
 #| echo: false
 #| message: false
 #| warning: false
 
-loan_taxonomy = pd.DataFrame(
-    {
-        "Dimension": [
-            "Lien status",
-            "Credit classification",
-            "Interest-rate type",
-            "Amortization type",
-            "Guarantee",
-            "Loan balance",
-            "Prepayment terms",
-        ],
-        "Examples": [
-            "First lien, second lien, HELOC",
-            "Prime, nonprime, subprime",
-            "Fixed-rate, ARM, hybrid ARM",
-            "Fully amortizing, interest-only, balloon",
-            "Agency, FHA/VA/USDA, private-label",
-            "Conforming, high-balance, jumbo",
-            "Open prepay, penalty period, lockout",
-        ],
-        "Main risk affected": [
-            "Recovery priority",
-            "Default probability",
-            "Rate sensitivity and payment shock",
-            "Principal timing and affordability",
-            "Credit loss allocation",
-            "Liquidity and securitization channel",
-            "Prepayment option value",
-        ],
-    }
+rho = np.linspace(-1, 1, 101)
+w1 = w2 = 0.5
+sigma1 = sigma2 = 0.08
+portfolio_vol = np.sqrt(
+    w1**2 * sigma1**2
+    + w2**2 * sigma2**2
+    + 2 * w1 * w2 * rho * sigma1 * sigma2
 )
-loan_taxonomy
-```
 
-### Lien Status
-
-A lien is the lender's legal claim on the property. A **first-lien mortgage** has first priority against the property after taxes and certain senior claims. A **second-lien mortgage** or home equity loan is junior to the first lien. A home equity line of credit (HELOC) is usually a revolving second-lien facility.
-
-The reason lien status matters is recovery priority. If a property is sold after default, the first-lien lender is paid before junior lienholders. Second-lien credit can be attractive because it often carries a higher rate, but it is much more exposed to home-price declines.
-
-::: {.callout-note title="Example: Lien Priority"}
-A home sells in foreclosure for $500,000. The first mortgage balance is $450,000 and the second lien is $100,000. Ignoring costs, the first lien is repaid in full, while only $50,000 remains for the second lien. The second-lien recovery is 50%.
-:::
-
-### Credit Classification
-
-Mortgage loans are often described as prime, near-prime, nonprime, or subprime. These labels summarize borrower credit quality, documentation strength, loan structure, and collateral protection.
-
-Credit classification is not only about credit score. A high-score borrower with limited documentation, high LTV, investor occupancy, and payment shock can still be risky. A lower-score borrower with low LTV, stable income, and reserves may be less risky than the label suggests.
-
-The reason credit categories exist is portfolio segmentation. Investors need to know whether they are buying mostly agency-eligible prime credit, government-insured credit, or private-label credit where losses are absorbed by the deal structure.
-
-### Interest-Rate Type
-
-The most common mortgage rate types are:
-
-- **Fixed-rate mortgage (FRM):** the note rate and scheduled payment are fixed.
-- **Adjustable-rate mortgage (ARM):** the rate resets based on an index plus a margin.
-- **Hybrid ARM:** the rate is fixed for an initial period, such as 5 or 7 years, then resets.
-
-Fixed-rate mortgages shift interest-rate risk to investors. Borrowers keep the same payment when rates rise and can refinance when rates fall. ARMs shift more rate risk to borrowers because payments can rise after reset, although caps limit the adjustment.
-
-::: {.callout-tip title="Why the 30-Year Fixed-Rate Mortgage Is Special"}
-A long fixed-rate mortgage gives the household payment stability and a valuable refinancing option. The investor receives a higher yield than Treasuries partly because the investor is short that option.
-:::
-
-### Amortization Type
-
-A fully amortizing mortgage has a level scheduled payment that gradually pays interest and principal so the loan balance reaches zero by maturity. Early payments are mostly interest; later payments are mostly principal.
-
-Interest-only mortgages require interest payments for a period before principal amortization begins. Balloon mortgages have a large principal payment at maturity. These structures can lower early payments but increase refinancing or payment-shock risk.
-
-```{python}
-#| label: fig-mortgage-amortization
-#| fig-cap: "Example amortization pattern for a 30-year fixed-rate mortgage. Early payments are mostly interest; later payments are mostly principal."
-#| echo: false
-#| message: false
-#| warning: false
-
-principal = 500_000
-annual_rate = 0.06
-months = 360
-monthly_rate = annual_rate / 12
-payment = principal * monthly_rate / (1 - (1 + monthly_rate) ** (-months))
-
-balances = np.empty(months + 1)
-interest = np.empty(months)
-scheduled_principal = np.empty(months)
-balances[0] = principal
-for m in range(months):
-    interest[m] = balances[m] * monthly_rate
-    scheduled_principal[m] = payment - interest[m]
-    balances[m + 1] = balances[m] - scheduled_principal[m]
-
-plot_months = np.arange(1, months + 1)
 fig, ax = plt.subplots()
-ax.stackplot(
-    plot_months,
-    scheduled_principal,
-    interest,
-    labels=["Scheduled principal", "Interest"],
-    colors=["#60a5fa", "#f59e0b"],
-    alpha=0.85,
-)
-ax.set_title("Monthly Mortgage Payment Composition")
-ax.set_xlabel("Month")
-ax.set_ylabel("Dollars")
-ax.legend(loc="center right")
+ax.plot(rho, portfolio_vol * 100, color="#2563eb", linewidth=2.5)
+ax.set_title("Diversification Depends on Correlation")
+ax.set_xlabel("Correlation between bond returns")
+ax.set_ylabel("Portfolio volatility (%)")
+ax.axvline(0, color="#64748b", linestyle="--", linewidth=1)
 plt.tight_layout()
 plt.show()
 ```
 
-The reason amortization matters for MBS investors is that scheduled principal already shortens the balance over time. Prepayments add an extra, uncertain principal component on top of scheduled amortization.
+Portfolio risk can also be decomposed into:
 
-### Credit Guarantees
+- **Systematic risk:** common risk factors that affect many securities, such as Treasury curve changes, credit spread widening, mortgage prepayment risk, or volatility shocks.
+- **Idiosyncratic risk:** issuer-specific or issue-specific risk, such as one company's downgrade, a specific bond's liquidity problem, or one mortgage pool's unusual prepayment behavior.
 
-Mortgage credit guarantees decide who absorbs losses when borrowers default. In the agency market:
-
-- **Ginnie Mae** guarantees timely payment on securities backed by federally insured or guaranteed loans, such as FHA, VA, USDA, or Public and Indian Housing loans.
-- **Fannie Mae and Freddie Mac** guarantee timely payment on their agency MBS, but they are GSEs, not Treasury securities.
-- **Private-label RMBS** rely on deal credit enhancement, such as subordination, excess spread, reserve accounts, insurance, or overcollateralization.
-
-The reason guarantees exist is to separate credit risk from interest-rate and prepayment risk. Agency MBS investors mainly analyze prepayment and option risk because the agency guarantee reduces direct mortgage credit loss exposure.
-
-### Loan Balances
-
-Loan balance affects eligibility, liquidity, and investor base. Conforming loans meet Fannie Mae and Freddie Mac loan-size limits and underwriting standards. Jumbo loans exceed conforming limits or otherwise do not qualify for agency purchase.
-
-Larger loan balances can prepay differently. A borrower with a large balance has more dollar savings from refinancing after a rate decline, so high-balance pools may be more refinance-sensitive than smaller-balance pools.
-
-The reason investors segment pools by loan balance is adverse selection. If one pool has mostly large loans with strong refinance incentives, it may prepay faster when rates fall, lowering returns for investors who paid a premium.
-
-### Prepayments and Prepayment Penalties
-
-Prepayment is unscheduled principal repayment before maturity. It can occur because the borrower refinances, sells the home, pays extra principal, defaults and the loan is liquidated, or the loan is repurchased from a pool.
-
-Prepayment penalties require borrowers to pay a fee if they repay during a specified period. They are less common in prime agency residential mortgages than in some other lending markets.
-
-The reason prepayment penalties exist is option pricing. If the borrower has a free option to refinance, the lender or investor bears reinvestment risk. A penalty partially compensates the investor for the option. The tradeoff is borrower flexibility and consumer protection.
-
-## Conforming Loans
-
-Conforming loans meet Fannie Mae and Freddie Mac eligibility standards, including loan-size limits, documentation requirements, underwriting criteria, and property rules. The FHFA sets conforming loan limits annually under the Housing and Economic Recovery Act framework.
-
-The reason conforming status matters is securitization. Loans that fit agency rules can enter the agency MBS market, where liquidity is much deeper than for one-off whole loans. Standardization lowers funding costs because investors can analyze pools using common rules and data fields.
-
-::: {.callout-note title="2026 Conforming Loan Limit"}
-FHFA announced that the 2026 baseline conforming loan limit for one-unit properties is **$832,750**. The general high-cost area ceiling is **$1,249,125**, or 150% of the baseline limit. Alaska, Hawaii, Guam, and the U.S. Virgin Islands have special statutory limits.
-:::
-
-```{python}
-#| echo: false
-#| message: false
-#| warning: false
-
-limits = pd.DataFrame(
-    {
-        "Category": ["2026 baseline one-unit CLL", "2026 general high-cost ceiling"],
-        "Limit": [832_750, 1_249_125],
-        "Why it matters": [
-            "Main national cutoff for agency-eligible one-unit loans",
-            "Maximum for many high-cost areas under the 150% ceiling",
-        ],
-    }
-)
-limits
-```
-
-## Risks Associated with Investing in Mortgage Loans
-
-Mortgage investors face risks that ordinary corporate or Treasury investors do not face in the same way. The core problem is that the borrower controls part of the cash-flow timing.
+In a broad equity portfolio, idiosyncratic risk can often be diversified away with a moderate number of stocks. In bond portfolio construction, idiosyncratic risk can remain large because fixed-income benchmarks may include thousands of securities, many of which are illiquid, sector-specific, callable, securitized, or issuer-specific.
 
 ```{mermaid}
 %%{init: {"theme": "base", "themeVariables": {"fontFamily": "Inter, Arial, sans-serif", "lineColor": "#64748b"}}}%%
-flowchart TB
-  A["Mortgage investor"] --> B["Credit risk<br/>borrower may default"]
-  A --> C["Liquidity risk<br/>loan may be hard to sell"]
-  A --> D["Price risk<br/>rates and spreads move"]
-  A --> E["Prepayment risk<br/>cash-flow timing changes"]
-  E --> F["Contraction risk<br/>principal returns too fast"]
-  E --> G["Extension risk<br/>principal returns too slowly"]
-  classDef investor fill:#dbeafe,stroke:#2563eb,stroke-width:3px,color:#0f172a;
-  classDef risk fill:#fee2e2,stroke:#dc2626,stroke-width:2.5px,color:#450a0a;
-  classDef timing fill:#fef3c7,stroke:#d97706,stroke-width:2.5px,color:#451a03;
-  class A investor;
-  class B,C,D risk;
-  class E,F,G timing;
+flowchart LR
+  A["Portfolio risk"] --> B["Systematic risk<br/>curve, spread, volatility, sector factors"]
+  A --> C["Idiosyncratic risk<br/>issuer, issue, liquidity, documentation"]
+  B --> D["Measured with factor exposures"]
+  C --> E["Reduced with diversification<br/>but not eliminated automatically"]
+  D --> F["Tracking error versus benchmark"]
+  E --> F
+  classDef root fill:#dbeafe,stroke:#2563eb,stroke-width:3px,color:#0f172a;
+  classDef systematic fill:#dcfce7,stroke:#16a34a,stroke-width:2.5px,color:#052e16;
+  classDef idio fill:#fee2e2,stroke:#dc2626,stroke-width:2.5px,color:#450a0a;
+  classDef result fill:#ede9fe,stroke:#7c3aed,stroke-width:2.5px,color:#2e1065;
+  class A root;
+  class B,D systematic;
+  class C,E idio;
+  class F result;
   linkStyle default stroke:#64748b,stroke-width:2.5px;
 ```
 
-### Credit Risk
+## Application of Portfolio Theory to Bond Portfolio Construction
 
-Credit risk is the risk that borrowers fail to make payments and collateral recoveries are insufficient. For whole loans and private-label RMBS, credit risk is central. For agency pass-through securities, direct credit risk is largely replaced by agency guarantee risk and prepayment risk.
-
-Credit risk rises when underwriting is weak, LTV is high, borrower income is unstable, home prices fall, unemployment rises, or legal foreclosure timelines are long.
-
-::: {.callout-note title="Expected Loss Intuition"}
-If a mortgage pool has a 3% default probability and a 35% loss severity after property recovery and expenses, the expected credit loss is:
+Markowitz theory is conceptually useful, but direct mean-variance optimization over thousands of bonds is difficult. If there are $N$ candidate bonds, the manager needs $N$ expected returns, $N$ variances, and
 
 $$
-0.03 \times 0.35 = 1.05\%.
+\frac{N^2-N}{2}
 $$
+
+covariances. With 100 bonds, that is 4,950 covariances. With 6,500 benchmark bonds, it is more than 21 million pairwise covariances.
+
+::: {.callout-note title="Worked Example: Covariance Count"}
+If a manager considers 250 candidate bonds:
+
+$$
+\frac{250^2-250}{2}=31{,}125
+$$
+
+covariances must be estimated. The problem is not arithmetic; it is estimation risk. Small errors in expected returns and covariances can produce unstable portfolio weights.
 :::
 
-### Liquidity Risk
+The practical fixed-income solution is to model returns through a smaller set of common factors:
 
-Liquidity risk is the risk that the investor cannot sell the loan or security quickly at a fair price. Whole mortgage loans are relatively illiquid because each loan has unique borrower, property, documentation, and servicing features.
+$$
+R_i = \alpha_i + \beta_{i1}F_1+\beta_{i2}F_2+\cdots+\beta_{iK}F_K+\epsilon_i.
+$$
 
-Agency MBS are more liquid because they are standardized and trade in large markets, including the to-be-announced (TBA) market. Private-label RMBS and bespoke mortgage pools are less liquid because investors must analyze collateral details and deal structures.
+Here, $F_k$ are factors such as Treasury curve shifts, credit spreads, mortgage spreads, volatility, currency, and sector effects. The residual $\epsilon_i$ is idiosyncratic return.
 
-The reason securitization improves liquidity is pooling and standardization. A pool of thousands of conforming loans is easier to trade than thousands of individual mortgages.
+This is why modern bond portfolio construction is usually framed around exposures:
 
-### Price Risk
+- effective duration and key rate duration;
+- spread duration;
+- credit quality and sector weights;
+- convexity and volatility exposure;
+- issuer and issue concentration;
+- liquidity and transaction-cost constraints.
 
-Price risk is the risk that mortgage asset values change when interest rates, spreads, volatility, or prepayment expectations change. Fixed-rate mortgage prices rise when rates fall, but not as much as noncallable bond prices because borrowers refinance.
+The reason this factor view matters is control. A manager may want to be long corporate spread risk but neutral to Treasury duration. Another manager may want a mild duration overweight but no active mortgage exposure. Factor models translate those views into measurable exposures and predicted tracking error.
 
-Mortgage securities often show negative convexity: when rates fall, prepayments accelerate and shorten cash flows; when rates rise, prepayments slow and extend cash flows.
+# Tracking Error
+
+Tracking error is the standard deviation of active returns:
+
+$$
+\text{Active Return}_t = R_{p,t}-R_{b,t},
+$$
+
+$$
+\text{Tracking Error}=\operatorname{SD}(R_p-R_b).
+$$
+
+Tracking error is also called **active risk**. It answers:
+
+> How much does the portfolio's return tend to deviate from the benchmark's return?
+
+This is the natural risk measure for a benchmarked bond manager. A manager can have low total volatility and high tracking error if the portfolio differs meaningfully from the benchmark. Conversely, a portfolio can have high total volatility but low tracking error if the benchmark has similar risk.
+
+## Calculation of Tracking Error
+
+The calculation has four steps:
+
+1. Compute the total return for the portfolio each period.
+2. Compute the total return for the benchmark each period.
+3. Compute active return each period.
+4. Compute the standard deviation of active returns.
+
+The standard deviation is tied to the observation frequency. Monthly active returns produce monthly tracking error. Weekly active returns produce weekly tracking error.
+
+Annualization commonly uses:
+
+$$
+\text{Annual TE}=\text{Monthly TE}\times\sqrt{12},
+$$
+
+or
+
+$$
+\text{Annual TE}=\text{Weekly TE}\times\sqrt{52}.
+$$
+
+::: {.callout-note title="Worked Example: Two Portfolios with the Same Benchmark"}
+The table below uses monthly returns for two hypothetical portfolios. Portfolio A stays close to the benchmark. Portfolio B takes larger active positions.
+:::
 
 ```{python}
-#| label: fig-mbs-negative-convexity
-#| fig-cap: "Stylized mortgage price behavior. Prepayments limit upside when rates fall and extension risk hurts when rates rise."
 #| echo: false
 #| message: false
 #| warning: false
 
-rates = np.linspace(0.02, 0.09, 100)
-noncallable_price = 100 + 850 * (0.055 - rates) + 6200 * (0.055 - rates) ** 2
-mbs_price = 100 + 620 * (0.055 - rates) - 9000 * np.maximum(0.055 - rates, 0) ** 2 - 2500 * np.maximum(rates - 0.055, 0) ** 2
+months_lbl = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+benchmark = np.array([0.04, 1.54, 0.00, 0.54, 0.76, 0.30, 0.83, 1.23, 0.76, 0.90, 1.04, 0.28])
+portfolio_a = np.array([0.02, 1.58, 0.04, 0.61, 0.71, 0.27, 0.91, 1.26, 0.69, 0.95, 1.08, 0.02])
+portfolio_b = np.array([1.05, 2.13, 0.37, 1.01, 1.44, 0.57, 1.95, 1.26, 2.17, 1.80, 2.13, 0.32])
 
+tracking_example = pd.DataFrame(
+    {
+        "Month": months_lbl,
+        "Benchmark return (%)": benchmark,
+        "Portfolio A return (%)": portfolio_a,
+        "A active return (%)": portfolio_a - benchmark,
+        "Portfolio B return (%)": portfolio_b,
+        "B active return (%)": portfolio_b - benchmark,
+    }
+)
+tracking_example
+```
+
+```{python}
+#| echo: false
+#| message: false
+#| warning: false
+
+active_a = portfolio_a - benchmark
+active_b = portfolio_b - benchmark
+te_a = active_a.std(ddof=1)
+te_b = active_b.std(ddof=1)
+summary_te = pd.DataFrame(
+    {
+        "Portfolio": ["A", "B"],
+        "Monthly TE (%)": [te_a, te_b],
+        "Monthly TE (bps)": [te_a * 100, te_b * 100],
+        "Annualized TE (bps)": [te_a * np.sqrt(12) * 100, te_b * np.sqrt(12) * 100],
+    }
+)
+summary_te.round(2)
+```
+
+```{python}
+#| label: fig-active-returns
+#| fig-cap: "Monthly active returns for two portfolios. Portfolio B has much larger tracking error."
+#| echo: false
+#| message: false
+#| warning: false
+
+x = np.arange(len(months_lbl))
 fig, ax = plt.subplots()
-ax.plot(rates * 100, noncallable_price, linewidth=2.5, label="Option-free bond", color="#2563eb")
-ax.plot(rates * 100, mbs_price, linewidth=2.5, label="Mortgage pass-through", color="#dc2626")
-ax.axhline(100, color="#64748b", linewidth=1, linestyle="--")
-ax.set_title("Mortgage Prices and Negative Convexity")
-ax.set_xlabel("Market mortgage rate (%)")
-ax.set_ylabel("Stylized price")
+ax.bar(x - 0.18, active_a * 100, width=0.36, label="Portfolio A", color="#2563eb")
+ax.bar(x + 0.18, active_b * 100, width=0.36, label="Portfolio B", color="#dc2626")
+ax.axhline(0, color="#334155", linewidth=1)
+ax.set_xticks(x)
+ax.set_xticklabels(months_lbl)
+ax.set_title("Active Returns Drive Tracking Error")
+ax.set_ylabel("Active return (bps)")
 ax.legend(loc="best")
 plt.tight_layout()
 plt.show()
 ```
 
-### Prepayments and Cash Flow Uncertainty
+The intuition is direct: tracking error is not about whether returns are high or low. It is about whether the portfolio and benchmark move together. Portfolio B may outperform, but it is taking more active risk.
 
-Prepayment uncertainty is the defining risk of residential mortgages. Borrowers prepay for rate-driven and non-rate-driven reasons. Rate-driven prepayments are refinancing behavior. Non-rate-driven prepayments include home sales, divorce, job relocation, inheritance, curtailments, defaults, and loan buyouts.
+## Two Faces of Tracking Error
 
-The reason this is difficult to value is that the investor does not control the option exercise. The borrower prepays when it is good for the borrower, not when it is good for the investor.
+Tracking error has two faces:
 
-::: {.callout-tip title="Contraction and Extension"}
-When rates fall, premium MBS investors fear contraction: principal returns early and must be reinvested at lower yields. When rates rise, investors fear extension: principal comes back slowly and the investor is stuck with below-market coupons for longer.
+- **Backward-looking tracking error:** calculated from realized active returns. Also called historical, ex-post, or actual tracking error.
+- **Forward-looking tracking error:** estimated from current holdings, factor exposures, factor volatilities, correlations, and idiosyncratic risks. Also called predicted or ex-ante tracking error.
+
+Backward-looking tracking error is useful for performance review. Forward-looking tracking error is useful for portfolio construction and risk control.
+
+::: {.callout-note title="Why Historical TE Can Mislead"}
+Suppose a manager held a benchmark-like portfolio for 11 months and then, today, increases duration by 1.5 years and doubles the corporate overweight. The historical tracking error remains low because it reflects the old portfolio. The forward-looking tracking error changes immediately because the current exposures changed.
 :::
 
-# Agency Mortgage Pass-Through Securities
-
-An agency pass-through security passes monthly principal and interest from a mortgage pool to investors after servicing and guarantee fees. The investor receives scheduled interest, scheduled principal, and unscheduled prepayments.
-
-The agency pass-through is the basic building block for more complex mortgage securities. CMOs and stripped MBS reallocate the same pool cash flows, but they do not eliminate the underlying prepayment option.
-
-## Sectors of the Residential Mortgage-Backed Security Market
-
-The residential MBS market can be divided into:
-
-- **Agency MBS:** issued or guaranteed by Ginnie Mae, Fannie Mae, or Freddie Mac.
-- **Agency CMO / REMIC securities:** agency collateral cash flows reallocated into tranches.
-- **Agency stripped MBS:** principal-only, interest-only, or synthetic-coupon forms.
-- **Private-label RMBS:** non-agency securities backed by mortgages outside agency programs.
-
-The reason this sector distinction matters is credit allocation. Agency MBS investors mainly analyze prepayment risk. Private-label RMBS investors must analyze both prepayment risk and credit losses because the guarantee is not the same.
-
-## General Description of an Agency Mortgage Pass-Through Security
-
-In a pass-through, each investor owns a pro rata interest in a pool. If the investor owns 1% of the pool, the investor receives roughly 1% of the pool's monthly principal and interest, net of fees.
-
-```{mermaid}
-%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Inter, Arial, sans-serif", "lineColor": "#64748b"}}}%%
-flowchart LR
-  A["Borrowers<br/>P&I payments + prepayments"] --> B["Servicer<br/>collects payments"]
-  B --> C["Agency guarantor<br/>credit wrap"]
-  C --> D["Pass-through pool"]
-  D --> E["Investor 1<br/>pro rata cash flow"]
-  D --> F["Investor 2<br/>pro rata cash flow"]
-  D --> G["Investor 3<br/>pro rata cash flow"]
-  classDef borrower fill:#dbeafe,stroke:#2563eb,stroke-width:2.5px,color:#0f172a;
-  classDef service fill:#dcfce7,stroke:#16a34a,stroke-width:2.5px,color:#052e16;
-  classDef agency fill:#fef3c7,stroke:#d97706,stroke-width:2.5px,color:#451a03;
-  classDef pool fill:#ede9fe,stroke:#7c3aed,stroke-width:3px,color:#2e1065;
-  classDef investor fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#450a0a;
-  class A borrower;
-  class B service;
-  class C agency;
-  class D pool;
-  class E,F,G investor;
-  linkStyle default stroke:#64748b,stroke-width:2.5px;
-```
-
-The coupon on the MBS is lower than the weighted average coupon on the underlying loans because servicing fees and guarantee fees are deducted. This difference pays the parties that collect payments and absorb credit-related obligations.
-
-## Issuers of Agency Pass-Through Securities
-
-The three major agency channels are Ginnie Mae, Fannie Mae, and Freddie Mac. They all support mortgage securitization, but their legal status and collateral types differ.
-
-| Issuer | Legal status | Typical collateral | Main investor issue |
-|---|---|---|---|
-| Ginnie Mae | U.S. government corporation | FHA, VA, USDA, PIH loans | Explicit full faith and credit guarantee |
-| Fannie Mae | Government-sponsored enterprise | Conventional conforming loans | GSE guarantee and conservatorship context |
-| Freddie Mac | Government-sponsored enterprise | Conventional conforming loans | GSE guarantee and UMBS/TBA liquidity |
-
-### Ginnie Mae
-
-Ginnie Mae does not originate loans or buy mortgages for its own portfolio. Approved private issuers pool eligible government-insured or government-guaranteed loans and issue Ginnie Mae MBS. Ginnie Mae guarantees timely payment of principal and interest on the securities.
-
-The reason Ginnie Mae exists is to connect federally insured mortgage programs to capital markets. FHA and VA lending would be less liquid if investors had to buy individual loans. Ginnie Mae standardizes the security and adds the federal guarantee.
-
-Ginnie Mae I and Ginnie Mae II securities differ in pooling and payment mechanics. Ginnie Mae II allows more flexibility in loan characteristics and uses a central paying agent, which supports broader pooling.
-
-### Fannie Mae and Freddie Mac
-
-Fannie Mae and Freddie Mac buy eligible conventional mortgages, guarantee MBS, and support the TBA market. Their guarantees are not the same legal obligation as Treasury debt, but their conservatorship and policy role are central to market confidence.
-
-The reason Fannie Mae and Freddie Mac matter is scale and standardization. By defining eligible collateral, guarantee terms, disclosure data, and settlement conventions, they make mortgage pools tradable for investors who do not personally underwrite every loan.
-
-The Uniform Mortgage-Backed Security (UMBS) framework was designed to align Fannie Mae and Freddie Mac TBA deliverability and improve liquidity across the two GSE markets.
-
-## Prepayment Conventions and Cash Flow
-
-Prepayment conventions turn uncertain borrower behavior into a measurable assumption. The three core terms are CPR, SMM, and PSA.
-
-The reason conventions exist is communication. A trader, portfolio manager, and risk model need a compact way to describe an assumed prepayment path. "150 PSA" is not a forecast by itself; it is a standardized speed assumption.
-
-### Conditional Prepayment Rate (CPR)
-
-The Conditional Prepayment Rate is an annualized prepayment rate applied to the remaining balance after scheduled principal. A CPR of 6% means the model assumes about 6% of the relevant remaining balance prepays over a year, conditional on not having prepaid already.
-
-CPR is useful because it is annualized and easy to compare across pools. It is not directly the monthly prepayment rate used in cash-flow construction.
-
-#### Single-Monthly Mortality (SMM) Rate
-
-The Single-Monthly Mortality rate converts CPR into a monthly prepayment rate:
+Forward-looking tracking error often comes from a multi-factor risk model:
 
 $$
-\text{SMM}=1-(1-\text{CPR})^{1/12}.
-$$
-
-Equivalently:
-
-$$
-\text{CPR}=1-(1-\text{SMM})^{12}.
-$$
-
-::: {.callout-note title="Worked Example: CPR to SMM"}
-If CPR is 6%:
-
-$$
-\text{SMM}=1-(1-0.06)^{1/12}=0.5143\%.
-$$
-
-This means about 0.5143% of the post-scheduled-principal balance prepays that month.
-:::
-
-#### Single-Monthly Mortality Rate and Monthly Prepayment
-
-Monthly prepayment is calculated after scheduled principal is removed:
-
-$$
-\text{Prepayment}_t =
-(\text{Beginning Balance}_t-\text{Scheduled Principal}_t)
-\times \text{SMM}_t.
-$$
-
-The order matters. Scheduled principal is contractual amortization. Prepayment is unscheduled principal on the balance that remains after scheduled amortization.
-
-::: {.callout-note title="Worked Example: Monthly Prepayment"}
-A pool begins the month with $100,000,000. Scheduled principal is $120,000. CPR is 6%, so SMM is 0.5143%.
-
-$$
-\text{Prepayment}
-=(100{,}000{,}000-120{,}000)\times0.005143
-\approx 513{,}700.
-$$
-:::
-
-### Public Securities Association (PSA) Prepayment Benchmark
-
-The PSA benchmark is a standard prepayment path for 30-year mortgages. At 100 PSA, CPR starts at 0.2% in month 1, rises by 0.2 percentage points per month until month 30, and then remains at 6% CPR. A multiple of PSA scales this path.
-
-For 100 PSA:
-
-$$
-\text{CPR}_t =
-\begin{cases}
-0.06 \times \frac{t}{30}, & t \le 30 \\
-0.06, & t > 30.
-\end{cases}
-$$
-
-For 150 PSA, multiply the CPR path by 1.5. For 50 PSA, multiply by 0.5.
-
-```{python}
-#| label: fig-psa-speeds
-#| fig-cap: "PSA benchmark prepayment paths. 100 PSA ramps to 6% CPR by month 30; other speeds scale the path."
-#| echo: false
-#| message: false
-#| warning: false
-
-months_psa = np.arange(1, 121)
-base_cpr = np.where(months_psa <= 30, 0.06 * months_psa / 30, 0.06)
-fig, ax = plt.subplots()
-for speed, color in [(50, "#2563eb"), (100, "#16a34a"), (150, "#d97706"), (300, "#dc2626")]:
-    ax.plot(months_psa, base_cpr * speed / 100 * 100, linewidth=2.3, label=f"{speed} PSA", color=color)
-ax.set_title("PSA Prepayment Benchmark")
-ax.set_xlabel("Month after origination")
-ax.set_ylabel("CPR (%)")
-ax.legend(loc="lower right")
-plt.tight_layout()
-plt.show()
-```
-
-### Monthly Cash Flow Construction
-
-A mortgage pool cash-flow model usually follows this monthly order:
-
-1. Start with beginning balance.
-2. Calculate scheduled interest.
-3. Calculate scheduled principal from the mortgage payment.
-4. Calculate prepayment using SMM on the post-scheduled-principal balance.
-5. End with the new balance.
-
-```{python}
-#| label: fig-pool-cashflows
-#| fig-cap: "Illustrative monthly cash flows for a mortgage pool under 100 PSA."
-#| echo: false
-#| message: false
-#| warning: false
-
-def mortgage_pool_cashflows(balance, mortgage_rate, months, psa_speed):
-    monthly_rate = mortgage_rate / 12
-    payment = balance * monthly_rate / (1 - (1 + monthly_rate) ** (-months))
-    records = []
-    beg = balance
-    for t in range(1, months + 1):
-        sched_int = beg * monthly_rate
-        sched_prin = min(payment - sched_int, beg)
-        cpr = (0.06 * min(t, 30) / 30) * psa_speed / 100
-        smm = 1 - (1 - cpr) ** (1 / 12)
-        prepay = max(beg - sched_prin, 0) * smm
-        end = max(beg - sched_prin - prepay, 0)
-        records.append((t, beg, sched_int, sched_prin, prepay, end))
-        beg = end
-        if beg <= 1e-6:
-            break
-    return pd.DataFrame(
-        records,
-        columns=["month", "begin_balance", "interest", "scheduled_principal", "prepayment", "end_balance"],
-    )
-
-pool_cf = mortgage_pool_cashflows(100_000_000, 0.055, 360, 100)
-first_120 = pool_cf.head(120)
-
-fig, ax = plt.subplots()
-ax.plot(first_120["month"], first_120["interest"] / 1_000_000, label="Interest", color="#d97706", linewidth=2)
-ax.plot(first_120["month"], first_120["scheduled_principal"] / 1_000_000, label="Scheduled principal", color="#2563eb", linewidth=2)
-ax.plot(first_120["month"], first_120["prepayment"] / 1_000_000, label="Prepayment", color="#dc2626", linewidth=2)
-ax.set_title("Mortgage Pool Cash Flow Components")
-ax.set_xlabel("Month")
-ax.set_ylabel("Monthly cash flow ($ millions)")
-ax.legend(loc="best")
-plt.tight_layout()
-plt.show()
-```
-
-The economic lesson is that the investor receives two forms of principal: scheduled amortization and borrower-controlled prepayment. Prepayment can dominate scheduled principal when rates fall or when borrowers have strong turnover incentives.
-
-### Beware of Conventions
-
-Mortgage conventions are easy to misread. CPR is annualized; SMM is monthly. PSA is a path, not a single CPR. Pool factors report remaining balance as a percentage of original balance. Average life depends on assumed speeds. Yield depends on price, coupon, fees, and the prepayment path.
-
-::: {.callout-warning title="Common Mistake"}
-Do not apply CPR directly as a monthly prepayment rate. A 6% CPR corresponds to about 0.514% SMM, not 6% per month.
-:::
-
-The reason conventions are dangerous is that small timing errors compound. A model that prepays principal too early or too late can materially misstate yield, duration, and tranche average life.
-
-## Factors Affecting Prepayments and Prepayment Modeling
-
-Prepayment models usually combine rate incentives, borrower characteristics, housing turnover, seasonality, burnout, credit availability, and policy or servicer behavior.
-
-The most important rate-driven concept is refinance incentive:
-
-$$
-\text{Refinance incentive}
-\approx
-\text{Borrower's current mortgage rate}
--
-\text{Available new mortgage rate}
--
-\text{Refinancing costs}.
-$$
-
-If the incentive is positive and large enough, borrowers are more likely to refinance. But prepayments are not purely optimal because borrowers face frictions: credit scores, documentation, moving costs, search costs, tax considerations, inertia, and capacity constraints in the mortgage industry.
-
-```{python}
-#| label: fig-prepayment-incentive
-#| fig-cap: "Stylized refinance response. Prepayments rise with refinance incentive but level off because not all borrowers respond immediately."
-#| echo: false
-#| message: false
-#| warning: false
-
-incentive = np.linspace(-2.5, 3.0, 120)
-cpr_response = 3 + 32 / (1 + np.exp(-1.6 * (incentive - 0.5)))
-fig, ax = plt.subplots()
-ax.plot(incentive, cpr_response, color="#7c3aed", linewidth=2.6)
-ax.axvline(0, color="#64748b", linestyle="--", linewidth=1.2)
-ax.set_title("Stylized Prepayment Response to Refinance Incentive")
-ax.set_xlabel("Current mortgage rate - available mortgage rate - costs (%)")
-ax.set_ylabel("Annualized CPR (%)")
-plt.tight_layout()
-plt.show()
-```
-
-### Housing Turnover Component
-
-Housing turnover prepayments occur when borrowers sell their homes. Turnover depends on household mobility, job changes, family formation, divorce, retirement, local housing liquidity, and seasonality.
-
-The reason turnover matters is that it creates prepayments even when refinancing is unattractive. A borrower who moves must usually repay the old mortgage, so the MBS investor receives principal whether rates are high or low.
-
-Turnover is often seasonal, with higher activity in spring and summer housing markets. Seasonality makes monthly prepayment analysis more useful than annual averages.
-
-### Cash-Out Refinancing Component
-
-Cash-out refinancing occurs when the borrower refinances into a larger loan and takes out home equity in cash. It depends on home-price appreciation, borrower equity, credit availability, and household demand for funds.
-
-The reason cash-out refinancing matters is that it can generate prepayments even if rate savings are modest. A borrower may refinance to consolidate debt, renovate, pay expenses, or extract equity after home prices rise.
-
-Cash-out behavior links mortgage prepayments to the broader credit cycle. When home values rise and underwriting is loose, cash-out refi activity can increase. When home prices fall or lending standards tighten, cash-out prepayments can slow sharply.
-
-## Cash Flow Yield
-
-Cash flow yield is the discount rate that equates an MBS price to projected cash flows under an assumed prepayment path:
-
-$$
-P = \sum_{t=1}^{T} \frac{\text{Projected Cash Flow}_t}{(1+y_m)^t}.
-$$
-
-Here $y_m$ is a monthly yield. It can be annualized into a bond-equivalent yield. The important phrase is **projected cash flows**. Unlike Treasury yield-to-maturity, mortgage cash-flow yield depends on the assumed prepayment model.
-
-::: {.callout-note title="Worked Example: Cash Flow Yield Intuition"}
-If an investor pays 103 for a premium MBS and the pool prepays quickly, high coupon cash flows disappear faster and the premium is amortized over fewer months. The realized yield may be much lower than the initial cash-flow yield.
-:::
-
-### Bond-Equivalent Yield
-
-Bond-equivalent yield annualizes a monthly mortgage yield by doubling the semiannual yield equivalent:
-
-$$
-\text{BEY} = 2\left((1+y_m)^6-1\right).
-$$
-
-If the monthly yield is 0.40%, then:
-
-$$
-\text{BEY}=2\left((1.004)^6-1\right)=4.86\%.
-$$
-
-The reason BEY is used is comparison. Treasury and corporate bond yields are often quoted on a semiannual bond-equivalent basis, so converting mortgage yields makes relative-value discussion easier.
-
-### Limitations of Cash Flow Yield Measure
-
-Cash-flow yield has three major limitations:
-
-- It assumes a particular prepayment path.
-- It ignores the value of the borrower's prepayment option unless the cash-flow path is scenario-based.
-- It can rank bonds incorrectly when securities have different option exposure.
-
-The reason this measure is still used is convenience. It is transparent and easy to compute. But serious mortgage valuation usually uses scenario analysis, option-adjusted spread, duration, convexity, and prepayment model sensitivity.
-
-### Yield Spread to Treasuries
-
-Mortgage investors often compare MBS yields or option-adjusted spreads to Treasury yields. The spread compensates for prepayment risk, liquidity, model uncertainty, guarantee fees, and supply-demand technicals.
-
-The spread is not directly comparable to a corporate credit spread. Agency MBS usually have much less direct credit risk, but much more borrower-option risk.
-
-::: {.callout-tip title="Spread Intuition"}
-Treasury spreads compensate investors for taking mortgage cash-flow uncertainty. If rates fall, the MBS investor may not keep the high coupon. If rates rise, the investor may keep the low coupon for longer than expected.
-:::
-
-### Average Life
-
-Average life is the weighted average time until principal is received:
-
-$$
-\text{Average Life}
+\text{Predicted TE}
 =
-\frac{\sum_{t=1}^{T} t \times \text{Principal}_t}
-{12 \times \sum_{t=1}^{T} \text{Principal}_t}.
+\sqrt{
+(\Delta \boldsymbol{\beta})'
+\Sigma_F
+(\Delta \boldsymbol{\beta})
++\sigma_{\epsilon}^2
+},
 $$
 
-It is measured in years. It is not the same as maturity. A 30-year mortgage pool can have a much shorter average life because scheduled principal and prepayments return principal before final maturity.
+where $\Delta \boldsymbol{\beta}$ is the vector of portfolio-minus-benchmark factor exposures, $\Sigma_F$ is the factor covariance matrix, and $\sigma_{\epsilon}^2$ is idiosyncratic active variance.
+
+If active returns are approximately normal, tracking error gives a rough range of outcomes. If expected active return is zero and annual tracking error is 100 bps, then active return is within about +/-100 bps in roughly two-thirds of years and within about +/-200 bps in roughly 95% of years. This is a model-based statement, not a guarantee.
+
+## Tracking Error and Active versus Passive Strategies
+
+Tracking error is the language of active versus passive management:
+
+- **Passive strategy:** very low tracking error; the goal is to replicate the benchmark after costs.
+- **Enhanced indexing:** modest tracking error; the goal is to stay close to the benchmark while adding small active tilts.
+- **Active strategy:** larger tracking error; the manager intentionally differs from the benchmark.
+
+The reason tracking error is useful is that it turns vague statements like "slightly active" into measurable risk budgets.
+
+::: {.callout-note title="Numerical Risk Budget Example"}
+A client allows annual tracking error of 150 bps. The monthly tracking error budget is approximately:
+
+$$
+\frac{150}{\sqrt{12}}=43.3\text{ bps per month}.
+$$
+
+If the optimizer predicts 65 bps of monthly tracking error, the portfolio violates the client's risk budget even if the manager likes the trades.
+:::
 
 ```{python}
 #| echo: false
 #| message: false
 #| warning: false
 
-avg_life_records = []
-for speed in [0, 50, 100, 150, 300]:
-    cf = mortgage_pool_cashflows(100_000_000, 0.055, 360, speed)
-    principal_cf = cf["scheduled_principal"] + cf["prepayment"]
-    avg_life = (cf["month"] * principal_cf).sum() / principal_cf.sum() / 12
-    avg_life_records.append({"PSA speed": f"{speed} PSA", "Average life (years)": round(avg_life, 2)})
-pd.DataFrame(avg_life_records)
+strategy_te = pd.DataFrame(
+    {
+        "Strategy": ["Pure indexing", "Enhanced indexing", "Active benchmark-aware", "Unconstrained / absolute return"],
+        "Typical active risk": ["Near zero", "Low", "Moderate to high", "Benchmark may not control risk"],
+        "Main objective": [
+            "Replicate benchmark",
+            "Small active gains with tight risk control",
+            "Outperform benchmark using views",
+            "Maximize absolute or risk-adjusted return",
+        ],
+    }
+)
+strategy_te
 ```
 
-The reason average life is useful is asset/liability matching. A bank, insurer, or pension investor cares when principal comes back, not only when the final legal maturity occurs.
+## Cell-Based Approach to Bond Portfolio Construction
 
-## Prepayment Risk and Asset/Liability Management
+The cell-based approach divides the benchmark into buckets, or cells, based on characteristics that drive return. Common cells include:
 
-Prepayment risk creates asset/liability management problems because mortgage asset duration changes when rates change.
+- duration;
+- maturity;
+- coupon;
+- sector;
+- credit quality;
+- call features;
+- sinking fund features;
+- mortgage coupon and collateral type.
 
-When rates fall:
-
-- borrowers refinance;
-- MBS principal returns faster;
-- asset duration shortens;
-- investors must reinvest at lower yields.
-
-When rates rise:
-
-- refinancing slows;
-- MBS principal returns more slowly;
-- asset duration extends;
-- funding costs may rise while asset coupons remain low.
-
-```{mermaid}
-%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Inter, Arial, sans-serif", "lineColor": "#64748b"}}}%%
-flowchart TB
-  A["Interest rates fall"] --> B["Refinancing incentive rises"]
-  B --> C["Prepayments accelerate"]
-  C --> D["MBS duration contracts"]
-  D --> E["Reinvestment risk"]
-  F["Interest rates rise"] --> G["Refinancing incentive disappears"]
-  G --> H["Prepayments slow"]
-  H --> I["MBS duration extends"]
-  I --> J["Extension risk"]
-  classDef fall fill:#dbeafe,stroke:#2563eb,stroke-width:2.5px,color:#0f172a;
-  classDef rise fill:#fee2e2,stroke:#dc2626,stroke-width:2.5px,color:#450a0a;
-  classDef risk fill:#ede9fe,stroke:#7c3aed,stroke-width:2.5px,color:#2e1065;
-  class A,B,C,D fall;
-  class F,G,H,I rise;
-  class E,J risk;
-  linkStyle 0,1,2,3 stroke:#2563eb,stroke-width:2.5px;
-  linkStyle 4,5,6,7 stroke:#dc2626,stroke-width:2.5px;
-```
-
-The reason mortgage investors hedge dynamically is that duration is not stable. A Treasury portfolio can be duration-matched more mechanically. A mortgage portfolio can become shorter or longer precisely when the investor does not want that change.
-
-## Secondary Market Trading
-
-Agency MBS trade in specified-pool markets and in the TBA market. In a TBA trade, buyer and seller agree on general parameters such as agency, coupon, maturity, settlement month, and face amount, but the exact pools are announced shortly before settlement.
-
-The TBA market exists because standardization creates liquidity. Instead of negotiating every loan-level detail at trade date, market participants trade fungible agency MBS characteristics and deliver eligible pools later.
-
-Specified pools trade when investors care about particular collateral characteristics, such as low loan balance, geographic concentration, seasoning, high LTV, or other prepayment-relevant features. A pool with slower expected prepayments can trade at a pay-up over generic TBA collateral.
-
-::: {.callout-note title="Example: Specified Pool Pay-Up"}
-If generic 5.5% agency MBS trade at 101-16 and a low-loan-balance pool trades at 102-00, the investor pays extra for collateral expected to prepay more slowly when rates fall. The pay-up is valuable only if the prepayment advantage is large enough.
-:::
-
-# Agency Collateralized Mortgage Obligations and Stripped Mortgage-Backed Securities
-
-Agency CMOs and stripped MBS do not create new mortgage cash flows. They reallocate cash-flow timing and risk from the same underlying collateral.
-
-The reason structuring exists is investor segmentation. Some investors want short average life, some want stable principal windows, some want floating coupons, and some want leveraged exposure to prepayment changes. A CMO turns one pool into multiple securities with different risk profiles.
-
-## Agency Collateralized Mortgage Obligations
-
-A collateralized mortgage obligation (CMO), often issued as a REMIC, takes mortgage collateral and creates tranches. Interest and principal are allocated according to deal rules.
+The manager then selects representative securities for each cell. If a benchmark has 30% corporate bonds, a passive cell-based portfolio should allocate about 30% to corporate cells. If the manager believes corporates will outperform, the manager may overweight corporate cells and underweight other cells.
 
 ```{mermaid}
 %%{init: {"theme": "base", "themeVariables": {"fontFamily": "Inter, Arial, sans-serif", "lineColor": "#64748b"}}}%%
 flowchart LR
-  A["Agency pass-through collateral<br/>monthly P&I + prepayments"] --> B["CMO / REMIC trust"]
-  B --> C["Sequential tranches<br/>timing priority"]
-  B --> D["PAC / TAC tranches<br/>planned principal"]
-  B --> E["Floaters / inverse floaters<br/>coupon reshaping"]
-  B --> F["IO / PO / NIO<br/>cash-flow stripping"]
-  B --> G["Support bonds<br/>absorb variability"]
-  classDef collateral fill:#dbeafe,stroke:#2563eb,stroke-width:3px,color:#0f172a;
-  classDef trust fill:#ede9fe,stroke:#7c3aed,stroke-width:3px,color:#2e1065;
-  classDef stable fill:#dcfce7,stroke:#16a34a,stroke-width:2.5px,color:#052e16;
-  classDef option fill:#fef3c7,stroke:#d97706,stroke-width:2.5px,color:#451a03;
-  classDef risky fill:#fee2e2,stroke:#dc2626,stroke-width:2.5px,color:#450a0a;
-  class A collateral;
-  class B trust;
-  class C,D stable;
-  class E,F option;
-  class G risky;
+  A["Benchmark index"] --> B["Partition into cells"]
+  B --> C["Duration buckets"]
+  B --> D["Sector buckets"]
+  B --> E["Credit buckets"]
+  B --> F["Optionality buckets"]
+  C --> G["Representative bonds"]
+  D --> G
+  E --> G
+  F --> G
+  G --> H["Portfolio weights<br/>match or tilt vs benchmark"]
+  classDef root fill:#dbeafe,stroke:#2563eb,stroke-width:3px,color:#0f172a;
+  classDef cell fill:#fef3c7,stroke:#d97706,stroke-width:2.5px,color:#451a03;
+  classDef portfolio fill:#dcfce7,stroke:#16a34a,stroke-width:2.5px,color:#052e16;
+  class A root;
+  class B,C,D,E,F cell;
+  class G,H portfolio;
   linkStyle default stroke:#64748b,stroke-width:2.5px;
 ```
 
-### Sequential-Pay Tranches
+::: {.callout-note title="Worked Example: Counting Cells"}
+Suppose an investment-grade bond benchmark is divided by:
 
-Sequential-pay tranches receive principal in order. Tranche A receives all principal until it is paid off; then tranche B receives principal; then tranche C, and so on. While waiting for principal, later tranches usually receive interest on their outstanding balances.
+- duration: 2 groups, less than or equal to 5 years and greater than 5 years;
+- maturity: 3 groups, less than 5 years, 5-15 years, 15+ years;
+- sector: 4 groups, Treasury, agencies, corporates, agency MBS;
+- credit quality: 4 groups, AAA, AA, A, BBB.
 
-The reason sequential structures exist is to create different average lives from one collateral pool. Short-duration investors buy early tranches. Longer-duration investors buy later tranches.
+The number of cells is:
 
-::: {.callout-note title="Sequential-Pay Example"}
-Suppose a CMO has A, B, and C tranches. In month 1, the collateral pays $2 million principal. If A is still outstanding, all $2 million goes to A. B and C receive only interest. Once A is fully retired, principal begins flowing to B.
+$$
+2\times3\times4\times4=96.
+$$
+
+If the portfolio is only $50 million, filling 96 cells can force small odd-lot trades. Reducing the number of cells lowers transaction costs but increases mismatch risk.
 :::
 
-### Accrual Bonds
-
-An accrual bond, or Z bond, does not receive current interest for a period. Instead, the interest accrues and is added to the bond's principal balance. After earlier tranches are paid down, the Z bond begins receiving cash flows.
-
-The reason accrual bonds exist is cash-flow support. By withholding current interest from the Z tranche, the structure can redirect cash to pay down earlier tranches faster or support more stable schedules. The Z investor receives a longer-duration, compounding position.
-
-### Floating-Rate Tranches
-
-Floating-rate CMO tranches have coupons tied to an index plus a spread, usually subject to caps and floors. They can be paired with inverse floaters so that the total coupon paid by the collateral is allocated between two tranches.
-
-The reason floaters exist is investor demand for low-duration assets. A money-market or short-duration investor may prefer a mortgage-backed instrument whose coupon resets with rates, while accepting that principal timing still depends on prepayments.
-
-### Planned Amortization Class (PAC) Tranches
-
-PAC tranches are designed to receive a planned principal schedule as long as collateral prepayments stay within a specified range. Support bonds absorb extra or shortfall principal to protect the PAC.
-
-The reason PACs exist is to reduce average-life uncertainty. They are not risk-free, but they are more stable than raw pass-throughs or simple sequential tranches over a defined prepayment band.
-
-#### Creating a Series of PAC Bonds
-
-A CMO can create several PAC bonds with different planned windows. The structurer chooses schedules that allocate expected principal across time while leaving enough support bonds to absorb prepayment variation.
-
-The reason for a series of PACs is investor matching. One investor may want principal in years 2-4, another in years 5-7, and another in years 8-10. A PAC series makes those windows more predictable than a single pass-through.
-
-#### Planned Amortization Class Window
-
-The PAC window is the period during which the PAC is expected to receive principal according to schedule. It is usually shorter and more stable than the collateral's final maturity.
-
-The reason the window matters is risk communication. Investors do not only ask "What is the average life?" They ask "When will principal actually arrive?" A narrow window is easier to match against liabilities.
-
-#### Effective Collars and Actual Prepayments
-
-The PAC collar is the range of prepayment speeds over which the PAC schedule is expected to hold. If actual prepayments stay inside the collar, support bonds absorb the variation. If actual speeds move outside the collar for long enough, the PAC can lose protection.
-
-::: {.callout-tip title="PAC Collar Intuition"}
-The support bond is the shock absorber. Once the shock absorber is used up, the PAC starts feeling the road.
-:::
-
-#### Providing Greater Prepayment Protection for PACs
-
-Greater PAC protection can be created by allocating more collateral cash-flow variability to support bonds, using wider initial bands, or creating PAC groups with priority over other scheduled tranches.
-
-The tradeoff is yield. More protected PACs usually offer lower yields because support bonds are taking more prepayment variability. Support bonds demand higher expected returns for that risk.
-
-#### Other Planned Amortization Class Tranches
-
-Other planned classes may have different priority levels or schedules. A PAC II, for example, may have planned protection only after the primary PAC has been supported. These structures create a hierarchy of prepayment protection.
-
-The reason these variants exist is fine-tuning. Structurers can create securities that sit between highly protected PACs and volatile support bonds.
-
-### Targeted Amortization Class (TAC) Bonds
-
-A targeted amortization class has a principal schedule targeted to a single prepayment speed rather than a broad band. It generally protects against one-sided prepayment risk less effectively than a PAC.
-
-The reason TACs exist is that some investors have a view about prepayment speed and want a cheaper structure than a PAC. The investor receives some schedule targeting but accepts more risk if speeds differ from the target.
-
-### Very Accurately Determined Maturity (VADM) Bonds
-
-Very Accurately Determined Maturity bonds are designed to have a highly predictable final maturity under specified assumptions, often by using support from other tranches.
-
-The reason VADMs exist is final-maturity targeting. Some investors care less about monthly principal stability and more about avoiding unexpected final maturity extension.
-
-### Interest-Only (IO) and Principal-Only (PO) Tranches
-
-IO and PO tranches split interest and principal cash flows. A PO receives principal payments but no interest. An IO receives interest payments based on a notional or principal amount but no principal.
-
-The prepayment exposure is opposite:
-
-- **PO:** benefits when prepayments are faster because principal arrives sooner.
-- **IO:** suffers when prepayments are faster because the interest-bearing balance disappears sooner.
+The cell-based approach is intuitive and transparent. Its weakness is that it treats cells like separate boxes. It does not naturally account for correlations across cells. Two large cell mismatches may hedge each other, or two small mismatches may reinforce each other.
 
 ```{python}
-#| label: fig-io-po-sensitivity
-#| fig-cap: "Stylized IO and PO sensitivity to prepayment speed. Faster prepayments help POs but hurt IOs."
 #| echo: false
 #| message: false
 #| warning: false
 
-speeds = np.array([50, 100, 150, 200, 300, 400])
-po_value = np.array([78, 86, 92, 96, 101, 104])
-io_value = np.array([24, 19, 15, 12, 8, 6])
+cell_example = pd.DataFrame(
+    {
+        "Sector": ["Treasury", "Agencies", "Corporates", "Agency MBS"],
+        "Benchmark weight (%)": [33.3, 6.8, 26.6, 33.3],
+        "Portfolio weight (%)": [29.5, 3.6, 34.8, 29.0],
+    }
+)
+cell_example["Active weight (%)"] = cell_example["Portfolio weight (%)"] - cell_example["Benchmark weight (%)"]
+cell_example
+```
+
+```{python}
+#| label: fig-cell-sector-weights
+#| fig-cap: "Example sector active weights. A cell-based approach makes benchmark tilts visible."
+#| echo: false
+#| message: false
+#| warning: false
 
 fig, ax = plt.subplots()
-ax.plot(speeds, po_value, marker="o", linewidth=2.5, label="PO value", color="#2563eb")
-ax.plot(speeds, io_value, marker="o", linewidth=2.5, label="IO value", color="#dc2626")
-ax.set_title("Stylized IO / PO Prepayment Exposure")
-ax.set_xlabel("Prepayment speed (PSA)")
-ax.set_ylabel("Relative value")
-ax.legend(loc="best")
+colors = np.where(cell_example["Active weight (%)"] >= 0, "#16a34a", "#dc2626")
+ax.bar(cell_example["Sector"], cell_example["Active weight (%)"], color=colors)
+ax.axhline(0, color="#334155", linewidth=1)
+ax.set_title("Portfolio Active Weights by Sector")
+ax.set_ylabel("Portfolio weight - benchmark weight (%)")
+plt.xticks(rotation=20, ha="right")
 plt.tight_layout()
 plt.show()
 ```
 
-The reason IOs and POs exist is risk transfer. A hedge fund or mortgage specialist may want concentrated prepayment exposure. A liability investor may want principal timing. Stripping lets the market separate these exposures.
+### Complications in Bond Indexing
 
-### Notional Interest-Only (NIO) Tranches
+Pure bond indexing means buying every security in the benchmark at its benchmark weight. In practice this is often impossible or inefficient because broad bond indexes can contain thousands of issues.
 
-A notional IO has no principal balance that will be repaid. Instead, it receives interest calculated on a notional amount that declines according to rules tied to other tranches or collateral balances.
+Bond indexing is harder than equity indexing for several reasons:
 
-The reason NIOs exist is to allocate excess interest or coupon differences. They can be very sensitive to prepayment speed because the notional balance can decline quickly when principal pays down.
+- **Many securities per issuer:** one company can have dozens of bonds.
+- **Illiquidity:** many bonds trade infrequently.
+- **Bid-ask spread:** benchmark returns often use bid-side pricing, while portfolio purchases occur near ask-side prices.
+- **Index pricing:** index provider prices may not be executable.
+- **Cash-flow reinvestment:** coupons, maturities, calls, and amortization create cash to reinvest.
+- **Mortgage aggregation:** agency MBS indexes often represent huge numbers of pools through generic cohorts.
 
-### Support Bonds
+::: {.callout-note title="Transaction Cost Example"}
+Suppose a manager tries to buy 1,000 small bond positions and pays an average 12 bps bid-ask and execution cost. On a $100 million portfolio:
 
-Support bonds, or companion bonds, absorb prepayment variability so PACs or other planned tranches can maintain their schedules. They receive principal earlier or later depending on actual collateral prepayments.
+$$
+100{,}000{,}000\times0.0012=120{,}000.
+$$
 
-The reason support bonds offer higher yields is that they carry the instability the PAC investor does not want. They can contract sharply when prepayments are fast and extend sharply when prepayments are slow.
-
-### Actual Transaction
-
-Actual CMO transactions are defined by prospectus supplements. The supplement specifies collateral, tranche balances, coupon formulas, principal priority rules, accrual rules, support relationships, trigger events, tax status, and risk factors.
-
-The reason investors read the supplement carefully is that names like PAC, TAC, IO, and support bond are categories, not complete descriptions. Two PACs can behave differently if their support levels, collars, collateral, and priority rules differ.
-
-::: {.callout-note title="Transaction Reading Checklist"}
-For any actual CMO, identify the collateral, tranche priority, coupon formula, prepayment assumptions, average-life table, stress scenarios, support bond size, and what happens when prepayments fall outside the stated band.
+That is 12 bps of immediate performance drag before any active decision is made.
 :::
 
-## Agency Stripped Mortgage-Backed Securities
+The reason enhanced indexing exists is pragmatic. A manager samples the benchmark to reduce transaction costs and operational complexity, then controls the resulting mismatch with cells or factor exposures.
 
-Agency stripped MBS split mortgage cash flows into securities with different coupon exposure. The simplest form separates principal-only and interest-only cash flows. More complex forms create synthetic coupon pass-throughs or CMO strips.
+## Portfolio Construction with Multi-Factor Models
 
-The reason stripped MBS are useful is that they expose the mortgage option more directly. IO prices are highly sensitive to faster prepayments; PO prices are highly sensitive to discount rates and principal timing.
+Multi-factor models are the practical response to the covariance problem. Instead of estimating the covariance of every bond with every other bond, they estimate a smaller set of common risk factors.
 
-### Synthetic-Coupon Pass-Throughs
+For fixed income, factors often include:
 
-A synthetic-coupon pass-through is created by recombining strips to produce an artificial coupon different from the original collateral coupon. For example, an investor can combine IO and PO pieces to create a security with a lower or higher effective coupon.
+- Treasury level, slope, and curvature;
+- key rate duration points;
+- swap spreads;
+- corporate spread factors by rating and sector;
+- securitized spread factors;
+- interest-rate volatility;
+- currency risk;
+- issuer and issue residual risk.
 
-The reason synthetic coupons exist is relative value. Different investors may prefer different coupon exposures depending on their prepayment view, hedge needs, or accounting constraints.
+The portfolio is compared with the benchmark factor by factor. Active risk comes from differences between portfolio exposures and benchmark exposures.
 
-#### Interest-Only / Principal-Only Securities
+```{mermaid}
+%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Inter, Arial, sans-serif", "lineColor": "#64748b"}}}%%
+flowchart TB
+  A["Current holdings"] --> C["Factor exposures"]
+  B["Benchmark holdings"] --> D["Benchmark exposures"]
+  C --> E["Active exposures<br/>portfolio - benchmark"]
+  D --> E
+  E --> F["Factor volatilities<br/>and correlations"]
+  E --> G["Issuer / issue residual risk"]
+  F --> H["Predicted tracking error"]
+  G --> H
+  H --> I["Risk control and optimizer"]
+  classDef holdings fill:#dbeafe,stroke:#2563eb,stroke-width:2.5px,color:#0f172a;
+  classDef exposure fill:#fef3c7,stroke:#d97706,stroke-width:2.5px,color:#451a03;
+  classDef model fill:#ede9fe,stroke:#7c3aed,stroke-width:2.5px,color:#2e1065;
+  classDef result fill:#dcfce7,stroke:#16a34a,stroke-width:2.5px,color:#052e16;
+  class A,B holdings;
+  class C,D,E exposure;
+  class F,G,H model;
+  class I result;
+  linkStyle default stroke:#64748b,stroke-width:2.5px;
+```
 
-IO and PO securities are the cleanest examples of mortgage cash-flow stripping. The PO receives principal and is usually priced at a discount. The IO receives interest and may decline in value when rates fall because faster prepayments reduce future interest.
+A key advantage is scenario analysis. Before trading, the manager can ask:
 
-::: {.callout-tip title="IO / PO Intuition"}
-PO investors want their principal back sooner if the price is below par. IO investors want the mortgage balance to stay outstanding so interest keeps arriving.
+- What happens to tracking error if duration is increased by 0.25 years?
+- Which factor contributes most to active risk?
+- Is the corporate overweight mostly spread risk or issuer-specific risk?
+- Which trades reduce tracking error most per dollar of transaction cost?
+
+### Risk Decomposition
+
+Risk decomposition explains where tracking error comes from. Start with active exposure:
+
+$$
+\Delta x_k = x_{p,k}-x_{b,k}.
+$$
+
+If factor $k$ has volatility $\sigma_k$, the isolated tracking error from that factor is approximately:
+
+$$
+\text{Isolated TE}_k = |\Delta x_k|\sigma_k.
+$$
+
+If factor correlations are zero, total systematic tracking error is:
+
+$$
+\text{Systematic TE}
+=
+\sqrt{\sum_{k=1}^{K}\text{TE}_k^2}.
+$$
+
+If factors are correlated, the factor covariance matrix is needed:
+
+$$
+\text{Systematic TE}
+=
+\sqrt{\Delta x' \Sigma_F \Delta x}.
+$$
+
+::: {.callout-note title="Worked Example: Isolated Risk Is Not Additive"}
+Suppose a bond portfolio has the following monthly isolated tracking errors:
+
+| Risk factor | Isolated TE (bps/month) |
+|---|---:|
+| Yield curve | 3.9 |
+| Swap spread | 2.6 |
+| Volatility | 1.3 |
+| Government-related spread | 0.8 |
+| Corporate spread | 2.8 |
+| Securitized spread | 2.5 |
+
+Adding them gives 13.9 bps, but that is wrong because standard deviations are not additive. Assuming zero correlations:
+
+$$
+\sqrt{3.9^2+2.6^2+1.3^2+0.8^2+2.8^2+2.5^2}=6.20
+$$
+
+bps per month.
 :::
 
-This is the opposite of a normal premium pass-through investor, who may dislike fast prepayments because premium principal is returned at par. It is also why IO/PO markets are useful for extracting market-implied prepayment views.
+```{python}
+#| echo: false
+#| message: false
+#| warning: false
 
-#### Collateralized Mortgage Obligation Strips
+risk_factors = pd.DataFrame(
+    {
+        "Risk factor": [
+            "Yield curve",
+            "Swap spread",
+            "Volatility",
+            "Government-related spread",
+            "Corporate spread",
+            "Securitized spread",
+        ],
+        "Isolated TE (bps/month)": [3.9, 2.6, 1.3, 0.8, 2.8, 2.5],
+    }
+)
+risk_factors
+```
 
-CMO strips are IO or PO interests tied to specific CMO tranches rather than directly to a whole pass-through pool. Their behavior depends on both collateral prepayments and tranche allocation rules.
+```{python}
+#| label: fig-factor-isolated-te
+#| fig-cap: "Illustrative isolated monthly tracking error by risk factor."
+#| echo: false
+#| message: false
+#| warning: false
 
-The reason CMO strips are especially complex is layering. The investor is exposed to borrower prepayment behavior and to the CMO waterfall. A strip off a support bond can behave very differently from a strip off a PAC because the underlying tranche receives principal under different rules.
+fig, ax = plt.subplots()
+colors = ["#2563eb", "#16a34a", "#d97706", "#0891b2", "#dc2626", "#7c3aed"]
+ax.barh(risk_factors["Risk factor"], risk_factors["Isolated TE (bps/month)"], color=colors)
+ax.set_title("Isolated Tracking Error by Risk Factor")
+ax.set_xlabel("bps per month")
+plt.tight_layout()
+plt.show()
+```
 
----
+The same idea applies to systematic and idiosyncratic active risk. If they are modeled as independent:
 
-# Key Points
+$$
+\text{Total TE}
+=
+\sqrt{\text{Systematic TE}^2+\text{Idiosyncratic TE}^2}.
+$$
 
-- Residential mortgages combine a loan secured by property with a borrower prepayment option. Mortgage investors receive principal and interest, but they are exposed to uncertain timing.
-- Origination quality matters because mortgage risk depends on both borrower capacity and collateral value. PTI and LTV are central underwriting ratios.
-- Mortgage loans differ by lien status, credit classification, interest-rate type, amortization type, credit guarantee, loan balance, and prepayment restrictions.
-- Conforming loans matter because they can enter the agency securitization channel. Nonconforming loans usually face different liquidity, credit, and pricing conditions.
-- Mortgage-loan investors face credit risk, liquidity risk, price risk, and prepayment risk. Prepayment risk is the defining feature of residential mortgage investing.
-- Agency pass-through securities pass borrower mortgage payments through to investors after servicing and guarantee fees. They reduce credit risk but do not remove prepayment risk.
-- Ginnie Mae securities carry explicit U.S. government backing, while Fannie Mae and Freddie Mac securities are agency MBS backed by their guarantee frameworks and conservatorship support.
-- CPR is an annualized prepayment measure; SMM is the monthly prepayment probability implied by CPR. PSA is a benchmark path that ramps prepayments over time.
-- Mortgage cash flows require monthly construction because each month includes scheduled interest, scheduled principal, and unscheduled prepayments.
-- Cash-flow yield depends on assumed prepayment speed, so it is not a model-free return measure. A different prepayment assumption can produce a different yield.
-- Average life measures the weighted average timing of principal payments and is more useful than final maturity for amortizing and prepayable mortgage securities.
-- MBS investors are short the borrower prepayment option. When rates fall, borrowers refinance faster; when rates rise, prepayments slow and investors may be stuck with lower-coupon exposure for longer.
-- CMOs reallocate mortgage cash-flow timing across tranches. Sequential-pay, accrual, floater, PAC, TAC, VADM, IO, PO, NIO, and support tranches each target different investor needs.
-- PAC tranches offer more stable principal schedules only because support bonds absorb more prepayment variability. Protection depends on the PAC collar and available support.
-- IO and PO securities isolate opposite prepayment exposures. Faster prepayments help POs but hurt IOs.
-- CMO and stripped-MBS analysis requires reading the actual prospectus supplement because tranche labels alone do not fully define cash-flow priority, triggers, or risk.
+::: {.callout-note title="Worked Example: Total Tracking Error"}
+Suppose systematic tracking error is 4.6 bps/month and idiosyncratic tracking error is 7.8 bps/month.
 
----
+$$
+\text{Total TE}
+=\sqrt{4.6^2+7.8^2}
+=9.1\text{ bps/month}.
+$$
 
-# Suggested Readings
+Even if idiosyncratic risk is small relative to total portfolio volatility, it can dominate tracking error if the portfolio holds far fewer names than the benchmark.
+:::
 
-Fabozzi – *Bond Markets, Analysis, and Strategies*:  
-**Chapter 10: Residential Mortgage Loans**  
-**Chapter 11: Agency Mortgage Pass-Through Securities**  
-**Chapter 12: Agency Collateralized Mortgage Obligations and Stripped Mortgage-Backed Securities**
+```{python}
+#| label: fig-key-rate-mismatch
+#| fig-cap: "Example key rate duration mismatch versus a benchmark."
+#| echo: false
+#| message: false
+#| warning: false
 
----
+key_rates = ["6M", "2Y", "5Y", "10Y", "20Y", "30Y"]
+portfolio_krd = np.array([0.11, 0.59, 1.53, 1.39, 0.98, 0.96])
+benchmark_krd = np.array([0.11, 0.64, 1.43, 1.51, 0.91, 0.82])
+net_krd = portfolio_krd - benchmark_krd
 
-*Sources used for market grounding and lecture framing include NYU Stern mortgage-backed securities lecture materials, MIT OpenCourseWare real estate capital markets materials, Ginnie Mae program descriptions, Fannie Mae and Freddie Mac MBS materials, FHFA conforming loan limit releases, and academic prepayment-risk research emphasizing the option-like and model-dependent nature of agency MBS valuation.*
+fig, ax = plt.subplots()
+ax.bar(key_rates, net_krd, color=np.where(net_krd >= 0, "#16a34a", "#dc2626"))
+ax.axhline(0, color="#334155", linewidth=1)
+ax.set_title("Net Key Rate Duration: Portfolio - Benchmark")
+ax.set_ylabel("Years")
+plt.tight_layout()
+plt.show()
+```
+
+Key rate duration matters because a portfolio can match total duration but still have curve-shape risk. A portfolio may be underweight 2-year duration and overweight 10-year duration. A parallel-shift metric hides that exposure.
+
+```{python}
+#| label: fig-fred-risk-factors
+#| fig-cap: "Real market data: Treasury yield and corporate spread risk factors. Data source: FRED, Federal Reserve Bank of St. Louis; ICE BofA indices."
+#| echo: false
+#| message: false
+#| warning: false
+
+def load_fred_series(series_ids, start="2020-01-01"):
+    ids = ",".join(series_ids)
+    url = f"https://fred.stlouisfed.org/graph/fredgraph.csv?id={ids}"
+    try:
+        with urllib.request.urlopen(url, timeout=8) as response:
+            raw = response.read()
+        data = pd.read_csv(io.BytesIO(raw), parse_dates=["observation_date"])
+        data = data.rename(columns={"observation_date": "date"}).set_index("date")
+        data = data.replace(".", np.nan).apply(pd.to_numeric, errors="coerce")
+        return data.loc[start:].dropna(how="all")
+    except Exception:
+        idx = pd.date_range("2020-01-31", periods=77, freq="ME")
+        return pd.DataFrame(
+            {
+                "DGS10": np.linspace(1.5, 4.5, len(idx)) + 0.6 * np.sin(np.linspace(0, 10, len(idx))),
+                "BAMLC0A0CM": np.linspace(2.0, 0.8, len(idx)) + 0.35 * np.sin(np.linspace(0, 12, len(idx))),
+                "BAMLH0A0HYM2": np.linspace(6.0, 2.9, len(idx)) + 1.2 * np.sin(np.linspace(0, 11, len(idx))),
+            },
+            index=idx,
+        )
+
+fred = load_fred_series(["DGS10", "BAMLC0A0CM", "BAMLH0A0HYM2"], start="2020-01-01")
+monthly_fred = fred.resample("ME").last()
+
+fig, ax1 = plt.subplots()
+ax1.plot(monthly_fred.index, monthly_fred["DGS10"], color="#2563eb", linewidth=2, label="10-year Treasury yield")
+ax1.set_ylabel("10-year Treasury yield (%)", color="#2563eb")
+ax1.tick_params(axis="y", labelcolor="#2563eb")
+
+ax2 = ax1.twinx()
+ax2.plot(monthly_fred.index, monthly_fred["BAMLC0A0CM"], color="#16a34a", linewidth=2, label="IG corporate OAS")
+ax2.plot(monthly_fred.index, monthly_fred["BAMLH0A0HYM2"], color="#dc2626", linewidth=2, label="High-yield OAS")
+ax2.set_ylabel("Option-adjusted spread (%)")
+ax2.grid(False)
+
+lines = ax1.get_lines() + ax2.get_lines()
+labels = [line.get_label() for line in lines]
+ax1.legend(lines, labels, loc="best")
+ax1.set_title("Real Risk Factors Used in Bond Portfolio Construction")
+plt.tight_layout()
+plt.show()
+```
+
+This plot is useful because it shows why a bond portfolio model needs multiple factors. Treasury yields and credit spreads do not always move together. During risk-off periods, Treasury yields may fall while spreads widen.
+
+### Portfolio Construction Using a Multi-Factor Model and an Optimizer
+
+A multi-factor model measures risk. An optimizer chooses holdings subject to objectives and constraints.
+
+The optimizer usually needs:
+
+- a tradable universe;
+- security prices and transaction costs;
+- benchmark holdings and benchmark exposures;
+- expected active returns or manager views;
+- factor exposures and covariance estimates;
+- issuer, sector, duration, spread, liquidity, and turnover constraints.
+
+The decision variables are the portfolio weights or dollar amounts in each candidate security. A common objective is:
+
+$$
+\min \text{Tracking Error}
+$$
+
+subject to constraints such as:
+
+- market value equals available capital;
+- no short sales;
+- maximum number of securities;
+- duration within a range around the benchmark;
+- sector active weights within limits;
+- issuer concentration limits;
+- minimum trade size;
+- transaction-cost budget;
+- tracking error below the risk budget.
+
+::: {.callout-note title="Long Numerical Example: Building a 50-Bond Enhanced Index Portfolio"}
+Suppose the benchmark has duration 5.41, spread duration 5.27, and a sector allocation of one-third Treasuries, one-third credit-like sectors, and one-third agency MBS. A manager wants a $100 million portfolio with:
+
+- no more than 50 bonds;
+- no short sales;
+- duration at least 0.15 years above the benchmark but no more than 0.30 years above;
+- spread 50-80 bps higher than the benchmark;
+- monthly tracking error below 15 bps;
+- maximum active issuer weight of 3%.
+
+One candidate portfolio has:
+
+| Measure | Portfolio | Benchmark | Difference |
+|---|---:|---:|---:|
+| Duration | 5.56 | 5.41 | 0.15 |
+| Spread duration | 5.37 | 5.27 | 0.10 |
+| Convexity | 0.11 | 0.06 | 0.05 |
+| Spread | 107 bps | 57 bps | 50 bps |
+
+The portfolio satisfies the duration and spread tilt constraints. The remaining question is whether those tilts fit inside the tracking error budget.
+:::
+
+```{python}
+#| echo: false
+#| message: false
+#| warning: false
+
+analytics = pd.DataFrame(
+    {
+        "Exposure": ["Duration", "Spread duration", "Convexity", "Vega", "Spread (bps)"],
+        "Portfolio": [5.56, 5.37, 0.11, 0.04, 107],
+        "Benchmark": [5.41, 5.27, 0.06, 0.03, 57],
+    }
+)
+analytics["Difference"] = analytics["Portfolio"] - analytics["Benchmark"]
+analytics
+```
+
+```{mermaid}
+%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Inter, Arial, sans-serif", "lineColor": "#64748b"}}}%%
+flowchart LR
+  A["Manager views<br/>duration, spread, sector"] --> C["Objective function<br/>min TE or maximize alpha per TE"]
+  B["Client constraints<br/>risk budget, issuers, sectors"] --> C
+  D["Tradable universe<br/>prices, liquidity, costs"] --> C
+  E["Factor risk model<br/>exposures + covariance"] --> C
+  C --> F["Optimizer"]
+  F --> G["Candidate portfolio"]
+  G --> H{"Accept risk<br/>and cost?"}
+  H -->|Yes| I["Trade list"]
+  H -->|No| B
+  classDef input fill:#dbeafe,stroke:#2563eb,stroke-width:2.5px,color:#0f172a;
+  classDef objective fill:#fef3c7,stroke:#d97706,stroke-width:2.5px,color:#451a03;
+  classDef output fill:#dcfce7,stroke:#16a34a,stroke-width:2.5px,color:#052e16;
+  classDef decision fill:#ede9fe,stroke:#7c3aed,stroke-width:3px,color:#2e1065;
+  class A,B,D,E input;
+  class C,F objective;
+  class G,I output;
+  class H decision;
+  linkStyle default stroke:#64748b,stroke-width:2.5px;
+```
+
+The reason optimization is valuable is not that it replaces judgment. It makes tradeoffs explicit. If the manager wants more corporate spread exposure, the optimizer shows which bonds add the exposure with the least tracking error, issuer concentration, and transaction cost.
+
+### Portfolio Rebalancing
+
+In practice, managers usually rebalance existing portfolios rather than build from cash. Rebalancing is required when:
+
+- benchmark weights change;
+- bonds mature, are called, or amortize;
+- credit ratings change;
+- client cash flows arrive or leave;
+- manager views change;
+- risk exposures drift outside limits.
+
+The objective is not simply to reduce tracking error. It is to reduce tracking error or improve expected active return **net of transaction costs**.
+
+::: {.callout-note title="Rebalancing Example"}
+Suppose a portfolio has become overweight banks by 8%, but the manager wants the bank overweight capped at 5%. The optimizer is allowed no more than 15 trades. It proposes:
+
+- sell $5 million of bank bonds;
+- buy $2 million Treasuries;
+- buy $1.5 million agency MBS;
+- buy $1.5 million industrial corporates.
+
+Before trading, the manager compares risk:
+
+| Metric | Before | After |
+|---|---:|---:|
+| Systematic TE (bps/month) | 4.6 | 4.2 |
+| Idiosyncratic TE (bps/month) | 7.8 | 7.8 |
+| Total TE (bps/month) | 9.0 | 8.8 |
+
+If the trades cost 6 bps and reduce monthly tracking error by only 0.2 bps, the manager must decide whether the risk reduction is worth the cost.
+:::
+
+```{python}
+#| label: fig-rebalance-frontier
+#| fig-cap: "Illustrative tradeoff between transaction cost and tracking error reduction."
+#| echo: false
+#| message: false
+#| warning: false
+
+trades = np.arange(0, 21)
+te_before = 12.0
+te_after = te_before - 4.0 * (1 - np.exp(-trades / 5))
+cost = 1.2 * trades + 0.04 * trades**2
+
+fig, ax1 = plt.subplots()
+ax1.plot(trades, te_after, color="#2563eb", linewidth=2.5, marker="o", label="Predicted TE")
+ax1.set_xlabel("Number of trades")
+ax1.set_ylabel("Predicted TE (bps/month)", color="#2563eb")
+ax1.tick_params(axis="y", labelcolor="#2563eb")
+
+ax2 = ax1.twinx()
+ax2.plot(trades, cost, color="#dc2626", linewidth=2.5, marker="s", label="Transaction cost")
+ax2.set_ylabel("Transaction cost (bps)", color="#dc2626")
+ax2.tick_params(axis="y", labelcolor="#dc2626")
+ax2.grid(False)
+
+ax1.set_title("Rebalancing: Risk Reduction Has a Cost")
+plt.tight_layout()
+plt.show()
+```
+
+The intuition is that the first few trades often remove the largest unwanted exposures. Later trades may add complexity and transaction cost without much additional risk reduction. Good portfolio construction is therefore not just optimization; it is disciplined risk budgeting under real trading frictions.
+
+Sources used for lecture framing include Markowitz's portfolio selection framework, Sharpe's single-index model, fixed-income portfolio construction material from Fabozzi-style bond portfolio management chapters, NYU Stern fixed-income lecture material, MIT OpenCourseWare finance and portfolio theory material, and FRED series for Treasury yields and ICE BofA corporate option-adjusted spreads.

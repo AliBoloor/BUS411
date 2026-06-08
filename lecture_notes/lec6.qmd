@@ -32,6 +32,20 @@ plt.rcParams["axes.spines.top"] = False
 plt.rcParams["axes.spines.right"] = False
 ```
 
+## Learning Objectives {.unnumbered}
+
+By the end of this lecture you should be able to:
+
+- Explain the Markowitz mean-variance framework and why direct application to bond portfolio construction is difficult.
+- Distinguish systematic risk from idiosyncratic risk in a bond portfolio.
+- Compute tracking error from active returns and annualize it correctly.
+- Distinguish backward-looking tracking error from forward-looking tracking error.
+- Explain the cell-based approach to bond portfolio construction and identify its limitations.
+- Describe why pure bond indexing is difficult in practice.
+- Explain the purpose of a multi-factor fixed-income risk model.
+- Use a multi-factor model to identify the sources of portfolio risk relative to a benchmark.
+- Explain how a manager can construct and rebalance a bond portfolio using a multi-factor model and an optimizer.
+
 # Brief Review of Portfolio Theory and Risk Decomposition
 
 Bond portfolio construction begins with a simple question:
@@ -55,6 +69,14 @@ $$
 $$
 
 Expected return is a weighted average. Risk is not. Portfolio risk depends on covariance, or equivalently correlation.
+
+The Markowitz framework has three required inputs:
+
+- expected returns;
+- variances or standard deviations;
+- covariances or correlations.
+
+The theory says that an investor should choose portfolios that offer the best expected return for a given level of risk, or the lowest risk for a given expected return. Those portfolios form the **efficient frontier**.
 
 ::: {.callout-tip title="Core Intuition"}
 Diversification works because assets do not move perfectly together. A portfolio of bonds is not risky only because the individual bonds are risky; it is risky because of how their interest-rate, spread, credit, liquidity, and optionality exposures move together.
@@ -112,12 +134,40 @@ plt.tight_layout()
 plt.show()
 ```
 
+```{python}
+#| label: fig-efficient-frontier
+#| fig-cap: "Stylized mean-variance frontier. The efficient frontier contains portfolios with the highest expected return for each risk level."
+#| echo: false
+#| message: false
+#| warning: false
+
+risk_grid = np.linspace(2, 12, 100)
+min_variance_return = 1.8 + 0.35 * risk_grid - 0.012 * (risk_grid - 7) ** 2
+inefficient_return = min_variance_return - 1.5 - 0.15 * np.cos(risk_grid)
+
+fig, ax = plt.subplots()
+ax.plot(risk_grid, min_variance_return, color="#2563eb", linewidth=2.8, label="Efficient frontier")
+ax.scatter(risk_grid[::10], inefficient_return[::10], color="#94a3b8", s=45, label="Inefficient portfolios")
+ax.scatter([risk_grid[10]], [min_variance_return[10]], color="#16a34a", s=80, zorder=3, label="Lower-risk efficient portfolio")
+ax.scatter([risk_grid[70]], [min_variance_return[70]], color="#dc2626", s=80, zorder=3, label="Higher-risk efficient portfolio")
+ax.set_title("Mean-Variance Portfolio Selection")
+ax.set_xlabel("Portfolio risk")
+ax.set_ylabel("Expected return")
+ax.legend(loc="best")
+plt.tight_layout()
+plt.show()
+```
+
 Portfolio risk can also be decomposed into:
 
 - **Systematic risk:** common risk factors that affect many securities, such as Treasury curve changes, credit spread widening, mortgage prepayment risk, or volatility shocks.
 - **Idiosyncratic risk:** issuer-specific or issue-specific risk, such as one company's downgrade, a specific bond's liquidity problem, or one mortgage pool's unusual prepayment behavior.
 
 In a broad equity portfolio, idiosyncratic risk can often be diversified away with a moderate number of stocks. In bond portfolio construction, idiosyncratic risk can remain large because fixed-income benchmarks may include thousands of securities, many of which are illiquid, sector-specific, callable, securitized, or issuer-specific.
+
+::: {.callout-note title="Short Example: Systematic versus Idiosyncratic Risk"}
+A 75 basis point rise in Treasury yields is systematic for a high-quality bond portfolio because many bonds lose value together. A surprise downgrade of one bank bond is idiosyncratic because it mainly affects that issuer. A portfolio can be nearly neutral to Treasury duration and still have large idiosyncratic risk if it holds concentrated issuer positions.
+:::
 
 ```{mermaid}
 %%{init: {"theme": "base", "themeVariables": {"fontFamily": "Inter, Arial, sans-serif", "lineColor": "#64748b"}}}%%
@@ -177,6 +227,19 @@ This is why modern bond portfolio construction is usually framed around exposure
 - liquidity and transaction-cost constraints.
 
 The reason this factor view matters is control. A manager may want to be long corporate spread risk but neutral to Treasury duration. Another manager may want a mild duration overweight but no active mortgage exposure. Factor models translate those views into measurable exposures and predicted tracking error.
+
+The main limitations of applying mean-variance optimization directly to bond portfolios are:
+
+- **Input burden:** broad bond universes require thousands or millions of covariance estimates.
+- **Expected-return error:** small errors in expected return estimates can dominate the optimizer's output.
+- **Covariance instability:** correlations between Treasury rates, swaps, credit spreads, and mortgage spreads change across regimes.
+- **Non-normal returns:** defaults, downgrades, calls, and prepayments create skewed or option-like return distributions.
+- **Trading frictions:** odd lots, bid-ask spreads, stale prices, and unavailable bonds make theoretical weights hard to execute.
+- **Benchmark objective:** most institutional bond managers are measured relative to a benchmark, so tracking error is more relevant than total variance.
+
+::: {.callout-tip title="Why Bond Optimization Is Harder Than It Looks"}
+The optimizer may suggest buying a bond because it has attractive modeled risk-adjusted return. The trader may then discover that the bond has not traded in weeks, the quoted price is not executable, and the required size would move the market. Good bond portfolio construction must combine model output with market microstructure judgment.
+:::
 
 # Tracking Error
 
@@ -289,6 +352,44 @@ plt.show()
 
 The intuition is direct: tracking error is not about whether returns are high or low. It is about whether the portfolio and benchmark move together. Portfolio B may outperform, but it is taking more active risk.
 
+::: {.callout-note title="Long Example: Tracking Error from a Realistic Bond Mandate"}
+Suppose a core bond manager is benchmarked to a broad aggregate bond index. The manager's monthly active returns over six months are:
+
+| Month | Active return |
+|---|---:|
+| 1 | +12 bps |
+| 2 | -8 bps |
+| 3 | +5 bps |
+| 4 | +22 bps |
+| 5 | -18 bps |
+| 6 | +4 bps |
+
+The average active return is:
+
+$$
+\bar{a}=\frac{12-8+5+22-18+4}{6}=2.83\text{ bps}.
+$$
+
+The sample monthly tracking error is the standard deviation around that mean:
+
+$$
+\text{TE}
+=
+\sqrt{
+\frac{\sum_{t=1}^{6}(a_t-\bar{a})^2}{6-1}
+}
+=14.7\text{ bps/month}.
+$$
+
+Annualized:
+
+$$
+14.7\sqrt{12}=50.9\text{ bps/year}.
+$$
+
+This is a low-to-moderate active-risk profile for a benchmark-aware fixed-income mandate.
+:::
+
 ## Two Faces of Tracking Error
 
 Tracking error has two faces:
@@ -318,6 +419,24 @@ $$
 where $\Delta \boldsymbol{\beta}$ is the vector of portfolio-minus-benchmark factor exposures, $\Sigma_F$ is the factor covariance matrix, and $\sigma_{\epsilon}^2$ is idiosyncratic active variance.
 
 If active returns are approximately normal, tracking error gives a rough range of outcomes. If expected active return is zero and annual tracking error is 100 bps, then active return is within about +/-100 bps in roughly two-thirds of years and within about +/-200 bps in roughly 95% of years. This is a model-based statement, not a guarantee.
+
+```{mermaid}
+%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Inter, Arial, sans-serif", "lineColor": "#64748b"}}}%%
+flowchart LR
+  A["Backward-looking TE<br/>uses realized active returns"] --> B["Performance review<br/>what actually happened?"]
+  C["Forward-looking TE<br/>uses current holdings + risk model"] --> D["Risk control<br/>what could happen next?"]
+  E["Portfolio trades today"] --> C
+  E -. "not reflected until later" .-> A
+  classDef backward fill:#dbeafe,stroke:#2563eb,stroke-width:2.5px,color:#0f172a;
+  classDef forward fill:#dcfce7,stroke:#16a34a,stroke-width:2.5px,color:#052e16;
+  classDef trade fill:#fef3c7,stroke:#d97706,stroke-width:2.5px,color:#451a03;
+  class A,B backward;
+  class C,D forward;
+  class E trade;
+  linkStyle default stroke:#64748b,stroke-width:2.5px;
+```
+
+The diagram highlights the key exam point: historical tracking error is a realized statistic, while predicted tracking error is a current-position risk estimate. A manager controls future risk with the second measure, not the first.
 
 ## Tracking Error and Active versus Passive Strategies
 
@@ -473,6 +592,24 @@ That is 12 bps of immediate performance drag before any active decision is made.
 :::
 
 The reason enhanced indexing exists is pragmatic. A manager samples the benchmark to reduce transaction costs and operational complexity, then controls the resulting mismatch with cells or factor exposures.
+
+::: {.callout-note title="Why the Cell Diagram Matters"}
+The cell diagram is not just a classification picture. It shows the manager's operational problem: a benchmark may contain thousands of bonds, but the portfolio might be able to hold only 100-300 names. The cell approach is a disciplined sampling rule that says, "If we cannot buy everything, at least match the major benchmark characteristics."
+:::
+
+The limitations are important enough to state directly:
+
+| Limitation | Why it matters |
+|---|---|
+| Too many cells | Small portfolios are forced into odd lots and high transaction costs. |
+| Too few cells | The portfolio can hide large maturity, sector, or credit mismatches. |
+| Correlations ignored | Two cell mismatches may offset each other or reinforce each other. |
+| Security selection inside cells | A representative bond may not behave like the whole cell. |
+| Benchmark turnover | Index composition changes as bonds mature, are issued, or become ineligible. |
+
+::: {.callout-note title="Numerical Example: Hidden Risk Inside a Cell"}
+Two portfolios both allocate 20% to BBB industrial bonds with 5-7 year maturities. Portfolio X holds 40 issuers at 0.5% each. Portfolio Y holds 4 issuers at 5% each. A cell-based report says both portfolios match the same cell, but Portfolio Y has much larger idiosyncratic issuer risk.
+:::
 
 ## Portfolio Construction with Multi-Factor Models
 
@@ -652,6 +789,22 @@ plt.show()
 
 Key rate duration matters because a portfolio can match total duration but still have curve-shape risk. A portfolio may be underweight 2-year duration and overweight 10-year duration. A parallel-shift metric hides that exposure.
 
+::: {.callout-note title="Key Rate Duration Example"}
+The net 10-year key rate duration in the example is:
+
+$$
+1.39-1.51=-0.12.
+$$
+
+If the 10-year point alone rises by 50 basis points, holding other points constant, the approximate active return impact is:
+
+$$
+-(-0.12)\times0.0050=0.0006=6\text{ bps}.
+$$
+
+The portfolio outperforms because it has less exposure than the benchmark to that part of the curve. The sign matters: an underweight duration position benefits when that rate rises.
+:::
+
 ```{python}
 #| label: fig-fred-risk-factors
 #| fig-cap: "Real market data: Treasury yield and corporate spread risk factors. Data source: FRED, Federal Reserve Bank of St. Louis; ICE BofA indices."
@@ -703,6 +856,98 @@ plt.show()
 ```
 
 This plot is useful because it shows why a bond portfolio model needs multiple factors. Treasury yields and credit spreads do not always move together. During risk-off periods, Treasury yields may fall while spreads widen.
+
+The next example turns those real factor movements into approximate active returns. Suppose a portfolio has the following active exposures relative to its benchmark:
+
+- net duration: +0.15 years;
+- net investment-grade spread duration: +0.60 years;
+- net high-yield spread duration: +0.20 years.
+
+The approximate monthly active return from these factor mismatches is:
+
+$$
+\Delta R_{\text{active}}
+\approx
+-D_{\text{active}}\Delta y_{\text{Treasury}}
+-SD_{\text{IG, active}}\Delta s_{\text{IG}}
+-SD_{\text{HY, active}}\Delta s_{\text{HY}}.
+$$
+
+This is not a full return model, but it is the core intuition of factor-based risk attribution.
+
+```{python}
+#| label: fig-real-factor-active-return
+#| fig-cap: "Approximate active return from real monthly factor changes and assumed active exposures."
+#| echo: false
+#| message: false
+#| warning: false
+
+factor_changes = monthly_fred[["DGS10", "BAMLC0A0CM", "BAMLH0A0HYM2"]].dropna().diff().dropna()
+recent_changes = factor_changes.loc["2022-01-01":].copy()
+if recent_changes.empty:
+    recent_changes = factor_changes.tail(36).copy()
+
+active_duration = 0.15
+active_ig_spread_duration = 0.60
+active_hy_spread_duration = 0.20
+
+active_components = pd.DataFrame(index=recent_changes.index)
+active_components["Treasury duration active return (bps)"] = -active_duration * recent_changes["DGS10"] * 100
+active_components["IG spread active return (bps)"] = -active_ig_spread_duration * recent_changes["BAMLC0A0CM"] * 100
+active_components["HY spread active return (bps)"] = -active_hy_spread_duration * recent_changes["BAMLH0A0HYM2"] * 100
+active_components["Total modeled active return (bps)"] = active_components.sum(axis=1)
+
+plot_components = active_components.tail(36)
+fig, ax = plt.subplots()
+ax.plot(plot_components.index, plot_components["Total modeled active return (bps)"], color="#111827", linewidth=2.5, label="Total modeled active return")
+ax.bar(plot_components.index, plot_components["Treasury duration active return (bps)"], width=20, alpha=0.45, color="#2563eb", label="Treasury duration")
+ax.bar(plot_components.index, plot_components["IG spread active return (bps)"], width=20, alpha=0.45, color="#16a34a", label="IG spread")
+ax.bar(plot_components.index, plot_components["HY spread active return (bps)"], width=20, alpha=0.45, color="#dc2626", label="HY spread")
+ax.axhline(0, color="#334155", linewidth=1)
+ax.set_title("Factor Changes Create Active Returns")
+ax.set_ylabel("Approximate active return (bps)")
+ax.legend(loc="best", fontsize=8)
+plt.tight_layout()
+plt.show()
+```
+
+```{python}
+#| echo: false
+#| message: false
+#| warning: false
+
+factor_te_summary = pd.DataFrame(
+    {
+        "Measure": [
+            "Monthly standard deviation of modeled active return",
+            "Annualized modeled tracking error",
+            "Worst monthly modeled active return",
+            "Best monthly modeled active return",
+        ],
+        "Value (bps)": [
+            active_components["Total modeled active return (bps)"].std(ddof=1),
+            active_components["Total modeled active return (bps)"].std(ddof=1) * np.sqrt(12),
+            active_components["Total modeled active return (bps)"].min(),
+            active_components["Total modeled active return (bps)"].max(),
+        ],
+    }
+)
+factor_te_summary.round(1)
+```
+
+::: {.callout-tip title="Real-Data Intuition"}
+The same active exposure can look harmless in quiet markets and painful in volatile markets. Tracking error depends on both the size of the active exposure and the volatility/correlation of the factors that move that exposure.
+:::
+
+Risk decomposition should lead to an action. A manager uses it to decide which risk is intentional, which risk is accidental, and which risk should be hedged or reduced.
+
+| Diagnostic question | Example decision |
+|---|---|
+| Is this risk intentional? | Keep a corporate spread overweight if it reflects a credit view. |
+| Is this risk compensated? | Reduce issuer concentration if it adds TE without expected alpha. |
+| Is this risk hedgeable? | Use Treasury futures to neutralize unwanted duration. |
+| Is this risk diversifiable? | Replace a concentrated issuer position with several similar bonds. |
+| Is this risk cheap to trade? | Fix large liquid Treasury mismatches before small illiquid corporate mismatches. |
 
 ### Portfolio Construction Using a Multi-Factor Model and an Optimizer
 
@@ -773,6 +1018,79 @@ analytics["Difference"] = analytics["Portfolio"] - analytics["Benchmark"]
 analytics
 ```
 
+::: {.callout-note title="Toy Optimizer Example: Choosing Representative Bonds"}
+Suppose a manager has $10 million to invest and wants to approximate a benchmark with duration near 5.0, spread duration near 3.0, and at least 30% in Treasuries for liquidity. The tradable universe is:
+:::
+
+```{python}
+#| echo: false
+#| message: false
+#| warning: false
+
+candidate_bonds = pd.DataFrame(
+    {
+        "Bond": ["Treasury 5Y", "Treasury 10Y", "Agency MBS", "A industrial", "BBB financial"],
+        "Yield (%)": [4.3, 4.6, 5.1, 5.4, 6.0],
+        "Duration": [4.6, 8.2, 4.1, 5.7, 6.1],
+        "Spread duration": [0.0, 0.0, 3.2, 5.4, 5.8],
+        "Sector": ["Treasury", "Treasury", "MBS", "Corporate", "Corporate"],
+        "Weight chosen (%)": [25, 15, 25, 20, 15],
+    }
+)
+candidate_bonds
+```
+
+```{python}
+#| echo: false
+#| message: false
+#| warning: false
+
+w = candidate_bonds["Weight chosen (%)"].to_numpy() / 100
+toy_summary = pd.DataFrame(
+    {
+        "Portfolio metric": ["Yield", "Duration", "Spread duration", "Treasury weight", "Corporate weight"],
+        "Value": [
+            np.sum(w * candidate_bonds["Yield (%)"]),
+            np.sum(w * candidate_bonds["Duration"]),
+            np.sum(w * candidate_bonds["Spread duration"]),
+            candidate_bonds.loc[candidate_bonds["Sector"] == "Treasury", "Weight chosen (%)"].sum(),
+            candidate_bonds.loc[candidate_bonds["Sector"] == "Corporate", "Weight chosen (%)"].sum(),
+        ],
+        "Benchmark / constraint": [5.0, 5.0, 3.0, ">= 30", "<= 40"],
+    }
+)
+toy_summary
+```
+
+The selected weights are not the result of a full industrial optimizer, but the logic is the same: candidate bonds are combined so portfolio exposures land near benchmark exposures while satisfying constraints. A real optimizer would also include issuer caps, minimum lot sizes, transaction costs, taxes, and predicted tracking error.
+
+```{python}
+#| label: fig-toy-portfolio-exposures
+#| fig-cap: "Toy portfolio construction: chosen exposures compared with target exposures."
+#| echo: false
+#| message: false
+#| warning: false
+
+toy_exposure = pd.DataFrame(
+    {
+        "Exposure": ["Yield", "Duration", "Spread duration"],
+        "Portfolio": toy_summary.loc[:2, "Value"].astype(float).to_numpy(),
+        "Target": [5.0, 5.0, 3.0],
+    }
+)
+xpos = np.arange(len(toy_exposure))
+fig, ax = plt.subplots()
+ax.bar(xpos - 0.18, toy_exposure["Portfolio"], width=0.36, label="Portfolio", color="#2563eb")
+ax.bar(xpos + 0.18, toy_exposure["Target"], width=0.36, label="Target", color="#f59e0b")
+ax.set_xticks(xpos)
+ax.set_xticklabels(toy_exposure["Exposure"])
+ax.set_title("Optimizer Goal: Match Desired Exposures")
+ax.set_ylabel("Percent or years")
+ax.legend(loc="best")
+plt.tight_layout()
+plt.show()
+```
+
 ```{mermaid}
 %%{init: {"theme": "base", "themeVariables": {"fontFamily": "Inter, Arial, sans-serif", "lineColor": "#64748b"}}}%%
 flowchart LR
@@ -797,6 +1115,10 @@ flowchart LR
 ```
 
 The reason optimization is valuable is not that it replaces judgment. It makes tradeoffs explicit. If the manager wants more corporate spread exposure, the optimizer shows which bonds add the exposure with the least tracking error, issuer concentration, and transaction cost.
+
+::: {.callout-tip title="Optimizer Intuition"}
+The optimizer is a disciplined negotiation between views and constraints. Views say where the manager wants exposure. Constraints say how much exposure the client, market liquidity, and risk budget will allow.
+:::
 
 ### Portfolio Rebalancing
 
@@ -831,6 +1153,50 @@ If the trades cost 6 bps and reduce monthly tracking error by only 0.2 bps, the 
 :::
 
 ```{python}
+#| echo: false
+#| message: false
+#| warning: false
+
+rebalance_exposures = pd.DataFrame(
+    {
+        "Exposure": ["Duration gap", "Corporate active weight", "Bank active weight", "Issuer concentration", "Predicted TE"],
+        "Before": [0.32, 9.5, 8.0, 4.2, 14.8],
+        "After": [0.18, 6.2, 5.0, 2.9, 10.6],
+        "Limit": [0.25, 8.0, 5.0, 3.0, 12.0],
+        "Unit": ["years", "%", "%", "%", "bps/month"],
+    }
+)
+rebalance_exposures
+```
+
+In this example, the manager does not need to eliminate every active position. The goal is to bring the portfolio back inside risk limits while preserving intentional views. The after-trade portfolio still has a corporate overweight, but the bank overweight, issuer concentration, duration gap, and predicted tracking error are now within limits.
+
+```{python}
+#| label: fig-rebalance-before-after
+#| fig-cap: "Rebalancing should target the exposures that violate risk limits, not mechanically eliminate all active views."
+#| echo: false
+#| message: false
+#| warning: false
+
+plot_reb = rebalance_exposures.copy()
+plot_reb["Before / limit"] = plot_reb["Before"] / plot_reb["Limit"]
+plot_reb["After / limit"] = plot_reb["After"] / plot_reb["Limit"]
+
+xpos = np.arange(len(plot_reb))
+fig, ax = plt.subplots()
+ax.bar(xpos - 0.18, plot_reb["Before / limit"], width=0.36, label="Before", color="#dc2626")
+ax.bar(xpos + 0.18, plot_reb["After / limit"], width=0.36, label="After", color="#16a34a")
+ax.axhline(1.0, color="#334155", linestyle="--", linewidth=1.2, label="Risk limit")
+ax.set_xticks(xpos)
+ax.set_xticklabels(plot_reb["Exposure"], rotation=20, ha="right")
+ax.set_title("Before and After Rebalancing")
+ax.set_ylabel("Exposure as multiple of limit")
+ax.legend(loc="best")
+plt.tight_layout()
+plt.show()
+```
+
+```{python}
 #| label: fig-rebalance-frontier
 #| fig-cap: "Illustrative tradeoff between transaction cost and tracking error reduction."
 #| echo: false
@@ -860,5 +1226,9 @@ plt.show()
 ```
 
 The intuition is that the first few trades often remove the largest unwanted exposures. Later trades may add complexity and transaction cost without much additional risk reduction. Good portfolio construction is therefore not just optimization; it is disciplined risk budgeting under real trading frictions.
+
+::: {.callout-note title="How to Read the Rebalancing Plots"}
+The before/after plot teaches control: which exposures breach limits and which trades fix them. The tradeoff plot teaches cost discipline: after a certain point, additional trades may lower tracking error only slightly while transaction costs keep rising.
+:::
 
 Sources used for lecture framing include Markowitz's portfolio selection framework, Sharpe's single-index model, fixed-income portfolio construction material from Fabozzi-style bond portfolio management chapters, NYU Stern fixed-income lecture material, MIT OpenCourseWare finance and portfolio theory material, and FRED series for Treasury yields and ICE BofA corporate option-adjusted spreads.

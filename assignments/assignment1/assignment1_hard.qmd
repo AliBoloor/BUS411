@@ -15,7 +15,7 @@ format:
 
 ## Instructions
 
-This assignment is based on Lectures 1-6: bond features and risks, pricing and yield measures, duration and convexity, benchmark spreads and term structure, Treasury and corporate debt markets, and residential mortgages/MBS.
+This assignment is based on Lectures 1-6: bond features and risks, pricing and yield measures, duration and convexity, benchmark spreads and term structure, Treasury and corporate debt markets, and bond portfolio construction.
 
 The questions are original CFA-style practice questions written from the course material. They are not copied from CFA Institute books or exams.
 
@@ -32,14 +32,14 @@ A CIO argues that the safest way to reduce risk is to buy the highest-yielding b
 
 Why can a bond's yield-to-maturity be a misleading measure of expected return?
 
-**Answer.** YTM assumes promised cash flows are paid, coupons are reinvested at the same yield, and the bond is held to maturity. Those assumptions fail for callable bonds, mortgage-backed securities, distressed bonds, and investors with shorter horizons. Expected return must incorporate reinvestment rates, future sale yield, default probability, recovery, taxes, and embedded option exercise.
+**Answer.** YTM assumes promised cash flows are paid, coupons are reinvested at the same yield, and the bond is held to maturity. Those assumptions fail for callable bonds, distressed bonds, floating-rate notes with changing coupons, and investors with shorter horizons. Expected return must incorporate reinvestment rates, future sale yield, default probability, recovery, taxes, and embedded option exercise.
 
 
 ### Question 3 (Conceptual)
 
 Explain why convexity is economically valuable even if two bonds have the same duration and yield.
 
-**Answer.** If two option-free bonds have the same duration and yield, the more convex bond has a more favorable response to rate volatility: larger gains when yields fall and smaller losses when yields rise. Convexity is valuable because it improves the distribution of price changes. Investors often accept lower yield for more convexity, while callable mortgages may offer more yield because they sell convexity to borrowers.
+**Answer.** If two option-free bonds have the same duration and yield, the more convex bond has a more favorable response to rate volatility: larger gains when yields fall and smaller losses when yields rise. Convexity is valuable because it improves the distribution of price changes. Investors often accept lower yield for more convexity, while callable bonds may offer more yield because investors sell option value to issuers.
 
 
 ### Question 4 (Conceptual)
@@ -65,16 +65,16 @@ Why can a wider spread be rational for a more liquid corporate bond in stressed 
 
 ### Question 7 (Conceptual)
 
-Explain the investor's hidden short option position in a mortgage pass-through.
+Explain why idiosyncratic risk can dominate tracking error even when systematic factors explain most total return volatility.
 
-**Answer.** The mortgage borrower owns the right to prepay. The MBS investor has effectively sold that option because principal returns when it is least convenient: faster when rates fall and reinvestment yields are low, slower when rates rise and the investor would prefer principal back. This produces negative convexity and makes duration state-dependent.
+**Answer.** Total return volatility can be mostly systematic because broad rate and spread factors move nearly all bonds. Tracking error, however, measures portfolio risk relative to a benchmark. If the benchmark has thousands of issuers but the portfolio holds only a small sample, issuer-specific surprises can create active return differences even when the portfolio's broad factor exposures are close to the benchmark. Concentrated name risk can therefore dominate active risk.
 
 
 ### Question 8 (Conceptual)
 
 Why is 'risk risk' especially relevant for structured fixed-income products?
 
-**Answer.** Structured products can transform simple loans into tranches with nonlinear exposure to default timing, prepayments, volatility, liquidity, and correlation. A yield pickup may look attractive if the investor models only average loss or average life, while ignoring tail behavior and option exposure. Risk risk is the danger of owning a payoff the investor cannot actually explain under stress scenarios.
+**Answer.** Structured products can transform simple loans into tranches with nonlinear exposure to default timing, volatility, liquidity, correlation, and tranche priority. A yield pickup may look attractive if the investor models only average loss or average life, while ignoring tail behavior and option exposure. Risk risk is the danger of owning a payoff the investor cannot actually explain under stress scenarios.
 
 
 ### Question 9 (Conceptual)
@@ -165,11 +165,11 @@ A Treasury note position has \$1,000,000 face value, quoted clean at 100-16+, an
 
 ### Question 18 (Calculation)
 
-A new agency mortgage pool follows 100% PSA for the first six months. Beginning balance is \$500,000, and scheduled principal is \$900 per month. Under 100% PSA, CPR is 0.2% in month 1, 0.4% in month 2, and rises by 0.2% monthly. Compute the month-6 ending balance.
+A portfolio has the following net key rate duration mismatches versus its benchmark: 2-year = -0.05, 5-year = 0.10, 10-year = -0.12, and 30-year = 0.08. A curve scenario has shocks of +40 bps, +25 bps, -15 bps, and -10 bps at those maturities. Estimate the active return impact in basis points.
 
-Assume prepayment each month is SMM x (beginning balance - scheduled principal).
+Use active return impact = -net key rate duration x rate shock in basis points.
 
-**Answer.** Applying the PSA ramp monthly gives an ending balance of approximately \$492,859.15 after month 6. The balance declines by scheduled principal plus increasing prepayments as CPR ramps up.
+**Answer.** Contributions are +2.0 bps from the 2-year point, -2.5 bps from the 5-year point, -1.8 bps from the 10-year point, and +0.8 bps from the 30-year point. Total active return impact is -1.5 bps. Matching total duration would not reveal this curve-shape exposure.
 
 
 ### Question 19 (Calculation)
@@ -209,9 +209,9 @@ Open `hard_credit_expected_loss.csv`. Compute expected loss in dollars for each 
 
 ### Question 24 (Spreadsheet)
 
-Open `hard_mbs_waterfall.csv`. Use the mortgage-pool data to compute SMM, prepayment, total principal, ending balance, and average life contribution for each month.
+Open `hard_factor_risk.csv`. Compute isolated tracking error for each factor as absolute active exposure times factor volatility. Assuming zero factor correlations, compute total systematic tracking error.
 
-**Answer.** The method is month-by-month: convert CPR to SMM, compute prepayment after scheduled principal, total principal, and ending balance. Summing month x total principal divided by original balance gives the partial average-life contribution for the first six months, approximately 0.014 years; most principal remains outstanding beyond the displayed horizon.
+**Answer.** The isolated tracking errors are 3.90, 2.60, 1.30, 2.80, and 2.50 bps per month. Total systematic TE = sqrt(3.90^2 + 2.60^2 + 1.30^2 + 2.80^2 + 2.50^2) = 6.15 bps per month. With nonzero correlations, the factor covariance matrix would be needed.
 
 
 ### Question 25 (Spreadsheet)

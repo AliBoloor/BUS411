@@ -15,7 +15,7 @@ format:
 
 ## Instructions
 
-This assignment is based on Lectures 1-6: bond features and risks, pricing and yield measures, duration and convexity, benchmark spreads and term structure, Treasury and corporate debt markets, and residential mortgages/MBS.
+This assignment is based on Lectures 1-6: bond features and risks, pricing and yield measures, duration and convexity, benchmark spreads and term structure, Treasury and corporate debt markets, and bond portfolio construction.
 
 The questions are original CFA-style practice questions written from the course material. They are not copied from CFA Institute books or exams.
 
@@ -79,9 +79,9 @@ Why do market-cap-weighted bond indexes have a structural weakness?
 
 ### Question 9 (Conceptual)
 
-Why is average life important for a mortgage pool but insufficient by itself?
+Why can a bond portfolio with the same total duration as its benchmark still have meaningful tracking error?
 
-**Answer.** Average life summarizes the weighted timing of principal repayments, which is useful for comparing mortgage pools with prepayments. But two pools can share the same average life while having different month-by-month cash-flow distributions, prepayment convexity, and extension risk. Investors need the full cash-flow path, not only one summary statistic.
+**Answer.** Total duration summarizes sensitivity to a parallel shift in rates. A portfolio can match benchmark duration while having different key rate duration exposures, sector weights, spread duration, issuer concentration, or convexity. If the yield curve twists or credit spreads move, those active exposures can create tracking error even though total duration is matched.
 
 
 ### Question 10 (Conceptual)
@@ -156,9 +156,9 @@ A corporate bond is quoted clean at 101.25% of par with \$1,000 face value. Accr
 
 ### Question 20 (Calculation)
 
-A mortgage pool has beginning balance \$750,000, scheduled principal \$1,200, and CPR of 9%. Compute SMM and expected prepayment.
+A portfolio has active duration of 0.20 years and active corporate spread duration of 0.50 years. Monthly Treasury yield volatility is 25 bps and monthly corporate spread volatility is 15 bps. Assuming zero correlation, estimate monthly systematic tracking error.
 
-**Answer.** SMM = 1 - (1 - 0.09)^(1/12) = 0.7828%. Prepayment = SMM x (\$750,000 - \$1,200) = \$5,861.92.
+**Answer.** The isolated Treasury tracking error is 0.20 x 25 = 5.0 bps. The isolated spread tracking error is 0.50 x 15 = 7.5 bps. With zero correlation, total systematic TE = sqrt(5.0^2 + 7.5^2) = 9.01 bps per month.
 
 
 ### Question 21 (Spreadsheet)
@@ -191,6 +191,6 @@ Open `medium_tbill_quotes.csv`. Compute price and bond-equivalent yield for each
 
 ### Question 25 (Spreadsheet)
 
-Open `medium_mbs_cashflows.csv`. Compute SMM, prepayment, total principal, and ending balance for each month.
+Open `medium_factor_te.csv`. Assuming factor correlations are zero, compute total systematic tracking error from the isolated tracking errors.
 
-**Answer.** Apply SMM = 1 - (1 - CPR)^(1/12), prepayment = SMM x balance after scheduled principal, total principal = scheduled principal + prepayment, and ending balance = beginning balance - total principal. The ending balances are approximately \$1,192,330, \$1,184,071, and \$1,174,985.
+**Answer.** Square each isolated tracking error, sum the squares, and take the square root. Total systematic TE = sqrt(4.0^2 + 6.0^2 + 3.0^2) = 7.81 bps per month. The answer is not 13.0 bps because standard deviations are not additive.

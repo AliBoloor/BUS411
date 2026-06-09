@@ -42,9 +42,9 @@ ul.task-list li input[type="checkbox"] {
 <link href="../../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-97afdd19a946a7800d02dd55b4e8b647.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../../site_libs/bootstrap/bootstrap-dark-aeaf3e155c33cdd5728541c7b417a725.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../../site_libs/bootstrap/bootstrap-97afdd19a946a7800d02dd55b4e8b647.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-045988b2df601ed31a02b3be6169c181.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-2ea9be508892616174e494008bc75989.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-045988b2df601ed31a02b3be6169c181.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -72,7 +72,44 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
+<style>
+table {
+  font-size: 0.92rem;
+}
+.cell-output-display, .table-responsive {
+  overflow-x: auto;
+}
+</style>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -422,7 +459,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#question-24" id="toc-question-24" class="nav-link" data-scroll-target="#question-24"><span class="header-section-number">5.4</span> Question 24</a></li>
   <li><a href="#question-25" id="toc-question-25" class="nav-link" data-scroll-target="#question-25"><span class="header-section-number">5.5</span> Question 25</a></li>
   </ul></li>
-  <li><a href="#lecture-6-residential-mortgages-and-mortgage-backed-securities" id="toc-lecture-6-residential-mortgages-and-mortgage-backed-securities" class="nav-link" data-scroll-target="#lecture-6-residential-mortgages-and-mortgage-backed-securities"><span class="header-section-number">6</span> Lecture 6: Residential Mortgages and Mortgage-Backed Securities</a>
+  <li><a href="#lecture-6-bond-portfolio-construction" id="toc-lecture-6-bond-portfolio-construction" class="nav-link" data-scroll-target="#lecture-6-bond-portfolio-construction"><span class="header-section-number">6</span> Lecture 6: Bond Portfolio Construction</a>
   <ul class="collapse">
   <li><a href="#question-26" id="toc-question-26" class="nav-link" data-scroll-target="#question-26"><span class="header-section-number">6.1</span> Question 26</a></li>
   <li><a href="#question-27" id="toc-question-27" class="nav-link" data-scroll-target="#question-27"><span class="header-section-number">6.2</span> Question 27</a></li>
@@ -580,7 +617,7 @@ ul.task-list li input[type="checkbox"] {
 </tr>
 <tr class="even">
 <td>6</td>
-<td>A mortgage-backed security loses value when expected interest-rate volatility rises.</td>
+<td>A callable agency bond loses value when expected interest-rate volatility rises.</td>
 </tr>
 </tbody>
 </table>
@@ -601,8 +638,8 @@ ul.task-list li input[type="checkbox"] {
 <li><p>Event 1 is interest-rate risk. Event 2 is credit spread risk. Event 3 is call risk and reinvestment risk. Event 4 is reinvestment risk. Event 5 is exchange-rate risk. Event 6 is volatility risk for an option-rich security.</p></li>
 <li><p>In Event 2, the market now requires more compensation for credit or liquidity risk, so the required yield rises even though the issuer has not missed a payment. Price falls because the bond’s promised cash flows are discounted at a higher spread. In Event 3, the investor loses because the issuer exercises a contractual right. The issuer pays the call price, so there is no default, but the investor is forced to give up a high-coupon bond and reinvest at lower rates.</p></li>
 <li><p>Interest-rate risk and reinvestment risk can partly offset each other. When yields rise, the bond’s market price falls, but future coupons can be reinvested at higher rates. When yields fall, the bond price rises, but coupons are reinvested at lower rates. Immunization strategies are built around balancing these two effects for a target horizon.</p></li>
-<li><p>Event 3 directly illustrates an embedded call option. Event 6 also involves option exposure because prepayment or call behavior becomes more valuable when volatility rises.</p></li>
-<li><p>Structure matters because cash-flow timing is not always fixed. A bond may be callable, putable, convertible, floating-rate, inverse-floating, amortizing, inflation-linked, or mortgage-backed. If the investor treats all bonds like simple fixed-rate bullets, the investor may misjudge price sensitivity, reinvestment exposure, and downside behavior. This is Fabozzi’s “risk risk”: the risk of not understanding the risks being purchased.</p></li>
+<li><p>Event 3 directly illustrates an embedded call option. Event 6 also involves option exposure because the value of the issuer’s call option increases when volatility rises.</p></li>
+<li><p>Structure matters because cash-flow timing is not always fixed. A bond may be callable, putable, convertible, floating-rate, inverse-floating, amortizing, inflation-linked, or credit-structured. If the investor treats all bonds like simple fixed-rate bullets, the investor may misjudge price sensitivity, reinvestment exposure, and downside behavior. This is Fabozzi’s “risk risk”: the risk of not understanding the risks being purchased.</p></li>
 </ol>
 </section>
 <section id="question-3" class="level2" data-number="1.3">
@@ -660,11 +697,17 @@ ul.task-list li input[type="checkbox"] {
 <ol type="a">
 <li>The bullet bond repays all USD 10,000,000 in year 5. Weighted average life equals 5.00 years:</li>
 </ol>
-<p>WAL = (10,000,000 x 5) / 10,000,000 = 5.00.</p>
+<p><span class="math display">\[
+WAL=\frac{10{,}000{,}000\times 5}{10{,}000{,}000}=5.00.
+\]</span></p>
 <ol start="2" type="a">
 <li>For the ABS:</li>
 </ol>
-<p>WAL = (1,200,000 x 1 + 1,600,000 x 2 + 2,100,000 x 3 + 2,500,000 x 4 + 2,600,000 x 5) / 10,000,000.</p>
+<p><span class="math display">\[
+WAL=\frac{
+1{,}200{,}000(1)+1{,}600{,}000(2)+2{,}100{,}000(3)+2{,}500{,}000(4)+2{,}600{,}000(5)
+}{10{,}000{,}000}.
+\]</span></p>
 <p>The numerator is 1,200,000 + 3,200,000 + 6,300,000 + 10,000,000 + 13,000,000 = 33,700,000. WAL = 33,700,000 / 10,000,000 = 3.37 years.</p>
 <ol start="3" type="a">
 <li><p>Final maturity only tells us the last date on which principal is repaid. The ABS returns principal throughout the five-year period, so the investor’s capital is recovered earlier on average. Earlier principal recovery reduces exposure to the issuer and to late-period market conditions, but it also creates reinvestment needs.</p></li>
@@ -710,9 +753,9 @@ ul.task-list li input[type="checkbox"] {
 <td>Moderate liquidity</td>
 </tr>
 <tr class="even">
-<td>Non-agency RMBS</td>
-<td>Residential mortgage pool</td>
-<td>Credit risk, prepayment risk, structure risk</td>
+<td>Leveraged loan</td>
+<td>Senior secured corporate loan</td>
+<td>Credit risk, liquidity risk, covenant risk</td>
 <td>Can be weak in stress</td>
 </tr>
 </tbody>
@@ -725,17 +768,17 @@ ul.task-list li input[type="checkbox"] {
 </li>
 <li>Explain why the municipal bond cannot be compared to a corporate bond only by pretax yield.<br>
 </li>
-<li>Explain why the non-agency RMBS requires analysis beyond a simple issuer rating.<br>
+<li>Explain why the leveraged loan requires analysis beyond a simple issuer rating.<br>
 </li>
-<li>Recommend two due-diligence questions the manager should ask before buying the RMBS.</li>
+<li>Recommend two due-diligence questions the manager should ask before buying the leveraged loan.</li>
 </ol>
 <p><strong>Answer.</strong></p>
 <ol type="a">
 <li><p>Treasury securities are backed by the sovereign’s taxing authority and are highly liquid. In domestic currency, they are commonly treated as the default-free base rate. Their yields provide a benchmark for the time value of money across maturities.</p></li>
 <li><p>The corporate bond exposes investors to default risk, downgrade risk, credit spread risk, and lower liquidity than Treasuries. Investors require compensation for those risks, so the corporate yield normally equals the Treasury base rate plus a spread.</p></li>
 <li><p>Municipal bonds may be tax-exempt. A taxable corporate yield must be converted to an after-tax yield, or the municipal yield must be converted to a taxable-equivalent yield. The investor should compare what is kept after tax, not only the quoted pretax yield.</p></li>
-<li><p>Non-agency RMBS depends on collateral quality, geographic concentration, loan-to-value ratios, borrower credit quality, prepayment behavior, tranche priority, credit enhancement, and legal structure. A simple rating may not capture the timing and path dependence of losses or prepayments.</p></li>
-<li><p>First, ask what collateral supports the pool: credit scores, LTV ratios, documentation quality, geography, loan age, and delinquency history. Second, ask how cash flows are allocated across tranches and what stress scenarios have been tested for default, recovery, prepayment, and extension. These questions target both credit risk and structural risk.</p></li>
+<li><p>A leveraged loan depends on borrower leverage, collateral coverage, covenant protection, seniority, loan documentation, liquidity, and refinancing access. A simple rating may not capture recovery risk, covenant leakage, or trading liquidity.</p></li>
+<li><p>First, ask what collateral supports the loan and how much enterprise value would remain under stress. Second, ask what covenants, liens, baskets, and debt-incurrence permissions are in the credit agreement. These questions target both recovery risk and creditor-protection risk.</p></li>
 </ol>
 </section>
 <section id="question-5" class="level2" data-number="1.5">
@@ -783,8 +826,14 @@ ul.task-list li input[type="checkbox"] {
 <p><strong>Answer.</strong></p>
 <ol type="a">
 <li><p>The bond pays coupons of USD 55 in years 1, 2, and 3. In year 4 it pays the final coupon plus principal, or USD 1,055.</p></li>
-<li><p>Price = 55 / 1.0625 + 55 / 1.0625^2 + 55 / 1.0625^3 + 1,055 / 1.0625^4.</p></li>
+<li><p>The price is:</p></li>
 </ol>
+<p><span class="math display">\[
+P=\frac{55}{1.0625}
++\frac{55}{1.0625^2}
++\frac{55}{1.0625^3}
++\frac{1{,}055}{1.0625^4}.
+\]</span></p>
 <p>The present values are approximately 51.76, 48.72, 45.85, and 827.76. Total price is approximately USD 974.09.</p>
 <ol start="3" type="a">
 <li><p>The bond trades at a discount.</p></li>
@@ -841,7 +890,14 @@ ul.task-list li input[type="checkbox"] {
 <ol type="a">
 <li><p>The semiannual coupon is 7.20 percent / 2 x USD 1,000 = USD 36. The semiannual yield is 6.40 percent / 2 = 3.20 percent.</p></li>
 <li><p>Six years with two coupons per year gives 12 remaining periods.</p></li>
-<li><p>Price = 36 x [1 - (1.032)^(-12)] / 0.032 + 1,000 / 1.032^12. The coupon annuity value is approximately USD 355.37 and the principal present value is approximately USD 685.28. Total price is approximately USD 1,040.65.</p></li>
+<li><p>The price is:</p></li>
+</ol>
+<p><span class="math display">\[
+P=36\left[\frac{1-(1.032)^{-12}}{0.032}\right]
++\frac{1{,}000}{1.032^{12}}.
+\]</span></p>
+<p>The coupon annuity value is approximately USD 355.37 and the principal present value is approximately USD 685.28. Total price is approximately USD 1,040.65.</p>
+<ol start="4" type="a">
 <li><p>Semiannual compounding matters because cash flows occur every six months, not annually. The discount rate per period must match the timing of cash flows. Using a 6.40 percent annual discount rate for six annual periods would discount the wrong cash-flow pattern.</p></li>
 <li><p>The bond should trade above par because its coupon rate of 7.20 percent is above the yield of 6.40 percent. It pays more coupon income than newly required by the market, so investors bid the price above face value.</p></li>
 </ol>
@@ -891,8 +947,16 @@ ul.task-list li input[type="checkbox"] {
 <li><p>The year-1 coupon is reinvested for one year at 4.00 percent, so its year-2 value is 60 x 1.04 = USD 62.40.</p></li>
 <li><p>At year 2, the bond has one year remaining and will pay USD 1,060 at year 3. If the sale yield is 5.50 percent, sale price = 1,060 / 1.055 = USD 1,004.74.</p></li>
 <li><p>Total future dollars at year 2 = reinvested first coupon + second coupon + sale price = 62.40 + 60.00 + 1,004.74 = USD 1,127.14.</p></li>
-<li><p>The two-year horizon return solves 980 x (1 + R)^2 = 1,127.14. Therefore R = (1,127.14 / 980)^(1/2) - 1 = 7.25 percent approximately. This return differs from the original yield because it depends on the reinvestment rate and sale yield.</p></li>
+<li><p>The two-year horizon return solves:</p></li>
 </ol>
+<p><span class="math display">\[
+980(1+R)^2=1{,}127.14.
+\]</span></p>
+<p>Therefore:</p>
+<p><span class="math display">\[
+R=\left(\frac{1{,}127.14}{980}\right)^{1/2}-1=7.25\%.
+\]</span></p>
+<p>This return differs from the original yield because it depends on the reinvestment rate and sale yield.</p>
 </section>
 <section id="question-10" class="level2" data-number="2.5">
 <h2 data-number="2.5" class="anchored" data-anchor-id="question-10"><span class="header-section-number">2.5</span> Question 10</h2>
@@ -935,7 +999,18 @@ ul.task-list li input[type="checkbox"] {
 <ol type="a">
 <li><p>The uncapped annual coupon rates are SOFR + 1.25 percent. Quarter 1: 1.75 percent. Quarter 2: 5.05 percent. Quarter 3: 7.35 percent.</p></li>
 <li><p>The floor is 2.00 percent and the cap is 6.50 percent. Quarter 1 is floored at 2.00 percent. Quarter 2 remains 5.05 percent. Quarter 3 is capped at 6.50 percent.</p></li>
-<li><p>Quarterly coupon = annual coupon rate / 4 x face value. Quarter 1 = 2.00 percent / 4 x 5,000,000 = USD 25,000. Quarter 2 = 5.05 percent / 4 x 5,000,000 = USD 63,125. Quarter 3 = 6.50 percent / 4 x 5,000,000 = USD 81,250.</p></li>
+<li><p>Quarterly coupon equals annual coupon rate divided by 4, multiplied by face value:</p></li>
+</ol>
+<p><span class="math display">\[
+\text{Quarter 1}=\frac{2.00\%}{4}\times 5{,}000{,}000=25{,}000.
+\]</span></p>
+<p><span class="math display">\[
+\text{Quarter 2}=\frac{5.05\%}{4}\times 5{,}000{,}000=63{,}125.
+\]</span></p>
+<p><span class="math display">\[
+\text{Quarter 3}=\frac{6.50\%}{4}\times 5{,}000{,}000=81{,}250.
+\]</span></p>
+<ol start="4" type="a">
 <li><p>The cap limits the investor’s benefit when short rates rise sharply. Without the cap, Quarter 3 would pay 7.35 percent annualized. With the cap, the investor receives only 6.50 percent. The issuer has effectively retained protection against very high reference rates.</p></li>
 <li><p>Yield-to-maturity assumes a fixed set of cash flows. The floater’s future coupons depend on future SOFR resets and cap/floor behavior. Discount margin frames valuation as a spread over expected reference rates, which better matches the instrument’s economics.</p></li>
 </ol>
@@ -983,7 +1058,17 @@ ul.task-list li input[type="checkbox"] {
 <ol type="a">
 <li><p>Bond X should have greater duration.</p></li>
 <li><p>Bond X pays small coupons, so more of its value comes from the principal payment at year 10. Bond Y pays larger coupons, which return more value earlier. Duration is based on present-value weighted timing, so the bond with later-weighted cash flows has higher duration.</p></li>
-<li><p>Bond X price = 20 x [1 - 1.05^(-10)] / 0.05 + 1,000 / 1.05^10 = approximately USD 768.35. Bond Y price = 80 x [1 - 1.05^(-10)] / 0.05 + 1,000 / 1.05^10 = approximately USD 1,231.65.</p></li>
+<li><p>Bond prices are:</p></li>
+</ol>
+<p><span class="math display">\[
+P_X=20\left[\frac{1-1.05^{-10}}{0.05}\right]+\frac{1{,}000}{1.05^{10}}
+\approx 768.35.
+\]</span></p>
+<p><span class="math display">\[
+P_Y=80\left[\frac{1-1.05^{-10}}{0.05}\right]+\frac{1{,}000}{1.05^{10}}
+\approx 1{,}231.65.
+\]</span></p>
+<ol start="4" type="a">
 <li><p>A small change in yield has a larger effect when more value is concentrated in distant cash flows. Distant cash flows are discounted for more periods, so their present values are more sensitive to the discount rate.</p></li>
 <li><p>The ranking could fail if the bonds have embedded options or materially different credit behavior. For example, a callable high-coupon bond can have state-dependent effective duration, and an inverse floater can have unusually high duration despite a short contractual maturity.</p></li>
 </ol>
@@ -1011,7 +1096,7 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: right;">6.2</td>
 </tr>
 <tr class="odd">
-<td>Mortgage pass-through</td>
+<td>Callable agency note</td>
 <td style="text-align: right;">USD 2,500,000</td>
 <td style="text-align: right;">4.4</td>
 </tr>
@@ -1025,16 +1110,16 @@ ul.task-list li input[type="checkbox"] {
 </li>
 <li>Estimate the portfolio dollar price change for a 35 bp parallel increase in yields.<br>
 </li>
-<li>Explain one limitation of this estimate for the mortgage pass-through.<br>
+<li>Explain one limitation of this estimate for the callable agency note.<br>
 </li>
 <li>Explain how key rate duration could improve the analysis.</li>
 </ol>
 <p><strong>Answer.</strong></p>
 <ol type="a">
-<li><p>Total market value is USD 10,000,000. The weights are 40.0 percent Treasury, 35.0 percent corporate, and 25.0 percent mortgage pass-through.</p></li>
+<li><p>Total market value is USD 10,000,000. The weights are 40.0 percent Treasury, 35.0 percent corporate, and 25.0 percent callable agency note.</p></li>
 <li><p>Portfolio duration = 0.40 x 3.8 + 0.35 x 6.2 + 0.25 x 4.4 = 1.52 + 2.17 + 1.10 = 4.79.</p></li>
 <li><p>Approximate percentage change = -4.79 x 0.0035 = -1.6765 percent. Dollar change = -1.6765 percent x 10,000,000 = approximately -USD 167,650.</p></li>
-<li><p>The mortgage pass-through has uncertain prepayments. Its duration is not stable because borrower behavior changes when rates move. A static duration estimate can understate extension risk when yields rise or contraction risk when yields fall.</p></li>
+<li><p>The callable agency note has option risk. Its effective duration can change when rates and volatility change because the probability of being called is state-dependent. A static duration estimate can miss that option-driven behavior.</p></li>
 <li><p>Key rate duration separates exposure by maturity point on the curve. If the portfolio is most sensitive to the 5-year point and the curve twist occurs there, total duration may miss the risk. Key rate duration helps reveal exposure to nonparallel yield-curve changes.</p></li>
 </ol>
 </section>
@@ -1055,11 +1140,56 @@ ul.task-list li input[type="checkbox"] {
 </ol>
 <p><strong>Answer.</strong></p>
 <ol type="a">
-<li><p>Empirical modified duration = (P_minus - P_plus) / (2 x P0 x shock). The shock is 0.005. Duration = (108.90 - 100.55) / (2 x 104.60 x 0.005) = 8.35 / 1.046 = 7.98.</p></li>
-<li><p>Empirical convexity = (P_minus + P_plus - 2P0) / (P0 x shock^2). Convexity = (108.90 + 100.55 - 2 x 104.60) / (104.60 x 0.005^2) = 0.25 / 0.002615 = 95.60.</p></li>
-<li><p>Duration-only percentage change = -7.98 x 0.0075 = -5.99 percent. Dollar price change = -5.99 percent x 104.60 = about -6.26 price points.</p></li>
-<li><p>Duration-plus-convexity percentage change = -7.98 x 0.0075 + 0.5 x 95.60 x 0.0075^2. The convexity term is about 0.269 percent, so the total is about -5.72 percent. Dollar change = -5.72 percent x 104.60 = about -5.98 price points.</p></li>
-<li><p>Duration is a linear tangent approximation. Convexity recognizes curvature. For an option-free bond with positive convexity, the convexity term reduces the estimated loss when yields rise and increases the estimated gain when yields fall.</p></li>
+<li>Empirical modified duration is:</li>
+</ol>
+<p><span class="math display">\[
+D_{\text{mod}}
+=\frac{P_{-}-P_{+}}{2P_0(\Delta y)}.
+\]</span></p>
+<p>With <span class="math inline">\(\Delta y=0.005\)</span>:</p>
+<p><span class="math display">\[
+D_{\text{mod}}
+=\frac{108.90-100.55}{2(104.60)(0.005)}
+=\frac{8.35}{1.046}
+=7.98.
+\]</span></p>
+<ol start="2" type="a">
+<li>Empirical convexity is:</li>
+</ol>
+<p><span class="math display">\[
+C=\frac{P_{-}+P_{+}-2P_0}{P_0(\Delta y)^2}.
+\]</span></p>
+<p>Thus:</p>
+<p><span class="math display">\[
+C=\frac{108.90+100.55-2(104.60)}{104.60(0.005)^2}
+=\frac{0.25}{0.002615}
+=95.60.
+\]</span></p>
+<ol start="3" type="a">
+<li>Duration-only percentage change is:</li>
+</ol>
+<p><span class="math display">\[
+\frac{\Delta P}{P}\approx -7.98(0.0075)=-5.99\%.
+\]</span></p>
+<p>Dollar price change is approximately:</p>
+<p><span class="math display">\[
+-5.99\%\times 104.60=-6.26
+\]</span></p>
+<p>price points.</p>
+<ol start="4" type="a">
+<li>Duration-plus-convexity percentage change is:</li>
+</ol>
+<p><span class="math display">\[
+\frac{\Delta P}{P}
+\approx -7.98(0.0075)+0.5(95.60)(0.0075)^2.
+\]</span></p>
+<p>The convexity term is about 0.269%, so the total is about -5.72%. Dollar change is:</p>
+<p><span class="math display">\[
+-5.72\%\times 104.60=-5.98
+\]</span></p>
+<p>price points.</p>
+<ol start="5" type="a">
+<li>Duration is a linear tangent approximation. Convexity recognizes curvature. For an option-free bond with positive convexity, the convexity term reduces the estimated loss when yields rise and increases the estimated gain when yields fall.</li>
 </ol>
 </section>
 <section id="question-14" class="level2" data-number="3.4">
@@ -1118,8 +1248,30 @@ ul.task-list li input[type="checkbox"] {
 </ol>
 <p><strong>Answer.</strong></p>
 <ol type="a">
-<li><p>Approximate return impact is the negative sum of KRD times rate change. Use decimal yield changes. Benchmark impact = -[0.8(-0.0030) + 1.7(-0.0010) + 2.0(0.0015) + 1.0(0.0035)]. This equals -[-0.0024 - 0.0017 + 0.0030 + 0.0035] = -0.0024, or -0.24 percent.</p></li>
-<li><p>Manager impact = -[0.2(-0.0030) + 2.8(-0.0010) + 1.1(0.0015) + 1.4(0.0035)]. This equals -[-0.0006 - 0.0028 + 0.00165 + 0.0049] = -0.00315, or -0.315 percent.</p></li>
+<li>Approximate return impact is the negative sum of KRD times rate change. Use decimal yield changes. Benchmark impact is:</li>
+</ol>
+<p><span class="math display">\[
+-[0.8(-0.0030)+1.7(-0.0010)+2.0(0.0015)+1.0(0.0035)].
+\]</span></p>
+<p>This equals:</p>
+<p><span class="math display">\[
+-[-0.0024-0.0017+0.0030+0.0035]
+=-0.0024,
+\]</span></p>
+<p>or -0.24%.</p>
+<ol start="2" type="a">
+<li>Manager impact is:</li>
+</ol>
+<p><span class="math display">\[
+-[0.2(-0.0030)+2.8(-0.0010)+1.1(0.0015)+1.4(0.0035)].
+\]</span></p>
+<p>This equals:</p>
+<p><span class="math display">\[
+-[-0.0006-0.0028+0.00165+0.0049]
+=-0.00315,
+\]</span></p>
+<p>or -0.315%.</p>
+<ol start="3" type="a">
 <li><p>The benchmark performs better by about 0.075 percent, or 7.5 bps.</p></li>
 <li><p>Equal total duration only means equal exposure to a parallel shift. The actual scenario is nonparallel. The manager is overweight 5-year and 30-year exposure and underweight 2-year and 10-year exposure relative to the benchmark, so performance depends on where the curve moves.</p></li>
 <li><p>The manager is positioned for the 5-year sector to perform well relative to the long end, or for less damage from 30-year rates than actually occurred. The portfolio is not neutral to curve reshaping.</p></li>
@@ -1145,8 +1297,18 @@ ul.task-list li input[type="checkbox"] {
 <li><p>The assets and liabilities have equal present value, but liabilities are more rate-sensitive. Liability duration is 9.0 while asset duration is 6.5. The plan is under-duration: falling rates increase liabilities more than assets.</p></li>
 <li><p>Asset percentage change = -6.5 x (-0.0050) = +3.25 percent, or +USD 3.25 million. Liability percentage change = -9.0 x (-0.0050) = +4.50 percent, or +USD 4.50 million.</p></li>
 <li><p>Funded status worsens because liabilities rise by USD 4.50 million while assets rise by only USD 3.25 million. The plan loses USD 1.25 million of surplus or becomes more underfunded.</p></li>
-<li><p>Dollar duration needed = (liability duration - asset duration) x asset value = (9.0 - 6.5) x 100,000,000 = USD 250,000,000 duration-dollars per 100 percent yield change. Equivalently, the plan needs USD 25,000 of DV01 because 250,000,000 x 0.0001 = 25,000.</p></li>
-<li><p>Futures can efficiently add duration, but they introduce margin, basis, roll, liquidity, and operational risks. The futures contract may not perfectly match the liability curve exposure. A hedge can reduce parallel-rate risk while leaving curve, inflation, and collateral risks.</p></li>
+<li><p>Dollar duration needed is:</p></li>
+</ol>
+<p><span class="math display">\[
+(9.0-6.5)\times 100{,}000{,}000
+=250{,}000{,}000
+\]</span></p>
+<p>duration-dollars per 100% yield change. Equivalently, the plan needs USD 25,000 of DV01 because:</p>
+<p><span class="math display">\[
+250{,}000{,}000\times 0.0001=25{,}000.
+\]</span></p>
+<ol start="5" type="a">
+<li>Futures can efficiently add duration, but they introduce margin, basis, roll, liquidity, and operational risks. The futures contract may not perfectly match the liability curve exposure. A hedge can reduce parallel-rate risk while leaving curve, inflation, and collateral risks.</li>
 </ol>
 </section>
 </section>
@@ -1250,8 +1412,28 @@ ul.task-list li input[type="checkbox"] {
 <p><strong>Answer.</strong></p>
 <ol type="a">
 <li><p>The 1-year zero price gives z1 = 100 / 96.6184 - 1 = 3.50 percent.</p></li>
-<li><p>For the 2-year bond: 99.1375 = 4 / 1.035 + 104 / (1 + z2)^2. The first coupon PV is 3.8647. The remaining value assigned to year 2 is 95.2728. Thus (1 + z2)^2 = 104 / 95.2728 = 1.09161, so z2 = 4.48 percent approximately.</p></li>
-<li><p>For the 3-year bond: 100.1150 = 5 / 1.035 + 5 / (1.0448)^2 + 105 / (1 + z3)^3. The first two coupon present values are about 4.8309 and 4.5804. The remaining value is 90.7037. Thus (1 + z3)^3 = 105 / 90.7037, so z3 = 5.00 percent approximately.</p></li>
+<li><p>For the 2-year bond:</p></li>
+</ol>
+<p><span class="math display">\[
+99.1375=\frac{4}{1.035}+\frac{104}{(1+z_2)^2}.
+\]</span></p>
+<p>The first coupon PV is 3.8647. The remaining value assigned to year 2 is 95.2728. Thus:</p>
+<p><span class="math display">\[
+(1+z_2)^2=\frac{104}{95.2728}=1.09161,
+\]</span></p>
+<p>so <span class="math inline">\(z_2=4.48\%\)</span> approximately.</p>
+<ol start="3" type="a">
+<li>For the 3-year bond:</li>
+</ol>
+<p><span class="math display">\[
+100.1150=\frac{5}{1.035}+\frac{5}{1.0448^2}+\frac{105}{(1+z_3)^3}.
+\]</span></p>
+<p>The first two coupon present values are about 4.8309 and 4.5804. The remaining value is 90.7037. Thus:</p>
+<p><span class="math display">\[
+(1+z_3)^3=\frac{105}{90.7037},
+\]</span></p>
+<p>so <span class="math inline">\(z_3=5.00\%\)</span> approximately.</p>
+<ol start="4" type="a">
 <li><p>A coupon-bond yield is a single internal rate applied to all cash flows. A spot curve needs a separate discount rate for each maturity cash flow. Coupon yields mix information from multiple cash-flow dates.</p></li>
 <li><p>Bootstrapping values the earliest cash flows using already solved spot rates. It then solves only for the next unknown spot rate from the remaining price. That prevents the analyst from treating the full coupon bond yield as if it applied directly to every cash-flow date.</p></li>
 </ol>
@@ -1295,7 +1477,16 @@ ul.task-list li input[type="checkbox"] {
 </ol>
 <p><strong>Answer.</strong></p>
 <ol type="a">
-<li><p>Treasury-curve value = 6 / 1.034 + 6 / 1.04^2 + 106 / 1.046^3. This is approximately 5.80 + 5.55 + 92.71 = 104.06.</p></li>
+<li>Treasury-curve value is:</li>
+</ol>
+<p><span class="math display">\[
+P=\frac{6}{1.034}+\frac{6}{1.04^2}+\frac{106}{1.046^3}.
+\]</span></p>
+<p>This is approximately:</p>
+<p><span class="math display">\[
+5.80+5.55+92.71=104.06.
+\]</span></p>
+<ol start="2" type="a">
 <li><p>The corporate bond trades at 101.20, below the Treasury-discounted value of 104.06. That is expected because investors require extra spread for corporate credit and liquidity risk.</p></li>
 <li><p>With a 60 bp spread, discount rates are 4.00 percent, 4.60 percent, and 5.20 percent. Price is approximately 102.41. With a 90 bp spread, discount rates are 4.30 percent, 4.90 percent, and 5.50 percent. Price is approximately 101.59. The market price of 101.20 implies a spread slightly above 90 bps, roughly around 104 bps by interpolation.</p></li>
 <li><p>The constant spread discounts each cash flow at the matching Treasury spot rate plus spread. Comparing only to the 3-year Treasury yield ignores the coupon payments in years 1 and 2.</p></li>
@@ -1347,7 +1538,13 @@ ul.task-list li input[type="checkbox"] {
 <ol type="a">
 <li><p>1 + f1,2 = 1.038^2 / 1.032. Therefore f1,2 = 4.40 percent approximately.</p></li>
 <li><p>1 + f2,3 = 1.043^3 / 1.038^2. Therefore f2,3 = 5.31 percent approximately.</p></li>
-<li><p>The 2-year forward rate from year 3 to year 5 satisfies (1 + f3,5)^2 = 1.049^5 / 1.043^3. Therefore f3,5 is approximately 5.81 percent.</p></li>
+<li><p>The 2-year forward rate from year 3 to year 5 satisfies:</p></li>
+</ol>
+<p><span class="math display">\[
+(1+f_{3,5})^2=\frac{1.049^5}{1.043^3}.
+\]</span></p>
+<p>Therefore <span class="math inline">\(f_{3,5}\)</span> is approximately 5.81%.</p>
+<ol start="4" type="a">
 <li><p>A forward rate is the reinvestment or borrowing rate that makes two strategies equivalent today. For example, investing for two years at the 2-year spot rate should break even with investing for one year and then reinvesting for one year at f1,2, ignoring transaction costs and arbitrage frictions.</p></li>
 <li><p>Forward rates can include term premiums, liquidity premiums, supply-demand effects, and risk compensation. They are no-arbitrage break-even rates, not pure forecasts unless investors are risk-neutral and risk premiums are zero.</p></li>
 </ol>
@@ -1423,9 +1620,30 @@ ul.task-list li input[type="checkbox"] {
 </ol>
 <p><strong>Answer.</strong></p>
 <ol type="a">
-<li><p>Price = Face x [1 - discount yield x days / 360]. Price = 5,000,000 x [1 - 0.048 x 182 / 360] = USD 4,878,666.67.</p></li>
+<li>Treasury bill price is:</li>
+</ol>
+<p><span class="math display">\[
+P=\text{Face}\left[1-\text{discount yield}\times \frac{\text{days}}{360}\right].
+\]</span></p>
+<p>Thus:</p>
+<p><span class="math display">\[
+P=5{,}000{,}000\left[1-0.048\times \frac{182}{360}\right]
+=4{,}878{,}666.67.
+\]</span></p>
+<ol start="2" type="a">
 <li><p>Dollar discount = 5,000,000 - 4,878,666.67 = USD 121,333.33.</p></li>
-<li><p>BEY = (Face - Price) / Price x 365 / days. BEY = 121,333.33 / 4,878,666.67 x 365 / 182 = 4.99 percent approximately.</p></li>
+<li><p>The bond-equivalent yield is:</p></li>
+</ol>
+<p><span class="math display">\[
+BEY=\frac{\text{Face}-P}{P}\times \frac{365}{\text{days}}.
+\]</span></p>
+<p>Substituting:</p>
+<p><span class="math display">\[
+BEY=\frac{121{,}333.33}{4{,}878{,}666.67}\times \frac{365}{182}
+=4.99\%
+\]</span></p>
+<p>approximately.</p>
+<ol start="4" type="a">
 <li><p>Bank discount yield divides the discount by face value and annualizes on a 360-day basis. BEY divides by the actual investment price and annualizes on a 365-day basis. Because price is below face value, using price as the denominator raises the yield.</p></li>
 <li><p>T-bills have negligible default risk, but investors can still face reinvestment risk, inflation risk, opportunity cost, and liquidity needs. A foreign investor also faces exchange-rate risk.</p></li>
 </ol>
@@ -1636,203 +1854,206 @@ ul.task-list li input[type="checkbox"] {
 </ol>
 </section>
 </section>
-<section id="lecture-6-residential-mortgages-and-mortgage-backed-securities" class="level1" data-number="6">
-<h1 data-number="6"><span class="header-section-number">6</span> Lecture 6: Residential Mortgages and Mortgage-Backed Securities</h1>
+<section id="lecture-6-bond-portfolio-construction" class="level1" data-number="6">
+<h1 data-number="6"><span class="header-section-number">6</span> Lecture 6: Bond Portfolio Construction</h1>
 <section id="question-26" class="level2" data-number="6.1">
 <h2 data-number="6.1" class="anchored" data-anchor-id="question-26"><span class="header-section-number">6.1</span> Question 26</h2>
-<p>A mortgage underwriter reviews three loan applications.</p>
+<p>A manager compares two candidate portfolios against the same benchmark.</p>
 <table class="caption-top table">
-<colgroup>
-<col style="width: 13%">
-<col style="width: 18%">
-<col style="width: 18%">
-<col style="width: 18%">
-<col style="width: 18%">
-<col style="width: 13%">
-</colgroup>
 <thead>
 <tr class="header">
-<th>Borrower</th>
-<th style="text-align: right;">Monthly income</th>
-<th style="text-align: right;">Monthly housing payment</th>
-<th style="text-align: right;">Loan amount</th>
-<th style="text-align: right;">Appraised value</th>
-<th>Credit profile</th>
+<th>Portfolio</th>
+<th style="text-align: right;">Expected active return</th>
+<th style="text-align: right;">Predicted tracking error</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td>A</td>
-<td style="text-align: right;">USD 9,000</td>
-<td style="text-align: right;">USD 2,430</td>
-<td style="text-align: right;">USD 480,000</td>
-<td style="text-align: right;">USD 600,000</td>
-<td>Prime</td>
+<td style="text-align: right;">45 bps</td>
+<td style="text-align: right;">60 bps</td>
 </tr>
 <tr class="even">
 <td>B</td>
-<td style="text-align: right;">USD 6,500</td>
-<td style="text-align: right;">USD 2,600</td>
-<td style="text-align: right;">USD 540,000</td>
-<td style="text-align: right;">USD 600,000</td>
-<td>Alt-A</td>
-</tr>
-<tr class="odd">
-<td>C</td>
-<td style="text-align: right;">USD 5,000</td>
-<td style="text-align: right;">USD 1,850</td>
-<td style="text-align: right;">USD 475,000</td>
-<td style="text-align: right;">USD 500,000</td>
-<td>Subprime</td>
+<td style="text-align: right;">70 bps</td>
+<td style="text-align: right;">140 bps</td>
 </tr>
 </tbody>
 </table>
 <p>Answer the following:</p>
 <ol type="a">
-<li>Compute each borrower’s PTI ratio.<br>
+<li>Define tracking error.<br>
 </li>
-<li>Compute each borrower’s LTV ratio.<br>
+<li>Compute the information ratio for each portfolio using expected active return divided by tracking error.<br>
 </li>
-<li>Identify which loan has the strongest basic underwriting profile.<br>
+<li>Identify which portfolio has the higher active return per unit of active risk.<br>
 </li>
-<li>Explain why high LTV increases credit risk.<br>
+<li>Explain why Portfolio B may still be chosen by an active manager.<br>
 </li>
-<li>Explain why credit classification still matters even when LTV is acceptable.</li>
+<li>Explain why a passive mandate would reject both portfolios if the tracking error budget is 25 bps.</li>
 </ol>
 <p><strong>Answer.</strong></p>
 <ol type="a">
-<li><p>PTI = monthly housing payment / monthly income. Borrower A: 2,430 / 9,000 = 27.0 percent. Borrower B: 2,600 / 6,500 = 40.0 percent. Borrower C: 1,850 / 5,000 = 37.0 percent.</p></li>
-<li><p>LTV = loan amount / appraised value. Borrower A: 480,000 / 600,000 = 80.0 percent. Borrower B: 540,000 / 600,000 = 90.0 percent. Borrower C: 475,000 / 500,000 = 95.0 percent.</p></li>
-<li><p>Borrower A has the strongest basic profile: prime credit, PTI within common underwriting comfort zones, and LTV of 80 percent. Borrower B has high PTI and high LTV. Borrower C has subprime credit and very high LTV.</p></li>
-<li><p>High LTV means the borrower has little equity. If home prices fall or foreclosure costs are high, collateral value may not cover the loan. High LTV also weakens the borrower’s incentive to keep paying when financial stress occurs.</p></li>
-<li><p>Credit classification captures willingness and ability to pay beyond collateral value. Income stability, payment history, documentation, and past delinquencies matter. A borrower with acceptable LTV but weak credit can still default at a high rate.</p></li>
+<li><p>Tracking error is the standard deviation of active returns, where active return equals portfolio return minus benchmark return. It measures active risk relative to the benchmark.</p></li>
+<li><p>Portfolio A information ratio = 45 / 60 = 0.75. Portfolio B information ratio = 70 / 140 = 0.50.</p></li>
+<li><p>Portfolio A has the higher active return per unit of active risk.</p></li>
+<li><p>Portfolio B may still be chosen if the manager has high conviction, the client allows a larger active-risk budget, or the expected active return estimate is more reliable than Portfolio A’s estimate.</p></li>
+<li><p>A passive mandate with a 25 bps tracking error budget would reject both because both predicted tracking errors exceed the allowed budget.</p></li>
 </ol>
 </section>
 <section id="question-27" class="level2" data-number="6.2">
 <h2 data-number="6.2" class="anchored" data-anchor-id="question-27"><span class="header-section-number">6.2</span> Question 27</h2>
-<p>A mortgage pool has beginning balance USD 1,000,000, weighted average mortgage rate 5.40 percent, and scheduled monthly principal of USD 1,800 for the next month. The assumed CPR is 8.00 percent.</p>
+<p>A portfolio has active returns of 12 bps, -8 bps, 5 bps, 22 bps, -18 bps, and 4 bps over six months.</p>
 <p>Answer the following:</p>
 <ol type="a">
-<li>Convert CPR to SMM.<br>
+<li>Compute the mean active return.<br>
 </li>
-<li>Compute monthly interest.<br>
+<li>Compute the sample monthly tracking error.<br>
 </li>
-<li>Compute expected prepayment.<br>
+<li>Annualize the tracking error.<br>
 </li>
-<li>Compute total principal paid.<br>
+<li>Explain whether this is backward-looking or forward-looking tracking error.<br>
 </li>
-<li>Compute ending balance.</li>
+<li>Explain why this measure may be misleading if the manager changed the portfolio today.</li>
 </ol>
 <p><strong>Answer.</strong></p>
 <ol type="a">
-<li><p>SMM = 1 - (1 - CPR)^(1/12) = 1 - (0.92)^(1/12) = 0.6924 percent approximately.</p></li>
-<li><p>Monthly interest = beginning balance x mortgage rate / 12 = 1,000,000 x 5.40 percent / 12 = USD 4,500.</p></li>
-<li><p>Prepayment = SMM x (beginning balance - scheduled principal). Prepayment = 0.006924 x (1,000,000 - 1,800) = approximately USD 6,912.</p></li>
-<li><p>Total principal paid = scheduled principal + prepayment = 1,800 + 6,912 = USD 8,712.</p></li>
-<li><p>Ending balance = 1,000,000 - 8,712 = USD 991,288. The investor’s total cash flow for the month before servicing and guarantee fees is interest plus total principal, or about USD 13,212.</p></li>
+<li><p>Mean active return = (12 - 8 + 5 + 22 - 18 + 4) / 6 = 2.83 bps.</p></li>
+<li><p>The sample standard deviation of the active returns is approximately 14.70 bps per month.</p></li>
+<li><p>Annualized tracking error = 14.70 x sqrt(12) = 50.91 bps per year.</p></li>
+<li><p>This is backward-looking tracking error because it is computed from realized active returns.</p></li>
+<li><p>It may be misleading because it reflects the old holdings and old exposures. If the manager changes duration, sector weights, or issuer concentration today, forward-looking tracking error could be very different.</p></li>
 </ol>
 </section>
 <section id="question-28" class="level2" data-number="6.3">
 <h2 data-number="6.3" class="anchored" data-anchor-id="question-28"><span class="header-section-number">6.3</span> Question 28</h2>
-<p>An agency pass-through investor compares prepayment speeds under 100 percent PSA and 200 percent PSA for a new mortgage pool. Under 100 percent PSA, CPR starts at 0.20 percent in month 1 and rises by 0.20 percent per month until month 30.</p>
-<p>Assume beginning balance USD 2,000,000 and scheduled principal USD 2,500 per month for each of the first three months.</p>
-<p>Answer the following:</p>
-<ol type="a">
-<li>State the CPRs for months 1-3 under 100 percent PSA.<br>
-</li>
-<li>State the CPRs for months 1-3 under 200 percent PSA.<br>
-</li>
-<li>Compute month-1 prepayment under both assumptions.<br>
-</li>
-<li>Explain why 200 percent PSA shortens average life.<br>
-</li>
-<li>Explain why faster prepayments can be bad for an investor holding a premium MBS.</li>
-</ol>
-<p><strong>Answer.</strong></p>
-<ol type="a">
-<li><p>Under 100 percent PSA, CPRs are 0.20 percent, 0.40 percent, and 0.60 percent for months 1-3.</p></li>
-<li><p>Under 200 percent PSA, the CPRs are doubled: 0.40 percent, 0.80 percent, and 1.20 percent.</p></li>
-<li><p>Month-1 SMM under 100 percent PSA = 1 - (1 - 0.002)^(1/12) = 0.0167 percent approximately. Prepayment = 0.000167 x (2,000,000 - 2,500) = about USD 333. Under 200 percent PSA, SMM = 1 - (1 - 0.004)^(1/12) = 0.0334 percent. Prepayment = 0.000334 x 1,997,500 = about USD 667.</p></li>
-<li><p>Faster PSA means more principal is returned earlier. Since average life is a principal-weighted timing measure, earlier principal payments reduce average life.</p></li>
-<li><p>A premium MBS was purchased above par. When borrowers prepay, principal is returned at par, not at the premium price paid. Faster prepayment accelerates premium amortization and forces reinvestment at potentially lower yields.</p></li>
-</ol>
-</section>
-<section id="question-29" class="level2" data-number="6.4">
-<h2 data-number="6.4" class="anchored" data-anchor-id="question-29"><span class="header-section-number">6.4</span> Question 29</h2>
-<p>An investor owns two mortgage-backed securities with the same current market value and similar average life, but different coupons.</p>
+<p>A benchmark is divided into cells using duration, sector, and credit quality.</p>
 <table class="caption-top table">
-<colgroup>
-<col style="width: 21%">
-<col style="width: 28%">
-<col style="width: 28%">
-<col style="width: 21%">
-</colgroup>
 <thead>
 <tr class="header">
-<th>Pool</th>
-<th style="text-align: right;">Coupon</th>
-<th style="text-align: right;">Current price</th>
-<th>Borrower incentive</th>
+<th>Dimension</th>
+<th style="text-align: right;">Number of categories</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td>Low-coupon pool</td>
-<td style="text-align: right;">3.00 percent</td>
-<td style="text-align: right;">91.50</td>
-<td>Little refinancing incentive</td>
+<td>Duration bucket</td>
+<td style="text-align: right;">3</td>
 </tr>
 <tr class="even">
-<td>High-coupon pool</td>
-<td style="text-align: right;">6.50 percent</td>
-<td style="text-align: right;">106.75</td>
-<td>Strong refinancing incentive if market rates fall</td>
+<td>Sector</td>
+<td style="text-align: right;">5</td>
+</tr>
+<tr class="odd">
+<td>Credit quality</td>
+<td style="text-align: right;">4</td>
 </tr>
 </tbody>
 </table>
 <p>Answer the following:</p>
 <ol type="a">
-<li>Explain which pool is more exposed to contraction risk.<br>
+<li>Compute the total number of cells.<br>
 </li>
-<li>Explain which pool is more exposed to extension risk if rates rise.<br>
+<li>Explain how a passive manager would use the cells.<br>
 </li>
-<li>Explain why the high-coupon pool may have negative convexity.<br>
+<li>Explain how an active manager could express a view using the cells.<br>
 </li>
-<li>Explain why average life alone is insufficient for comparison.<br>
+<li>Give one transaction-cost problem created by too many cells.<br>
 </li>
-<li>Recommend which pool a bank should prefer if it wants more stable principal cash flows when rates fall.</li>
+<li>Give one risk-control problem created by too few cells.</li>
 </ol>
 <p><strong>Answer.</strong></p>
 <ol type="a">
-<li><p>The high-coupon pool is more exposed to contraction risk. If market mortgage rates fall, borrowers with 6.50 percent loans have a strong incentive to refinance, causing principal to return early.</p></li>
-<li><p>Both pools can extend when rates rise, but the low-coupon pool may be especially extension-prone because borrowers already have below-market mortgage rates and will be reluctant to refinance or move. Principal can remain outstanding longer than expected.</p></li>
-<li><p>The high-coupon pool has negative convexity because when rates fall, price appreciation is limited by faster prepayments. When rates rise, prepayments slow and duration extends. This is the opposite of the favorable convexity pattern of an option-free bond.</p></li>
-<li><p>Average life is only a summary. Two pools can have similar average life today but very different sensitivity to future rates, refinancing incentives, burnout, geographic turnover, and borrower behavior.</p></li>
-<li><p>If the bank wants more stable principal when rates fall, it should prefer the low-coupon pool. Borrowers have little refinancing incentive, so prepayments are less likely to surge in a rally. The bank must still evaluate extension risk under rising-rate scenarios.</p></li>
+<li><p>Total cells = 3 x 5 x 4 = 60.</p></li>
+<li><p>A passive manager would try to match the benchmark’s weight in each cell using representative bonds.</p></li>
+<li><p>An active manager could overweight cells expected to outperform, such as intermediate BBB corporates, and underweight cells expected to underperform.</p></li>
+<li><p>Too many cells can force small odd-lot trades, increasing bid-ask costs and making execution difficult.</p></li>
+<li><p>Too few cells can hide important mismatches, such as matching sector weight while taking very different duration or credit-quality exposure.</p></li>
+</ol>
+</section>
+<section id="question-29" class="level2" data-number="6.4">
+<h2 data-number="6.4" class="anchored" data-anchor-id="question-29"><span class="header-section-number">6.4</span> Question 29</h2>
+<p>A factor model reports the following active exposures and monthly factor volatilities.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Factor</th>
+<th style="text-align: right;">Active exposure</th>
+<th style="text-align: right;">Factor volatility</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Treasury curve</td>
+<td style="text-align: right;">0.20</td>
+<td style="text-align: right;">24 bps</td>
+</tr>
+<tr class="even">
+<td>Corporate spread</td>
+<td style="text-align: right;">0.50</td>
+<td style="text-align: right;">16 bps</td>
+</tr>
+<tr class="odd">
+<td>Securitized spread</td>
+<td style="text-align: right;">-0.10</td>
+<td style="text-align: right;">20 bps</td>
+</tr>
+</tbody>
+</table>
+<p>Answer the following:</p>
+<ol type="a">
+<li>Compute isolated tracking error for each factor.<br>
+</li>
+<li>Assuming zero correlations, compute total systematic tracking error.<br>
+</li>
+<li>Explain why simply adding isolated tracking errors is incorrect.<br>
+</li>
+<li>Explain what information a covariance matrix adds.<br>
+</li>
+<li>Identify which factor contributes the most isolated risk.</li>
+</ol>
+<p><strong>Answer.</strong></p>
+<ol type="a">
+<li>Isolated TE equals absolute active exposure times factor volatility:</li>
+</ol>
+<p><span class="math display">\[
+\text{Treasury curve}=0.20\times 24=4.8\text{ bps}.
+\]</span></p>
+<p><span class="math display">\[
+\text{Corporate spread}=0.50\times 16=8.0\text{ bps}.
+\]</span></p>
+<p><span class="math display">\[
+\text{Securitized spread}=0.10\times 20=2.0\text{ bps}.
+\]</span></p>
+<ol start="2" type="a">
+<li><p>Total systematic TE with zero correlations = sqrt(4.8^2 + 8.0^2 + 2.0^2) = 9.54 bps per month.</p></li>
+<li><p>Standard deviations are not additive. Adding isolated tracking errors ignores diversification across factors.</p></li>
+<li><p>A covariance matrix adds the correlations among factor movements. Positively correlated active risks reinforce each other, while negatively correlated active risks can offset each other.</p></li>
+<li><p>Corporate spread contributes the most isolated risk at 8.0 bps per month.</p></li>
 </ol>
 </section>
 <section id="question-30" class="level2" data-number="6.5">
 <h2 data-number="6.5" class="anchored" data-anchor-id="question-30"><span class="header-section-number">6.5</span> Question 30</h2>
-<p>A mortgage investor evaluates an agency MBS trading at 103.00. The expected cash-flow yield under the base prepayment model is 4.85 percent. Under a faster prepayment model, the yield falls to 4.20 percent. Under a slower prepayment model, the yield rises to 5.05 percent.</p>
+<p>A portfolio manager rebalances a USD 100 million bond portfolio. Before rebalancing, predicted tracking error is 14.8 bps per month, duration gap is 0.32 years, and bank-sector active weight is 8.0 percent. The client limits are 12.0 bps tracking error, 0.25 years duration gap, and 5.0 percent bank active weight. A proposed package of trades costs 7 bps and changes the metrics to 10.6 bps tracking error, 0.18 years duration gap, and 5.0 percent bank active weight.</p>
 <p>Answer the following:</p>
 <ol type="a">
-<li>Explain why the same security has different yields under different prepayment assumptions.<br>
+<li>Identify which constraints are violated before rebalancing.<br>
 </li>
-<li>Explain why faster prepayments reduce yield for this premium MBS.<br>
+<li>Identify whether the proposed trades bring the portfolio inside the constraints.<br>
 </li>
-<li>Explain why slower prepayments increase yield in this scenario.<br>
+<li>Compute the reduction in monthly tracking error.<br>
 </li>
-<li>Explain why cash-flow yield is limited as a valuation measure.<br>
+<li>Explain why the manager should compare the risk reduction with transaction cost.<br>
 </li>
-<li>Explain why option-adjusted spread is often preferred for mortgage-backed securities.</li>
+<li>Explain why rebalancing should not automatically eliminate every active view.</li>
 </ol>
 <p><strong>Answer.</strong></p>
 <ol type="a">
-<li><p>A mortgage-backed security’s cash flows depend on borrower prepayment behavior. Cash-flow yield is the discount rate that equates price to one assumed cash-flow path. Change the prepayment path and the timing of principal changes, so the yield changes.</p></li>
-<li><p>The security trades at 103.00, above par. Faster prepayments return principal at par sooner, forcing the investor to realize the premium faster. The investor also loses higher-coupon cash flows earlier and may reinvest at lower rates. That lowers yield.</p></li>
-<li><p>Slower prepayments keep the premium security outstanding longer. The investor continues receiving the coupon cash flows for more time, and the premium is amortized more slowly. In this scenario, that raises the modeled yield.</p></li>
-<li><p>Cash-flow yield assumes the projected prepayment path occurs exactly. It does not fully capture how prepayments change when rates change, nor does it value volatility or the borrower’s prepayment option. It can give false precision.</p></li>
-<li><p>Option-adjusted spread uses interest-rate scenarios and prepayment behavior linked to those scenarios. It attempts to separate compensation for credit/liquidity spread from the value of the embedded prepayment option. For MBS, that option-aware framework is more informative than a single static cash-flow yield.</p></li>
+<li><p>All three constraints are violated before rebalancing: tracking error is 14.8 bps versus a 12.0 bps limit, duration gap is 0.32 years versus a 0.25 limit, and bank active weight is 8.0 percent versus a 5.0 percent limit.</p></li>
+<li><p>Yes. The proposed trades reduce tracking error to 10.6 bps, duration gap to 0.18 years, and bank active weight to 5.0 percent, all within limits.</p></li>
+<li><p>Tracking error reduction = 14.8 - 10.6 = 4.2 bps per month.</p></li>
+<li><p>Trading is not free. A 7 bps transaction cost must be justified by better risk control, compliance with guidelines, or improved expected active return. Otherwise, the portfolio can lose performance from unnecessary turnover.</p></li>
+<li><p>Rebalancing should preserve intentional views that remain inside the risk budget. The goal is to eliminate unwanted or excessive active risk, not to turn every active portfolio into an index clone.</p></li>
 </ol>
 
 

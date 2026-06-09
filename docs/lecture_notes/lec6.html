@@ -1,0 +1,2613 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.27">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Lecture 6: Bond Portfolio Construction – BUS 411 — Fixed Income Security Analysis and Valuation</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-4d9afe2b8d18ee9fa5d0d57b5ed4214d.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-97afdd19a946a7800d02dd55b4e8b647.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-aeaf3e155c33cdd5728541c7b417a725.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-97afdd19a946a7800d02dd55b4e8b647.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="../site_libs/quarto-diagram/mermaid.min.js"></script>
+<script src="../site_libs/quarto-diagram/mermaid-init.js"></script>
+<link href="../site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar docked nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">BUS 411 — Fixed Income Security Analysis and Valuation</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link active" href="../lecture_notes/index.html" aria-current="page"> 
+<span class="menu-text">Lecture Notes</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../assignments/index.html"> 
+<span class="menu-text">Assignments</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../lecture_notes/lec6.html">Lecture 6: Bond Portfolio Construction</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lecture_notes/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture Notes</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lecture_notes/lec1.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 1: Introduction</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lecture_notes/lec2.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 2: Bond Pricing and Yield Measures</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lecture_notes/lec3.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 3: Bond Price Volatility, Duration, Convexity, and Bond Portfolio Strategies</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lecture_notes/lec4.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 4: Benchmark Spreads and the Term Structure of Interest Rates</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lecture_notes/lec5.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 5: Treasury and Corporate Debt Markets</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lecture_notes/lec6.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Lecture 6: Bond Portfolio Construction</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+    <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#learning-objectives" id="toc-learning-objectives" class="nav-link active" data-scroll-target="#learning-objectives">Learning Objectives</a></li>
+  <li><a href="#brief-review-of-portfolio-theory-and-risk-decomposition" id="toc-brief-review-of-portfolio-theory-and-risk-decomposition" class="nav-link" data-scroll-target="#brief-review-of-portfolio-theory-and-risk-decomposition"><span class="header-section-number">1</span> Brief Review of Portfolio Theory and Risk Decomposition</a>
+  <ul class="collapse">
+  <li><a href="#application-of-portfolio-theory-to-bond-portfolio-construction" id="toc-application-of-portfolio-theory-to-bond-portfolio-construction" class="nav-link" data-scroll-target="#application-of-portfolio-theory-to-bond-portfolio-construction"><span class="header-section-number">1.1</span> Application of Portfolio Theory to Bond Portfolio Construction</a></li>
+  </ul></li>
+  <li><a href="#tracking-error" id="toc-tracking-error" class="nav-link" data-scroll-target="#tracking-error"><span class="header-section-number">2</span> Tracking Error</a>
+  <ul class="collapse">
+  <li><a href="#calculation-of-tracking-error" id="toc-calculation-of-tracking-error" class="nav-link" data-scroll-target="#calculation-of-tracking-error"><span class="header-section-number">2.1</span> Calculation of Tracking Error</a></li>
+  <li><a href="#two-faces-of-tracking-error" id="toc-two-faces-of-tracking-error" class="nav-link" data-scroll-target="#two-faces-of-tracking-error"><span class="header-section-number">2.2</span> Two Faces of Tracking Error</a></li>
+  <li><a href="#tracking-error-and-active-versus-passive-strategies" id="toc-tracking-error-and-active-versus-passive-strategies" class="nav-link" data-scroll-target="#tracking-error-and-active-versus-passive-strategies"><span class="header-section-number">2.3</span> Tracking Error and Active versus Passive Strategies</a></li>
+  <li><a href="#cell-based-approach-to-bond-portfolio-construction" id="toc-cell-based-approach-to-bond-portfolio-construction" class="nav-link" data-scroll-target="#cell-based-approach-to-bond-portfolio-construction"><span class="header-section-number">2.4</span> Cell-Based Approach to Bond Portfolio Construction</a>
+  <ul class="collapse">
+  <li><a href="#complications-in-bond-indexing" id="toc-complications-in-bond-indexing" class="nav-link" data-scroll-target="#complications-in-bond-indexing">Complications in Bond Indexing</a></li>
+  </ul></li>
+  <li><a href="#portfolio-construction-with-multi-factor-models" id="toc-portfolio-construction-with-multi-factor-models" class="nav-link" data-scroll-target="#portfolio-construction-with-multi-factor-models"><span class="header-section-number">2.5</span> Portfolio Construction with Multi-Factor Models</a>
+  <ul class="collapse">
+  <li><a href="#risk-decomposition" id="toc-risk-decomposition" class="nav-link" data-scroll-target="#risk-decomposition">Risk Decomposition</a></li>
+  <li><a href="#portfolio-construction-using-a-multi-factor-model-and-an-optimizer" id="toc-portfolio-construction-using-a-multi-factor-model-and-an-optimizer" class="nav-link" data-scroll-target="#portfolio-construction-using-a-multi-factor-model-and-an-optimizer">Portfolio Construction Using a Multi-Factor Model and an Optimizer</a></li>
+  <li><a href="#portfolio-rebalancing" id="toc-portfolio-rebalancing" class="nav-link" data-scroll-target="#portfolio-rebalancing">Portfolio Rebalancing</a></li>
+  </ul></li>
+  </ul></li>
+  </ul>
+<div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="lec6.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></nav>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Lecture 6: Bond Portfolio Construction</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="learning-objectives" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="learning-objectives">Learning Objectives</h2>
+<p>By the end of this lecture you should be able to:</p>
+<ul>
+<li>Explain the Markowitz mean-variance framework and why direct application to bond portfolio construction is difficult.</li>
+<li>Distinguish systematic risk from idiosyncratic risk in a bond portfolio.</li>
+<li>Compute tracking error from active returns and annualize it correctly.</li>
+<li>Distinguish backward-looking tracking error from forward-looking tracking error.</li>
+<li>Explain the cell-based approach to bond portfolio construction and identify its limitations.</li>
+<li>Describe why pure bond indexing is difficult in practice.</li>
+<li>Explain the purpose of a multi-factor fixed-income risk model.</li>
+<li>Use a multi-factor model to identify the sources of portfolio risk relative to a benchmark.</li>
+<li>Explain how a manager can construct and rebalance a bond portfolio using a multi-factor model and an optimizer.</li>
+</ul>
+</section>
+<section id="brief-review-of-portfolio-theory-and-risk-decomposition" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Brief Review of Portfolio Theory and Risk Decomposition</h1>
+<p>Bond portfolio construction begins with a simple question:</p>
+<blockquote class="blockquote">
+<p>How do we choose a set of bonds whose risk exposures match the investor’s objective?</p>
+</blockquote>
+<p>For a benchmark-aware manager, the objective is usually not “minimize total risk.” It is “earn active return without taking more active risk than the client allows.” That shift changes the relevant risk measure from portfolio volatility to <strong>tracking error</strong>.</p>
+<p>The starting point is Markowitz mean-variance portfolio theory. For a two-asset portfolio:</p>
+<p><span class="math display">\[
+E(R_p)=w_1E(R_1)+w_2E(R_2),
+\]</span></p>
+<p>and</p>
+<p><span class="math display">\[
+\sigma_p^2
+=w_1^2\sigma_1^2+w_2^2\sigma_2^2
++2w_1w_2\rho_{12}\sigma_1\sigma_2.
+\]</span></p>
+<p>Expected return is a weighted average. Risk is not. Portfolio risk depends on covariance, or equivalently correlation.</p>
+<p>The Markowitz framework has three required inputs:</p>
+<ul>
+<li>expected returns;</li>
+<li>variances or standard deviations;</li>
+<li>covariances or correlations.</li>
+</ul>
+<p>The theory says that an investor should choose portfolios that offer the best expected return for a given level of risk, or the lowest risk for a given expected return. Those portfolios form the <strong>efficient frontier</strong>.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Core Intuition">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Core Intuition
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Diversification works because assets do not move perfectly together. A portfolio of bonds is not risky only because the individual bonds are risky; it is risky because of how their interest-rate, spread, credit, liquidity, and optionality exposures move together.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Worked Example: Correlation and Diversification">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Worked Example: Correlation and Diversification
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Suppose two bonds each have annual return volatility of 8%, and the portfolio is 50% in each bond.</p>
+<p>If correlation is +1:</p>
+<p><span class="math display">\[
+\sigma_p = 8.0\%.
+\]</span></p>
+<p>If correlation is 0:</p>
+<p><span class="math display">\[
+\sigma_p
+=\sqrt{0.5^2(0.08)^2+0.5^2(0.08)^2}
+=5.66\%.
+\]</span></p>
+<p>If correlation is -1:</p>
+<p><span class="math display">\[
+\sigma_p=0.
+\]</span></p>
+<p>The expected return is unchanged by the correlation assumption, but the risk changes dramatically.</p>
+</div>
+</div>
+<div id="cell-fig-correlation-risk" class="cell" data-message="false" data-execution_count="2">
+<div class="cell-output cell-output-display">
+<div id="fig-correlation-risk" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-correlation-risk-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lec6_files/figure-html/fig-correlation-risk-output-1.png" width="709" height="392" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-correlation-risk-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Portfolio volatility for a two-bond portfolio with equal 8% volatilities and 50/50 weights.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div id="cell-fig-efficient-frontier" class="cell" data-message="false" data-execution_count="3">
+<div class="cell-output cell-output-display">
+<div id="fig-efficient-frontier" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-efficient-frontier-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lec6_files/figure-html/fig-efficient-frontier-output-1.png" width="709" height="392" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-efficient-frontier-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Stylized mean-variance frontier. The efficient frontier contains portfolios with the highest expected return for each risk level.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Portfolio risk can also be decomposed into:</p>
+<ul>
+<li><strong>Systematic risk:</strong> common risk factors that affect many securities, such as Treasury curve changes, credit spread widening, mortgage prepayment risk, or volatility shocks.</li>
+<li><strong>Idiosyncratic risk:</strong> issuer-specific or issue-specific risk, such as one company’s downgrade, a specific bond’s liquidity problem, or one mortgage pool’s unusual prepayment behavior.</li>
+</ul>
+<p>In a broad equity portfolio, idiosyncratic risk can often be diversified away with a moderate number of stocks. In bond portfolio construction, idiosyncratic risk can remain large because fixed-income benchmarks may include thousands of securities, many of which are illiquid, sector-specific, callable, securitized, or issuer-specific.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Short Example: Systematic versus Idiosyncratic Risk">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Short Example: Systematic versus Idiosyncratic Risk
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A 75 basis point rise in Treasury yields is systematic for a high-quality bond portfolio because many bonds lose value together. A surprise downgrade of one bank bond is idiosyncratic because it mainly affects that issuer. A portfolio can be nearly neutral to Treasury duration and still have large idiosyncratic risk if it holds concentrated issuer positions.</p>
+</div>
+</div>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Inter, Arial, sans-serif", "lineColor": "#64748b"}}}%%
+flowchart LR
+  A["Portfolio risk"] --&gt; B["Systematic risk&lt;br/&gt;curve, spread, volatility, sector factors"]
+  A --&gt; C["Idiosyncratic risk&lt;br/&gt;issuer, issue, liquidity, documentation"]
+  B --&gt; D["Measured with factor exposures"]
+  C --&gt; E["Reduced with diversification&lt;br/&gt;but not eliminated automatically"]
+  D --&gt; F["Tracking error versus benchmark"]
+  E --&gt; F
+  classDef root fill:#dbeafe,stroke:#2563eb,stroke-width:3px,color:#0f172a;
+  classDef systematic fill:#dcfce7,stroke:#16a34a,stroke-width:2.5px,color:#052e16;
+  classDef idio fill:#fee2e2,stroke:#dc2626,stroke-width:2.5px,color:#450a0a;
+  classDef result fill:#ede9fe,stroke:#7c3aed,stroke-width:2.5px,color:#2e1065;
+  class A root;
+  class B,D systematic;
+  class C,E idio;
+  class F result;
+  linkStyle default stroke:#64748b,stroke-width:2.5px;
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+<section id="application-of-portfolio-theory-to-bond-portfolio-construction" class="level2" data-number="1.1">
+<h2 data-number="1.1" class="anchored" data-anchor-id="application-of-portfolio-theory-to-bond-portfolio-construction"><span class="header-section-number">1.1</span> Application of Portfolio Theory to Bond Portfolio Construction</h2>
+<p>Markowitz theory is conceptually useful, but direct mean-variance optimization over thousands of bonds is difficult. If there are <span class="math inline">\(N\)</span> candidate bonds, the manager needs <span class="math inline">\(N\)</span> expected returns, <span class="math inline">\(N\)</span> variances, and</p>
+<p><span class="math display">\[
+\frac{N^2-N}{2}
+\]</span></p>
+<p>covariances. With 100 bonds, that is 4,950 covariances. With 6,500 benchmark bonds, it is more than 21 million pairwise covariances.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Worked Example: Covariance Count">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Worked Example: Covariance Count
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>If a manager considers 250 candidate bonds:</p>
+<p><span class="math display">\[
+\frac{250^2-250}{2}=31{,}125
+\]</span></p>
+<p>covariances must be estimated. The problem is not arithmetic; it is estimation risk. Small errors in expected returns and covariances can produce unstable portfolio weights.</p>
+</div>
+</div>
+<p>The practical fixed-income solution is to model returns through a smaller set of common factors:</p>
+<p><span class="math display">\[
+R_i = \alpha_i + \beta_{i1}F_1+\beta_{i2}F_2+\cdots+\beta_{iK}F_K+\epsilon_i.
+\]</span></p>
+<p>Here, <span class="math inline">\(F_k\)</span> are factors such as Treasury curve shifts, credit spreads, mortgage spreads, volatility, currency, and sector effects. The residual <span class="math inline">\(\epsilon_i\)</span> is idiosyncratic return.</p>
+<p>This is why modern bond portfolio construction is usually framed around exposures:</p>
+<ul>
+<li>effective duration and key rate duration;</li>
+<li>spread duration;</li>
+<li>credit quality and sector weights;</li>
+<li>convexity and volatility exposure;</li>
+<li>issuer and issue concentration;</li>
+<li>liquidity and transaction-cost constraints.</li>
+</ul>
+<p>The reason this factor view matters is control. A manager may want to be long corporate spread risk but neutral to Treasury duration. Another manager may want a mild duration overweight but no active mortgage exposure. Factor models translate those views into measurable exposures and predicted tracking error.</p>
+<p>The main limitations of applying mean-variance optimization directly to bond portfolios are:</p>
+<ul>
+<li><strong>Input burden:</strong> broad bond universes require thousands or millions of covariance estimates.</li>
+<li><strong>Expected-return error:</strong> small errors in expected return estimates can dominate the optimizer’s output.</li>
+<li><strong>Covariance instability:</strong> correlations between Treasury rates, swaps, credit spreads, and mortgage spreads change across regimes.</li>
+<li><strong>Non-normal returns:</strong> defaults, downgrades, calls, and prepayments create skewed or option-like return distributions.</li>
+<li><strong>Trading frictions:</strong> odd lots, bid-ask spreads, stale prices, and unavailable bonds make theoretical weights hard to execute.</li>
+<li><strong>Benchmark objective:</strong> most institutional bond managers are measured relative to a benchmark, so tracking error is more relevant than total variance.</li>
+</ul>
+<div class="callout callout-style-default callout-tip callout-titled" title="Why Bond Optimization Is Harder Than It Looks">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Why Bond Optimization Is Harder Than It Looks
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The optimizer may suggest buying a bond because it has attractive modeled risk-adjusted return. The trader may then discover that the bond has not traded in weeks, the quoted price is not executable, and the required size would move the market. Good bond portfolio construction must combine model output with market microstructure judgment.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="tracking-error" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> Tracking Error</h1>
+<p>Tracking error is the standard deviation of active returns:</p>
+<p><span class="math display">\[
+\text{Active Return}_t = R_{p,t}-R_{b,t},
+\]</span></p>
+<p><span class="math display">\[
+\text{Tracking Error}=\operatorname{SD}(R_p-R_b).
+\]</span></p>
+<p>Tracking error is also called <strong>active risk</strong>. It answers:</p>
+<blockquote class="blockquote">
+<p>How much does the portfolio’s return tend to deviate from the benchmark’s return?</p>
+</blockquote>
+<p>This is the natural risk measure for a benchmarked bond manager. A manager can have low total volatility and high tracking error if the portfolio differs meaningfully from the benchmark. Conversely, a portfolio can have high total volatility but low tracking error if the benchmark has similar risk.</p>
+<section id="calculation-of-tracking-error" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="calculation-of-tracking-error"><span class="header-section-number">2.1</span> Calculation of Tracking Error</h2>
+<p>The calculation has four steps:</p>
+<ol type="1">
+<li>Compute the total return for the portfolio each period.</li>
+<li>Compute the total return for the benchmark each period.</li>
+<li>Compute active return each period.</li>
+<li>Compute the standard deviation of active returns.</li>
+</ol>
+<p>The standard deviation is tied to the observation frequency. Monthly active returns produce monthly tracking error. Weekly active returns produce weekly tracking error.</p>
+<p>Annualization commonly uses:</p>
+<p><span class="math display">\[
+\text{Annual TE}=\text{Monthly TE}\times\sqrt{12},
+\]</span></p>
+<p>or</p>
+<p><span class="math display">\[
+\text{Annual TE}=\text{Weekly TE}\times\sqrt{52}.
+\]</span></p>
+<div class="callout callout-style-default callout-note callout-titled" title="Worked Example: Two Portfolios with the Same Benchmark">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Worked Example: Two Portfolios with the Same Benchmark
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The table below uses monthly returns for two hypothetical portfolios. Portfolio A stays close to the benchmark. Portfolio B takes larger active positions.</p>
+</div>
+</div>
+<div id="ef07cc94" class="cell" data-message="false" data-execution_count="4">
+<div class="cell-output cell-output-display" data-execution_count="4">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Month</th>
+<th data-quarto-table-cell-role="th">Benchmark return (%)</th>
+<th data-quarto-table-cell-role="th">Portfolio A return (%)</th>
+<th data-quarto-table-cell-role="th">A active return (%)</th>
+<th data-quarto-table-cell-role="th">Portfolio B return (%)</th>
+<th data-quarto-table-cell-role="th">B active return (%)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>Jan</td>
+<td>0.04</td>
+<td>0.02</td>
+<td>-0.02</td>
+<td>1.05</td>
+<td>1.01</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>Feb</td>
+<td>1.54</td>
+<td>1.58</td>
+<td>0.04</td>
+<td>2.13</td>
+<td>0.59</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>Mar</td>
+<td>0.00</td>
+<td>0.04</td>
+<td>0.04</td>
+<td>0.37</td>
+<td>0.37</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3</th>
+<td>Apr</td>
+<td>0.54</td>
+<td>0.61</td>
+<td>0.07</td>
+<td>1.01</td>
+<td>0.47</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">4</th>
+<td>May</td>
+<td>0.76</td>
+<td>0.71</td>
+<td>-0.05</td>
+<td>1.44</td>
+<td>0.68</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">5</th>
+<td>Jun</td>
+<td>0.30</td>
+<td>0.27</td>
+<td>-0.03</td>
+<td>0.57</td>
+<td>0.27</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">6</th>
+<td>Jul</td>
+<td>0.83</td>
+<td>0.91</td>
+<td>0.08</td>
+<td>1.95</td>
+<td>1.12</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">7</th>
+<td>Aug</td>
+<td>1.23</td>
+<td>1.26</td>
+<td>0.03</td>
+<td>1.26</td>
+<td>0.03</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">8</th>
+<td>Sep</td>
+<td>0.76</td>
+<td>0.69</td>
+<td>-0.07</td>
+<td>2.17</td>
+<td>1.41</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">9</th>
+<td>Oct</td>
+<td>0.90</td>
+<td>0.95</td>
+<td>0.05</td>
+<td>1.80</td>
+<td>0.90</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">10</th>
+<td>Nov</td>
+<td>1.04</td>
+<td>1.08</td>
+<td>0.04</td>
+<td>2.13</td>
+<td>1.09</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">11</th>
+<td>Dec</td>
+<td>0.28</td>
+<td>0.02</td>
+<td>-0.26</td>
+<td>0.32</td>
+<td>0.04</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div id="db573f60" class="cell" data-message="false" data-execution_count="5">
+<div class="cell-output cell-output-display" data-execution_count="5">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Portfolio</th>
+<th data-quarto-table-cell-role="th">Monthly TE (%)</th>
+<th data-quarto-table-cell-role="th">Monthly TE (bps)</th>
+<th data-quarto-table-cell-role="th">Annualized TE (bps)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>A</td>
+<td>0.09</td>
+<td>9.31</td>
+<td>32.24</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>B</td>
+<td>0.45</td>
+<td>44.70</td>
+<td>154.84</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div id="cell-fig-active-returns" class="cell" data-message="false" data-execution_count="6">
+<div class="cell-output cell-output-display">
+<div id="fig-active-returns" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-active-returns-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lec6_files/figure-html/fig-active-returns-output-1.png" width="709" height="393" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-active-returns-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: Monthly active returns for two portfolios. Portfolio B has much larger tracking error.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The intuition is direct: tracking error is not about whether returns are high or low. It is about whether the portfolio and benchmark move together. Portfolio B may outperform, but it is taking more active risk.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Long Example: Tracking Error from a Realistic Bond Mandate">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Long Example: Tracking Error from a Realistic Bond Mandate
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Suppose a core bond manager is benchmarked to a broad aggregate bond index. The manager’s monthly active returns over six months are:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Month</th>
+<th style="text-align: right;">Active return</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td style="text-align: right;">+12 bps</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td style="text-align: right;">-8 bps</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td style="text-align: right;">+5 bps</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td style="text-align: right;">+22 bps</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td style="text-align: right;">-18 bps</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td style="text-align: right;">+4 bps</td>
+</tr>
+</tbody>
+</table>
+<p>The average active return is:</p>
+<p><span class="math display">\[
+\bar{a}=\frac{12-8+5+22-18+4}{6}=2.83\text{ bps}.
+\]</span></p>
+<p>The sample monthly tracking error is the standard deviation around that mean:</p>
+<p><span class="math display">\[
+\text{TE}
+=
+\sqrt{
+\frac{\sum_{t=1}^{6}(a_t-\bar{a})^2}{6-1}
+}
+=14.7\text{ bps/month}.
+\]</span></p>
+<p>Annualized:</p>
+<p><span class="math display">\[
+14.7\sqrt{12}=50.9\text{ bps/year}.
+\]</span></p>
+<p>This is a low-to-moderate active-risk profile for a benchmark-aware fixed-income mandate.</p>
+</div>
+</div>
+</section>
+<section id="two-faces-of-tracking-error" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="two-faces-of-tracking-error"><span class="header-section-number">2.2</span> Two Faces of Tracking Error</h2>
+<p>Tracking error has two faces:</p>
+<ul>
+<li><strong>Backward-looking tracking error:</strong> calculated from realized active returns. Also called historical, ex-post, or actual tracking error.</li>
+<li><strong>Forward-looking tracking error:</strong> estimated from current holdings, factor exposures, factor volatilities, correlations, and idiosyncratic risks. Also called predicted or ex-ante tracking error.</li>
+</ul>
+<p>Backward-looking tracking error is useful for performance review. Forward-looking tracking error is useful for portfolio construction and risk control.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Why Historical TE Can Mislead">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Why Historical TE Can Mislead
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Suppose a manager held a benchmark-like portfolio for 11 months and then, today, increases duration by 1.5 years and doubles the corporate overweight. The historical tracking error remains low because it reflects the old portfolio. The forward-looking tracking error changes immediately because the current exposures changed.</p>
+</div>
+</div>
+<p>Forward-looking tracking error often comes from a multi-factor risk model:</p>
+<p><span class="math display">\[
+\text{Predicted TE}
+=
+\sqrt{
+(\Delta \boldsymbol{\beta})'
+\Sigma_F
+(\Delta \boldsymbol{\beta})
++\sigma_{\epsilon}^2
+},
+\]</span></p>
+<p>where <span class="math inline">\(\Delta \boldsymbol{\beta}\)</span> is the vector of portfolio-minus-benchmark factor exposures, <span class="math inline">\(\Sigma_F\)</span> is the factor covariance matrix, and <span class="math inline">\(\sigma_{\epsilon}^2\)</span> is idiosyncratic active variance.</p>
+<p>If active returns are approximately normal, tracking error gives a rough range of outcomes. If expected active return is zero and annual tracking error is 100 bps, then active return is within about +/-100 bps in roughly two-thirds of years and within about +/-200 bps in roughly 95% of years. This is a model-based statement, not a guarantee.</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Inter, Arial, sans-serif", "lineColor": "#64748b"}}}%%
+flowchart LR
+  A["Backward-looking TE&lt;br/&gt;uses realized active returns"] --&gt; B["Performance review&lt;br/&gt;what actually happened?"]
+  C["Forward-looking TE&lt;br/&gt;uses current holdings + risk model"] --&gt; D["Risk control&lt;br/&gt;what could happen next?"]
+  E["Portfolio trades today"] --&gt; C
+  E -. "not reflected until later" .-&gt; A
+  classDef backward fill:#dbeafe,stroke:#2563eb,stroke-width:2.5px,color:#0f172a;
+  classDef forward fill:#dcfce7,stroke:#16a34a,stroke-width:2.5px,color:#052e16;
+  classDef trade fill:#fef3c7,stroke:#d97706,stroke-width:2.5px,color:#451a03;
+  class A,B backward;
+  class C,D forward;
+  class E trade;
+  linkStyle default stroke:#64748b,stroke-width:2.5px;
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+<p>The diagram highlights the key exam point: historical tracking error is a realized statistic, while predicted tracking error is a current-position risk estimate. A manager controls future risk with the second measure, not the first.</p>
+</section>
+<section id="tracking-error-and-active-versus-passive-strategies" class="level2" data-number="2.3">
+<h2 data-number="2.3" class="anchored" data-anchor-id="tracking-error-and-active-versus-passive-strategies"><span class="header-section-number">2.3</span> Tracking Error and Active versus Passive Strategies</h2>
+<p>Tracking error is the language of active versus passive management:</p>
+<ul>
+<li><strong>Passive strategy:</strong> very low tracking error; the goal is to replicate the benchmark after costs.</li>
+<li><strong>Enhanced indexing:</strong> modest tracking error; the goal is to stay close to the benchmark while adding small active tilts.</li>
+<li><strong>Active strategy:</strong> larger tracking error; the manager intentionally differs from the benchmark.</li>
+</ul>
+<p>The reason tracking error is useful is that it turns vague statements like “slightly active” into measurable risk budgets.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Numerical Risk Budget Example">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Numerical Risk Budget Example
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A client allows annual tracking error of 150 bps. The monthly tracking error budget is approximately:</p>
+<p><span class="math display">\[
+\frac{150}{\sqrt{12}}=43.3\text{ bps per month}.
+\]</span></p>
+<p>If the optimizer predicts 65 bps of monthly tracking error, the portfolio violates the client’s risk budget even if the manager likes the trades.</p>
+</div>
+</div>
+<div id="7d7b538e" class="cell" data-message="false" data-execution_count="7">
+<div class="cell-output cell-output-display" data-execution_count="7">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Strategy</th>
+<th data-quarto-table-cell-role="th">Typical active risk</th>
+<th data-quarto-table-cell-role="th">Main objective</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>Pure indexing</td>
+<td>Near zero</td>
+<td>Replicate benchmark</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>Enhanced indexing</td>
+<td>Low</td>
+<td>Small active gains with tight risk control</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>Active benchmark-aware</td>
+<td>Moderate to high</td>
+<td>Outperform benchmark using views</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3</th>
+<td>Unconstrained / absolute return</td>
+<td>Benchmark may not control risk</td>
+<td>Maximize absolute or risk-adjusted return</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</section>
+<section id="cell-based-approach-to-bond-portfolio-construction" class="level2" data-number="2.4">
+<h2 data-number="2.4" class="anchored" data-anchor-id="cell-based-approach-to-bond-portfolio-construction"><span class="header-section-number">2.4</span> Cell-Based Approach to Bond Portfolio Construction</h2>
+<p>The cell-based approach divides the benchmark into buckets, or cells, based on characteristics that drive return. Common cells include:</p>
+<ul>
+<li>duration;</li>
+<li>maturity;</li>
+<li>coupon;</li>
+<li>sector;</li>
+<li>credit quality;</li>
+<li>call features;</li>
+<li>sinking fund features;</li>
+<li>mortgage coupon and collateral type.</li>
+</ul>
+<p>The manager then selects representative securities for each cell. If a benchmark has 30% corporate bonds, a passive cell-based portfolio should allocate about 30% to corporate cells. If the manager believes corporates will outperform, the manager may overweight corporate cells and underweight other cells.</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Inter, Arial, sans-serif", "lineColor": "#64748b"}}}%%
+flowchart LR
+  A["Benchmark index"] --&gt; B["Partition into cells"]
+  B --&gt; C["Duration buckets"]
+  B --&gt; D["Sector buckets"]
+  B --&gt; E["Credit buckets"]
+  B --&gt; F["Optionality buckets"]
+  C --&gt; G["Representative bonds"]
+  D --&gt; G
+  E --&gt; G
+  F --&gt; G
+  G --&gt; H["Portfolio weights&lt;br/&gt;match or tilt vs benchmark"]
+  classDef root fill:#dbeafe,stroke:#2563eb,stroke-width:3px,color:#0f172a;
+  classDef cell fill:#fef3c7,stroke:#d97706,stroke-width:2.5px,color:#451a03;
+  classDef portfolio fill:#dcfce7,stroke:#16a34a,stroke-width:2.5px,color:#052e16;
+  class A root;
+  class B,C,D,E,F cell;
+  class G,H portfolio;
+  linkStyle default stroke:#64748b,stroke-width:2.5px;
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Worked Example: Counting Cells">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Worked Example: Counting Cells
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Suppose an investment-grade bond benchmark is divided by:</p>
+<ul>
+<li>duration: 2 groups, less than or equal to 5 years and greater than 5 years;</li>
+<li>maturity: 3 groups, less than 5 years, 5-15 years, 15+ years;</li>
+<li>sector: 4 groups, Treasury, agencies, corporates, agency MBS;</li>
+<li>credit quality: 4 groups, AAA, AA, A, BBB.</li>
+</ul>
+<p>The number of cells is:</p>
+<p><span class="math display">\[
+2\times3\times4\times4=96.
+\]</span></p>
+<p>If the portfolio is only $50 million, filling 96 cells can force small odd-lot trades. Reducing the number of cells lowers transaction costs but increases mismatch risk.</p>
+</div>
+</div>
+<p>The cell-based approach is intuitive and transparent. Its weakness is that it treats cells like separate boxes. It does not naturally account for correlations across cells. Two large cell mismatches may hedge each other, or two small mismatches may reinforce each other.</p>
+<div id="c5f65edb" class="cell" data-message="false" data-execution_count="8">
+<div class="cell-output cell-output-display" data-execution_count="8">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Sector</th>
+<th data-quarto-table-cell-role="th">Benchmark weight (%)</th>
+<th data-quarto-table-cell-role="th">Portfolio weight (%)</th>
+<th data-quarto-table-cell-role="th">Active weight (%)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>Treasury</td>
+<td>33.3</td>
+<td>29.5</td>
+<td>-3.8</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>Agencies</td>
+<td>6.8</td>
+<td>3.6</td>
+<td>-3.2</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>Corporates</td>
+<td>26.6</td>
+<td>34.8</td>
+<td>8.2</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3</th>
+<td>Agency MBS</td>
+<td>33.3</td>
+<td>29.0</td>
+<td>-4.3</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div id="cell-fig-cell-sector-weights" class="cell" data-message="false" data-execution_count="9">
+<div class="cell-output cell-output-display">
+<div id="fig-cell-sector-weights" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-cell-sector-weights-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lec6_files/figure-html/fig-cell-sector-weights-output-1.png" width="709" height="393" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-cell-sector-weights-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: Example sector active weights. A cell-based approach makes benchmark tilts visible.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<section id="complications-in-bond-indexing" class="level3">
+<h3 class="anchored" data-anchor-id="complications-in-bond-indexing">Complications in Bond Indexing</h3>
+<p>Pure bond indexing means buying every security in the benchmark at its benchmark weight. In practice this is often impossible or inefficient because broad bond indexes can contain thousands of issues.</p>
+<p>Bond indexing is harder than equity indexing for several reasons:</p>
+<ul>
+<li><strong>Many securities per issuer:</strong> one company can have dozens of bonds.</li>
+<li><strong>Illiquidity:</strong> many bonds trade infrequently.</li>
+<li><strong>Bid-ask spread:</strong> benchmark returns often use bid-side pricing, while portfolio purchases occur near ask-side prices.</li>
+<li><strong>Index pricing:</strong> index provider prices may not be executable.</li>
+<li><strong>Cash-flow reinvestment:</strong> coupons, maturities, calls, and amortization create cash to reinvest.</li>
+<li><strong>Mortgage aggregation:</strong> agency MBS indexes often represent huge numbers of pools through generic cohorts.</li>
+</ul>
+<div class="callout callout-style-default callout-note callout-titled" title="Transaction Cost Example">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Transaction Cost Example
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Suppose a manager tries to buy 1,000 small bond positions and pays an average 12 bps bid-ask and execution cost. On a $100 million portfolio:</p>
+<p><span class="math display">\[
+100{,}000{,}000\times0.0012=120{,}000.
+\]</span></p>
+<p>That is 12 bps of immediate performance drag before any active decision is made.</p>
+</div>
+</div>
+<p>The reason enhanced indexing exists is pragmatic. A manager samples the benchmark to reduce transaction costs and operational complexity, then controls the resulting mismatch with cells or factor exposures.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Why the Cell Diagram Matters">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Why the Cell Diagram Matters
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The cell diagram is not just a classification picture. It shows the manager’s operational problem: a benchmark may contain thousands of bonds, but the portfolio might be able to hold only 100-300 names. The cell approach is a disciplined sampling rule that says, “If we cannot buy everything, at least match the major benchmark characteristics.”</p>
+</div>
+</div>
+<p>The limitations are important enough to state directly:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Limitation</th>
+<th>Why it matters</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Too many cells</td>
+<td>Small portfolios are forced into odd lots and high transaction costs.</td>
+</tr>
+<tr class="even">
+<td>Too few cells</td>
+<td>The portfolio can hide large maturity, sector, or credit mismatches.</td>
+</tr>
+<tr class="odd">
+<td>Correlations ignored</td>
+<td>Two cell mismatches may offset each other or reinforce each other.</td>
+</tr>
+<tr class="even">
+<td>Security selection inside cells</td>
+<td>A representative bond may not behave like the whole cell.</td>
+</tr>
+<tr class="odd">
+<td>Benchmark turnover</td>
+<td>Index composition changes as bonds mature, are issued, or become ineligible.</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-style-default callout-note callout-titled" title="Numerical Example: Hidden Risk Inside a Cell">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Numerical Example: Hidden Risk Inside a Cell
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Two portfolios both allocate 20% to BBB industrial bonds with 5-7 year maturities. Portfolio X holds 40 issuers at 0.5% each. Portfolio Y holds 4 issuers at 5% each. A cell-based report says both portfolios match the same cell, but Portfolio Y has much larger idiosyncratic issuer risk.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="portfolio-construction-with-multi-factor-models" class="level2" data-number="2.5">
+<h2 data-number="2.5" class="anchored" data-anchor-id="portfolio-construction-with-multi-factor-models"><span class="header-section-number">2.5</span> Portfolio Construction with Multi-Factor Models</h2>
+<p>Multi-factor models are the practical response to the covariance problem. Instead of estimating the covariance of every bond with every other bond, they estimate a smaller set of common risk factors.</p>
+<p>For fixed income, factors often include:</p>
+<ul>
+<li>Treasury level, slope, and curvature;</li>
+<li>key rate duration points;</li>
+<li>swap spreads;</li>
+<li>corporate spread factors by rating and sector;</li>
+<li>securitized spread factors;</li>
+<li>interest-rate volatility;</li>
+<li>currency risk;</li>
+<li>issuer and issue residual risk.</li>
+</ul>
+<p>The portfolio is compared with the benchmark factor by factor. Active risk comes from differences between portfolio exposures and benchmark exposures.</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Inter, Arial, sans-serif", "lineColor": "#64748b"}}}%%
+flowchart TB
+  A["Current holdings"] --&gt; C["Factor exposures"]
+  B["Benchmark holdings"] --&gt; D["Benchmark exposures"]
+  C --&gt; E["Active exposures&lt;br/&gt;portfolio - benchmark"]
+  D --&gt; E
+  E --&gt; F["Factor volatilities&lt;br/&gt;and correlations"]
+  E --&gt; G["Issuer / issue residual risk"]
+  F --&gt; H["Predicted tracking error"]
+  G --&gt; H
+  H --&gt; I["Risk control and optimizer"]
+  classDef holdings fill:#dbeafe,stroke:#2563eb,stroke-width:2.5px,color:#0f172a;
+  classDef exposure fill:#fef3c7,stroke:#d97706,stroke-width:2.5px,color:#451a03;
+  classDef model fill:#ede9fe,stroke:#7c3aed,stroke-width:2.5px,color:#2e1065;
+  classDef result fill:#dcfce7,stroke:#16a34a,stroke-width:2.5px,color:#052e16;
+  class A,B holdings;
+  class C,D,E exposure;
+  class F,G,H model;
+  class I result;
+  linkStyle default stroke:#64748b,stroke-width:2.5px;
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+<p>A key advantage is scenario analysis. Before trading, the manager can ask:</p>
+<ul>
+<li>What happens to tracking error if duration is increased by 0.25 years?</li>
+<li>Which factor contributes most to active risk?</li>
+<li>Is the corporate overweight mostly spread risk or issuer-specific risk?</li>
+<li>Which trades reduce tracking error most per dollar of transaction cost?</li>
+</ul>
+<section id="risk-decomposition" class="level3">
+<h3 class="anchored" data-anchor-id="risk-decomposition">Risk Decomposition</h3>
+<p>Risk decomposition explains where tracking error comes from. Start with active exposure:</p>
+<p><span class="math display">\[
+\Delta x_k = x_{p,k}-x_{b,k}.
+\]</span></p>
+<p>If factor <span class="math inline">\(k\)</span> has volatility <span class="math inline">\(\sigma_k\)</span>, the isolated tracking error from that factor is approximately:</p>
+<p><span class="math display">\[
+\text{Isolated TE}_k = |\Delta x_k|\sigma_k.
+\]</span></p>
+<p>If factor correlations are zero, total systematic tracking error is:</p>
+<p><span class="math display">\[
+\text{Systematic TE}
+=
+\sqrt{\sum_{k=1}^{K}\text{TE}_k^2}.
+\]</span></p>
+<p>If factors are correlated, the factor covariance matrix is needed:</p>
+<p><span class="math display">\[
+\text{Systematic TE}
+=
+\sqrt{\Delta x' \Sigma_F \Delta x}.
+\]</span></p>
+<div class="callout callout-style-default callout-note callout-titled" title="Worked Example: Isolated Risk Is Not Additive">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Worked Example: Isolated Risk Is Not Additive
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Suppose a bond portfolio has the following monthly isolated tracking errors:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Risk factor</th>
+<th style="text-align: right;">Isolated TE (bps/month)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Yield curve</td>
+<td style="text-align: right;">3.9</td>
+</tr>
+<tr class="even">
+<td>Swap spread</td>
+<td style="text-align: right;">2.6</td>
+</tr>
+<tr class="odd">
+<td>Volatility</td>
+<td style="text-align: right;">1.3</td>
+</tr>
+<tr class="even">
+<td>Government-related spread</td>
+<td style="text-align: right;">0.8</td>
+</tr>
+<tr class="odd">
+<td>Corporate spread</td>
+<td style="text-align: right;">2.8</td>
+</tr>
+<tr class="even">
+<td>Securitized spread</td>
+<td style="text-align: right;">2.5</td>
+</tr>
+</tbody>
+</table>
+<p>Adding them gives 13.9 bps, but that is wrong because standard deviations are not additive. Assuming zero correlations:</p>
+<p><span class="math display">\[
+\sqrt{3.9^2+2.6^2+1.3^2+0.8^2+2.8^2+2.5^2}=6.20
+\]</span></p>
+<p>bps per month.</p>
+</div>
+</div>
+<div id="54c9f497" class="cell" data-message="false" data-execution_count="10">
+<div class="cell-output cell-output-display" data-execution_count="10">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Risk factor</th>
+<th data-quarto-table-cell-role="th">Isolated TE (bps/month)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>Yield curve</td>
+<td>3.9</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>Swap spread</td>
+<td>2.6</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>Volatility</td>
+<td>1.3</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3</th>
+<td>Government-related spread</td>
+<td>0.8</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">4</th>
+<td>Corporate spread</td>
+<td>2.8</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">5</th>
+<td>Securitized spread</td>
+<td>2.5</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div id="cell-fig-factor-isolated-te" class="cell" data-message="false" data-execution_count="11">
+<div class="cell-output cell-output-display">
+<div id="fig-factor-isolated-te" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-factor-isolated-te-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lec6_files/figure-html/fig-factor-isolated-te-output-1.png" width="709" height="392" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-factor-isolated-te-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5: Illustrative isolated monthly tracking error by risk factor.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The same idea applies to systematic and idiosyncratic active risk. If they are modeled as independent:</p>
+<p><span class="math display">\[
+\text{Total TE}
+=
+\sqrt{\text{Systematic TE}^2+\text{Idiosyncratic TE}^2}.
+\]</span></p>
+<div class="callout callout-style-default callout-note callout-titled" title="Worked Example: Total Tracking Error">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Worked Example: Total Tracking Error
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Suppose systematic tracking error is 4.6 bps/month and idiosyncratic tracking error is 7.8 bps/month.</p>
+<p><span class="math display">\[
+\text{Total TE}
+=\sqrt{4.6^2+7.8^2}
+=9.1\text{ bps/month}.
+\]</span></p>
+<p>Even if idiosyncratic risk is small relative to total portfolio volatility, it can dominate tracking error if the portfolio holds far fewer names than the benchmark.</p>
+</div>
+</div>
+<div id="cell-fig-key-rate-mismatch" class="cell" data-message="false" data-execution_count="12">
+<div class="cell-output cell-output-display">
+<div id="fig-key-rate-mismatch" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-key-rate-mismatch-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lec6_files/figure-html/fig-key-rate-mismatch-output-1.png" width="709" height="393" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-key-rate-mismatch-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6: Example key rate duration mismatch versus a benchmark.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Key rate duration matters because a portfolio can match total duration but still have curve-shape risk. A portfolio may be underweight 2-year duration and overweight 10-year duration. A parallel-shift metric hides that exposure.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Key Rate Duration Example">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Key Rate Duration Example
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The net 10-year key rate duration in the example is:</p>
+<p><span class="math display">\[
+1.39-1.51=-0.12.
+\]</span></p>
+<p>If the 10-year point alone rises by 50 basis points, holding other points constant, the approximate active return impact is:</p>
+<p><span class="math display">\[
+-(-0.12)\times0.0050=0.0006=6\text{ bps}.
+\]</span></p>
+<p>The portfolio outperforms because it has less exposure than the benchmark to that part of the curve. The sign matters: an underweight duration position benefits when that rate rises.</p>
+</div>
+</div>
+<div id="cell-fig-fred-risk-factors" class="cell" data-message="false" data-execution_count="13">
+<div class="cell-output cell-output-display">
+<div id="fig-fred-risk-factors" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-fred-risk-factors-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lec6_files/figure-html/fig-fred-risk-factors-output-1.png" width="708" height="393" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-fred-risk-factors-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7: Real market data: Treasury yield and corporate spread risk factors. Data source: FRED, Federal Reserve Bank of St.&nbsp;Louis; ICE BofA indices.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>This plot is useful because it shows why a bond portfolio model needs multiple factors. Treasury yields and credit spreads do not always move together. During risk-off periods, Treasury yields may fall while spreads widen.</p>
+<p>The next example turns those real factor movements into approximate active returns. Suppose a portfolio has the following active exposures relative to its benchmark:</p>
+<ul>
+<li>net duration: +0.15 years;</li>
+<li>net investment-grade spread duration: +0.60 years;</li>
+<li>net high-yield spread duration: +0.20 years.</li>
+</ul>
+<p>The approximate monthly active return from these factor mismatches is:</p>
+<p><span class="math display">\[
+\Delta R_{\text{active}}
+\approx
+-D_{\text{active}}\Delta y_{\text{Treasury}}
+-SD_{\text{IG, active}}\Delta s_{\text{IG}}
+-SD_{\text{HY, active}}\Delta s_{\text{HY}}.
+\]</span></p>
+<p>This is not a full return model, but it is the core intuition of factor-based risk attribution.</p>
+<div id="cell-fig-real-factor-active-return" class="cell" data-message="false" data-execution_count="14">
+<div class="cell-output cell-output-display">
+<div id="fig-real-factor-active-return" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-real-factor-active-return-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lec6_files/figure-html/fig-real-factor-active-return-output-1.png" width="709" height="393" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-real-factor-active-return-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;8: Approximate active return from real monthly factor changes and assumed active exposures.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div id="320a2f26" class="cell" data-message="false" data-execution_count="15">
+<div class="cell-output cell-output-display" data-execution_count="15">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Measure</th>
+<th data-quarto-table-cell-role="th">Value (bps)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>Monthly standard deviation of modeled active return</td>
+<td>4.9</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>Annualized modeled tracking error</td>
+<td>16.9</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>Worst monthly modeled active return</td>
+<td>-6.2</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3</th>
+<td>Best monthly modeled active return</td>
+<td>8.5</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled" title="Real-Data Intuition">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Real-Data Intuition
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The same active exposure can look harmless in quiet markets and painful in volatile markets. Tracking error depends on both the size of the active exposure and the volatility/correlation of the factors that move that exposure.</p>
+</div>
+</div>
+<p>Risk decomposition should lead to an action. A manager uses it to decide which risk is intentional, which risk is accidental, and which risk should be hedged or reduced.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Diagnostic question</th>
+<th>Example decision</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Is this risk intentional?</td>
+<td>Keep a corporate spread overweight if it reflects a credit view.</td>
+</tr>
+<tr class="even">
+<td>Is this risk compensated?</td>
+<td>Reduce issuer concentration if it adds TE without expected alpha.</td>
+</tr>
+<tr class="odd">
+<td>Is this risk hedgeable?</td>
+<td>Use Treasury futures to neutralize unwanted duration.</td>
+</tr>
+<tr class="even">
+<td>Is this risk diversifiable?</td>
+<td>Replace a concentrated issuer position with several similar bonds.</td>
+</tr>
+<tr class="odd">
+<td>Is this risk cheap to trade?</td>
+<td>Fix large liquid Treasury mismatches before small illiquid corporate mismatches.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="portfolio-construction-using-a-multi-factor-model-and-an-optimizer" class="level3">
+<h3 class="anchored" data-anchor-id="portfolio-construction-using-a-multi-factor-model-and-an-optimizer">Portfolio Construction Using a Multi-Factor Model and an Optimizer</h3>
+<p>A multi-factor model measures risk. An optimizer chooses holdings subject to objectives and constraints.</p>
+<p>The optimizer usually needs:</p>
+<ul>
+<li>a tradable universe;</li>
+<li>security prices and transaction costs;</li>
+<li>benchmark holdings and benchmark exposures;</li>
+<li>expected active returns or manager views;</li>
+<li>factor exposures and covariance estimates;</li>
+<li>issuer, sector, duration, spread, liquidity, and turnover constraints.</li>
+</ul>
+<p>The decision variables are the portfolio weights or dollar amounts in each candidate security. A common objective is:</p>
+<p><span class="math display">\[
+\min \text{Tracking Error}
+\]</span></p>
+<p>subject to constraints such as:</p>
+<ul>
+<li>market value equals available capital;</li>
+<li>no short sales;</li>
+<li>maximum number of securities;</li>
+<li>duration within a range around the benchmark;</li>
+<li>sector active weights within limits;</li>
+<li>issuer concentration limits;</li>
+<li>minimum trade size;</li>
+<li>transaction-cost budget;</li>
+<li>tracking error below the risk budget.</li>
+</ul>
+<div class="callout callout-style-default callout-note callout-titled" title="Long Numerical Example: Building a 50-Bond Enhanced Index Portfolio">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Long Numerical Example: Building a 50-Bond Enhanced Index Portfolio
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Suppose the benchmark has duration 5.41, spread duration 5.27, and a sector allocation of one-third Treasuries, one-third credit-like sectors, and one-third agency MBS. A manager wants a $100 million portfolio with:</p>
+<ul>
+<li>no more than 50 bonds;</li>
+<li>no short sales;</li>
+<li>duration at least 0.15 years above the benchmark but no more than 0.30 years above;</li>
+<li>spread 50-80 bps higher than the benchmark;</li>
+<li>monthly tracking error below 15 bps;</li>
+<li>maximum active issuer weight of 3%.</li>
+</ul>
+<p>One candidate portfolio has:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Measure</th>
+<th style="text-align: right;">Portfolio</th>
+<th style="text-align: right;">Benchmark</th>
+<th style="text-align: right;">Difference</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Duration</td>
+<td style="text-align: right;">5.56</td>
+<td style="text-align: right;">5.41</td>
+<td style="text-align: right;">0.15</td>
+</tr>
+<tr class="even">
+<td>Spread duration</td>
+<td style="text-align: right;">5.37</td>
+<td style="text-align: right;">5.27</td>
+<td style="text-align: right;">0.10</td>
+</tr>
+<tr class="odd">
+<td>Convexity</td>
+<td style="text-align: right;">0.11</td>
+<td style="text-align: right;">0.06</td>
+<td style="text-align: right;">0.05</td>
+</tr>
+<tr class="even">
+<td>Spread</td>
+<td style="text-align: right;">107 bps</td>
+<td style="text-align: right;">57 bps</td>
+<td style="text-align: right;">50 bps</td>
+</tr>
+</tbody>
+</table>
+<p>The portfolio satisfies the duration and spread tilt constraints. The remaining question is whether those tilts fit inside the tracking error budget.</p>
+</div>
+</div>
+<div id="9a9ae60d" class="cell" data-message="false" data-execution_count="16">
+<div class="cell-output cell-output-display" data-execution_count="16">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Exposure</th>
+<th data-quarto-table-cell-role="th">Portfolio</th>
+<th data-quarto-table-cell-role="th">Benchmark</th>
+<th data-quarto-table-cell-role="th">Difference</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>Duration</td>
+<td>5.56</td>
+<td>5.41</td>
+<td>0.15</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>Spread duration</td>
+<td>5.37</td>
+<td>5.27</td>
+<td>0.10</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>Convexity</td>
+<td>0.11</td>
+<td>0.06</td>
+<td>0.05</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3</th>
+<td>Vega</td>
+<td>0.04</td>
+<td>0.03</td>
+<td>0.01</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">4</th>
+<td>Spread (bps)</td>
+<td>107.00</td>
+<td>57.00</td>
+<td>50.00</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Toy Optimizer Example: Choosing Representative Bonds">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Toy Optimizer Example: Choosing Representative Bonds
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Suppose a manager has $10 million to invest and wants to approximate a benchmark with duration near 5.0, spread duration near 3.0, and at least 30% in Treasuries for liquidity. The tradable universe is:</p>
+</div>
+</div>
+<div id="936028f2" class="cell" data-message="false" data-execution_count="17">
+<div class="cell-output cell-output-display" data-execution_count="17">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Bond</th>
+<th data-quarto-table-cell-role="th">Yield (%)</th>
+<th data-quarto-table-cell-role="th">Duration</th>
+<th data-quarto-table-cell-role="th">Spread duration</th>
+<th data-quarto-table-cell-role="th">Sector</th>
+<th data-quarto-table-cell-role="th">Weight chosen (%)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>Treasury 5Y</td>
+<td>4.3</td>
+<td>4.6</td>
+<td>0.0</td>
+<td>Treasury</td>
+<td>25</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>Treasury 10Y</td>
+<td>4.6</td>
+<td>8.2</td>
+<td>0.0</td>
+<td>Treasury</td>
+<td>15</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>Agency MBS</td>
+<td>5.1</td>
+<td>4.1</td>
+<td>3.2</td>
+<td>MBS</td>
+<td>25</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3</th>
+<td>A industrial</td>
+<td>5.4</td>
+<td>5.7</td>
+<td>5.4</td>
+<td>Corporate</td>
+<td>20</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">4</th>
+<td>BBB financial</td>
+<td>6.0</td>
+<td>6.1</td>
+<td>5.8</td>
+<td>Corporate</td>
+<td>15</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div id="e782dada" class="cell" data-message="false" data-execution_count="18">
+<div class="cell-output cell-output-display" data-execution_count="18">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Portfolio metric</th>
+<th data-quarto-table-cell-role="th">Value</th>
+<th data-quarto-table-cell-role="th">Benchmark / constraint</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>Yield</td>
+<td>5.02</td>
+<td>5.0</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>Duration</td>
+<td>5.46</td>
+<td>5.0</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>Spread duration</td>
+<td>2.75</td>
+<td>3.0</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3</th>
+<td>Treasury weight</td>
+<td>40.00</td>
+<td>&gt;= 30</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">4</th>
+<td>Corporate weight</td>
+<td>35.00</td>
+<td>&lt;= 40</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>The selected weights are not the result of a full industrial optimizer, but the logic is the same: candidate bonds are combined so portfolio exposures land near benchmark exposures while satisfying constraints. A real optimizer would also include issuer caps, minimum lot sizes, transaction costs, taxes, and predicted tracking error.</p>
+<div id="cell-fig-toy-portfolio-exposures" class="cell" data-message="false" data-execution_count="19">
+<div class="cell-output cell-output-display">
+<div id="fig-toy-portfolio-exposures" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-toy-portfolio-exposures-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lec6_files/figure-html/fig-toy-portfolio-exposures-output-1.png" width="709" height="393" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-toy-portfolio-exposures-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;9: Toy portfolio construction: chosen exposures compared with target exposures.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Inter, Arial, sans-serif", "lineColor": "#64748b"}}}%%
+flowchart LR
+  A["Manager views&lt;br/&gt;duration, spread, sector"] --&gt; C["Objective function&lt;br/&gt;min TE or maximize alpha per TE"]
+  B["Client constraints&lt;br/&gt;risk budget, issuers, sectors"] --&gt; C
+  D["Tradable universe&lt;br/&gt;prices, liquidity, costs"] --&gt; C
+  E["Factor risk model&lt;br/&gt;exposures + covariance"] --&gt; C
+  C --&gt; F["Optimizer"]
+  F --&gt; G["Candidate portfolio"]
+  G --&gt; H{"Accept risk&lt;br/&gt;and cost?"}
+  H --&gt;|Yes| I["Trade list"]
+  H --&gt;|No| B
+  classDef input fill:#dbeafe,stroke:#2563eb,stroke-width:2.5px,color:#0f172a;
+  classDef objective fill:#fef3c7,stroke:#d97706,stroke-width:2.5px,color:#451a03;
+  classDef output fill:#dcfce7,stroke:#16a34a,stroke-width:2.5px,color:#052e16;
+  classDef decision fill:#ede9fe,stroke:#7c3aed,stroke-width:3px,color:#2e1065;
+  class A,B,D,E input;
+  class C,F objective;
+  class G,I output;
+  class H decision;
+  linkStyle default stroke:#64748b,stroke-width:2.5px;
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+<p>The reason optimization is valuable is not that it replaces judgment. It makes tradeoffs explicit. If the manager wants more corporate spread exposure, the optimizer shows which bonds add the exposure with the least tracking error, issuer concentration, and transaction cost.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Optimizer Intuition">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Optimizer Intuition
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The optimizer is a disciplined negotiation between views and constraints. Views say where the manager wants exposure. Constraints say how much exposure the client, market liquidity, and risk budget will allow.</p>
+</div>
+</div>
+</section>
+<section id="portfolio-rebalancing" class="level3">
+<h3 class="anchored" data-anchor-id="portfolio-rebalancing">Portfolio Rebalancing</h3>
+<p>In practice, managers usually rebalance existing portfolios rather than build from cash. Rebalancing is required when:</p>
+<ul>
+<li>benchmark weights change;</li>
+<li>bonds mature, are called, or amortize;</li>
+<li>credit ratings change;</li>
+<li>client cash flows arrive or leave;</li>
+<li>manager views change;</li>
+<li>risk exposures drift outside limits.</li>
+</ul>
+<p>The objective is not simply to reduce tracking error. It is to reduce tracking error or improve expected active return <strong>net of transaction costs</strong>.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Rebalancing Example">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Rebalancing Example
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Suppose a portfolio has become overweight banks by 8%, but the manager wants the bank overweight capped at 5%. The optimizer is allowed no more than 15 trades. It proposes:</p>
+<ul>
+<li>sell $5 million of bank bonds;</li>
+<li>buy $2 million Treasuries;</li>
+<li>buy $1.5 million agency MBS;</li>
+<li>buy $1.5 million industrial corporates.</li>
+</ul>
+<p>Before trading, the manager compares risk:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Metric</th>
+<th style="text-align: right;">Before</th>
+<th style="text-align: right;">After</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Systematic TE (bps/month)</td>
+<td style="text-align: right;">4.6</td>
+<td style="text-align: right;">4.2</td>
+</tr>
+<tr class="even">
+<td>Idiosyncratic TE (bps/month)</td>
+<td style="text-align: right;">7.8</td>
+<td style="text-align: right;">7.8</td>
+</tr>
+<tr class="odd">
+<td>Total TE (bps/month)</td>
+<td style="text-align: right;">9.0</td>
+<td style="text-align: right;">8.8</td>
+</tr>
+</tbody>
+</table>
+<p>If the trades cost 6 bps and reduce monthly tracking error by only 0.2 bps, the manager must decide whether the risk reduction is worth the cost.</p>
+</div>
+</div>
+<div id="4bb0f57b" class="cell" data-message="false" data-execution_count="20">
+<div class="cell-output cell-output-display" data-execution_count="20">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Exposure</th>
+<th data-quarto-table-cell-role="th">Before</th>
+<th data-quarto-table-cell-role="th">After</th>
+<th data-quarto-table-cell-role="th">Limit</th>
+<th data-quarto-table-cell-role="th">Unit</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>Duration gap</td>
+<td>0.32</td>
+<td>0.18</td>
+<td>0.25</td>
+<td>years</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>Corporate active weight</td>
+<td>9.50</td>
+<td>6.20</td>
+<td>8.00</td>
+<td>%</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>Bank active weight</td>
+<td>8.00</td>
+<td>5.00</td>
+<td>5.00</td>
+<td>%</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3</th>
+<td>Issuer concentration</td>
+<td>4.20</td>
+<td>2.90</td>
+<td>3.00</td>
+<td>%</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">4</th>
+<td>Predicted TE</td>
+<td>14.80</td>
+<td>10.60</td>
+<td>12.00</td>
+<td>bps/month</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>In this example, the manager does not need to eliminate every active position. The goal is to bring the portfolio back inside risk limits while preserving intentional views. The after-trade portfolio still has a corporate overweight, but the bank overweight, issuer concentration, duration gap, and predicted tracking error are now within limits.</p>
+<div id="cell-fig-rebalance-before-after" class="cell" data-message="false" data-execution_count="21">
+<div class="cell-output cell-output-display">
+<div id="fig-rebalance-before-after" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-rebalance-before-after-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lec6_files/figure-html/fig-rebalance-before-after-output-1.png" width="709" height="392" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-rebalance-before-after-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;10: Rebalancing should target the exposures that violate risk limits, not mechanically eliminate all active views.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div id="cell-fig-rebalance-frontier" class="cell" data-message="false" data-execution_count="22">
+<div class="cell-output cell-output-display">
+<div id="fig-rebalance-frontier" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-rebalance-frontier-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lec6_files/figure-html/fig-rebalance-frontier-output-1.png" width="708" height="392" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-rebalance-frontier-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;11: Illustrative tradeoff between transaction cost and tracking error reduction.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The intuition is that the first few trades often remove the largest unwanted exposures. Later trades may add complexity and transaction cost without much additional risk reduction. Good portfolio construction is therefore not just optimization; it is disciplined risk budgeting under real trading frictions.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="How to Read the Rebalancing Plots">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>How to Read the Rebalancing Plots
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The before/after plot teaches control: which exposures breach limits and which trades fix them. The tradeoff plot teaches cost discipline: after a certain point, additional trades may lower tracking error only slightly while transaction costs keep rising.</p>
+</div>
+</div>
+<p>Sources used for lecture framing include Markowitz’s portfolio selection framework, Sharpe’s single-index model, fixed-income portfolio construction material from Fabozzi-style bond portfolio management chapters, NYU Stern fixed-income lecture material, MIT OpenCourseWare finance and portfolio theory material, and FRED series for Treasury yields and ICE BofA corporate option-adjusted spreads.</p>
+
+
+</section>
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/aliboloor\.github\.io\/BUS411\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

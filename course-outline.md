@@ -91,15 +91,14 @@ Classes are primarily lecture-based; discussion is encouraged. Materials include
 1. Introduction
 2. Bond pricing and yields
 3. Bond price volatility
-4. Duration, convexity, and portfolio management
-5. Term structure and curve strategies
-6. Mortgage market
-7. Treasury securities and corporate debt instruments
-8. Interest rate models
-9. Embedded options
-10. Corporate bond credit analysis
-11. Credit risk modeling
-12. Interest rate derivatives
+4. Term structure and curve strategies
+5. Treasury securities and corporate debt instruments
+6. Bond portfolio construction
+7. Interest rate models
+8. Embedded options
+9. Credit risk modeling
+10. Interest rate futures 
+11. Interest rate derivatives
 
 # Academic Honesty
 

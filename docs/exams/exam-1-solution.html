@@ -296,7 +296,7 @@ window.Quarto = {
 <span class="menu-text">Lecture Notes</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../assignments/index.html"> 
+    <a class="nav-link" href="../assignments/index.qmd"> 
 <span class="menu-text">Assignments</span></a>
   </li>  
 </ul>
@@ -680,392 +680,178 @@ P=\frac{5.5}{1.052}
 </section>
 <section id="problem-b3" class="level2">
 <h2 class="anchored" data-anchor-id="problem-b3">Problem B3</h2>
-<p>A bond portfolio is managed relative to a benchmark. A factor model reports the following active exposures and monthly factor volatilities. Assume the three factors are uncorrelated.</p>
-<table class="caption-top table">
-<thead>
-<tr class="header">
-<th>Risk factor</th>
-<th style="text-align: right;">Active exposure</th>
-<th style="text-align: right;">Monthly factor volatility</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Treasury curve level</td>
-<td style="text-align: right;">0.25</td>
-<td style="text-align: right;">24 bps</td>
-</tr>
-<tr class="even">
-<td>Corporate spread</td>
-<td style="text-align: right;">0.50</td>
-<td style="text-align: right;">18 bps</td>
-</tr>
-<tr class="odd">
-<td>Securitized spread</td>
-<td style="text-align: right;">-0.15</td>
-<td style="text-align: right;">20 bps</td>
-</tr>
-</tbody>
-</table>
-<p>Idiosyncratic tracking error is 6.0 bps per month. The client’s monthly tracking-error budget is 14.0 bps.</p>
-<p>The manager can reduce the corporate spread active exposure from 0.50 to 0.25 by buying more benchmark-like corporate bonds. This trade costs 2.0 bps of portfolio value and leaves the other exposures and idiosyncratic tracking error unchanged.</p>
+<p>A portfolio has active returns of 12 bps, -8 bps, 5 bps, 22 bps, -18 bps, and 4 bps over six months.</p>
 <p>Answer the following:</p>
 <ol type="a">
-<li>Compute the isolated monthly tracking error contribution for each factor.<br>
+<li>Compute the mean active return.<br>
 </li>
-<li>Compute total systematic tracking error.<br>
+<li>Compute the sample monthly tracking error.<br>
 </li>
-<li>Compute total monthly tracking error after adding idiosyncratic tracking error. Is the portfolio inside the risk budget?<br>
+<li>Annualize the tracking error.<br>
 </li>
-<li>If Treasury yields rise by 30 bps, corporate spreads widen by 20 bps, and securitized spreads tighten by 10 bps, estimate the active return impact in basis points.<br>
+<li>Explain whether this is backward-looking or forward-looking tracking error.<br>
 </li>
-<li>Compute total monthly tracking error after reducing the corporate spread active exposure to 0.25. Explain the trade-off between the tracking-error reduction and the 2.0 bps trading cost.</li>
+<li>Explain why this measure may be misleading if the manager changed the portfolio today.</li>
 </ol>
 <div class="solution-answer">
 <p><strong>Solution.</strong></p>
-<p>The isolated tracking error values are the absolute value of active exposure times factor volatility:</p>
-<table class="caption-top table">
-<thead>
-<tr class="header">
-<th>Risk factor</th>
-<th style="text-align: right;">Calculation</th>
-<th style="text-align: right;">Isolated TE</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Treasury curve level</td>
-<td style="text-align: right;"><span class="math inline">\(0.25\times 24\)</span></td>
-<td style="text-align: right;">6.00 bps</td>
-</tr>
-<tr class="even">
-<td>Corporate spread</td>
-<td style="text-align: right;"><span class="math inline">\(0.50\times 18\)</span></td>
-<td style="text-align: right;">9.00 bps</td>
-</tr>
-<tr class="odd">
-<td>Securitized spread</td>
-<td style="text-align: right;"><span class="math inline">\(|-0.15|\times 20\)</span></td>
-<td style="text-align: right;">3.00 bps</td>
-</tr>
-</tbody>
-</table>
-<p>Because the factors are assumed uncorrelated, systematic tracking error is the square root of the sum of squared isolated tracking errors:</p>
+<p>The mean active return is:</p>
 <p><span class="math display">\[
-TE_{\text{sys}}
-=\sqrt{6.00^2+9.00^2+3.00^2}
-=\sqrt{126}
-=11.22\text{ bps per month}.
+\bar r=\frac{12-8+5+22-18+4}{6}
+=\frac{17}{6}
+=2.83\text{ bps per month}.
 \]</span></p>
-<p>Total tracking error adds idiosyncratic tracking error in variance terms:</p>
+<p>The sample monthly tracking error is the sample standard deviation of active returns:</p>
 <p><span class="math display">\[
-TE_{\text{total}}
-=\sqrt{11.22^2+6.00^2}
-=12.73\text{ bps per month}.
+TE_{\text{monthly}}
+=\sqrt{\frac{\sum_{t=1}^{6}(r_t-\bar r)^2}{6-1}}.
 \]</span></p>
-<p>The portfolio is inside the 14.0 bps monthly tracking-error budget.</p>
-<p>The active return impact is approximated as:</p>
+<p>Using <span class="math inline">\(\bar r=2.83\)</span> bps:</p>
 <p><span class="math display">\[
-\Delta R_{\text{active}}
-\approx -(\text{active exposure})(\text{factor shock}).
+TE_{\text{monthly}}
+=\sqrt{\frac{1008.83}{5}}
+=14.20\text{ bps per month}.
 \]</span></p>
-<table class="caption-top table">
-<thead>
-<tr class="header">
-<th>Factor</th>
-<th style="text-align: right;">Calculation</th>
-<th style="text-align: right;">Active return impact</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Treasury curve level</td>
-<td style="text-align: right;"><span class="math inline">\(-0.25(30)\)</span></td>
-<td style="text-align: right;">-7.50 bps</td>
-</tr>
-<tr class="even">
-<td>Corporate spread</td>
-<td style="text-align: right;"><span class="math inline">\(-0.50(20)\)</span></td>
-<td style="text-align: right;">-10.00 bps</td>
-</tr>
-<tr class="odd">
-<td>Securitized spread</td>
-<td style="text-align: right;"><span class="math inline">\(-(-0.15)(-10)\)</span></td>
-<td style="text-align: right;">-1.50 bps</td>
-</tr>
-</tbody>
-</table>
-<p>Total estimated active return impact is:</p>
+<p>The annualized tracking error is:</p>
 <p><span class="math display">\[
--7.50-10.00-1.50=-19.00\text{ bps}.
+TE_{\text{annual}}
+=14.20\sqrt{12}
+=49.21\text{ bps per year}.
 \]</span></p>
-<p>After reducing corporate spread active exposure to 0.25, the isolated tracking errors are:</p>
-<p><span class="math display">\[
-\text{Treasury curve}=6.00,\quad
-\text{Corporate spread}=0.25(18)=4.50,\quad
-\text{Securitized spread}=3.00.
-\]</span></p>
-<p>The new systematic tracking error is:</p>
-<p><span class="math display">\[
-TE_{\text{sys, new}}
-=\sqrt{6.00^2+4.50^2+3.00^2}
-=8.08\text{ bps per month}.
-\]</span></p>
-<p>The new total tracking error is:</p>
-<p><span class="math display">\[
-TE_{\text{total, new}}
-=\sqrt{8.08^2+6.00^2}
-=10.06\text{ bps per month}.
-\]</span></p>
-<p>The trade reduces total tracking error by:</p>
-<p><span class="math display">\[
-12.73-10.06=2.67\text{ bps per month}.
-\]</span></p>
-<p>The trade costs 2.0 bps. It is reasonable if the manager wants a larger cushion below the risk budget or has lower conviction in the corporate spread overweight. It may not be necessary if the manager is comfortable with the current 12.73 bps tracking error and wants to preserve the active credit view. The trade-off is immediate transaction cost and less active exposure versus lower predicted active risk.</p>
+<p>This is backward-looking tracking error because it is estimated from realized historical active returns. It measures how volatile the portfolio’s active returns were over the prior six months.</p>
+<p>The measure may be misleading if the manager changed the portfolio today because the past active returns came from the old positions. A new duration, sector, issuer, or spread exposure can produce a very different future tracking error. In that case, a forward-looking risk model may better capture the current portfolio’s benchmark-relative risk.</p>
 </div>
 </section>
 <section id="problem-b4" class="level2">
 <h2 class="anchored" data-anchor-id="problem-b4">Problem B4</h2>
-<p>A $100 million bond portfolio is benchmarked to a broad aggregate index. The current sector weights are:</p>
+<p>A firm has issued a floating-rate note with quarterly coupons. The coupon rate each quarter is 3-month SOFR plus a quoted margin of 1.25%. The note has face value $5,000,000. There is a coupon floor of 2.00% and a cap of 6.50%. The next three SOFR reset rates are assumed to be:</p>
 <table class="caption-top table">
 <thead>
 <tr class="header">
-<th>Sector</th>
-<th style="text-align: right;">Portfolio weight</th>
-<th style="text-align: right;">Benchmark weight</th>
+<th style="text-align: right;">Quarter</th>
+<th style="text-align: right;">SOFR at reset</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td>Treasury</td>
-<td style="text-align: right;">28%</td>
-<td style="text-align: right;">35%</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.50%</td>
 </tr>
 <tr class="even">
-<td>Government/agency</td>
-<td style="text-align: right;">7%</td>
-<td style="text-align: right;">10%</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">3.80%</td>
 </tr>
 <tr class="odd">
-<td>Corporate</td>
-<td style="text-align: right;">45%</td>
-<td style="text-align: right;">30%</td>
-</tr>
-<tr class="even">
-<td>Securitized</td>
-<td style="text-align: right;">20%</td>
-<td style="text-align: right;">25%</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">6.10%</td>
 </tr>
 </tbody>
 </table>
-<p>The current portfolio duration is 5.95 versus benchmark duration of 5.50. The current portfolio spread duration is 5.90 versus benchmark spread duration of 5.20. The risk budget allows monthly predicted tracking error of at most 12.0 bps, duration mismatch within +/-0.25 years, spread-duration mismatch within +/-0.50 years, and issuer active weight no greater than 3.0%.</p>
-<p>The current predicted tracking error is 16.8 bps per month, and the largest issuer active weight is 4.2%. The manager proposes the following rebalance:</p>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 16%">
-<col style="width: 22%">
-<col style="width: 16%">
-<col style="width: 22%">
-<col style="width: 22%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Trade</th>
-<th style="text-align: right;">Market value</th>
-<th>Sector</th>
-<th style="text-align: right;">Duration</th>
-<th style="text-align: right;">Spread duration</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Sell BBB financial corporate bond</td>
-<td style="text-align: right;">$8 million</td>
-<td>Corporate</td>
-<td style="text-align: right;">6.2</td>
-<td style="text-align: right;">6.0</td>
-</tr>
-<tr class="even">
-<td>Buy 2-year Treasury note</td>
-<td style="text-align: right;">$5 million</td>
-<td>Treasury</td>
-<td style="text-align: right;">1.9</td>
-<td style="text-align: right;">0.0</td>
-</tr>
-<tr class="odd">
-<td>Buy agency MBS pool</td>
-<td style="text-align: right;">$3 million</td>
-<td>Securitized</td>
-<td style="text-align: right;">3.2</td>
-<td style="text-align: right;">3.0</td>
-</tr>
-</tbody>
-</table>
-<p>After the rebalance, the risk model estimates predicted tracking error of 11.4 bps per month and largest issuer active weight of 2.8%. Transaction cost is 20 bps of total traded market value.</p>
 <p>Answer the following:</p>
 <ol type="a">
-<li>Compute the active sector weights before the rebalance.<br>
+<li>Compute the uncapped annual coupon rate for each quarter.<br>
 </li>
-<li>Compute the active sector weights after the rebalance.<br>
+<li>Apply the floor and cap.<br>
 </li>
-<li>Estimate the portfolio duration and spread duration after the rebalance.<br>
+<li>Compute each quarterly coupon payment.<br>
 </li>
-<li>Determine whether the rebalance satisfies the stated risk constraints.<br>
+<li>Explain how the cap changes investor exposure.<br>
 </li>
-<li>Compute the transaction cost in dollars and in basis points of portfolio market value. Explain the trade-off the manager is making.</li>
+<li>Explain why discount margin is more natural than yield to maturity for this security.</li>
 </ol>
 <div class="solution-answer">
 <p><strong>Solution.</strong></p>
-<p>Active sector weights before rebalancing are portfolio weight minus benchmark weight:</p>
+<p>The uncapped annual coupon rate is SOFR plus the quoted margin:</p>
 <table class="caption-top table">
 <thead>
 <tr class="header">
-<th>Sector</th>
-<th style="text-align: right;">Before active weight</th>
+<th style="text-align: right;">Quarter</th>
+<th style="text-align: right;">SOFR</th>
+<th style="text-align: right;">Margin</th>
+<th style="text-align: right;">Uncapped annual coupon rate</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td>Treasury</td>
-<td style="text-align: right;">-7%</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.50%</td>
+<td style="text-align: right;">1.25%</td>
+<td style="text-align: right;">1.75%</td>
 </tr>
 <tr class="even">
-<td>Government/agency</td>
-<td style="text-align: right;">-3%</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">3.80%</td>
+<td style="text-align: right;">1.25%</td>
+<td style="text-align: right;">5.05%</td>
 </tr>
 <tr class="odd">
-<td>Corporate</td>
-<td style="text-align: right;">+15%</td>
-</tr>
-<tr class="even">
-<td>Securitized</td>
-<td style="text-align: right;">-5%</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">6.10%</td>
+<td style="text-align: right;">1.25%</td>
+<td style="text-align: right;">7.35%</td>
 </tr>
 </tbody>
 </table>
-<p>After selling $8 million corporates, buying $5 million Treasuries, and buying $3 million securitized bonds, the new portfolio weights are:</p>
+<p>Apply the 2.00% floor and 6.50% cap:</p>
 <table class="caption-top table">
-<colgroup>
-<col style="width: 20%">
-<col style="width: 26%">
-<col style="width: 26%">
-<col style="width: 26%">
-</colgroup>
 <thead>
 <tr class="header">
-<th>Sector</th>
-<th style="text-align: right;">New portfolio weight</th>
-<th style="text-align: right;">Benchmark weight</th>
-<th style="text-align: right;">After active weight</th>
+<th style="text-align: right;">Quarter</th>
+<th style="text-align: right;">Uncapped annual coupon rate</th>
+<th style="text-align: right;">Coupon after floor and cap</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td>Treasury</td>
-<td style="text-align: right;">33%</td>
-<td style="text-align: right;">35%</td>
-<td style="text-align: right;">-2%</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1.75%</td>
+<td style="text-align: right;">2.00%</td>
 </tr>
 <tr class="even">
-<td>Government/agency</td>
-<td style="text-align: right;">7%</td>
-<td style="text-align: right;">10%</td>
-<td style="text-align: right;">-3%</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">5.05%</td>
+<td style="text-align: right;">5.05%</td>
 </tr>
 <tr class="odd">
-<td>Corporate</td>
-<td style="text-align: right;">37%</td>
-<td style="text-align: right;">30%</td>
-<td style="text-align: right;">+7%</td>
-</tr>
-<tr class="even">
-<td>Securitized</td>
-<td style="text-align: right;">23%</td>
-<td style="text-align: right;">25%</td>
-<td style="text-align: right;">-2%</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">7.35%</td>
+<td style="text-align: right;">6.50%</td>
 </tr>
 </tbody>
 </table>
-<p>The duration change is approximated from the market-value trade weights:</p>
+<p>Quarterly coupon payments use one-fourth of the annual coupon rate:</p>
 <p><span class="math display">\[
-\Delta D
-=-0.08(6.2)+0.05(1.9)+0.03(3.2)
-=-0.305.
+\text{Coupon payment}
+=5{,}000{,}000\times \frac{\text{annual coupon rate}}{4}.
 \]</span></p>
-<p>So the new portfolio duration is:</p>
-<p><span class="math display">\[
-5.95-0.305=5.645.
-\]</span></p>
-<p>The new duration mismatch is:</p>
-<p><span class="math display">\[
-5.645-5.50=0.145,
-\]</span></p>
-<p>which is within the +/-0.25 limit.</p>
-<p>The spread-duration change is:</p>
-<p><span class="math display">\[
-\Delta SD
-=-0.08(6.0)+0.05(0.0)+0.03(3.0)
-=-0.390.
-\]</span></p>
-<p>So the new spread duration is:</p>
-<p><span class="math display">\[
-5.90-0.390=5.510.
-\]</span></p>
-<p>The spread-duration mismatch is:</p>
-<p><span class="math display">\[
-5.510-5.20=0.310,
-\]</span></p>
-<p>which is within the +/-0.50 limit.</p>
-<p>The rebalance satisfies the stated constraints:</p>
 <table class="caption-top table">
 <thead>
 <tr class="header">
-<th>Constraint</th>
-<th style="text-align: right;">After rebalance</th>
-<th style="text-align: right;">Limit</th>
-<th>Satisfied?</th>
+<th style="text-align: right;">Quarter</th>
+<th style="text-align: right;">Coupon after floor and cap</th>
+<th style="text-align: right;">Quarterly coupon payment</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td>Predicted tracking error</td>
-<td style="text-align: right;">11.4 bps/month</td>
-<td style="text-align: right;">&lt;= 12.0</td>
-<td>Yes</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2.00%</td>
+<td style="text-align: right;">$25,000.00</td>
 </tr>
 <tr class="even">
-<td>Duration mismatch</td>
-<td style="text-align: right;">+0.145</td>
-<td style="text-align: right;">+/-0.25</td>
-<td>Yes</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">5.05%</td>
+<td style="text-align: right;">$63,125.00</td>
 </tr>
 <tr class="odd">
-<td>Spread-duration mismatch</td>
-<td style="text-align: right;">+0.310</td>
-<td style="text-align: right;">+/-0.50</td>
-<td>Yes</td>
-</tr>
-<tr class="even">
-<td>Largest issuer active weight</td>
-<td style="text-align: right;">2.8%</td>
-<td style="text-align: right;">&lt;= 3.0%</td>
-<td>Yes</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">6.50%</td>
+<td style="text-align: right;">$81,250.00</td>
 </tr>
 </tbody>
 </table>
-<p>Total traded market value is:</p>
-<p><span class="math display">\[
-8+5+3=16\text{ million}.
-\]</span></p>
-<p>Transaction cost is:</p>
-<p><span class="math display">\[
-0.0020\times 16{,}000{,}000=32{,}000.
-\]</span></p>
-<p>As a percentage of the $100 million portfolio:</p>
-<p><span class="math display">\[
-\frac{32{,}000}{100{,}000{,}000}=0.00032=3.2\text{ bps}.
-\]</span></p>
-<p>The manager pays 3.2 bps in transaction cost to reduce active corporate concentration, bring predicted tracking error inside the risk budget, and correct duration and spread-duration mismatches. The trade-off is lower benchmark-relative risk at the cost of immediate trading drag and possibly giving up some active credit view.</p>
+<p>The cap limits the investor’s benefit from rising short-term rates. Without the cap, the third-quarter coupon would be based on 7.35%; with the cap, the investor receives only 6.50%. Economically, the investor has given up some upside when SOFR becomes high.</p>
+<p>Discount margin is more natural than yield to maturity because the coupon resets with a reference rate. A single fixed YTM assumes fixed promised cash flows, but the FRN’s future coupons depend on future SOFR resets and any floor or cap. Discount margin instead measures the spread over the reference curve needed to price the note, which better matches the floating-rate structure.</p>
 </div>
 
 

@@ -384,11 +384,11 @@ window.Quarto = {
   <li><a href="#calculation-of-tracking-error" id="toc-calculation-of-tracking-error" class="nav-link" data-scroll-target="#calculation-of-tracking-error"><span class="header-section-number">2.1</span> Calculation of Tracking Error</a></li>
   <li><a href="#two-faces-of-tracking-error" id="toc-two-faces-of-tracking-error" class="nav-link" data-scroll-target="#two-faces-of-tracking-error"><span class="header-section-number">2.2</span> Two Faces of Tracking Error</a></li>
   <li><a href="#tracking-error-and-active-versus-passive-strategies" id="toc-tracking-error-and-active-versus-passive-strategies" class="nav-link" data-scroll-target="#tracking-error-and-active-versus-passive-strategies"><span class="header-section-number">2.3</span> Tracking Error and Active versus Passive Strategies</a></li>
-  <li><a href="#cell-based-approach-to-bond-portfolio-construction" id="toc-cell-based-approach-to-bond-portfolio-construction" class="nav-link" data-scroll-target="#cell-based-approach-to-bond-portfolio-construction"><span class="header-section-number">2.4</span> Cell-Based Approach to Bond Portfolio Construction</a>
+  </ul></li>
+  <li><a href="#cell-based-approach-to-bond-portfolio-construction" id="toc-cell-based-approach-to-bond-portfolio-construction" class="nav-link" data-scroll-target="#cell-based-approach-to-bond-portfolio-construction"><span class="header-section-number">3</span> Cell-Based Approach to Bond Portfolio Construction</a>
   <ul class="collapse">
   <li><a href="#complications-in-bond-indexing" id="toc-complications-in-bond-indexing" class="nav-link" data-scroll-target="#complications-in-bond-indexing">Complications in Bond Indexing</a></li>
-  </ul></li>
-  <li><a href="#portfolio-construction-with-multi-factor-models" id="toc-portfolio-construction-with-multi-factor-models" class="nav-link" data-scroll-target="#portfolio-construction-with-multi-factor-models"><span class="header-section-number">2.5</span> Portfolio Construction with Multi-Factor Models</a>
+  <li><a href="#portfolio-construction-with-multi-factor-models" id="toc-portfolio-construction-with-multi-factor-models" class="nav-link" data-scroll-target="#portfolio-construction-with-multi-factor-models"><span class="header-section-number">3.1</span> Portfolio Construction with Multi-Factor Models</a>
   <ul class="collapse">
   <li><a href="#risk-decomposition" id="toc-risk-decomposition" class="nav-link" data-scroll-target="#risk-decomposition">Risk Decomposition</a></li>
   <li><a href="#portfolio-construction-using-a-multi-factor-model-and-an-optimizer" id="toc-portfolio-construction-using-a-multi-factor-model-and-an-optimizer" class="nav-link" data-scroll-target="#portfolio-construction-using-a-multi-factor-model-and-an-optimizer">Portfolio Construction Using a Multi-Factor Model and an Optimizer</a></li>
@@ -506,18 +506,182 @@ E(R_p)=w_1E(R_1)+w_2E(R_2),
 <p>The expected return is unchanged by the correlation assumption, but the risk changes dramatically.</p>
 </div>
 </div>
-<div id="cell-fig-correlation-risk" class="cell" data-message="false" data-execution_count="2">
-<div class="cell-output cell-output-display">
-<div id="fig-correlation-risk" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-correlation-risk-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="lec6_files/figure-html/fig-correlation-risk-output-1.png" width="709" height="392" class="figure-img">
+<div id="cell-interactive-two-asset-variance" class="cell" data-message="false" data-execution_count="2">
+<div id="interactive-two-asset-variance" class="cell-output cell-output-display" data-execution_count="2">
+
+<div id="two-asset-variance-widget" style="max-width: 980px; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">
+  <div style="border: 1px solid #d6dde8; border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+    <div style="font-weight: 700; color: #1f77b4; margin-bottom: 8px;">Two-Asset Portfolio Variance</div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px;">
+      <div>
+        <label>Correlation: <span id="tap-rho-label">0.00</span></label>
+        <input id="tap-rho" type="range" min="-1" max="1" step="0.01" value="0" style="width: 100%;">
+      </div>
+      <div>
+        <label>Weight in Asset 1: <span id="tap-weight-label">50%</span></label>
+        <input id="tap-weight" type="range" min="0" max="1" step="0.01" value="0.5" style="width: 100%;">
+      </div>
+    </div>
+    <div id="tap-metrics" style="margin-top: 8px; font-size: 0.92rem;"></div>
+  </div>
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 16px;">
+    <svg id="tap-weight-chart" viewbox="0 0 900 520" width="100%" height="520" role="img" aria-label="Portfolio variance as weights change"></svg>
+    <svg id="tap-rho-chart" viewbox="0 0 900 520" width="100%" height="520" role="img" aria-label="Portfolio variance as correlation changes"></svg>
+  </div>
 </div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-correlation-risk-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;1: Portfolio volatility for a two-bond portfolio with equal 8% volatilities and 50/50 weights.
-</figcaption>
-</figure>
-</div>
+
+<script>
+(function() {
+  const sigma1 = 0.08;
+  const sigma2 = 0.08;
+  const rhoInput = document.getElementById("tap-rho");
+  const weightInput = document.getElementById("tap-weight");
+  const rhoLabel = document.getElementById("tap-rho-label");
+  const weightLabel = document.getElementById("tap-weight-label");
+  const metrics = document.getElementById("tap-metrics");
+  const weightSvg = document.getElementById("tap-weight-chart");
+  const rhoSvg = document.getElementById("tap-rho-chart");
+  const ns = "http://www.w3.org/2000/svg";
+
+  function variance(w1, rho) {
+    const w2 = 1 - w1;
+    return w1 * w1 * sigma1 * sigma1
+      + w2 * w2 * sigma2 * sigma2
+      + 2 * w1 * w2 * rho * sigma1 * sigma2;
+  }
+
+  function make(tag, attrs = {}) {
+    const node = document.createElementNS(ns, tag);
+    Object.entries(attrs).forEach(([key, val]) => node.setAttribute(key, val));
+    return node;
+  }
+
+  function line(svg, x1, y1, x2, y2, attrs = {}) {
+    svg.appendChild(make("line", {x1, y1, x2, y2, ...attrs}));
+  }
+
+  function text(svg, x, y, content, attrs = {}) {
+    const node = make("text", {x, y, ...attrs});
+    node.textContent = content;
+    svg.appendChild(node);
+  }
+
+  function drawWeightChart(rho, selectedW1, selectedVariance) {
+    const points = Array.from({length: 101}, (_, i) => {
+      const w1 = i / 100;
+      return {w1, variance: variance(w1, rho)};
+    });
+    const width = 900;
+    const height = 520;
+    const left = 78;
+    const right = 30;
+    const top = 38;
+    const bottom = 68;
+    const plotW = width - left - right;
+    const plotH = height - top - bottom;
+    const maxVariance = sigma1 * sigma1;
+    const xScale = w => left + w * plotW;
+    const yScale = v => top + (maxVariance - v) / maxVariance * plotH;
+
+    weightSvg.innerHTML = "";
+    line(weightSvg, left, top, left, top + plotH, {stroke: "#333", "stroke-width": 1});
+    line(weightSvg, left, top + plotH, left + plotW, top + plotH, {stroke: "#333", "stroke-width": 1});
+
+    for (let i = 0; i <= 5; i++) {
+      const w = i / 5;
+      const px = xScale(w);
+      line(weightSvg, px, top, px, top + plotH, {stroke: "#e8edf3", "stroke-width": 1});
+      text(weightSvg, px, top + plotH + 24, `${Math.round(w * 100)}%`, {"font-size": 12, "text-anchor": "middle", fill: "#333"});
+    }
+
+    for (let i = 0; i <= 4; i++) {
+      const v = maxVariance * i / 4;
+      const py = yScale(v);
+      line(weightSvg, left, py, left + plotW, py, {stroke: "#e8edf3", "stroke-width": 1});
+      text(weightSvg, left - 10, py + 4, (v * 10000).toFixed(0), {"font-size": 12, "text-anchor": "end", fill: "#333"});
+    }
+
+    const d = points.map((p, i) => `${i === 0 ? "M" : "L"} ${xScale(p.w1)} ${yScale(p.variance)}`).join(" ");
+    weightSvg.appendChild(make("path", {d, fill: "none", stroke: "#2563eb", "stroke-width": 3}));
+    weightSvg.appendChild(make("circle", {cx: xScale(selectedW1), cy: yScale(selectedVariance), r: 6, fill: "#dc2626"}));
+    line(weightSvg, xScale(selectedW1), yScale(selectedVariance), xScale(selectedW1), top + plotH, {stroke: "#dc2626", "stroke-width": 1.5, "stroke-dasharray": "5 5"});
+    text(weightSvg, xScale(selectedW1) + 10, yScale(selectedVariance) - 10, "Selected portfolio", {"font-size": 13, fill: "#dc2626", "font-weight": 700});
+
+    text(weightSvg, left, 24, "Variance as weight changes", {"font-size": 17, "font-weight": 700, fill: "#222"});
+    text(weightSvg, left + plotW / 2, height - 20, "Weight in Asset 1", {"font-size": 14, "text-anchor": "middle", fill: "#333"});
+    text(weightSvg, 22, top + plotH / 2, "Variance, percentage-points squared", {"font-size": 14, "text-anchor": "middle", fill: "#333", transform: `rotate(-90 22 ${top + plotH / 2})`});
+  }
+
+  function drawCorrelationChart(rho, selectedW1, selectedVariance) {
+    const points = Array.from({length: 101}, (_, i) => {
+      const pointRho = -1 + i * 0.02;
+      return {rho: pointRho, variance: variance(selectedW1, pointRho)};
+    });
+    const width = 900;
+    const height = 520;
+    const left = 78;
+    const right = 30;
+    const top = 38;
+    const bottom = 68;
+    const plotW = width - left - right;
+    const plotH = height - top - bottom;
+    const maxVariance = sigma1 * sigma1;
+    const xScale = value => left + (value + 1) / 2 * plotW;
+    const yScale = v => top + (maxVariance - v) / maxVariance * plotH;
+
+    rhoSvg.innerHTML = "";
+    line(rhoSvg, left, top, left, top + plotH, {stroke: "#333", "stroke-width": 1});
+    line(rhoSvg, left, top + plotH, left + plotW, top + plotH, {stroke: "#333", "stroke-width": 1});
+
+    for (let i = 0; i <= 4; i++) {
+      const pointRho = -1 + i * 0.5;
+      const px = xScale(pointRho);
+      line(rhoSvg, px, top, px, top + plotH, {stroke: "#e8edf3", "stroke-width": 1});
+      text(rhoSvg, px, top + plotH + 24, pointRho.toFixed(1), {"font-size": 12, "text-anchor": "middle", fill: "#333"});
+    }
+
+    for (let i = 0; i <= 4; i++) {
+      const v = maxVariance * i / 4;
+      const py = yScale(v);
+      line(rhoSvg, left, py, left + plotW, py, {stroke: "#e8edf3", "stroke-width": 1});
+      text(rhoSvg, left - 10, py + 4, (v * 10000).toFixed(0), {"font-size": 12, "text-anchor": "end", fill: "#333"});
+    }
+
+    const d = points.map((p, i) => `${i === 0 ? "M" : "L"} ${xScale(p.rho)} ${yScale(p.variance)}`).join(" ");
+    rhoSvg.appendChild(make("path", {d, fill: "none", stroke: "#16a34a", "stroke-width": 3}));
+    rhoSvg.appendChild(make("circle", {cx: xScale(rho), cy: yScale(selectedVariance), r: 6, fill: "#dc2626"}));
+    line(rhoSvg, xScale(rho), yScale(selectedVariance), xScale(rho), top + plotH, {stroke: "#dc2626", "stroke-width": 1.5, "stroke-dasharray": "5 5"});
+    text(rhoSvg, xScale(rho) + 10, yScale(selectedVariance) - 10, "Selected correlation", {"font-size": 13, fill: "#dc2626", "font-weight": 700});
+
+    text(rhoSvg, left, 24, "Variance as correlation changes", {"font-size": 17, "font-weight": 700, fill: "#222"});
+    text(rhoSvg, left + plotW / 2, height - 20, "Correlation between asset returns", {"font-size": 14, "text-anchor": "middle", fill: "#333"});
+    text(rhoSvg, 22, top + plotH / 2, "Variance, percentage-points squared", {"font-size": 14, "text-anchor": "middle", fill: "#333", transform: `rotate(-90 22 ${top + plotH / 2})`});
+  }
+
+  function render() {
+    const rho = Number(rhoInput.value);
+    const selectedW1 = Number(weightInput.value);
+    const selectedW2 = 1 - selectedW1;
+    const selectedVariance = variance(selectedW1, rho);
+    const selectedVol = Math.sqrt(Math.max(selectedVariance, 0));
+
+    rhoLabel.textContent = rho.toFixed(2);
+    weightLabel.textContent = `${(selectedW1 * 100).toFixed(0)}%`;
+    metrics.innerHTML =
+      `Asset 1 weight: <b>${(selectedW1 * 100).toFixed(0)}%</b>; ` +
+      `Asset 2 weight: <b>${(selectedW2 * 100).toFixed(0)}%</b><br>` +
+      `Portfolio variance: <b>${(selectedVariance * 10000).toFixed(2)}</b> percentage-points squared; ` +
+      `portfolio volatility: <b>${(selectedVol * 100).toFixed(2)}%</b>`;
+
+    drawWeightChart(rho, selectedW1, selectedVariance);
+    drawCorrelationChart(rho, selectedW1, selectedVariance);
+  }
+
+  rhoInput.addEventListener("input", render);
+  weightInput.addEventListener("input", render);
+  render();
+})();
+</script>
 </div>
 </div>
 <div id="cell-fig-efficient-frontier" class="cell" data-message="false" data-execution_count="3">
@@ -528,7 +692,7 @@ Figure&nbsp;1: Portfolio volatility for a two-bond portfolio with equal 8% volat
 <img src="lec6_files/figure-html/fig-efficient-frontier-output-1.png" width="709" height="392" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-efficient-frontier-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;2: Stylized mean-variance frontier. The efficient frontier contains portfolios with the highest expected return for each risk level.
+Figure&nbsp;1: Stylized mean-variance frontier. The efficient frontier contains portfolios with the highest expected return for each risk level.
 </figcaption>
 </figure>
 </div>
@@ -689,7 +853,7 @@ R_i = \alpha_i + \beta_{i1}F_1+\beta_{i2}F_2+\cdots+\beta_{iK}F_K+\epsilon_i.
 <p>The table below uses monthly returns for two hypothetical portfolios. Portfolio A stays close to the benchmark. Portfolio B takes larger active positions.</p>
 </div>
 </div>
-<div id="ef07cc94" class="cell" data-message="false" data-execution_count="4">
+<div id="3effdfb9" class="cell" data-message="false" data-execution_count="4">
 <div class="cell-output cell-output-display" data-execution_count="4">
 <div>
 
@@ -821,7 +985,7 @@ R_i = \alpha_i + \beta_{i1}F_1+\beta_{i2}F_2+\cdots+\beta_{iK}F_K+\epsilon_i.
 </div>
 </div>
 </div>
-<div id="db573f60" class="cell" data-message="false" data-execution_count="5">
+<div id="150396c4" class="cell" data-message="false" data-execution_count="5">
 <div class="cell-output cell-output-display" data-execution_count="5">
 <div>
 
@@ -865,7 +1029,7 @@ R_i = \alpha_i + \beta_{i1}F_1+\beta_{i2}F_2+\cdots+\beta_{iK}F_K+\epsilon_i.
 <img src="lec6_files/figure-html/fig-active-returns-output-1.png" width="709" height="393" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-active-returns-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;3: Monthly active returns for two portfolios. Portfolio B has much larger tracking error.
+Figure&nbsp;2: Monthly active returns for two portfolios. Portfolio B has much larger tracking error.
 </figcaption>
 </figure>
 </div>
@@ -996,7 +1160,9 @@ flowchart LR
 </div>
 </div>
 </div>
-<p>The diagram highlights the key exam point: historical tracking error is a realized statistic, while predicted tracking error is a current-position risk estimate. A manager controls future risk with the second measure, not the first.</p>
+<blockquote class="blockquote">
+<p>Historical tracking error is a realized statistic, while predicted tracking error is a current-position risk estimate. A manager controls future risk with the second measure, and asses past performance with the first.</p>
+</blockquote>
 </section>
 <section id="tracking-error-and-active-versus-passive-strategies" class="level2" data-number="2.3">
 <h2 data-number="2.3" class="anchored" data-anchor-id="tracking-error-and-active-versus-passive-strategies"><span class="header-section-number">2.3</span> Tracking Error and Active versus Passive Strategies</h2>
@@ -1024,7 +1190,7 @@ flowchart LR
 <p>If the optimizer predicts 65 bps of monthly tracking error, the portfolio violates the client’s risk budget even if the manager likes the trades.</p>
 </div>
 </div>
-<div id="7d7b538e" class="cell" data-message="false" data-execution_count="7">
+<div id="f2ab35fb" class="cell" data-message="false" data-execution_count="7">
 <div class="cell-output cell-output-display" data-execution_count="7">
 <div>
 
@@ -1070,8 +1236,9 @@ flowchart LR
 </div>
 </div>
 </section>
-<section id="cell-based-approach-to-bond-portfolio-construction" class="level2" data-number="2.4">
-<h2 data-number="2.4" class="anchored" data-anchor-id="cell-based-approach-to-bond-portfolio-construction"><span class="header-section-number">2.4</span> Cell-Based Approach to Bond Portfolio Construction</h2>
+</section>
+<section id="cell-based-approach-to-bond-portfolio-construction" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Cell-Based Approach to Bond Portfolio Construction</h1>
 <p>The cell-based approach divides the benchmark into buckets, or cells, based on characteristics that drive return. Common cells include:</p>
 <ul>
 <li>duration;</li>
@@ -1139,7 +1306,7 @@ flowchart LR
 </div>
 </div>
 <p>The cell-based approach is intuitive and transparent. Its weakness is that it treats cells like separate boxes. It does not naturally account for correlations across cells. Two large cell mismatches may hedge each other, or two small mismatches may reinforce each other.</p>
-<div id="c5f65edb" class="cell" data-message="false" data-execution_count="8">
+<div id="9ce40872" class="cell" data-message="false" data-execution_count="8">
 <div class="cell-output cell-output-display" data-execution_count="8">
 <div>
 
@@ -1197,7 +1364,7 @@ flowchart LR
 <img src="lec6_files/figure-html/fig-cell-sector-weights-output-1.png" width="709" height="393" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-cell-sector-weights-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;4: Example sector active weights. A cell-based approach makes benchmark tilts visible.
+Figure&nbsp;3: Example sector active weights. A cell-based approach makes benchmark tilts visible.
 </figcaption>
 </figure>
 </div>
@@ -1295,9 +1462,8 @@ Figure&nbsp;4: Example sector active weights. A cell-based approach makes benchm
 </div>
 </div>
 </section>
-</section>
-<section id="portfolio-construction-with-multi-factor-models" class="level2" data-number="2.5">
-<h2 data-number="2.5" class="anchored" data-anchor-id="portfolio-construction-with-multi-factor-models"><span class="header-section-number">2.5</span> Portfolio Construction with Multi-Factor Models</h2>
+<section id="portfolio-construction-with-multi-factor-models" class="level2" data-number="3.1">
+<h2 data-number="3.1" class="anchored" data-anchor-id="portfolio-construction-with-multi-factor-models"><span class="header-section-number">3.1</span> Portfolio Construction with Multi-Factor Models</h2>
 <p>Multi-factor models are the practical response to the covariance problem. Instead of estimating the covariance of every bond with every other bond, they estimate a smaller set of common risk factors.</p>
 <p>For fixed income, factors often include:</p>
 <ul>
@@ -1351,79 +1517,127 @@ flowchart TB
 </ul>
 <section id="risk-decomposition" class="level3">
 <h3 class="anchored" data-anchor-id="risk-decomposition">Risk Decomposition</h3>
-<p>Risk decomposition explains where tracking error comes from. Start with active exposure:</p>
+<p>Risk decomposition answers a practical question:</p>
+<blockquote class="blockquote">
+<p>If the portfolio underperforms the benchmark, what risk decision probably caused it?</p>
+</blockquote>
+<p>For a benchmarked bond manager, risk is not only “how volatile is the portfolio?” The more relevant question is:</p>
+<blockquote class="blockquote">
+<p>How differently can the portfolio behave from the benchmark?</p>
+</blockquote>
+<p>That difference comes from <strong>active exposures</strong>. An active exposure is the portfolio exposure minus the benchmark exposure:</p>
 <p><span class="math display">\[
-\Delta x_k = x_{p,k}-x_{b,k}.
+\Delta x_k = x_{p,k} - x_{b,k}.
 \]</span></p>
-<p>If factor <span class="math inline">\(k\)</span> has volatility <span class="math inline">\(\sigma_k\)</span>, the isolated tracking error from that factor is approximately:</p>
+<p>Examples:</p>
+<ul>
+<li>If portfolio duration is 5.60 and benchmark duration is 5.40, active duration is +0.20 years.</li>
+<li>If portfolio corporate spread duration is 3.10 and benchmark corporate spread duration is 2.40, active corporate spread duration is +0.70 years.</li>
+<li>If the portfolio holds 2.5% more of one issuer than the benchmark, it has issuer-specific active risk.</li>
+</ul>
+<p>Risk decomposition separates these active exposures into three broad buckets:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Bucket</th>
+<th>What it captures</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Interest-rate risk</td>
+<td>Active exposure to Treasury curve movements</td>
+<td>Overweight 10-year key rate duration</td>
+</tr>
+<tr class="even">
+<td>Spread / sector risk</td>
+<td>Active exposure to credit, mortgage, swap, or sector spreads</td>
+<td>Overweight BBB industrial spread duration</td>
+</tr>
+<tr class="odd">
+<td>Idiosyncratic risk</td>
+<td>Issuer, issue, liquidity, and security-selection effects</td>
+<td>Large position in one bank bond</td>
+</tr>
+</tbody>
+</table>
+<p>The point is not just to compute a number. The point is to identify whether the tracking error is intentional, compensated, and controllable.</p>
+<section id="step-1-isolate-each-factor" class="level4">
+<h4 class="anchored" data-anchor-id="step-1-isolate-each-factor">Step 1: Isolate Each Factor</h4>
+<p>If factor <span class="math inline">\(k\)</span> has volatility <span class="math inline">\(\sigma_k\)</span>, the isolated tracking error from that factor is:</p>
 <p><span class="math display">\[
 \text{Isolated TE}_k = |\Delta x_k|\sigma_k.
 \]</span></p>
-<p>If factor correlations are zero, total systematic tracking error is:</p>
-<p><span class="math display">\[
-\text{Systematic TE}
-=
-\sqrt{\sum_{k=1}^{K}\text{TE}_k^2}.
-\]</span></p>
-<p>If factors are correlated, the factor covariance matrix is needed:</p>
-<p><span class="math display">\[
-\text{Systematic TE}
-=
-\sqrt{\Delta x' \Sigma_F \Delta x}.
-\]</span></p>
-<div class="callout callout-style-default callout-note callout-titled" title="Worked Example: Isolated Risk Is Not Additive">
+<p>This is the active exposure times the volatility of the thing the portfolio is exposed to.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Numerical Example: Active Exposures Become Tracking Error">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Worked Example: Isolated Risk Is Not Additive
+<span class="screen-reader-only">Note</span>Numerical Example: Active Exposures Become Tracking Error
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Suppose a bond portfolio has the following monthly isolated tracking errors:</p>
+<p>Suppose a portfolio has the following active exposures relative to its benchmark:</p>
 <table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 26%">
+<col style="width: 26%">
+<col style="width: 26%">
+</colgroup>
 <thead>
 <tr class="header">
 <th>Risk factor</th>
-<th style="text-align: right;">Isolated TE (bps/month)</th>
+<th style="text-align: right;">Active exposure</th>
+<th style="text-align: right;">Monthly factor volatility</th>
+<th style="text-align: right;">Isolated TE</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td>Yield curve</td>
-<td style="text-align: right;">3.9</td>
+<td>Treasury level</td>
+<td style="text-align: right;">+0.20 years</td>
+<td style="text-align: right;">30 bps</td>
+<td style="text-align: right;">6.0 bps</td>
 </tr>
 <tr class="even">
-<td>Swap spread</td>
-<td style="text-align: right;">2.6</td>
+<td>2-year key rate</td>
+<td style="text-align: right;">-0.10 years</td>
+<td style="text-align: right;">25 bps</td>
+<td style="text-align: right;">2.5 bps</td>
 </tr>
 <tr class="odd">
-<td>Volatility</td>
-<td style="text-align: right;">1.3</td>
+<td>10-year key rate</td>
+<td style="text-align: right;">+0.15 years</td>
+<td style="text-align: right;">35 bps</td>
+<td style="text-align: right;">5.25 bps</td>
 </tr>
 <tr class="even">
-<td>Government-related spread</td>
-<td style="text-align: right;">0.8</td>
+<td>IG corporate spread</td>
+<td style="text-align: right;">+0.60 years</td>
+<td style="text-align: right;">18 bps</td>
+<td style="text-align: right;">10.8 bps</td>
 </tr>
 <tr class="odd">
-<td>Corporate spread</td>
-<td style="text-align: right;">2.8</td>
-</tr>
-<tr class="even">
 <td>Securitized spread</td>
-<td style="text-align: right;">2.5</td>
+<td style="text-align: right;">-0.25 years</td>
+<td style="text-align: right;">16 bps</td>
+<td style="text-align: right;">4.0 bps</td>
 </tr>
 </tbody>
 </table>
-<p>Adding them gives 13.9 bps, but that is wrong because standard deviations are not additive. Assuming zero correlations:</p>
-<p><span class="math display">\[
-\sqrt{3.9^2+2.6^2+1.3^2+0.8^2+2.8^2+2.5^2}=6.20
-\]</span></p>
-<p>bps per month.</p>
+<p>The largest isolated source of active risk is the IG corporate spread overweight. That does not automatically mean it is bad. It means the manager should be able to explain why this active credit exposure is intentional.</p>
 </div>
 </div>
-<div id="54c9f497" class="cell" data-message="false" data-execution_count="10">
+<div id="c7c4a338" class="cell" data-message="false" data-execution_count="10">
 <div class="cell-output cell-output-display" data-execution_count="10">
 <div>
 
@@ -1433,39 +1647,46 @@ flowchart TB
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
 <th data-quarto-table-cell-role="th">Risk factor</th>
+<th data-quarto-table-cell-role="th">Active exposure</th>
+<th data-quarto-table-cell-role="th">Monthly factor volatility (bps)</th>
 <th data-quarto-table-cell-role="th">Isolated TE (bps/month)</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">0</th>
-<td>Yield curve</td>
-<td>3.9</td>
+<td>Treasury level</td>
+<td>0.20</td>
+<td>30</td>
+<td>6.00</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">1</th>
-<td>Swap spread</td>
-<td>2.6</td>
+<td>2-year key rate</td>
+<td>-0.10</td>
+<td>25</td>
+<td>2.50</td>
 </tr>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">2</th>
-<td>Volatility</td>
-<td>1.3</td>
+<td>10-year key rate</td>
+<td>0.15</td>
+<td>35</td>
+<td>5.25</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">3</th>
-<td>Government-related spread</td>
-<td>0.8</td>
+<td>IG corporate spread</td>
+<td>0.60</td>
+<td>18</td>
+<td>10.80</td>
 </tr>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">4</th>
-<td>Corporate spread</td>
-<td>2.8</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">5</th>
 <td>Securitized spread</td>
-<td>2.5</td>
+<td>-0.25</td>
+<td>16</td>
+<td>4.00</td>
 </tr>
 </tbody>
 </table>
@@ -1473,127 +1694,308 @@ flowchart TB
 </div>
 </div>
 </div>
-<div id="cell-fig-factor-isolated-te" class="cell" data-message="false" data-execution_count="11">
+<div id="cell-fig-risk-decomposition-isolated-te" class="cell" data-message="false" data-execution_count="11">
 <div class="cell-output cell-output-display">
-<div id="fig-factor-isolated-te" class="quarto-float quarto-figure quarto-figure-center anchored">
+<div id="fig-risk-decomposition-isolated-te" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-factor-isolated-te-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="lec6_files/figure-html/fig-factor-isolated-te-output-1.png" width="709" height="392" class="figure-img">
+<div aria-describedby="fig-risk-decomposition-isolated-te-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lec6_files/figure-html/fig-risk-decomposition-isolated-te-output-1.png" width="711" height="392" class="figure-img">
 </div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-factor-isolated-te-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;5: Illustrative isolated monthly tracking error by risk factor.
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-risk-decomposition-isolated-te-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: Isolated tracking error shows which active exposures are large before considering diversification across factors.
 </figcaption>
 </figure>
 </div>
 </div>
 </div>
+<p>The plot has one purpose: it ranks the active bets before diversification. It tells the manager where to look first.</p>
+</section>
+<section id="step-2-combine-factors-correctly" class="level4">
+<h4 class="anchored" data-anchor-id="step-2-combine-factors-correctly">Step 2: Combine Factors Correctly</h4>
+<p>Tracking error is a standard deviation, so isolated tracking errors are not added directly. If factor correlations are zero, systematic tracking error is:</p>
+<p><span class="math display">\[
+\text{Systematic TE}
+=
+\sqrt{\sum_{k=1}^{K}\text{TE}_k^2}.
+\]</span></p>
+<p>For the example above:</p>
+<p><span class="math display">\[
+\sqrt{
+6.0^2+2.5^2+5.25^2+10.8^2+4.0^2
+}
+=14.23\text{ bps per month}.
+\]</span></p>
+<p>Adding the isolated numbers would give:</p>
+<p><span class="math display">\[
+6.0+2.5+5.25+10.8+4.0=28.55\text{ bps}.
+\]</span></p>
+<p>That is not the correct tracking error. It treats all factors as if their worst movements arrive in the same direction at the same time.</p>
+<div id="98d80038" class="cell" data-message="false" data-execution_count="12">
+<div class="cell-output cell-output-display" data-execution_count="12">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Method</th>
+<th data-quarto-table-cell-role="th">Result (bps/month)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>Incorrect simple sum</td>
+<td>28.55</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>Correct uncorrelated systematic TE</td>
+<td>14.23</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</section>
+<section id="step-3-correlations-can-reduce-or-increase-risk" class="level4">
+<h4 class="anchored" data-anchor-id="step-3-correlations-can-reduce-or-increase-risk">Step 3: Correlations Can Reduce or Increase Risk</h4>
+<p>The zero-correlation formula is useful for intuition, but real factors are often correlated. Treasury yields, corporate spreads, mortgage spreads, and volatility can move together in stress periods.</p>
+<p>With correlations, the systematic tracking error is:</p>
+<p><span class="math display">\[
+\text{Systematic TE}
+=
+\sqrt{\Delta x' \Sigma_F \Delta x}.
+\]</span></p>
+<p>The covariance matrix matters because two active bets may offset each other or reinforce each other.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Two-Factor Correlation Example">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Two-Factor Correlation Example
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Suppose the only active risks are:</p>
+<ul>
+<li>Treasury level isolated TE: 6 bps/month;</li>
+<li>IG corporate spread isolated TE: 10.8 bps/month.</li>
+</ul>
+<p>If their correlation is zero:</p>
+<p><span class="math display">\[
+\sqrt{6^2+10.8^2}=12.35\text{ bps}.
+\]</span></p>
+<p>If their correlation is +0.50:</p>
+<p><span class="math display">\[
+\sqrt{6^2+10.8^2+2(0.50)(6)(10.8)}
+=14.73\text{ bps}.
+\]</span></p>
+<p>If their correlation is -0.50:</p>
+<p><span class="math display">\[
+\sqrt{6^2+10.8^2+2(-0.50)(6)(10.8)}
+=8.75\text{ bps}.
+\]</span></p>
+<p>The same two isolated risks can produce very different total tracking error depending on how the factors move together.</p>
+</div>
+</div>
+<div id="cell-fig-correlation-effect" class="cell" data-message="false" data-execution_count="13">
+<div class="cell-output cell-output-display">
+<div id="fig-correlation-effect" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-correlation-effect-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lec6_files/figure-html/fig-correlation-effect-output-1.png" width="709" height="392" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-correlation-effect-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5: Correlation changes total tracking error even when isolated factor risks are unchanged.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>This plot has one purpose: it shows why a risk model needs correlations, not just a list of active exposures.</p>
+</section>
+<section id="step-4-separate-systematic-and-idiosyncratic-risk" class="level4">
+<h4 class="anchored" data-anchor-id="step-4-separate-systematic-and-idiosyncratic-risk">Step 4: Separate Systematic and Idiosyncratic Risk</h4>
 <p>The same idea applies to systematic and idiosyncratic active risk. If they are modeled as independent:</p>
 <p><span class="math display">\[
 \text{Total TE}
 =
 \sqrt{\text{Systematic TE}^2+\text{Idiosyncratic TE}^2}.
 \]</span></p>
-<div class="callout callout-style-default callout-note callout-titled" title="Worked Example: Total Tracking Error">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Worked Example: Total Tracking Error
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>Suppose systematic tracking error is 4.6 bps/month and idiosyncratic tracking error is 7.8 bps/month.</p>
+<p>Systematic risk is exposure to common factors. Idiosyncratic risk is the remaining issuer or security-specific active risk.</p>
+<p>Using the uncorrelated systematic tracking error from above, suppose idiosyncratic tracking error is 8.0 bps/month:</p>
 <p><span class="math display">\[
 \text{Total TE}
-=\sqrt{4.6^2+7.8^2}
-=9.1\text{ bps/month}.
+=\sqrt{14.23^2+8.0^2}
+=16.33\text{ bps/month}.
 \]</span></p>
-<p>Even if idiosyncratic risk is small relative to total portfolio volatility, it can dominate tracking error if the portfolio holds far fewer names than the benchmark.</p>
+<div id="d4fec7bd" class="cell" data-message="false" data-execution_count="14">
+<div class="cell-output cell-output-display" data-execution_count="14">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Component</th>
+<th data-quarto-table-cell-role="th">bps/month</th>
+<th data-quarto-table-cell-role="th">bps/year</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>Systematic TE</td>
+<td>14.23</td>
+<td>49.29</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>Idiosyncratic TE</td>
+<td>8.00</td>
+<td>27.71</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>Total TE</td>
+<td>16.32</td>
+<td>56.55</td>
+</tr>
+</tbody>
+</table>
+
 </div>
 </div>
-<div id="cell-fig-key-rate-mismatch" class="cell" data-message="false" data-execution_count="12">
+</div>
+<p>This distinction matters in bond portfolios because the benchmark may contain thousands of small issuer positions. A sampled portfolio may match duration and sector exposures well, but still have issuer concentration risk.</p>
+<div id="cell-fig-systematic-idio-risk" class="cell" data-message="false" data-execution_count="15">
 <div class="cell-output cell-output-display">
-<div id="fig-key-rate-mismatch" class="quarto-float quarto-figure quarto-figure-center anchored">
+<div id="fig-systematic-idio-risk" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-key-rate-mismatch-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="lec6_files/figure-html/fig-key-rate-mismatch-output-1.png" width="709" height="393" class="figure-img">
+<div aria-describedby="fig-systematic-idio-risk-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lec6_files/figure-html/fig-systematic-idio-risk-output-1.png" width="709" height="393" class="figure-img">
 </div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-key-rate-mismatch-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;6: Example key rate duration mismatch versus a benchmark.
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-systematic-idio-risk-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6: Total tracking error combines systematic factor risk and idiosyncratic security-selection risk in variance terms.
 </figcaption>
 </figure>
 </div>
 </div>
 </div>
-<p>Key rate duration matters because a portfolio can match total duration but still have curve-shape risk. A portfolio may be underweight 2-year duration and overweight 10-year duration. A parallel-shift metric hides that exposure.</p>
-<div class="callout callout-style-default callout-note callout-titled" title="Key Rate Duration Example">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Key Rate Duration Example
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>The net 10-year key rate duration in the example is:</p>
-<p><span class="math display">\[
-1.39-1.51=-0.12.
-\]</span></p>
-<p>If the 10-year point alone rises by 50 basis points, holding other points constant, the approximate active return impact is:</p>
-<p><span class="math display">\[
--(-0.12)\times0.0050=0.0006=6\text{ bps}.
-\]</span></p>
-<p>The portfolio outperforms because it has less exposure than the benchmark to that part of the curve. The sign matters: an underweight duration position benefits when that rate rises.</p>
-</div>
-</div>
-<div id="cell-fig-fred-risk-factors" class="cell" data-message="false" data-execution_count="13">
-<div class="cell-output cell-output-display">
-<div id="fig-fred-risk-factors" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-fred-risk-factors-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="lec6_files/figure-html/fig-fred-risk-factors-output-1.png" width="708" height="393" class="figure-img">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-fred-risk-factors-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;7: Real market data: Treasury yield and corporate spread risk factors. Data source: FRED, Federal Reserve Bank of St.&nbsp;Louis; ICE BofA indices.
-</figcaption>
-</figure>
-</div>
-</div>
-</div>
-<p>This plot is useful because it shows why a bond portfolio model needs multiple factors. Treasury yields and credit spreads do not always move together. During risk-off periods, Treasury yields may fall while spreads widen.</p>
-<p>The next example turns those real factor movements into approximate active returns. Suppose a portfolio has the following active exposures relative to its benchmark:</p>
-<ul>
-<li>net duration: +0.15 years;</li>
-<li>net investment-grade spread duration: +0.60 years;</li>
-<li>net high-yield spread duration: +0.20 years.</li>
-</ul>
-<p>The approximate monthly active return from these factor mismatches is:</p>
+<p>This plot has one purpose: it shows whether tracking error is mostly factor risk or mostly security-selection risk. The management response is different.</p>
+</section>
+<section id="step-5-convert-exposures-into-scenario-returns" class="level4">
+<h4 class="anchored" data-anchor-id="step-5-convert-exposures-into-scenario-returns">Step 5: Convert Exposures into Scenario Returns</h4>
+<p>Tracking error is a volatility estimate. Managers also need to understand the sign of the exposure. A simple scenario turns the same factor exposures into an active return estimate.</p>
+<p>For duration-like exposures:</p>
 <p><span class="math display">\[
 \Delta R_{\text{active}}
 \approx
--D_{\text{active}}\Delta y_{\text{Treasury}}
--SD_{\text{IG, active}}\Delta s_{\text{IG}}
--SD_{\text{HY, active}}\Delta s_{\text{HY}}.
+-(\text{active exposure})(\text{factor change}).
 \]</span></p>
-<p>This is not a full return model, but it is the core intuition of factor-based risk attribution.</p>
-<div id="cell-fig-real-factor-active-return" class="cell" data-message="false" data-execution_count="14">
-<div class="cell-output cell-output-display">
-<div id="fig-real-factor-active-return" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-real-factor-active-return-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="lec6_files/figure-html/fig-real-factor-active-return-output-1.png" width="709" height="393" class="figure-img">
+<p>Using the earlier active exposures, suppose over one month:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Factor</th>
+<th style="text-align: right;">Active exposure</th>
+<th style="text-align: right;">Factor change</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Treasury level</td>
+<td style="text-align: right;">+0.20 years</td>
+<td style="text-align: right;">+40 bps</td>
+</tr>
+<tr class="even">
+<td>2-year key rate</td>
+<td style="text-align: right;">-0.10 years</td>
+<td style="text-align: right;">+20 bps</td>
+</tr>
+<tr class="odd">
+<td>10-year key rate</td>
+<td style="text-align: right;">+0.15 years</td>
+<td style="text-align: right;">+50 bps</td>
+</tr>
+<tr class="even">
+<td>IG corporate spread</td>
+<td style="text-align: right;">+0.60 years</td>
+<td style="text-align: right;">+25 bps</td>
+</tr>
+<tr class="odd">
+<td>Securitized spread</td>
+<td style="text-align: right;">-0.25 years</td>
+<td style="text-align: right;">+15 bps</td>
+</tr>
+</tbody>
+</table>
+<div id="a01d6d28" class="cell" data-message="false" data-execution_count="16">
+<div class="cell-output cell-output-display" data-execution_count="16">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Risk factor</th>
+<th data-quarto-table-cell-role="th">Active exposure</th>
+<th data-quarto-table-cell-role="th">Factor change (bps)</th>
+<th data-quarto-table-cell-role="th">Active return impact (bps)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>Treasury level</td>
+<td>0.20</td>
+<td>40</td>
+<td>-8.00</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>2-year key rate</td>
+<td>-0.10</td>
+<td>20</td>
+<td>2.00</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>10-year key rate</td>
+<td>0.15</td>
+<td>50</td>
+<td>-7.50</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3</th>
+<td>IG corporate spread</td>
+<td>0.60</td>
+<td>25</td>
+<td>-15.00</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">4</th>
+<td>Securitized spread</td>
+<td>-0.25</td>
+<td>15</td>
+<td>3.75</td>
+</tr>
+</tbody>
+</table>
+
 </div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-real-factor-active-return-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;8: Approximate active return from real monthly factor changes and assumed active exposures.
-</figcaption>
-</figure>
 </div>
 </div>
-</div>
-<div id="320a2f26" class="cell" data-message="false" data-execution_count="15">
-<div class="cell-output cell-output-display" data-execution_count="15">
+<p>The total approximate active return is:</p>
+<div id="7c08a94a" class="cell" data-message="false" data-execution_count="17">
+<div class="cell-output cell-output-display" data-execution_count="17">
 <div>
 
 
@@ -1602,29 +2004,14 @@ Figure&nbsp;8: Approximate active return from real monthly factor changes and as
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
 <th data-quarto-table-cell-role="th">Measure</th>
-<th data-quarto-table-cell-role="th">Value (bps)</th>
+<th data-quarto-table-cell-role="th">bps</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">0</th>
-<td>Monthly standard deviation of modeled active return</td>
-<td>4.9</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">1</th>
-<td>Annualized modeled tracking error</td>
-<td>16.9</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">2</th>
-<td>Worst monthly modeled active return</td>
-<td>-6.2</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">3</th>
-<td>Best monthly modeled active return</td>
-<td>8.5</td>
+<td>Total approximate active return</td>
+<td>-24.75</td>
 </tr>
 </tbody>
 </table>
@@ -1632,19 +2019,106 @@ Figure&nbsp;8: Approximate active return from real monthly factor changes and as
 </div>
 </div>
 </div>
-<div class="callout callout-style-default callout-tip callout-titled" title="Real-Data Intuition">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
+<p>In this scenario, the portfolio underperforms because it is long duration and long corporate spread duration in a month when rates rise and spreads widen. The negative securitized spread exposure helps slightly because securitized spreads also widen.</p>
+<div id="cell-fig-scenario-active-return" class="cell" data-message="false" data-execution_count="18">
+<div class="cell-output cell-output-display">
+<div id="fig-scenario-active-return" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-scenario-active-return-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lec6_files/figure-html/fig-scenario-active-return-output-1.png" width="710" height="392" class="figure-img">
 </div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Tip</span>Real-Data Intuition
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-scenario-active-return-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7: Scenario analysis converts active exposures into signed active return impacts.
+</figcaption>
+</figure>
 </div>
 </div>
-<div class="callout-body-container callout-body">
-<p>The same active exposure can look harmless in quiet markets and painful in volatile markets. Tracking error depends on both the size of the active exposure and the volatility/correlation of the factors that move that exposure.</p>
+</div>
+<p>This plot has one purpose: it shows the sign of each active bet in a specific market move. The isolated TE plot shows size; the scenario plot shows direction.</p>
+</section>
+<section id="step-6-key-rate-decomposition-shows-curve-shape-risk" class="level4">
+<h4 class="anchored" data-anchor-id="step-6-key-rate-decomposition-shows-curve-shape-risk">Step 6: Key Rate Decomposition Shows Curve-Shape Risk</h4>
+<p>Total duration can hide curve-shape risk. Two portfolios can both have duration 5.4, but one may be overweight the 2-year point while the other is overweight the 10-year point.</p>
+<p>Suppose the portfolio and benchmark have these key rate durations:</p>
+<div id="53d1ad15" class="cell" data-message="false" data-execution_count="19">
+<div class="cell-output cell-output-display" data-execution_count="19">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Key rate</th>
+<th data-quarto-table-cell-role="th">Portfolio KRD</th>
+<th data-quarto-table-cell-role="th">Benchmark KRD</th>
+<th data-quarto-table-cell-role="th">Active KRD</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>2Y</td>
+<td>0.70</td>
+<td>1.0</td>
+<td>-0.30</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>5Y</td>
+<td>1.35</td>
+<td>1.3</td>
+<td>0.05</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>10Y</td>
+<td>2.10</td>
+<td>1.7</td>
+<td>0.40</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3</th>
+<td>30Y</td>
+<td>1.25</td>
+<td>1.4</td>
+<td>-0.15</td>
+</tr>
+</tbody>
+</table>
+
 </div>
 </div>
+</div>
+<p>The total active duration is:</p>
+<p><span class="math display">\[
+-0.30+0.05+0.40-0.15=0.00.
+\]</span></p>
+<p>So a simple duration report says the portfolio is matched to the benchmark. But it is not neutral to curve shape.</p>
+<p>If the curve steepens with the 2-year yield falling 20 bps and the 10-year yield rising 40 bps, the active return impact is:</p>
+<p><span class="math display">\[
+-(-0.30)(-20)-(+0.40)(+40)
+=-6-16=-22\text{ bps},
+\]</span></p>
+<p>before including the smaller 5-year and 30-year effects. The portfolio loses because it is underweight the front end and overweight the 10-year point in this steepening scenario.</p>
+<div id="cell-fig-key-rate-decomposition" class="cell" data-message="false" data-execution_count="20">
+<div class="cell-output cell-output-display">
+<div id="fig-key-rate-decomposition" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-key-rate-decomposition-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lec6_files/figure-html/fig-key-rate-decomposition-output-1.png" width="709" height="393" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-key-rate-decomposition-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;8: Key rate decomposition reveals curve-shape risk that total duration can hide.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>This plot has one purpose: it compares where the portfolio and benchmark have their rate exposure. It is not a general “risk level” chart; it is a curve-shape diagnostic.</p>
+</section>
+<section id="step-7-translate-the-decomposition-into-a-decision" class="level4">
+<h4 class="anchored" data-anchor-id="step-7-translate-the-decomposition-into-a-decision">Step 7: Translate the Decomposition into a Decision</h4>
 <p>Risk decomposition should lead to an action. A manager uses it to decide which risk is intentional, which risk is accidental, and which risk should be hedged or reduced.</p>
 <table class="caption-top table">
 <colgroup>
@@ -1680,6 +2154,16 @@ Figure&nbsp;8: Approximate active return from real monthly factor changes and as
 </tr>
 </tbody>
 </table>
+<p>The full picture is:</p>
+<ol type="1">
+<li>Holdings create exposures.</li>
+<li>Active exposures create active return sensitivity.</li>
+<li>Factor volatilities and correlations convert those sensitivities into predicted tracking error.</li>
+<li>Idiosyncratic issuer and issue risk is added separately.</li>
+<li>The manager decides which active risks are deliberate and which should be reduced.</li>
+</ol>
+<p>Risk decomposition is therefore a bridge between portfolio analytics and portfolio construction. It turns a single tracking-error number into a set of specific decisions.</p>
+</section>
 </section>
 <section id="portfolio-construction-using-a-multi-factor-model-and-an-optimizer" class="level3">
 <h3 class="anchored" data-anchor-id="portfolio-construction-using-a-multi-factor-model-and-an-optimizer">Portfolio Construction Using a Multi-Factor Model and an Optimizer</h3>
@@ -1768,8 +2252,8 @@ Figure&nbsp;8: Approximate active return from real monthly factor changes and as
 <p>The portfolio satisfies the duration and spread tilt constraints. The remaining question is whether those tilts fit inside the tracking error budget.</p>
 </div>
 </div>
-<div id="9a9ae60d" class="cell" data-message="false" data-execution_count="16">
-<div class="cell-output cell-output-display" data-execution_count="16">
+<div id="72079a64" class="cell" data-message="false" data-execution_count="21">
+<div class="cell-output cell-output-display" data-execution_count="21">
 <div>
 
 
@@ -1838,8 +2322,8 @@ Figure&nbsp;8: Approximate active return from real monthly factor changes and as
 <p>Suppose a manager has $10 million to invest and wants to approximate a benchmark with duration near 5.0, spread duration near 3.0, and at least 30% in Treasuries for liquidity. The tradable universe is:</p>
 </div>
 </div>
-<div id="936028f2" class="cell" data-message="false" data-execution_count="17">
-<div class="cell-output cell-output-display" data-execution_count="17">
+<div id="86e41327" class="cell" data-message="false" data-execution_count="22">
+<div class="cell-output cell-output-display" data-execution_count="22">
 <div>
 
 
@@ -1907,8 +2391,8 @@ Figure&nbsp;8: Approximate active return from real monthly factor changes and as
 </div>
 </div>
 </div>
-<div id="e782dada" class="cell" data-message="false" data-execution_count="18">
-<div class="cell-output cell-output-display" data-execution_count="18">
+<div id="f23271df" class="cell" data-message="false" data-execution_count="23">
+<div class="cell-output cell-output-display" data-execution_count="23">
 <div>
 
 
@@ -1959,7 +2443,7 @@ Figure&nbsp;8: Approximate active return from real monthly factor changes and as
 </div>
 </div>
 <p>The selected weights are not the result of a full industrial optimizer, but the logic is the same: candidate bonds are combined so portfolio exposures land near benchmark exposures while satisfying constraints. A real optimizer would also include issuer caps, minimum lot sizes, transaction costs, taxes, and predicted tracking error.</p>
-<div id="cell-fig-toy-portfolio-exposures" class="cell" data-message="false" data-execution_count="19">
+<div id="cell-fig-toy-portfolio-exposures" class="cell" data-message="false" data-execution_count="24">
 <div class="cell-output cell-output-display">
 <div id="fig-toy-portfolio-exposures" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
@@ -2078,8 +2562,8 @@ flowchart LR
 <p>If the trades cost 6 bps and reduce monthly tracking error by only 0.2 bps, the manager must decide whether the risk reduction is worth the cost.</p>
 </div>
 </div>
-<div id="4bb0f57b" class="cell" data-message="false" data-execution_count="20">
-<div class="cell-output cell-output-display" data-execution_count="20">
+<div id="42d3410a" class="cell" data-message="false" data-execution_count="25">
+<div class="cell-output cell-output-display" data-execution_count="25">
 <div>
 
 
@@ -2142,7 +2626,7 @@ flowchart LR
 </div>
 </div>
 <p>In this example, the manager does not need to eliminate every active position. The goal is to bring the portfolio back inside risk limits while preserving intentional views. The after-trade portfolio still has a corporate overweight, but the bank overweight, issuer concentration, duration gap, and predicted tracking error are now within limits.</p>
-<div id="cell-fig-rebalance-before-after" class="cell" data-message="false" data-execution_count="21">
+<div id="cell-fig-rebalance-before-after" class="cell" data-message="false" data-execution_count="26">
 <div class="cell-output cell-output-display">
 <div id="fig-rebalance-before-after" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
@@ -2156,7 +2640,7 @@ Figure&nbsp;10: Rebalancing should target the exposures that violate risk limits
 </div>
 </div>
 </div>
-<div id="cell-fig-rebalance-frontier" class="cell" data-message="false" data-execution_count="22">
+<div id="cell-fig-rebalance-frontier" class="cell" data-message="false" data-execution_count="27">
 <div class="cell-output cell-output-display">
 <div id="fig-rebalance-frontier" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">

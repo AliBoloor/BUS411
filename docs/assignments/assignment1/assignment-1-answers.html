@@ -1,0 +1,2384 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.27">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Assignment 1 - Solutions – BUS 411 — Fixed Income Security Analysis and Valuation</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-4d9afe2b8d18ee9fa5d0d57b5ed4214d.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-045988b2df601ed31a02b3be6169c181.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-2ea9be508892616174e494008bc75989.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-045988b2df601ed31a02b3be6169c181.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>
+table {
+  font-size: 0.92rem;
+}
+.cell-output-display, .table-responsive {
+  overflow-x: auto;
+}
+</style>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="docked nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">BUS 411 — Fixed Income Security Analysis and Valuation</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../lecture_notes/index.html"> 
+<span class="menu-text">Lecture Notes</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../assignments/index.html"> 
+<span class="menu-text">Assignments</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#instructions" id="toc-instructions" class="nav-link active" data-scroll-target="#instructions"><span class="header-section-number">0.1</span> Instructions</a></li>
+  <li><a href="#lecture-1-bond-features-structures-markets-and-risks" id="toc-lecture-1-bond-features-structures-markets-and-risks" class="nav-link" data-scroll-target="#lecture-1-bond-features-structures-markets-and-risks"><span class="header-section-number">1</span> Lecture 1: Bond Features, Structures, Markets, and Risks</a>
+  <ul class="collapse">
+  <li><a href="#question-1" id="toc-question-1" class="nav-link" data-scroll-target="#question-1"><span class="header-section-number">1.1</span> Question 1</a></li>
+  <li><a href="#question-2" id="toc-question-2" class="nav-link" data-scroll-target="#question-2"><span class="header-section-number">1.2</span> Question 2</a></li>
+  <li><a href="#question-3" id="toc-question-3" class="nav-link" data-scroll-target="#question-3"><span class="header-section-number">1.3</span> Question 3</a></li>
+  <li><a href="#question-4" id="toc-question-4" class="nav-link" data-scroll-target="#question-4"><span class="header-section-number">1.4</span> Question 4</a></li>
+  <li><a href="#question-5" id="toc-question-5" class="nav-link" data-scroll-target="#question-5"><span class="header-section-number">1.5</span> Question 5</a></li>
+  </ul></li>
+  <li><a href="#lecture-2-bond-pricing-yield-measures-and-total-return" id="toc-lecture-2-bond-pricing-yield-measures-and-total-return" class="nav-link" data-scroll-target="#lecture-2-bond-pricing-yield-measures-and-total-return"><span class="header-section-number">2</span> Lecture 2: Bond Pricing, Yield Measures, and Total Return</a>
+  <ul class="collapse">
+  <li><a href="#question-6" id="toc-question-6" class="nav-link" data-scroll-target="#question-6"><span class="header-section-number">2.1</span> Question 6</a></li>
+  <li><a href="#question-7" id="toc-question-7" class="nav-link" data-scroll-target="#question-7"><span class="header-section-number">2.2</span> Question 7</a></li>
+  <li><a href="#question-8" id="toc-question-8" class="nav-link" data-scroll-target="#question-8"><span class="header-section-number">2.3</span> Question 8</a></li>
+  <li><a href="#question-9" id="toc-question-9" class="nav-link" data-scroll-target="#question-9"><span class="header-section-number">2.4</span> Question 9</a></li>
+  <li><a href="#question-10" id="toc-question-10" class="nav-link" data-scroll-target="#question-10"><span class="header-section-number">2.5</span> Question 10</a></li>
+  </ul></li>
+  <li><a href="#lecture-3-duration-convexity-and-portfolio-strategies" id="toc-lecture-3-duration-convexity-and-portfolio-strategies" class="nav-link" data-scroll-target="#lecture-3-duration-convexity-and-portfolio-strategies"><span class="header-section-number">3</span> Lecture 3: Duration, Convexity, and Portfolio Strategies</a>
+  <ul class="collapse">
+  <li><a href="#question-11" id="toc-question-11" class="nav-link" data-scroll-target="#question-11"><span class="header-section-number">3.1</span> Question 11</a></li>
+  <li><a href="#question-12" id="toc-question-12" class="nav-link" data-scroll-target="#question-12"><span class="header-section-number">3.2</span> Question 12</a></li>
+  <li><a href="#question-13" id="toc-question-13" class="nav-link" data-scroll-target="#question-13"><span class="header-section-number">3.3</span> Question 13</a></li>
+  <li><a href="#question-14" id="toc-question-14" class="nav-link" data-scroll-target="#question-14"><span class="header-section-number">3.4</span> Question 14</a></li>
+  <li><a href="#question-15" id="toc-question-15" class="nav-link" data-scroll-target="#question-15"><span class="header-section-number">3.5</span> Question 15</a></li>
+  </ul></li>
+  <li><a href="#lecture-4-benchmark-spreads-and-term-structure" id="toc-lecture-4-benchmark-spreads-and-term-structure" class="nav-link" data-scroll-target="#lecture-4-benchmark-spreads-and-term-structure"><span class="header-section-number">4</span> Lecture 4: Benchmark Spreads and Term Structure</a>
+  <ul class="collapse">
+  <li><a href="#question-16" id="toc-question-16" class="nav-link" data-scroll-target="#question-16"><span class="header-section-number">4.1</span> Question 16</a></li>
+  <li><a href="#question-17" id="toc-question-17" class="nav-link" data-scroll-target="#question-17"><span class="header-section-number">4.2</span> Question 17</a></li>
+  <li><a href="#question-18" id="toc-question-18" class="nav-link" data-scroll-target="#question-18"><span class="header-section-number">4.3</span> Question 18</a></li>
+  <li><a href="#question-19" id="toc-question-19" class="nav-link" data-scroll-target="#question-19"><span class="header-section-number">4.4</span> Question 19</a></li>
+  <li><a href="#question-20" id="toc-question-20" class="nav-link" data-scroll-target="#question-20"><span class="header-section-number">4.5</span> Question 20</a></li>
+  </ul></li>
+  <li><a href="#lecture-5-treasury-and-corporate-debt-markets" id="toc-lecture-5-treasury-and-corporate-debt-markets" class="nav-link" data-scroll-target="#lecture-5-treasury-and-corporate-debt-markets"><span class="header-section-number">5</span> Lecture 5: Treasury and Corporate Debt Markets</a>
+  <ul class="collapse">
+  <li><a href="#question-21" id="toc-question-21" class="nav-link" data-scroll-target="#question-21"><span class="header-section-number">5.1</span> Question 21</a></li>
+  <li><a href="#question-22" id="toc-question-22" class="nav-link" data-scroll-target="#question-22"><span class="header-section-number">5.2</span> Question 22</a></li>
+  <li><a href="#question-23" id="toc-question-23" class="nav-link" data-scroll-target="#question-23"><span class="header-section-number">5.3</span> Question 23</a></li>
+  <li><a href="#question-24" id="toc-question-24" class="nav-link" data-scroll-target="#question-24"><span class="header-section-number">5.4</span> Question 24</a></li>
+  <li><a href="#question-25" id="toc-question-25" class="nav-link" data-scroll-target="#question-25"><span class="header-section-number">5.5</span> Question 25</a></li>
+  </ul></li>
+  <li><a href="#lecture-6-bond-portfolio-construction" id="toc-lecture-6-bond-portfolio-construction" class="nav-link" data-scroll-target="#lecture-6-bond-portfolio-construction"><span class="header-section-number">6</span> Lecture 6: Bond Portfolio Construction</a>
+  <ul class="collapse">
+  <li><a href="#question-26" id="toc-question-26" class="nav-link" data-scroll-target="#question-26"><span class="header-section-number">6.1</span> Question 26</a></li>
+  <li><a href="#question-27" id="toc-question-27" class="nav-link" data-scroll-target="#question-27"><span class="header-section-number">6.2</span> Question 27</a></li>
+  <li><a href="#question-28" id="toc-question-28" class="nav-link" data-scroll-target="#question-28"><span class="header-section-number">6.3</span> Question 28</a></li>
+  <li><a href="#question-29" id="toc-question-29" class="nav-link" data-scroll-target="#question-29"><span class="header-section-number">6.4</span> Question 29</a></li>
+  <li><a href="#question-30" id="toc-question-30" class="nav-link" data-scroll-target="#question-30"><span class="header-section-number">6.5</span> Question 30</a></li>
+  </ul></li>
+  </ul>
+<div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="assignment-1-answers.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></nav>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Assignment 1 - Solutions</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="instructions" class="level2" data-number="0.1">
+<h2 data-number="0.1" class="anchored" data-anchor-id="instructions"><span class="header-section-number">0.1</span> Instructions</h2>
+<p>This problem set is based on Lectures 1-6. It contains 30 hard, multi-step questions. Each lecture contributes five questions. The questions use original scenarios and data designed in the style of professional fixed-income practice problems. They are intended to teach the reasoning process, not only test final formulas.</p>
+<p>For each question:</p>
+<ol type="1">
+<li>Read the scenario carefully.</li>
+<li>Identify the cash flows, risks, or market conventions involved.</li>
+<li>Work through each part in order.</li>
+<li>Compare your reasoning with the full solution.</li>
+</ol>
+</section>
+<section id="lecture-1-bond-features-structures-markets-and-risks" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Lecture 1: Bond Features, Structures, Markets, and Risks</h1>
+<section id="question-1" class="level2" data-number="1.1">
+<h2 data-number="1.1" class="anchored" data-anchor-id="question-1"><span class="header-section-number">1.1</span> Question 1</h2>
+<p>A private wealth client is considering three newly issued securities. The client understands stock investing but is new to bonds. You are asked to explain the cash-flow mechanics and risk profile before the client chooses one.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 15%">
+<col style="width: 20%">
+<col style="width: 15%">
+<col style="width: 20%">
+<col style="width: 15%">
+<col style="width: 15%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Security</th>
+<th style="text-align: right;">Face value</th>
+<th>Coupon structure</th>
+<th style="text-align: right;">Maturity</th>
+<th>Embedded feature</th>
+<th>Other information</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>A</td>
+<td style="text-align: right;">USD 1,000</td>
+<td>5.20 percent fixed annual coupon</td>
+<td style="text-align: right;">8 years</td>
+<td>None</td>
+<td>Bullet repayment at maturity</td>
+</tr>
+<tr class="even">
+<td>B</td>
+<td style="text-align: right;">USD 1,000</td>
+<td>3-month SOFR + 1.40 percent, quarterly reset</td>
+<td style="text-align: right;">5 years</td>
+<td>Coupon cap at 7.00 percent</td>
+<td>Bullet repayment at maturity</td>
+</tr>
+<tr class="odd">
+<td>C</td>
+<td style="text-align: right;">USD 1,000</td>
+<td>6.00 percent fixed annual coupon</td>
+<td style="text-align: right;">10 years</td>
+<td>Callable at 102 after year 4</td>
+<td>Issuer is expected to refinance if rates decline</td>
+</tr>
+</tbody>
+</table>
+<p>Answer the following:</p>
+<ol type="a">
+<li>For each security, describe the promised cash-flow pattern before considering default or option exercise.<br>
+</li>
+<li>Identify which security has the most predictable nominal cash flows and explain why.<br>
+</li>
+<li>Identify which security gives the issuer an economically valuable option and explain when that option is most likely to be used.<br>
+</li>
+<li>Explain why Security B may trade close to par after a reset, but still may not be risk-free.<br>
+</li>
+<li>Rank the securities from lowest to highest cash-flow uncertainty for the investor.</li>
+</ol>
+<p><strong>Answer.</strong></p>
+<ol type="a">
+<li><p>Security A is a plain fixed-rate bullet bond. It pays USD 52 each year and repays USD 1,000 at maturity. Security B is a floater. Its quarterly coupon changes at each reset based on 3-month SOFR plus 1.40 percent, subject to the 7.00 percent cap, and it repays USD 1,000 at maturity. Security C pays USD 60 each year until maturity unless the issuer calls it after year 4. If called at 102, the investor receives USD 1,020 instead of continuing to receive coupons through year 10.</p></li>
+<li><p>Security A has the most predictable nominal cash flows. The coupon amount and maturity value are fixed, and there is no embedded option. Security C has fixed coupons too, but the call provision makes the timing of principal repayment uncertain. Security B has uncertain coupons because SOFR changes through time.</p></li>
+<li><p>Security C gives the issuer the valuable option. The call provision is valuable when market interest rates fall or the issuer’s credit spread tightens enough that it can refinance at a lower cost. In that case, the issuer can redeem the high-coupon bond and replace it with cheaper debt. The investor loses the opportunity to keep earning the 6.00 percent coupon for the full 10 years.</p></li>
+<li><p>Security B can trade close to par after a reset because the coupon is updated to current short-term rates. If the reference rate resets to market, the coupon is not stale in the way a fixed coupon can be. However, it is not risk-free. Its price can fall if the issuer’s credit spread widens, if liquidity deteriorates, if the coupon cap becomes binding, or if investors require more compensation for the same floater structure.</p></li>
+<li><p>Lowest uncertainty is Security A because promised nominal cash flows are fixed and bullet-style. Security B is next because the principal timing is fixed but coupons float. Security C has high cash-flow uncertainty because the issuer can change the maturity profile through the call option. If rates fall substantially, the investor should expect early redemption.</p></li>
+</ol>
+</section>
+<section id="question-2" class="level2" data-number="1.2">
+<h2 data-number="1.2" class="anchored" data-anchor-id="question-2"><span class="header-section-number">1.2</span> Question 2</h2>
+<p>A junior analyst summarizes bond risks for an investment committee. The committee asks the analyst to classify each event below using the fixed-income risk categories from Lecture 1.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Event</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>Market Treasury yields rise by 90 bps and the price of a fixed-rate bond falls.</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>A BBB industrial bond’s spread over Treasuries widens from 140 bps to 220 bps even though Treasury rates are unchanged.</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>A callable utility bond is redeemed after interest rates fall. The investor must reinvest at lower yields.</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>A high-coupon bond pays coupons as expected, but the investor reinvests those coupons at only 2 percent instead of the 5 percent assumed at purchase.</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>A Canadian investor owns a USD corporate bond and the USD depreciates against CAD.</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>A callable agency bond loses value when expected interest-rate volatility rises.</td>
+</tr>
+</tbody>
+</table>
+<p>Answer the following:</p>
+<ol type="a">
+<li>Assign the main risk category to each event.<br>
+</li>
+<li>For Events 2 and 3, explain why the bond can lose value even if no contractual default occurs.<br>
+</li>
+<li>Explain which two risks can partly offset each other for a buy-and-hold coupon bond.<br>
+</li>
+<li>Identify one event that illustrates risk from an embedded option.<br>
+</li>
+<li>Explain why understanding the security’s structure is itself a risk-control tool.</li>
+</ol>
+<p><strong>Answer.</strong></p>
+<ol type="a">
+<li><p>Event 1 is interest-rate risk. Event 2 is credit spread risk. Event 3 is call risk and reinvestment risk. Event 4 is reinvestment risk. Event 5 is exchange-rate risk. Event 6 is volatility risk for an option-rich security.</p></li>
+<li><p>In Event 2, the market now requires more compensation for credit or liquidity risk, so the required yield rises even though the issuer has not missed a payment. Price falls because the bond’s promised cash flows are discounted at a higher spread. In Event 3, the investor loses because the issuer exercises a contractual right. The issuer pays the call price, so there is no default, but the investor is forced to give up a high-coupon bond and reinvest at lower rates.</p></li>
+<li><p>Interest-rate risk and reinvestment risk can partly offset each other. When yields rise, the bond’s market price falls, but future coupons can be reinvested at higher rates. When yields fall, the bond price rises, but coupons are reinvested at lower rates. Immunization strategies are built around balancing these two effects for a target horizon.</p></li>
+<li><p>Event 3 directly illustrates an embedded call option. Event 6 also involves option exposure because the value of the issuer’s call option increases when volatility rises.</p></li>
+<li><p>Structure matters because cash-flow timing is not always fixed. A bond may be callable, putable, convertible, floating-rate, inverse-floating, amortizing, inflation-linked, or credit-structured. If the investor treats all bonds like simple fixed-rate bullets, the investor may misjudge price sensitivity, reinvestment exposure, and downside behavior. This is Fabozzi’s “risk risk”: the risk of not understanding the risks being purchased.</p></li>
+</ol>
+</section>
+<section id="question-3" class="level2" data-number="1.3">
+<h2 data-number="1.3" class="anchored" data-anchor-id="question-3"><span class="header-section-number">1.3</span> Question 3</h2>
+<p>An insurance company is comparing a bullet corporate bond with an amortizing asset-backed security. Both securities have final maturities of five years and face values of USD 10,000,000.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: right;">Year</th>
+<th style="text-align: right;">Bullet bond principal repayment</th>
+<th style="text-align: right;">ABS principal repayment</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1,200,000</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1,600,000</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2,100,000</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2,500,000</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">10,000,000</td>
+<td style="text-align: right;">2,600,000</td>
+</tr>
+</tbody>
+</table>
+<p>Answer the following:</p>
+<ol type="a">
+<li>Compute the weighted average life of the bullet bond.<br>
+</li>
+<li>Compute the weighted average life of the ABS.<br>
+</li>
+<li>Explain why the ABS has less principal-timing exposure than the bullet bond even though final maturity is the same.<br>
+</li>
+<li>Explain one risk that could make the realized life of the ABS differ from the scheduled life.<br>
+</li>
+<li>Discuss why a liability-driven investor might prefer the ABS even if its quoted yield is lower.</li>
+</ol>
+<p><strong>Answer.</strong></p>
+<ol type="a">
+<li>The bullet bond repays all USD 10,000,000 in year 5. Weighted average life equals 5.00 years:</li>
+</ol>
+<p><span class="math display">\[
+WAL=\frac{10{,}000{,}000\times 5}{10{,}000{,}000}=5.00.
+\]</span></p>
+<ol start="2" type="a">
+<li>For the ABS:</li>
+</ol>
+<p><span class="math display">\[
+WAL=\frac{
+1{,}200{,}000(1)+1{,}600{,}000(2)+2{,}100{,}000(3)+2{,}500{,}000(4)+2{,}600{,}000(5)
+}{10{,}000{,}000}.
+\]</span></p>
+<p>The numerator is 1,200,000 + 3,200,000 + 6,300,000 + 10,000,000 + 13,000,000 = 33,700,000. WAL = 33,700,000 / 10,000,000 = 3.37 years.</p>
+<ol start="3" type="a">
+<li><p>Final maturity only tells us the last date on which principal is repaid. The ABS returns principal throughout the five-year period, so the investor’s capital is recovered earlier on average. Earlier principal recovery reduces exposure to the issuer and to late-period market conditions, but it also creates reinvestment needs.</p></li>
+<li><p>Prepayments, defaults, recoveries, or collateral performance can change the realized principal schedule. If borrowers prepay faster, WAL shortens. If collateral defaults or extensions delay principal, WAL can lengthen or cash flows can be impaired.</p></li>
+<li><p>A liability-driven investor may prefer the ABS if its principal payments match expected liability outflows. Matching cash-flow timing can reduce the need to sell assets later. A lower quoted yield may be acceptable if the ABS reduces reinvestment, liquidity, or asset-liability mismatch risk.</p></li>
+</ol>
+</section>
+<section id="question-4" class="level2" data-number="1.4">
+<h2 data-number="1.4" class="anchored" data-anchor-id="question-4"><span class="header-section-number">1.4</span> Question 4</h2>
+<p>A portfolio manager is comparing four bond sectors for a balanced fixed-income mandate.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Sector</th>
+<th>Typical issuer/collateral</th>
+<th>Main compensation required by investors</th>
+<th>Liquidity comment</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Treasury</td>
+<td>Sovereign government</td>
+<td>Time value and inflation expectations</td>
+<td>Very liquid</td>
+</tr>
+<tr class="even">
+<td>Municipal revenue bond</td>
+<td>Local project revenue</td>
+<td>Project credit, tax status, liquidity</td>
+<td>Often less liquid</td>
+</tr>
+<tr class="odd">
+<td>Investment-grade corporate</td>
+<td>Corporate issuer</td>
+<td>Credit spread, liquidity, downgrade risk</td>
+<td>Moderate liquidity</td>
+</tr>
+<tr class="even">
+<td>Leveraged loan</td>
+<td>Senior secured corporate loan</td>
+<td>Credit risk, liquidity risk, covenant risk</td>
+<td>Can be weak in stress</td>
+</tr>
+</tbody>
+</table>
+<p>Answer the following:</p>
+<ol type="a">
+<li>Explain why Treasury yields are often used as benchmark rates.<br>
+</li>
+<li>Explain why the corporate bond should normally trade at a positive spread over Treasuries.<br>
+</li>
+<li>Explain why the municipal bond cannot be compared to a corporate bond only by pretax yield.<br>
+</li>
+<li>Explain why the leveraged loan requires analysis beyond a simple issuer rating.<br>
+</li>
+<li>Recommend two due-diligence questions the manager should ask before buying the leveraged loan.</li>
+</ol>
+<p><strong>Answer.</strong></p>
+<ol type="a">
+<li><p>Treasury securities are backed by the sovereign’s taxing authority and are highly liquid. In domestic currency, they are commonly treated as the default-free base rate. Their yields provide a benchmark for the time value of money across maturities.</p></li>
+<li><p>The corporate bond exposes investors to default risk, downgrade risk, credit spread risk, and lower liquidity than Treasuries. Investors require compensation for those risks, so the corporate yield normally equals the Treasury base rate plus a spread.</p></li>
+<li><p>Municipal bonds may be tax-exempt. A taxable corporate yield must be converted to an after-tax yield, or the municipal yield must be converted to a taxable-equivalent yield. The investor should compare what is kept after tax, not only the quoted pretax yield.</p></li>
+<li><p>A leveraged loan depends on borrower leverage, collateral coverage, covenant protection, seniority, loan documentation, liquidity, and refinancing access. A simple rating may not capture recovery risk, covenant leakage, or trading liquidity.</p></li>
+<li><p>First, ask what collateral supports the loan and how much enterprise value would remain under stress. Second, ask what covenants, liens, baskets, and debt-incurrence permissions are in the credit agreement. These questions target both recovery risk and creditor-protection risk.</p></li>
+</ol>
+</section>
+<section id="question-5" class="level2" data-number="1.5">
+<h2 data-number="1.5" class="anchored" data-anchor-id="question-5"><span class="header-section-number">1.5</span> Question 5</h2>
+<p>A high-net-worth investor wants to buy a convertible bond issued by a technology company. The bond has a 2.25 percent coupon, 7-year maturity, and can be converted into 18 shares of the issuer’s common stock. A straight 7-year bond from the same issuer would require a 6.00 percent coupon.</p>
+<p>Answer the following:</p>
+<ol type="a">
+<li>Explain why the convertible can be issued with a lower coupon than straight debt.<br>
+</li>
+<li>Identify the embedded option and who owns it.<br>
+</li>
+<li>Explain how the bond behaves if the issuer’s stock price rises sharply.<br>
+</li>
+<li>Explain how it behaves if the stock price falls and credit quality weakens.<br>
+</li>
+<li>Compare this convertible bond with an exchangeable bond.</li>
+</ol>
+<p><strong>Answer.</strong></p>
+<ol type="a">
+<li><p>Investors accept a lower coupon because they receive potential equity upside through the conversion feature. Part of the investor’s required return is paid in the form of an embedded option rather than current cash interest.</p></li>
+<li><p>The embedded option is the right to convert the bond into common shares. The bondholder owns this option. It is valuable when the stock price rises enough that the conversion value exceeds the value of remaining bond cash flows.</p></li>
+<li><p>If the stock price rises sharply, the convertible begins to behave more like equity. Its price becomes increasingly tied to conversion value, calculated as conversion ratio times stock price. The investor benefits from upside that a straight bondholder would not receive.</p></li>
+<li><p>If the stock price falls and credit quality weakens, the convertible can lose value from both sides. The equity option becomes less valuable, and the bond floor declines as the issuer’s credit spread widens. The investor still has a debt claim, but that claim is only as strong as the issuer’s ability to pay and the bond’s seniority.</p></li>
+<li><p>A convertible bond converts into shares of the issuer. An exchangeable bond converts into shares of a company other than the issuer. Exchangeable bonds therefore separate issuer credit risk from the equity risk of the reference shares.</p></li>
+</ol>
+</section>
+</section>
+<section id="lecture-2-bond-pricing-yield-measures-and-total-return" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> Lecture 2: Bond Pricing, Yield Measures, and Total Return</h1>
+<section id="question-6" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="question-6"><span class="header-section-number">2.1</span> Question 6</h2>
+<p>A student analyst prices a 4-year annual-pay bond with face value USD 1,000 and coupon rate 5.50 percent. The market yield is 6.25 percent.</p>
+<p>Answer the following:</p>
+<ol type="a">
+<li>Write the cash-flow timeline.<br>
+</li>
+<li>Compute the bond price.<br>
+</li>
+<li>State whether the bond trades at a premium, discount, or par.<br>
+</li>
+<li>Explain the economic reason for the result in part c.<br>
+</li>
+<li>If the yield remains at 6.25 percent, explain the expected direction of the bond’s price as maturity approaches.</li>
+</ol>
+<p><strong>Answer.</strong></p>
+<ol type="a">
+<li><p>The bond pays coupons of USD 55 in years 1, 2, and 3. In year 4 it pays the final coupon plus principal, or USD 1,055.</p></li>
+<li><p>The price is:</p></li>
+</ol>
+<p><span class="math display">\[
+P=\frac{55}{1.0625}
++\frac{55}{1.0625^2}
++\frac{55}{1.0625^3}
++\frac{1{,}055}{1.0625^4}.
+\]</span></p>
+<p>The present values are approximately 51.76, 48.72, 45.85, and 827.76. Total price is approximately USD 974.09.</p>
+<ol start="3" type="a">
+<li><p>The bond trades at a discount.</p></li>
+<li><p>The coupon rate of 5.50 percent is below the market yield of 6.25 percent. Investors require more return than the bond’s coupon provides at par, so the price must fall below par to raise the expected yield to the market-required level.</p></li>
+<li><p>If the yield remains constant, the price should pull upward toward par as maturity approaches. The discount exists because the coupon is below market, but as fewer below-market coupons remain, the final principal repayment dominates value.</p></li>
+</ol>
+</section>
+<section id="question-7" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="question-7"><span class="header-section-number">2.2</span> Question 7</h2>
+<p>A bond trader is evaluating a semiannual-pay bond with the following terms:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Item</th>
+<th style="text-align: right;">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Face value</td>
+<td style="text-align: right;">USD 1,000</td>
+</tr>
+<tr class="even">
+<td>Annual coupon rate</td>
+<td style="text-align: right;">7.20 percent</td>
+</tr>
+<tr class="odd">
+<td>Years to maturity</td>
+<td style="text-align: right;">6</td>
+</tr>
+<tr class="even">
+<td>Yield to maturity</td>
+<td style="text-align: right;">6.40 percent</td>
+</tr>
+<tr class="odd">
+<td>Coupon frequency</td>
+<td style="text-align: right;">Semiannual</td>
+</tr>
+</tbody>
+</table>
+<p>Answer the following:</p>
+<ol type="a">
+<li>Convert the annual coupon and yield into period values.<br>
+</li>
+<li>Compute the number of remaining coupon periods.<br>
+</li>
+<li>Compute the bond price.<br>
+</li>
+<li>Explain why semiannual compounding changes the calculation.<br>
+</li>
+<li>Explain whether this bond should trade above or below par before doing the arithmetic.</li>
+</ol>
+<p><strong>Answer.</strong></p>
+<ol type="a">
+<li><p>The semiannual coupon is 7.20 percent / 2 x USD 1,000 = USD 36. The semiannual yield is 6.40 percent / 2 = 3.20 percent.</p></li>
+<li><p>Six years with two coupons per year gives 12 remaining periods.</p></li>
+<li><p>The price is:</p></li>
+</ol>
+<p><span class="math display">\[
+P=36\left[\frac{1-(1.032)^{-12}}{0.032}\right]
++\frac{1{,}000}{1.032^{12}}.
+\]</span></p>
+<p>The coupon annuity value is approximately USD 355.37 and the principal present value is approximately USD 685.28. Total price is approximately USD 1,040.65.</p>
+<ol start="4" type="a">
+<li><p>Semiannual compounding matters because cash flows occur every six months, not annually. The discount rate per period must match the timing of cash flows. Using a 6.40 percent annual discount rate for six annual periods would discount the wrong cash-flow pattern.</p></li>
+<li><p>The bond should trade above par because its coupon rate of 7.20 percent is above the yield of 6.40 percent. It pays more coupon income than newly required by the market, so investors bid the price above face value.</p></li>
+</ol>
+</section>
+<section id="question-8" class="level2" data-number="2.3">
+<h2 data-number="2.3" class="anchored" data-anchor-id="question-8"><span class="header-section-number">2.3</span> Question 8</h2>
+<p>A bond is purchased between coupon dates. It has a 5.00 percent annual coupon paid semiannually on USD 1,000 face value. The quoted clean price is 101.40 percent of par. Settlement occurs 72 days after the last coupon, and the coupon period has 180 days.</p>
+<p>Answer the following:</p>
+<ol type="a">
+<li>Compute the semiannual coupon payment.<br>
+</li>
+<li>Compute accrued interest.<br>
+</li>
+<li>Compute the clean dollar price.<br>
+</li>
+<li>Compute the full or dirty price.<br>
+</li>
+<li>Explain why the buyer pays accrued interest to the seller.</li>
+</ol>
+<p><strong>Answer.</strong></p>
+<ol type="a">
+<li><p>The annual coupon is 5.00 percent x USD 1,000 = USD 50. The semiannual coupon is USD 25.</p></li>
+<li><p>Accrued interest = 25 x 72 / 180 = USD 10.00.</p></li>
+<li><p>Clean dollar price = 101.40 percent x USD 1,000 = USD 1,014.00.</p></li>
+<li><p>Full price = clean price + accrued interest = USD 1,014.00 + USD 10.00 = USD 1,024.00.</p></li>
+<li><p>The seller held the bond for 72 days of the coupon period and economically earned that portion of the next coupon. Because the next coupon will be paid entirely to the buyer, the buyer compensates the seller through accrued interest at settlement.</p></li>
+</ol>
+</section>
+<section id="question-9" class="level2" data-number="2.4">
+<h2 data-number="2.4" class="anchored" data-anchor-id="question-9"><span class="header-section-number">2.4</span> Question 9</h2>
+<p>A client buys a 3-year annual-pay bond for USD 980. The bond has face value USD 1,000 and coupon rate 6.00 percent. The client plans to sell after two years, not hold to maturity. The client expects to reinvest the first coupon at 4.00 percent for one year and expects the bond’s yield at sale to be 5.50 percent.</p>
+<p>Answer the following:</p>
+<ol type="a">
+<li>Compute the coupon cash flows received during the two-year horizon.<br>
+</li>
+<li>Compute the future value at year 2 of the first coupon after reinvestment.<br>
+</li>
+<li>Compute the expected sale price at year 2.<br>
+</li>
+<li>Compute total future dollars at year 2.<br>
+</li>
+<li>Compute the two-year horizon return.</li>
+</ol>
+<p><strong>Answer.</strong></p>
+<ol type="a">
+<li><p>The bond pays USD 60 at the end of year 1 and USD 60 at the end of year 2.</p></li>
+<li><p>The year-1 coupon is reinvested for one year at 4.00 percent, so its year-2 value is 60 x 1.04 = USD 62.40.</p></li>
+<li><p>At year 2, the bond has one year remaining and will pay USD 1,060 at year 3. If the sale yield is 5.50 percent, sale price = 1,060 / 1.055 = USD 1,004.74.</p></li>
+<li><p>Total future dollars at year 2 = reinvested first coupon + second coupon + sale price = 62.40 + 60.00 + 1,004.74 = USD 1,127.14.</p></li>
+<li><p>The two-year horizon return solves:</p></li>
+</ol>
+<p><span class="math display">\[
+980(1+R)^2=1{,}127.14.
+\]</span></p>
+<p>Therefore:</p>
+<p><span class="math display">\[
+R=\left(\frac{1{,}127.14}{980}\right)^{1/2}-1=7.25\%.
+\]</span></p>
+<p>This return differs from the original yield because it depends on the reinvestment rate and sale yield.</p>
+</section>
+<section id="question-10" class="level2" data-number="2.5">
+<h2 data-number="2.5" class="anchored" data-anchor-id="question-10"><span class="header-section-number">2.5</span> Question 10</h2>
+<p>A firm has issued a floating-rate note with quarterly coupons. The coupon rate each quarter is 3-month SOFR plus a quoted margin of 1.25 percent. The note has face value USD 5,000,000. There is a coupon floor of 2.00 percent and a cap of 6.50 percent. The next three SOFR reset rates are assumed to be:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: right;">Quarter</th>
+<th style="text-align: right;">SOFR at reset</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.50 percent</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">3.80 percent</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">6.10 percent</td>
+</tr>
+</tbody>
+</table>
+<p>Answer the following:</p>
+<ol type="a">
+<li>Compute the uncapped annual coupon rate for each quarter.<br>
+</li>
+<li>Apply the floor and cap.<br>
+</li>
+<li>Compute each quarterly coupon payment.<br>
+</li>
+<li>Explain how the cap changes investor exposure.<br>
+</li>
+<li>Explain why discount margin is more natural than yield-to-maturity for this security.</li>
+</ol>
+<p><strong>Answer.</strong></p>
+<ol type="a">
+<li><p>The uncapped annual coupon rates are SOFR + 1.25 percent. Quarter 1: 1.75 percent. Quarter 2: 5.05 percent. Quarter 3: 7.35 percent.</p></li>
+<li><p>The floor is 2.00 percent and the cap is 6.50 percent. Quarter 1 is floored at 2.00 percent. Quarter 2 remains 5.05 percent. Quarter 3 is capped at 6.50 percent.</p></li>
+<li><p>Quarterly coupon equals annual coupon rate divided by 4, multiplied by face value:</p></li>
+</ol>
+<p><span class="math display">\[
+\text{Quarter 1}=\frac{2.00\%}{4}\times 5{,}000{,}000=25{,}000.
+\]</span></p>
+<p><span class="math display">\[
+\text{Quarter 2}=\frac{5.05\%}{4}\times 5{,}000{,}000=63{,}125.
+\]</span></p>
+<p><span class="math display">\[
+\text{Quarter 3}=\frac{6.50\%}{4}\times 5{,}000{,}000=81{,}250.
+\]</span></p>
+<ol start="4" type="a">
+<li><p>The cap limits the investor’s benefit when short rates rise sharply. Without the cap, Quarter 3 would pay 7.35 percent annualized. With the cap, the investor receives only 6.50 percent. The issuer has effectively retained protection against very high reference rates.</p></li>
+<li><p>Yield-to-maturity assumes a fixed set of cash flows. The floater’s future coupons depend on future SOFR resets and cap/floor behavior. Discount margin frames valuation as a spread over expected reference rates, which better matches the instrument’s economics.</p></li>
+</ol>
+</section>
+</section>
+<section id="lecture-3-duration-convexity-and-portfolio-strategies" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Lecture 3: Duration, Convexity, and Portfolio Strategies</h1>
+<section id="question-11" class="level2" data-number="3.1">
+<h2 data-number="3.1" class="anchored" data-anchor-id="question-11"><span class="header-section-number">3.1</span> Question 11</h2>
+<p>A risk manager studies two annual-pay option-free bonds, each with face value USD 1,000 and yield of 5.00 percent.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Bond</th>
+<th style="text-align: right;">Coupon rate</th>
+<th style="text-align: right;">Maturity</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>X</td>
+<td style="text-align: right;">2.00 percent</td>
+<td style="text-align: right;">10 years</td>
+</tr>
+<tr class="even">
+<td>Y</td>
+<td style="text-align: right;">8.00 percent</td>
+<td style="text-align: right;">10 years</td>
+</tr>
+</tbody>
+</table>
+<p>Answer the following:</p>
+<ol type="a">
+<li>Before calculating, predict which bond has greater duration.<br>
+</li>
+<li>Explain the cash-flow timing intuition behind your prediction.<br>
+</li>
+<li>Compute the approximate price of each bond.<br>
+</li>
+<li>Explain why the lower-coupon bond is more volatile.<br>
+</li>
+<li>State one case where this ranking could fail.</li>
+</ol>
+<p><strong>Answer.</strong></p>
+<ol type="a">
+<li><p>Bond X should have greater duration.</p></li>
+<li><p>Bond X pays small coupons, so more of its value comes from the principal payment at year 10. Bond Y pays larger coupons, which return more value earlier. Duration is based on present-value weighted timing, so the bond with later-weighted cash flows has higher duration.</p></li>
+<li><p>Bond prices are:</p></li>
+</ol>
+<p><span class="math display">\[
+P_X=20\left[\frac{1-1.05^{-10}}{0.05}\right]+\frac{1{,}000}{1.05^{10}}
+\approx 768.35.
+\]</span></p>
+<p><span class="math display">\[
+P_Y=80\left[\frac{1-1.05^{-10}}{0.05}\right]+\frac{1{,}000}{1.05^{10}}
+\approx 1{,}231.65.
+\]</span></p>
+<ol start="4" type="a">
+<li><p>A small change in yield has a larger effect when more value is concentrated in distant cash flows. Distant cash flows are discounted for more periods, so their present values are more sensitive to the discount rate.</p></li>
+<li><p>The ranking could fail if the bonds have embedded options or materially different credit behavior. For example, a callable high-coupon bond can have state-dependent effective duration, and an inverse floater can have unusually high duration despite a short contractual maturity.</p></li>
+</ol>
+</section>
+<section id="question-12" class="level2" data-number="3.2">
+<h2 data-number="3.2" class="anchored" data-anchor-id="question-12"><span class="header-section-number">3.2</span> Question 12</h2>
+<p>A portfolio contains three bonds. The manager wants to estimate portfolio duration.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Bond</th>
+<th style="text-align: right;">Market value</th>
+<th style="text-align: right;">Modified duration</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Treasury note</td>
+<td style="text-align: right;">USD 4,000,000</td>
+<td style="text-align: right;">3.8</td>
+</tr>
+<tr class="even">
+<td>Corporate bond</td>
+<td style="text-align: right;">USD 3,500,000</td>
+<td style="text-align: right;">6.2</td>
+</tr>
+<tr class="odd">
+<td>Callable agency note</td>
+<td style="text-align: right;">USD 2,500,000</td>
+<td style="text-align: right;">4.4</td>
+</tr>
+</tbody>
+</table>
+<p>Answer the following:</p>
+<ol type="a">
+<li>Compute each bond’s market-value weight.<br>
+</li>
+<li>Compute portfolio modified duration.<br>
+</li>
+<li>Estimate the portfolio dollar price change for a 35 bp parallel increase in yields.<br>
+</li>
+<li>Explain one limitation of this estimate for the callable agency note.<br>
+</li>
+<li>Explain how key rate duration could improve the analysis.</li>
+</ol>
+<p><strong>Answer.</strong></p>
+<ol type="a">
+<li><p>Total market value is USD 10,000,000. The weights are 40.0 percent Treasury, 35.0 percent corporate, and 25.0 percent callable agency note.</p></li>
+<li><p>Portfolio duration = 0.40 x 3.8 + 0.35 x 6.2 + 0.25 x 4.4 = 1.52 + 2.17 + 1.10 = 4.79.</p></li>
+<li><p>Approximate percentage change = -4.79 x 0.0035 = -1.6765 percent. Dollar change = -1.6765 percent x 10,000,000 = approximately -USD 167,650.</p></li>
+<li><p>The callable agency note has option risk. Its effective duration can change when rates and volatility change because the probability of being called is state-dependent. A static duration estimate can miss that option-driven behavior.</p></li>
+<li><p>Key rate duration separates exposure by maturity point on the curve. If the portfolio is most sensitive to the 5-year point and the curve twist occurs there, total duration may miss the risk. Key rate duration helps reveal exposure to nonparallel yield-curve changes.</p></li>
+</ol>
+</section>
+<section id="question-13" class="level2" data-number="3.3">
+<h2 data-number="3.3" class="anchored" data-anchor-id="question-13"><span class="header-section-number">3.3</span> Question 13</h2>
+<p>A bond’s current price is 104.60. If yield decreases by 50 bps, the model price is 108.90. If yield increases by 50 bps, the model price is 100.55.</p>
+<p>Answer the following:</p>
+<ol type="a">
+<li>Estimate empirical modified duration.<br>
+</li>
+<li>Estimate empirical convexity.<br>
+</li>
+<li>Use duration alone to approximate the price change for a 75 bp yield increase.<br>
+</li>
+<li>Use duration plus convexity for the same 75 bp increase.<br>
+</li>
+<li>Explain why the two approximations differ.</li>
+</ol>
+<p><strong>Answer.</strong></p>
+<ol type="a">
+<li>Empirical modified duration is:</li>
+</ol>
+<p><span class="math display">\[
+D_{\text{mod}}
+=\frac{P_{-}-P_{+}}{2P_0(\Delta y)}.
+\]</span></p>
+<p>With <span class="math inline">\(\Delta y=0.005\)</span>:</p>
+<p><span class="math display">\[
+D_{\text{mod}}
+=\frac{108.90-100.55}{2(104.60)(0.005)}
+=\frac{8.35}{1.046}
+=7.98.
+\]</span></p>
+<ol start="2" type="a">
+<li>Empirical convexity is:</li>
+</ol>
+<p><span class="math display">\[
+C=\frac{P_{-}+P_{+}-2P_0}{P_0(\Delta y)^2}.
+\]</span></p>
+<p>Thus:</p>
+<p><span class="math display">\[
+C=\frac{108.90+100.55-2(104.60)}{104.60(0.005)^2}
+=\frac{0.25}{0.002615}
+=95.60.
+\]</span></p>
+<ol start="3" type="a">
+<li>Duration-only percentage change is:</li>
+</ol>
+<p><span class="math display">\[
+\frac{\Delta P}{P}\approx -7.98(0.0075)=-5.99\%.
+\]</span></p>
+<p>Dollar price change is approximately:</p>
+<p><span class="math display">\[
+-5.99\%\times 104.60=-6.26
+\]</span></p>
+<p>price points.</p>
+<ol start="4" type="a">
+<li>Duration-plus-convexity percentage change is:</li>
+</ol>
+<p><span class="math display">\[
+\frac{\Delta P}{P}
+\approx -7.98(0.0075)+0.5(95.60)(0.0075)^2.
+\]</span></p>
+<p>The convexity term is about 0.269%, so the total is about -5.72%. Dollar change is:</p>
+<p><span class="math display">\[
+-5.72\%\times 104.60=-5.98
+\]</span></p>
+<p>price points.</p>
+<ol start="5" type="a">
+<li>Duration is a linear tangent approximation. Convexity recognizes curvature. For an option-free bond with positive convexity, the convexity term reduces the estimated loss when yields rise and increases the estimated gain when yields fall.</li>
+</ol>
+</section>
+<section id="question-14" class="level2" data-number="3.4">
+<h2 data-number="3.4" class="anchored" data-anchor-id="question-14"><span class="header-section-number">3.4</span> Question 14</h2>
+<p>A benchmark-aware manager has the same total duration as the benchmark but different key-rate exposures.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 13%">
+<col style="width: 17%">
+<col style="width: 17%">
+<col style="width: 17%">
+<col style="width: 17%">
+<col style="width: 17%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Portfolio</th>
+<th style="text-align: right;">2-year KRD</th>
+<th style="text-align: right;">5-year KRD</th>
+<th style="text-align: right;">10-year KRD</th>
+<th style="text-align: right;">30-year KRD</th>
+<th style="text-align: right;">Total</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Benchmark</td>
+<td style="text-align: right;">0.8</td>
+<td style="text-align: right;">1.7</td>
+<td style="text-align: right;">2.0</td>
+<td style="text-align: right;">1.0</td>
+<td style="text-align: right;">5.5</td>
+</tr>
+<tr class="even">
+<td>Manager</td>
+<td style="text-align: right;">0.2</td>
+<td style="text-align: right;">2.8</td>
+<td style="text-align: right;">1.1</td>
+<td style="text-align: right;">1.4</td>
+<td style="text-align: right;">5.5</td>
+</tr>
+</tbody>
+</table>
+<p>The manager expects a curve steepening where 2-year yields fall 30 bps, 5-year yields fall 10 bps, 10-year yields rise 15 bps, and 30-year yields rise 35 bps.</p>
+<p>Answer the following:</p>
+<ol type="a">
+<li>Compute the approximate percentage return impact for the benchmark.<br>
+</li>
+<li>Compute the approximate percentage return impact for the manager.<br>
+</li>
+<li>Determine which performs better under this scenario.<br>
+</li>
+<li>Explain why equal total duration was not enough.<br>
+</li>
+<li>Identify what active view the manager has implicitly expressed.</li>
+</ol>
+<p><strong>Answer.</strong></p>
+<ol type="a">
+<li>Approximate return impact is the negative sum of KRD times rate change. Use decimal yield changes. Benchmark impact is:</li>
+</ol>
+<p><span class="math display">\[
+-[0.8(-0.0030)+1.7(-0.0010)+2.0(0.0015)+1.0(0.0035)].
+\]</span></p>
+<p>This equals:</p>
+<p><span class="math display">\[
+-[-0.0024-0.0017+0.0030+0.0035]
+=-0.0024,
+\]</span></p>
+<p>or -0.24%.</p>
+<ol start="2" type="a">
+<li>Manager impact is:</li>
+</ol>
+<p><span class="math display">\[
+-[0.2(-0.0030)+2.8(-0.0010)+1.1(0.0015)+1.4(0.0035)].
+\]</span></p>
+<p>This equals:</p>
+<p><span class="math display">\[
+-[-0.0006-0.0028+0.00165+0.0049]
+=-0.00315,
+\]</span></p>
+<p>or -0.315%.</p>
+<ol start="3" type="a">
+<li><p>The benchmark performs better by about 0.075 percent, or 7.5 bps.</p></li>
+<li><p>Equal total duration only means equal exposure to a parallel shift. The actual scenario is nonparallel. The manager is overweight 5-year and 30-year exposure and underweight 2-year and 10-year exposure relative to the benchmark, so performance depends on where the curve moves.</p></li>
+<li><p>The manager is positioned for the 5-year sector to perform well relative to the long end, or for less damage from 30-year rates than actually occurred. The portfolio is not neutral to curve reshaping.</p></li>
+</ol>
+</section>
+<section id="question-15" class="level2" data-number="3.5">
+<h2 data-number="3.5" class="anchored" data-anchor-id="question-15"><span class="header-section-number">3.5</span> Question 15</h2>
+<p>A pension plan has liabilities with present value USD 100 million and modified duration 9.0. The asset portfolio has present value USD 100 million and modified duration 6.5. The CIO considers adding Treasury futures to increase duration.</p>
+<p>Answer the following:</p>
+<ol type="a">
+<li>Explain the duration gap.<br>
+</li>
+<li>Estimate asset value change and liability value change if yields fall by 50 bps.<br>
+</li>
+<li>Explain why the plan’s funded status changes.<br>
+</li>
+<li>Compute the additional dollar duration needed to match liability duration.<br>
+</li>
+<li>Explain why leverage through futures introduces risk beyond duration matching.</li>
+</ol>
+<p><strong>Answer.</strong></p>
+<ol type="a">
+<li><p>The assets and liabilities have equal present value, but liabilities are more rate-sensitive. Liability duration is 9.0 while asset duration is 6.5. The plan is under-duration: falling rates increase liabilities more than assets.</p></li>
+<li><p>Asset percentage change = -6.5 x (-0.0050) = +3.25 percent, or +USD 3.25 million. Liability percentage change = -9.0 x (-0.0050) = +4.50 percent, or +USD 4.50 million.</p></li>
+<li><p>Funded status worsens because liabilities rise by USD 4.50 million while assets rise by only USD 3.25 million. The plan loses USD 1.25 million of surplus or becomes more underfunded.</p></li>
+<li><p>Dollar duration needed is:</p></li>
+</ol>
+<p><span class="math display">\[
+(9.0-6.5)\times 100{,}000{,}000
+=250{,}000{,}000
+\]</span></p>
+<p>duration-dollars per 100% yield change. Equivalently, the plan needs USD 25,000 of DV01 because:</p>
+<p><span class="math display">\[
+250{,}000{,}000\times 0.0001=25{,}000.
+\]</span></p>
+<ol start="5" type="a">
+<li>Futures can efficiently add duration, but they introduce margin, basis, roll, liquidity, and operational risks. The futures contract may not perfectly match the liability curve exposure. A hedge can reduce parallel-rate risk while leaving curve, inflation, and collateral risks.</li>
+</ol>
+</section>
+</section>
+<section id="lecture-4-benchmark-spreads-and-term-structure" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> Lecture 4: Benchmark Spreads and Term Structure</h1>
+<section id="question-16" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="question-16"><span class="header-section-number">4.1</span> Question 16</h2>
+<p>A credit analyst observes the following bonds, each with 7-year maturity:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Bond</th>
+<th>Issuer type</th>
+<th style="text-align: right;">Yield</th>
+<th style="text-align: right;">7-year Treasury yield</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>A</td>
+<td>Federal agency</td>
+<td style="text-align: right;">4.42 percent</td>
+<td style="text-align: right;">4.10 percent</td>
+</tr>
+<tr class="even">
+<td>B</td>
+<td>A-rated utility</td>
+<td style="text-align: right;">5.05 percent</td>
+<td style="text-align: right;">4.10 percent</td>
+</tr>
+<tr class="odd">
+<td>C</td>
+<td>BB industrial</td>
+<td style="text-align: right;">7.35 percent</td>
+<td style="text-align: right;">4.10 percent</td>
+</tr>
+</tbody>
+</table>
+<p>Answer the following:</p>
+<ol type="a">
+<li>Compute each benchmark spread in basis points.<br>
+</li>
+<li>Explain why spreads differ across issuer types.<br>
+</li>
+<li>Identify which spread may include the largest credit-risk premium.<br>
+</li>
+<li>Identify one non-credit reason spreads may differ.<br>
+</li>
+<li>Explain why spread is not the same as expected default loss.</li>
+</ol>
+<p><strong>Answer.</strong></p>
+<ol type="a">
+<li><p>Spread = bond yield - Treasury yield. Bond A spread = 0.32 percent = 32 bps. Bond B spread = 0.95 percent = 95 bps. Bond C spread = 3.25 percent = 325 bps.</p></li>
+<li><p>Different issuers have different default risk, downgrade risk, liquidity, legal protections, and investor bases. Agency debt is close to Treasury quality but less liquid or less explicitly guaranteed depending on issuer. The utility has corporate credit risk. The BB industrial has speculative-grade credit risk and therefore requires much more compensation.</p></li>
+<li><p>Bond C likely includes the largest credit-risk premium because it is below investment grade and has the widest spread.</p></li>
+<li><p>Liquidity is a major non-credit reason. A smaller or less frequently traded issue may need a higher yield even if default risk is similar. Tax status, financing eligibility, and embedded options can also affect spreads.</p></li>
+<li><p>Spread includes expected default loss, risk premium for uncertainty around default, downgrade risk, liquidity premium, tax effects, and sometimes option compensation. Expected default loss is only one component.</p></li>
+</ol>
+</section>
+<section id="question-17" class="level2" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="question-17"><span class="header-section-number">4.2</span> Question 17</h2>
+<p>You are given annual-pay Treasury securities with face value 100.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: right;">Maturity</th>
+<th style="text-align: right;">Coupon rate</th>
+<th style="text-align: right;">Price</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1 year</td>
+<td style="text-align: right;">0.00 percent</td>
+<td style="text-align: right;">96.6184</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2 years</td>
+<td style="text-align: right;">4.00 percent</td>
+<td style="text-align: right;">99.1375</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3 years</td>
+<td style="text-align: right;">5.00 percent</td>
+<td style="text-align: right;">100.1150</td>
+</tr>
+</tbody>
+</table>
+<p>Answer the following:</p>
+<ol type="a">
+<li>Bootstrap the 1-year spot rate.<br>
+</li>
+<li>Bootstrap the 2-year spot rate.<br>
+</li>
+<li>Bootstrap the 3-year spot rate.<br>
+</li>
+<li>Explain why coupon-bond yields are not enough to construct the spot curve directly.<br>
+</li>
+<li>Explain how bootstrapping avoids double counting.</li>
+</ol>
+<p><strong>Answer.</strong></p>
+<ol type="a">
+<li><p>The 1-year zero price gives z1 = 100 / 96.6184 - 1 = 3.50 percent.</p></li>
+<li><p>For the 2-year bond:</p></li>
+</ol>
+<p><span class="math display">\[
+99.1375=\frac{4}{1.035}+\frac{104}{(1+z_2)^2}.
+\]</span></p>
+<p>The first coupon PV is 3.8647. The remaining value assigned to year 2 is 95.2728. Thus:</p>
+<p><span class="math display">\[
+(1+z_2)^2=\frac{104}{95.2728}=1.09161,
+\]</span></p>
+<p>so <span class="math inline">\(z_2=4.48\%\)</span> approximately.</p>
+<ol start="3" type="a">
+<li>For the 3-year bond:</li>
+</ol>
+<p><span class="math display">\[
+100.1150=\frac{5}{1.035}+\frac{5}{1.0448^2}+\frac{105}{(1+z_3)^3}.
+\]</span></p>
+<p>The first two coupon present values are about 4.8309 and 4.5804. The remaining value is 90.7037. Thus:</p>
+<p><span class="math display">\[
+(1+z_3)^3=\frac{105}{90.7037},
+\]</span></p>
+<p>so <span class="math inline">\(z_3=5.00\%\)</span> approximately.</p>
+<ol start="4" type="a">
+<li><p>A coupon-bond yield is a single internal rate applied to all cash flows. A spot curve needs a separate discount rate for each maturity cash flow. Coupon yields mix information from multiple cash-flow dates.</p></li>
+<li><p>Bootstrapping values the earliest cash flows using already solved spot rates. It then solves only for the next unknown spot rate from the remaining price. That prevents the analyst from treating the full coupon bond yield as if it applied directly to every cash-flow date.</p></li>
+</ol>
+</section>
+<section id="question-18" class="level2" data-number="4.3">
+<h2 data-number="4.3" class="anchored" data-anchor-id="question-18"><span class="header-section-number">4.3</span> Question 18</h2>
+<p>A 3-year annual-pay corporate bond has face value 100, coupon rate 6.00 percent, and market price 101.20. Treasury spot rates are:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: right;">Year</th>
+<th style="text-align: right;">Treasury spot rate</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3.40 percent</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">4.00 percent</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">4.60 percent</td>
+</tr>
+</tbody>
+</table>
+<p>Answer the following:</p>
+<ol type="a">
+<li>Compute the Treasury-curve value using spot rates and no credit spread.<br>
+</li>
+<li>Explain whether the corporate bond is rich or cheap relative to Treasury discounting alone.<br>
+</li>
+<li>Find an approximate constant spread over the spot curve by trial using 60 bps and 90 bps.<br>
+</li>
+<li>Explain why this constant spread is conceptually better than comparing only to the 3-year Treasury yield.<br>
+</li>
+<li>Name one limitation of a constant spread.</li>
+</ol>
+<p><strong>Answer.</strong></p>
+<ol type="a">
+<li>Treasury-curve value is:</li>
+</ol>
+<p><span class="math display">\[
+P=\frac{6}{1.034}+\frac{6}{1.04^2}+\frac{106}{1.046^3}.
+\]</span></p>
+<p>This is approximately:</p>
+<p><span class="math display">\[
+5.80+5.55+92.71=104.06.
+\]</span></p>
+<ol start="2" type="a">
+<li><p>The corporate bond trades at 101.20, below the Treasury-discounted value of 104.06. That is expected because investors require extra spread for corporate credit and liquidity risk.</p></li>
+<li><p>With a 60 bp spread, discount rates are 4.00 percent, 4.60 percent, and 5.20 percent. Price is approximately 102.41. With a 90 bp spread, discount rates are 4.30 percent, 4.90 percent, and 5.50 percent. Price is approximately 101.59. The market price of 101.20 implies a spread slightly above 90 bps, roughly around 104 bps by interpolation.</p></li>
+<li><p>The constant spread discounts each cash flow at the matching Treasury spot rate plus spread. Comparing only to the 3-year Treasury yield ignores the coupon payments in years 1 and 2.</p></li>
+<li><p>A constant spread assumes the same credit spread applies to every cash-flow maturity. Real credit spread curves can slope upward, downward, or change shape across maturities.</p></li>
+</ol>
+</section>
+<section id="question-19" class="level2" data-number="4.4">
+<h2 data-number="4.4" class="anchored" data-anchor-id="question-19"><span class="header-section-number">4.4</span> Question 19</h2>
+<p>The annual spot curve is:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: right;">Maturity</th>
+<th style="text-align: right;">Spot rate</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1 year</td>
+<td style="text-align: right;">3.20 percent</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2 years</td>
+<td style="text-align: right;">3.80 percent</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3 years</td>
+<td style="text-align: right;">4.30 percent</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">5 years</td>
+<td style="text-align: right;">4.90 percent</td>
+</tr>
+</tbody>
+</table>
+<p>Answer the following:</p>
+<ol type="a">
+<li>Compute the 1-year forward rate beginning one year from now.<br>
+</li>
+<li>Compute the 1-year forward rate beginning two years from now.<br>
+</li>
+<li>Compute the 2-year forward rate beginning three years from now.<br>
+</li>
+<li>Explain the break-even interpretation of the forward rate.<br>
+</li>
+<li>Explain why the forward curve may differ from the market’s actual expected future short rates.</li>
+</ol>
+<p><strong>Answer.</strong></p>
+<ol type="a">
+<li><p>1 + f1,2 = 1.038^2 / 1.032. Therefore f1,2 = 4.40 percent approximately.</p></li>
+<li><p>1 + f2,3 = 1.043^3 / 1.038^2. Therefore f2,3 = 5.31 percent approximately.</p></li>
+<li><p>The 2-year forward rate from year 3 to year 5 satisfies:</p></li>
+</ol>
+<p><span class="math display">\[
+(1+f_{3,5})^2=\frac{1.049^5}{1.043^3}.
+\]</span></p>
+<p>Therefore <span class="math inline">\(f_{3,5}\)</span> is approximately 5.81%.</p>
+<ol start="4" type="a">
+<li><p>A forward rate is the reinvestment or borrowing rate that makes two strategies equivalent today. For example, investing for two years at the 2-year spot rate should break even with investing for one year and then reinvesting for one year at f1,2, ignoring transaction costs and arbitrage frictions.</p></li>
+<li><p>Forward rates can include term premiums, liquidity premiums, supply-demand effects, and risk compensation. They are no-arbitrage break-even rates, not pure forecasts unless investors are risk-neutral and risk premiums are zero.</p></li>
+</ol>
+</section>
+<section id="question-20" class="level2" data-number="4.5">
+<h2 data-number="4.5" class="anchored" data-anchor-id="question-20"><span class="header-section-number">4.5</span> Question 20</h2>
+<p>A curve strategist observes the following Treasury yields:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: right;">Maturity</th>
+<th style="text-align: right;">Current yield</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">2 years</td>
+<td style="text-align: right;">4.90 percent</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">5 years</td>
+<td style="text-align: right;">4.45 percent</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">10 years</td>
+<td style="text-align: right;">4.15 percent</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">30 years</td>
+<td style="text-align: right;">4.05 percent</td>
+</tr>
+</tbody>
+</table>
+<p>The strategist believes the central bank will cut short rates aggressively while long-term inflation uncertainty will keep 30-year yields stable or slightly higher.</p>
+<p>Answer the following:</p>
+<ol type="a">
+<li>Classify the current curve shape.<br>
+</li>
+<li>Describe the expected curve movement.<br>
+</li>
+<li>Propose a duration-neutral curve trade that benefits from the view.<br>
+</li>
+<li>Explain the main risk if the view is wrong.<br>
+</li>
+<li>Explain why total duration neutrality does not eliminate curve risk.</li>
+</ol>
+<p><strong>Answer.</strong></p>
+<ol type="a">
+<li><p>The curve is inverted because shorter maturities yield more than longer maturities.</p></li>
+<li><p>The expected movement is bull steepening: short yields fall substantially while long yields fall less, remain stable, or rise slightly. The curve becomes steeper because the short end declines relative to the long end.</p></li>
+<li><p>A duration-neutral trade could overweight 2-year Treasuries and underweight 30-year Treasuries, sizing the positions so total dollar duration is approximately neutral. The position profits if 2-year yields fall more than 30-year yields.</p></li>
+<li><p>The main risk is that the curve does not steepen. If long yields fall more than short yields, the short-2-year/long-30-year relative view loses. If all yields rise, imperfect duration neutrality and convexity differences can also hurt.</p></li>
+<li><p>Total duration neutrality hedges only a parallel shift. It does not hedge changes in curve shape. A trade can have zero total duration but large positive exposure to the 2-year key rate and large negative exposure to the 30-year key rate.</p></li>
+</ol>
+</section>
+</section>
+<section id="lecture-5-treasury-and-corporate-debt-markets" class="level1" data-number="5">
+<h1 data-number="5"><span class="header-section-number">5</span> Lecture 5: Treasury and Corporate Debt Markets</h1>
+<section id="question-21" class="level2" data-number="5.1">
+<h2 data-number="5.1" class="anchored" data-anchor-id="question-21"><span class="header-section-number">5.1</span> Question 21</h2>
+<p>A money-market portfolio buys a 182-day Treasury bill with face value USD 5,000,000 and bank discount yield of 4.80 percent.</p>
+<p>Answer the following:</p>
+<ol type="a">
+<li>Compute the purchase price using the bank discount formula.<br>
+</li>
+<li>Compute the dollar discount.<br>
+</li>
+<li>Compute the bond-equivalent yield using a 365-day year.<br>
+</li>
+<li>Explain why the bond-equivalent yield is higher than the bank discount yield.<br>
+</li>
+<li>Explain why T-bills are still not riskless for every investor even though they are default-free.</li>
+</ol>
+<p><strong>Answer.</strong></p>
+<ol type="a">
+<li>Treasury bill price is:</li>
+</ol>
+<p><span class="math display">\[
+P=\text{Face}\left[1-\text{discount yield}\times \frac{\text{days}}{360}\right].
+\]</span></p>
+<p>Thus:</p>
+<p><span class="math display">\[
+P=5{,}000{,}000\left[1-0.048\times \frac{182}{360}\right]
+=4{,}878{,}666.67.
+\]</span></p>
+<ol start="2" type="a">
+<li><p>Dollar discount = 5,000,000 - 4,878,666.67 = USD 121,333.33.</p></li>
+<li><p>The bond-equivalent yield is:</p></li>
+</ol>
+<p><span class="math display">\[
+BEY=\frac{\text{Face}-P}{P}\times \frac{365}{\text{days}}.
+\]</span></p>
+<p>Substituting:</p>
+<p><span class="math display">\[
+BEY=\frac{121{,}333.33}{4{,}878{,}666.67}\times \frac{365}{182}
+=4.99\%
+\]</span></p>
+<p>approximately.</p>
+<ol start="4" type="a">
+<li><p>Bank discount yield divides the discount by face value and annualizes on a 360-day basis. BEY divides by the actual investment price and annualizes on a 365-day basis. Because price is below face value, using price as the denominator raises the yield.</p></li>
+<li><p>T-bills have negligible default risk, but investors can still face reinvestment risk, inflation risk, opportunity cost, and liquidity needs. A foreign investor also faces exchange-rate risk.</p></li>
+</ol>
+</section>
+<section id="question-22" class="level2" data-number="5.2">
+<h2 data-number="5.2" class="anchored" data-anchor-id="question-22"><span class="header-section-number">5.2</span> Question 22</h2>
+<p>A Treasury note is quoted at 102-18+. The position has face value USD 2,000,000. The note has a 4.50 percent annual coupon paid semiannually. Settlement occurs 58 days after the last coupon in a 181-day coupon period.</p>
+<p>Answer the following:</p>
+<ol type="a">
+<li>Convert the Treasury quote into decimal percent of par.<br>
+</li>
+<li>Compute the clean dollar price.<br>
+</li>
+<li>Compute the semiannual coupon.<br>
+</li>
+<li>Compute accrued interest.<br>
+</li>
+<li>Compute the full settlement amount.</li>
+</ol>
+<p><strong>Answer.</strong></p>
+<ol type="a">
+<li><p>102-18+ means 102 plus 18/32 plus 1/64. That equals 102.578125 percent of par.</p></li>
+<li><p>Clean dollar price = 102.578125 percent x 2,000,000 = USD 2,051,562.50.</p></li>
+<li><p>Annual coupon dollars = 4.50 percent x 2,000,000 = USD 90,000. Semiannual coupon = USD 45,000.</p></li>
+<li><p>Accrued interest = 45,000 x 58 / 181 = USD 14,419.89.</p></li>
+<li><p>Full settlement amount = clean price + accrued interest = 2,051,562.50 + 14,419.89 = USD 2,065,982.39.</p></li>
+</ol>
+</section>
+<section id="question-23" class="level2" data-number="5.3">
+<h2 data-number="5.3" class="anchored" data-anchor-id="question-23"><span class="header-section-number">5.3</span> Question 23</h2>
+<p>A corporate issuer has the following capital structure before entering Chapter 11:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Claim</th>
+<th style="text-align: right;">Amount outstanding</th>
+<th>Seniority/collateral</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Revolving credit facility</td>
+<td style="text-align: right;">USD 200 million</td>
+<td>Senior secured</td>
+</tr>
+<tr class="even">
+<td>First-lien term loan</td>
+<td style="text-align: right;">USD 600 million</td>
+<td>Senior secured</td>
+</tr>
+<tr class="odd">
+<td>Senior unsecured bonds</td>
+<td style="text-align: right;">USD 700 million</td>
+<td>Senior unsecured</td>
+</tr>
+<tr class="even">
+<td>Subordinated notes</td>
+<td style="text-align: right;">USD 300 million</td>
+<td>Subordinated</td>
+</tr>
+<tr class="odd">
+<td>Preferred equity</td>
+<td style="text-align: right;">USD 100 million</td>
+<td>Equity-like</td>
+</tr>
+</tbody>
+</table>
+<p>Estimated enterprise value in reorganization is USD 1.25 billion.</p>
+<p>Answer the following:</p>
+<ol type="a">
+<li>Allocate recovery by seniority using a strict priority waterfall.<br>
+</li>
+<li>Compute recovery percentage for each debt class.<br>
+</li>
+<li>Explain why actual Chapter 11 outcomes can differ from strict priority.<br>
+</li>
+<li>Explain why secured debt usually has lower required spreads than subordinated debt.<br>
+</li>
+<li>Identify one covenant that could have protected unsecured bondholders before distress.</li>
+</ol>
+<p><strong>Answer.</strong></p>
+<ol type="a">
+<li><p>The USD 1.25 billion enterprise value first pays senior secured claims. The revolver receives USD 200 million and the first-lien term loan receives USD 600 million, leaving USD 450 million. The senior unsecured bonds receive that USD 450 million against USD 700 million of claims. Nothing remains for subordinated notes or preferred equity.</p></li>
+<li><p>Revolver recovery = 100 percent. First-lien term loan recovery = 100 percent. Senior unsecured bond recovery = 450 / 700 = 64.3 percent. Subordinated notes recovery = 0 percent. Preferred equity recovery = 0 percent.</p></li>
+<li><p>Actual reorganizations involve negotiation, litigation risk, time value, debtor-in-possession financing, valuation disputes, and the need to gain creditor approval. Some junior claimants may receive value to avoid delay or because valuation is contested.</p></li>
+<li><p>Secured debt has collateral and senior priority, so expected recovery is usually higher if default occurs. Lower expected loss supports a lower spread. Subordinated debt absorbs losses after senior claims and therefore requires higher compensation.</p></li>
+<li><p>A limitation on additional secured debt could have protected unsecured bondholders. Without that covenant, the issuer might issue more secured debt ahead of unsecured bonds, reducing their recovery in default.</p></li>
+</ol>
+</section>
+<section id="question-24" class="level2" data-number="5.4">
+<h2 data-number="5.4" class="anchored" data-anchor-id="question-24"><span class="header-section-number">5.4</span> Question 24</h2>
+<p>A firm is choosing between commercial paper and a 5-year medium-term note to finance operations.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 18%">
+<col style="width: 25%">
+<col style="width: 18%">
+<col style="width: 18%">
+<col style="width: 18%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Instrument</th>
+<th style="text-align: right;">Maturity</th>
+<th>Rate type</th>
+<th>Intended use</th>
+<th>Investor concern</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Commercial paper</td>
+<td style="text-align: right;">90 days</td>
+<td>Discount</td>
+<td>Working capital</td>
+<td>Rollover and liquidity support</td>
+</tr>
+<tr class="even">
+<td>Medium-term note</td>
+<td style="text-align: right;">5 years</td>
+<td>Fixed coupon</td>
+<td>Long-term funding</td>
+<td>Credit spread and covenants</td>
+</tr>
+</tbody>
+</table>
+<p>Answer the following:</p>
+<ol type="a">
+<li>Explain why commercial paper is usually issued at a discount.<br>
+</li>
+<li>Explain why backup bank lines matter for commercial paper issuers.<br>
+</li>
+<li>Explain why an MTN program gives the issuer flexibility.<br>
+</li>
+<li>Explain which instrument creates more refinancing risk.<br>
+</li>
+<li>Explain why the 5-year MTN likely requires a higher yield than 90-day commercial paper for the same issuer.</li>
+</ol>
+<p><strong>Answer.</strong></p>
+<ol type="a">
+<li><p>Commercial paper is a short-term zero-coupon or discount instrument. Investors buy it below face value and receive face value at maturity. The discount is the interest earned.</p></li>
+<li><p>Backup bank lines reassure investors that the issuer can repay maturing paper if the commercial paper market temporarily closes. Without liquidity support, a solvent issuer can still face a rollover crisis.</p></li>
+<li><p>An MTN program lets the issuer sell notes continuously or episodically with different maturities, coupons, currencies, and structures. The issuer can tailor debt issuance to investor demand and funding needs.</p></li>
+<li><p>Commercial paper creates more refinancing risk because it matures in 90 days and must be rolled frequently. The MTN locks in funding for five years.</p></li>
+<li><p>The MTN exposes investors to five years of credit deterioration, interest-rate risk, liquidity risk, and downgrade risk. The 90-day paper has much shorter exposure if it is repaid on time. Investors normally require a higher yield for the longer commitment.</p></li>
+</ol>
+</section>
+<section id="question-25" class="level2" data-number="5.5">
+<h2 data-number="5.5" class="anchored" data-anchor-id="question-25"><span class="header-section-number">5.5</span> Question 25</h2>
+<p>A credit portfolio includes a leveraged loan and a high-yield bond from the same issuer.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 15%">
+<col style="width: 15%">
+<col style="width: 15%">
+<col style="width: 15%">
+<col style="width: 15%">
+<col style="width: 21%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Instrument</th>
+<th>Coupon</th>
+<th>Seniority</th>
+<th>Security</th>
+<th>Rate type</th>
+<th style="text-align: right;">Market price</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Leveraged loan</td>
+<td>SOFR + 375 bps</td>
+<td>Senior</td>
+<td>Secured</td>
+<td>Floating</td>
+<td style="text-align: right;">98.50</td>
+</tr>
+<tr class="even">
+<td>High-yield bond</td>
+<td>7.75 percent</td>
+<td>Senior subordinated</td>
+<td>Unsecured</td>
+<td>Fixed</td>
+<td style="text-align: right;">94.00</td>
+</tr>
+</tbody>
+</table>
+<p>Answer the following:</p>
+<ol type="a">
+<li>Compare their interest-rate sensitivity.<br>
+</li>
+<li>Compare expected recovery in default.<br>
+</li>
+<li>Explain why the high-yield bond may offer a higher coupon.<br>
+</li>
+<li>Explain one risk in the leveraged loan that is not solved by floating-rate coupons.<br>
+</li>
+<li>Explain how a CLO can transform a pool of leveraged loans into securities with different risks.</li>
+</ol>
+<p><strong>Answer.</strong></p>
+<ol type="a">
+<li><p>The leveraged loan has lower interest-rate duration because its coupon resets with SOFR. The high-yield bond has fixed coupons and therefore more price sensitivity to changes in market yields.</p></li>
+<li><p>The leveraged loan is senior secured, so it usually has higher expected recovery. The high-yield bond is subordinated and unsecured, so it stands behind senior secured claims and likely recovers less in default.</p></li>
+<li><p>The high-yield bond offers a higher coupon because investors need compensation for fixed-rate duration, lower recovery, subordination, weaker collateral protection, and credit risk.</p></li>
+<li><p>Floating coupons do not eliminate credit risk. If the issuer’s business weakens, loan price can fall due to wider spreads or higher default probability. The loan can also have liquidity risk, covenant risk, and refinancing risk.</p></li>
+<li><p>A CLO buys a diversified pool of leveraged loans and issues tranches. Senior tranches have first claim on cash flows and lower risk, while junior and equity tranches absorb losses first and have higher risk. The structure reallocates credit risk rather than eliminating it.</p></li>
+</ol>
+</section>
+</section>
+<section id="lecture-6-bond-portfolio-construction" class="level1" data-number="6">
+<h1 data-number="6"><span class="header-section-number">6</span> Lecture 6: Bond Portfolio Construction</h1>
+<section id="question-26" class="level2" data-number="6.1">
+<h2 data-number="6.1" class="anchored" data-anchor-id="question-26"><span class="header-section-number">6.1</span> Question 26</h2>
+<p>A manager compares two candidate portfolios against the same benchmark.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Portfolio</th>
+<th style="text-align: right;">Expected active return</th>
+<th style="text-align: right;">Predicted tracking error</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>A</td>
+<td style="text-align: right;">45 bps</td>
+<td style="text-align: right;">60 bps</td>
+</tr>
+<tr class="even">
+<td>B</td>
+<td style="text-align: right;">70 bps</td>
+<td style="text-align: right;">140 bps</td>
+</tr>
+</tbody>
+</table>
+<p>Answer the following:</p>
+<ol type="a">
+<li>Define tracking error.<br>
+</li>
+<li>Compute the information ratio for each portfolio using expected active return divided by tracking error.<br>
+</li>
+<li>Identify which portfolio has the higher active return per unit of active risk.<br>
+</li>
+<li>Explain why Portfolio B may still be chosen by an active manager.<br>
+</li>
+<li>Explain why a passive mandate would reject both portfolios if the tracking error budget is 25 bps.</li>
+</ol>
+<p><strong>Answer.</strong></p>
+<ol type="a">
+<li><p>Tracking error is the standard deviation of active returns, where active return equals portfolio return minus benchmark return. It measures active risk relative to the benchmark.</p></li>
+<li><p>Portfolio A information ratio = 45 / 60 = 0.75. Portfolio B information ratio = 70 / 140 = 0.50.</p></li>
+<li><p>Portfolio A has the higher active return per unit of active risk.</p></li>
+<li><p>Portfolio B may still be chosen if the manager has high conviction, the client allows a larger active-risk budget, or the expected active return estimate is more reliable than Portfolio A’s estimate.</p></li>
+<li><p>A passive mandate with a 25 bps tracking error budget would reject both because both predicted tracking errors exceed the allowed budget.</p></li>
+</ol>
+</section>
+<section id="question-27" class="level2" data-number="6.2">
+<h2 data-number="6.2" class="anchored" data-anchor-id="question-27"><span class="header-section-number">6.2</span> Question 27</h2>
+<p>A portfolio has active returns of 12 bps, -8 bps, 5 bps, 22 bps, -18 bps, and 4 bps over six months.</p>
+<p>Answer the following:</p>
+<ol type="a">
+<li>Compute the mean active return.<br>
+</li>
+<li>Compute the sample monthly tracking error.<br>
+</li>
+<li>Annualize the tracking error.<br>
+</li>
+<li>Explain whether this is backward-looking or forward-looking tracking error.<br>
+</li>
+<li>Explain why this measure may be misleading if the manager changed the portfolio today.</li>
+</ol>
+<p><strong>Answer.</strong></p>
+<ol type="a">
+<li><p>Mean active return = (12 - 8 + 5 + 22 - 18 + 4) / 6 = 2.83 bps.</p></li>
+<li><p>The sample standard deviation of the active returns is approximately 14.70 bps per month.</p></li>
+<li><p>Annualized tracking error = 14.70 x sqrt(12) = 50.91 bps per year.</p></li>
+<li><p>This is backward-looking tracking error because it is computed from realized active returns.</p></li>
+<li><p>It may be misleading because it reflects the old holdings and old exposures. If the manager changes duration, sector weights, or issuer concentration today, forward-looking tracking error could be very different.</p></li>
+</ol>
+</section>
+<section id="question-28" class="level2" data-number="6.3">
+<h2 data-number="6.3" class="anchored" data-anchor-id="question-28"><span class="header-section-number">6.3</span> Question 28</h2>
+<p>A benchmark is divided into cells using duration, sector, and credit quality.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Dimension</th>
+<th style="text-align: right;">Number of categories</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Duration bucket</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr class="even">
+<td>Sector</td>
+<td style="text-align: right;">5</td>
+</tr>
+<tr class="odd">
+<td>Credit quality</td>
+<td style="text-align: right;">4</td>
+</tr>
+</tbody>
+</table>
+<p>Answer the following:</p>
+<ol type="a">
+<li>Compute the total number of cells.<br>
+</li>
+<li>Explain how a passive manager would use the cells.<br>
+</li>
+<li>Explain how an active manager could express a view using the cells.<br>
+</li>
+<li>Give one transaction-cost problem created by too many cells.<br>
+</li>
+<li>Give one risk-control problem created by too few cells.</li>
+</ol>
+<p><strong>Answer.</strong></p>
+<ol type="a">
+<li><p>Total cells = 3 x 5 x 4 = 60.</p></li>
+<li><p>A passive manager would try to match the benchmark’s weight in each cell using representative bonds.</p></li>
+<li><p>An active manager could overweight cells expected to outperform, such as intermediate BBB corporates, and underweight cells expected to underperform.</p></li>
+<li><p>Too many cells can force small odd-lot trades, increasing bid-ask costs and making execution difficult.</p></li>
+<li><p>Too few cells can hide important mismatches, such as matching sector weight while taking very different duration or credit-quality exposure.</p></li>
+</ol>
+</section>
+<section id="question-29" class="level2" data-number="6.4">
+<h2 data-number="6.4" class="anchored" data-anchor-id="question-29"><span class="header-section-number">6.4</span> Question 29</h2>
+<p>A factor model reports the following active exposures and monthly factor volatilities.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Factor</th>
+<th style="text-align: right;">Active exposure</th>
+<th style="text-align: right;">Factor volatility</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Treasury curve</td>
+<td style="text-align: right;">0.20</td>
+<td style="text-align: right;">24 bps</td>
+</tr>
+<tr class="even">
+<td>Corporate spread</td>
+<td style="text-align: right;">0.50</td>
+<td style="text-align: right;">16 bps</td>
+</tr>
+<tr class="odd">
+<td>Securitized spread</td>
+<td style="text-align: right;">-0.10</td>
+<td style="text-align: right;">20 bps</td>
+</tr>
+</tbody>
+</table>
+<p>Answer the following:</p>
+<ol type="a">
+<li>Compute isolated tracking error for each factor.<br>
+</li>
+<li>Assuming zero correlations, compute total systematic tracking error.<br>
+</li>
+<li>Explain why simply adding isolated tracking errors is incorrect.<br>
+</li>
+<li>Explain what information a covariance matrix adds.<br>
+</li>
+<li>Identify which factor contributes the most isolated risk.</li>
+</ol>
+<p><strong>Answer.</strong></p>
+<ol type="a">
+<li>Isolated TE equals absolute active exposure times factor volatility:</li>
+</ol>
+<p><span class="math display">\[
+\text{Treasury curve}=0.20\times 24=4.8\text{ bps}.
+\]</span></p>
+<p><span class="math display">\[
+\text{Corporate spread}=0.50\times 16=8.0\text{ bps}.
+\]</span></p>
+<p><span class="math display">\[
+\text{Securitized spread}=0.10\times 20=2.0\text{ bps}.
+\]</span></p>
+<ol start="2" type="a">
+<li><p>Total systematic TE with zero correlations = sqrt(4.8^2 + 8.0^2 + 2.0^2) = 9.54 bps per month.</p></li>
+<li><p>Standard deviations are not additive. Adding isolated tracking errors ignores diversification across factors.</p></li>
+<li><p>A covariance matrix adds the correlations among factor movements. Positively correlated active risks reinforce each other, while negatively correlated active risks can offset each other.</p></li>
+<li><p>Corporate spread contributes the most isolated risk at 8.0 bps per month.</p></li>
+</ol>
+</section>
+<section id="question-30" class="level2" data-number="6.5">
+<h2 data-number="6.5" class="anchored" data-anchor-id="question-30"><span class="header-section-number">6.5</span> Question 30</h2>
+<p>A portfolio manager rebalances a USD 100 million bond portfolio. Before rebalancing, predicted tracking error is 14.8 bps per month, duration gap is 0.32 years, and bank-sector active weight is 8.0 percent. The client limits are 12.0 bps tracking error, 0.25 years duration gap, and 5.0 percent bank active weight. A proposed package of trades costs 7 bps and changes the metrics to 10.6 bps tracking error, 0.18 years duration gap, and 5.0 percent bank active weight.</p>
+<p>Answer the following:</p>
+<ol type="a">
+<li>Identify which constraints are violated before rebalancing.<br>
+</li>
+<li>Identify whether the proposed trades bring the portfolio inside the constraints.<br>
+</li>
+<li>Compute the reduction in monthly tracking error.<br>
+</li>
+<li>Explain why the manager should compare the risk reduction with transaction cost.<br>
+</li>
+<li>Explain why rebalancing should not automatically eliminate every active view.</li>
+</ol>
+<p><strong>Answer.</strong></p>
+<ol type="a">
+<li><p>All three constraints are violated before rebalancing: tracking error is 14.8 bps versus a 12.0 bps limit, duration gap is 0.32 years versus a 0.25 limit, and bank active weight is 8.0 percent versus a 5.0 percent limit.</p></li>
+<li><p>Yes. The proposed trades reduce tracking error to 10.6 bps, duration gap to 0.18 years, and bank active weight to 5.0 percent, all within limits.</p></li>
+<li><p>Tracking error reduction = 14.8 - 10.6 = 4.2 bps per month.</p></li>
+<li><p>Trading is not free. A 7 bps transaction cost must be justified by better risk control, compliance with guidelines, or improved expected active return. Otherwise, the portfolio can lose performance from unnecessary turnover.</p></li>
+<li><p>Rebalancing should preserve intentional views that remain inside the risk budget. The goal is to eliminate unwanted or excessive active risk, not to turn every active portfolio into an index clone.</p></li>
+</ol>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/aliboloor\.github\.io\/BUS411\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

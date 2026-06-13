@@ -109,29 +109,188 @@ The expected return is unchanged by the correlation assumption, but the risk cha
 :::
 
 ```{python}
-#| label: fig-correlation-risk
-#| fig-cap: "Portfolio volatility for a two-bond portfolio with equal 8% volatilities and 50/50 weights."
+#| label: interactive-two-asset-variance
 #| echo: false
 #| message: false
 #| warning: false
 
-rho = np.linspace(-1, 1, 101)
-w1 = w2 = 0.5
-sigma1 = sigma2 = 0.08
-portfolio_vol = np.sqrt(
-    w1**2 * sigma1**2
-    + w2**2 * sigma2**2
-    + 2 * w1 * w2 * rho * sigma1 * sigma2
-)
+from IPython.display import HTML
 
-fig, ax = plt.subplots()
-ax.plot(rho, portfolio_vol * 100, color="#2563eb", linewidth=2.5)
-ax.set_title("Diversification Depends on Correlation")
-ax.set_xlabel("Correlation between bond returns")
-ax.set_ylabel("Portfolio volatility (%)")
-ax.axvline(0, color="#64748b", linestyle="--", linewidth=1)
-plt.tight_layout()
-plt.show()
+HTML("""
+<div id="two-asset-variance-widget" style="max-width: 980px; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">
+  <div style="border: 1px solid #d6dde8; border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+    <div style="font-weight: 700; color: #1f77b4; margin-bottom: 8px;">Two-Asset Portfolio Variance</div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px;">
+      <div>
+        <label>Correlation: <span id="tap-rho-label">0.00</span></label>
+        <input id="tap-rho" type="range" min="-1" max="1" step="0.01" value="0" style="width: 100%;">
+      </div>
+      <div>
+        <label>Weight in Asset 1: <span id="tap-weight-label">50%</span></label>
+        <input id="tap-weight" type="range" min="0" max="1" step="0.01" value="0.5" style="width: 100%;">
+      </div>
+    </div>
+    <div id="tap-metrics" style="margin-top: 8px; font-size: 0.92rem;"></div>
+  </div>
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 16px;">
+    <svg id="tap-weight-chart" viewBox="0 0 900 520" width="100%" height="520" role="img" aria-label="Portfolio variance as weights change"></svg>
+    <svg id="tap-rho-chart" viewBox="0 0 900 520" width="100%" height="520" role="img" aria-label="Portfolio variance as correlation changes"></svg>
+  </div>
+</div>
+
+<script>
+(function() {
+  const sigma1 = 0.08;
+  const sigma2 = 0.08;
+  const rhoInput = document.getElementById("tap-rho");
+  const weightInput = document.getElementById("tap-weight");
+  const rhoLabel = document.getElementById("tap-rho-label");
+  const weightLabel = document.getElementById("tap-weight-label");
+  const metrics = document.getElementById("tap-metrics");
+  const weightSvg = document.getElementById("tap-weight-chart");
+  const rhoSvg = document.getElementById("tap-rho-chart");
+  const ns = "http://www.w3.org/2000/svg";
+
+  function variance(w1, rho) {
+    const w2 = 1 - w1;
+    return w1 * w1 * sigma1 * sigma1
+      + w2 * w2 * sigma2 * sigma2
+      + 2 * w1 * w2 * rho * sigma1 * sigma2;
+  }
+
+  function make(tag, attrs = {}) {
+    const node = document.createElementNS(ns, tag);
+    Object.entries(attrs).forEach(([key, val]) => node.setAttribute(key, val));
+    return node;
+  }
+
+  function line(svg, x1, y1, x2, y2, attrs = {}) {
+    svg.appendChild(make("line", {x1, y1, x2, y2, ...attrs}));
+  }
+
+  function text(svg, x, y, content, attrs = {}) {
+    const node = make("text", {x, y, ...attrs});
+    node.textContent = content;
+    svg.appendChild(node);
+  }
+
+  function drawWeightChart(rho, selectedW1, selectedVariance) {
+    const points = Array.from({length: 101}, (_, i) => {
+      const w1 = i / 100;
+      return {w1, variance: variance(w1, rho)};
+    });
+    const width = 900;
+    const height = 520;
+    const left = 78;
+    const right = 30;
+    const top = 38;
+    const bottom = 68;
+    const plotW = width - left - right;
+    const plotH = height - top - bottom;
+    const maxVariance = sigma1 * sigma1;
+    const xScale = w => left + w * plotW;
+    const yScale = v => top + (maxVariance - v) / maxVariance * plotH;
+
+    weightSvg.innerHTML = "";
+    line(weightSvg, left, top, left, top + plotH, {stroke: "#333", "stroke-width": 1});
+    line(weightSvg, left, top + plotH, left + plotW, top + plotH, {stroke: "#333", "stroke-width": 1});
+
+    for (let i = 0; i <= 5; i++) {
+      const w = i / 5;
+      const px = xScale(w);
+      line(weightSvg, px, top, px, top + plotH, {stroke: "#e8edf3", "stroke-width": 1});
+      text(weightSvg, px, top + plotH + 24, `${Math.round(w * 100)}%`, {"font-size": 12, "text-anchor": "middle", fill: "#333"});
+    }
+
+    for (let i = 0; i <= 4; i++) {
+      const v = maxVariance * i / 4;
+      const py = yScale(v);
+      line(weightSvg, left, py, left + plotW, py, {stroke: "#e8edf3", "stroke-width": 1});
+      text(weightSvg, left - 10, py + 4, (v * 10000).toFixed(0), {"font-size": 12, "text-anchor": "end", fill: "#333"});
+    }
+
+    const d = points.map((p, i) => `${i === 0 ? "M" : "L"} ${xScale(p.w1)} ${yScale(p.variance)}`).join(" ");
+    weightSvg.appendChild(make("path", {d, fill: "none", stroke: "#2563eb", "stroke-width": 3}));
+    weightSvg.appendChild(make("circle", {cx: xScale(selectedW1), cy: yScale(selectedVariance), r: 6, fill: "#dc2626"}));
+    line(weightSvg, xScale(selectedW1), yScale(selectedVariance), xScale(selectedW1), top + plotH, {stroke: "#dc2626", "stroke-width": 1.5, "stroke-dasharray": "5 5"});
+    text(weightSvg, xScale(selectedW1) + 10, yScale(selectedVariance) - 10, "Selected portfolio", {"font-size": 13, fill: "#dc2626", "font-weight": 700});
+
+    text(weightSvg, left, 24, "Variance as weight changes", {"font-size": 17, "font-weight": 700, fill: "#222"});
+    text(weightSvg, left + plotW / 2, height - 20, "Weight in Asset 1", {"font-size": 14, "text-anchor": "middle", fill: "#333"});
+    text(weightSvg, 22, top + plotH / 2, "Variance, percentage-points squared", {"font-size": 14, "text-anchor": "middle", fill: "#333", transform: `rotate(-90 22 ${top + plotH / 2})`});
+  }
+
+  function drawCorrelationChart(rho, selectedW1, selectedVariance) {
+    const points = Array.from({length: 101}, (_, i) => {
+      const pointRho = -1 + i * 0.02;
+      return {rho: pointRho, variance: variance(selectedW1, pointRho)};
+    });
+    const width = 900;
+    const height = 520;
+    const left = 78;
+    const right = 30;
+    const top = 38;
+    const bottom = 68;
+    const plotW = width - left - right;
+    const plotH = height - top - bottom;
+    const maxVariance = sigma1 * sigma1;
+    const xScale = value => left + (value + 1) / 2 * plotW;
+    const yScale = v => top + (maxVariance - v) / maxVariance * plotH;
+
+    rhoSvg.innerHTML = "";
+    line(rhoSvg, left, top, left, top + plotH, {stroke: "#333", "stroke-width": 1});
+    line(rhoSvg, left, top + plotH, left + plotW, top + plotH, {stroke: "#333", "stroke-width": 1});
+
+    for (let i = 0; i <= 4; i++) {
+      const pointRho = -1 + i * 0.5;
+      const px = xScale(pointRho);
+      line(rhoSvg, px, top, px, top + plotH, {stroke: "#e8edf3", "stroke-width": 1});
+      text(rhoSvg, px, top + plotH + 24, pointRho.toFixed(1), {"font-size": 12, "text-anchor": "middle", fill: "#333"});
+    }
+
+    for (let i = 0; i <= 4; i++) {
+      const v = maxVariance * i / 4;
+      const py = yScale(v);
+      line(rhoSvg, left, py, left + plotW, py, {stroke: "#e8edf3", "stroke-width": 1});
+      text(rhoSvg, left - 10, py + 4, (v * 10000).toFixed(0), {"font-size": 12, "text-anchor": "end", fill: "#333"});
+    }
+
+    const d = points.map((p, i) => `${i === 0 ? "M" : "L"} ${xScale(p.rho)} ${yScale(p.variance)}`).join(" ");
+    rhoSvg.appendChild(make("path", {d, fill: "none", stroke: "#16a34a", "stroke-width": 3}));
+    rhoSvg.appendChild(make("circle", {cx: xScale(rho), cy: yScale(selectedVariance), r: 6, fill: "#dc2626"}));
+    line(rhoSvg, xScale(rho), yScale(selectedVariance), xScale(rho), top + plotH, {stroke: "#dc2626", "stroke-width": 1.5, "stroke-dasharray": "5 5"});
+    text(rhoSvg, xScale(rho) + 10, yScale(selectedVariance) - 10, "Selected correlation", {"font-size": 13, fill: "#dc2626", "font-weight": 700});
+
+    text(rhoSvg, left, 24, "Variance as correlation changes", {"font-size": 17, "font-weight": 700, fill: "#222"});
+    text(rhoSvg, left + plotW / 2, height - 20, "Correlation between asset returns", {"font-size": 14, "text-anchor": "middle", fill: "#333"});
+    text(rhoSvg, 22, top + plotH / 2, "Variance, percentage-points squared", {"font-size": 14, "text-anchor": "middle", fill: "#333", transform: `rotate(-90 22 ${top + plotH / 2})`});
+  }
+
+  function render() {
+    const rho = Number(rhoInput.value);
+    const selectedW1 = Number(weightInput.value);
+    const selectedW2 = 1 - selectedW1;
+    const selectedVariance = variance(selectedW1, rho);
+    const selectedVol = Math.sqrt(Math.max(selectedVariance, 0));
+
+    rhoLabel.textContent = rho.toFixed(2);
+    weightLabel.textContent = `${(selectedW1 * 100).toFixed(0)}%`;
+    metrics.innerHTML =
+      `Asset 1 weight: <b>${(selectedW1 * 100).toFixed(0)}%</b>; ` +
+      `Asset 2 weight: <b>${(selectedW2 * 100).toFixed(0)}%</b><br>` +
+      `Portfolio variance: <b>${(selectedVariance * 10000).toFixed(2)}</b> percentage-points squared; ` +
+      `portfolio volatility: <b>${(selectedVol * 100).toFixed(2)}%</b>`;
+
+    drawWeightChart(rho, selectedW1, selectedVariance);
+    drawCorrelationChart(rho, selectedW1, selectedVariance);
+  }
+
+  rhoInput.addEventListener("input", render);
+  weightInput.addEventListener("input", render);
+  render();
+})();
+</script>
+""")
 ```
 
 ```{python}
@@ -436,7 +595,7 @@ flowchart LR
   linkStyle default stroke:#64748b,stroke-width:2.5px;
 ```
 
-The diagram highlights the key exam point: historical tracking error is a realized statistic, while predicted tracking error is a current-position risk estimate. A manager controls future risk with the second measure, not the first.
+> Historical tracking error is a realized statistic, while predicted tracking error is a current-position risk estimate. A manager controls future risk with the second measure, and asses past performance with the first.
 
 ## Tracking Error and Active versus Passive Strategies
 
@@ -478,7 +637,7 @@ strategy_te = pd.DataFrame(
 strategy_te
 ```
 
-## Cell-Based Approach to Bond Portfolio Construction
+# Cell-Based Approach to Bond Portfolio Construction
 
 The cell-based approach divides the benchmark into buckets, or cells, based on characteristics that drive return. Common cells include:
 
@@ -660,53 +819,58 @@ A key advantage is scenario analysis. Before trading, the manager can ask:
 
 ### Risk Decomposition
 
-Risk decomposition explains where tracking error comes from. Start with active exposure:
+Risk decomposition answers a practical question:
+
+> If the portfolio underperforms the benchmark, what risk decision probably caused it?
+
+For a benchmarked bond manager, risk is not only "how volatile is the portfolio?" The more relevant question is:
+
+> How differently can the portfolio behave from the benchmark?
+
+That difference comes from **active exposures**. An active exposure is the portfolio exposure minus the benchmark exposure:
 
 $$
-\Delta x_k = x_{p,k}-x_{b,k}.
+\Delta x_k = x_{p,k} - x_{b,k}.
 $$
 
-If factor $k$ has volatility $\sigma_k$, the isolated tracking error from that factor is approximately:
+Examples:
+
+- If portfolio duration is 5.60 and benchmark duration is 5.40, active duration is +0.20 years.
+- If portfolio corporate spread duration is 3.10 and benchmark corporate spread duration is 2.40, active corporate spread duration is +0.70 years.
+- If the portfolio holds 2.5% more of one issuer than the benchmark, it has issuer-specific active risk.
+
+Risk decomposition separates these active exposures into three broad buckets:
+
+| Bucket | What it captures | Example |
+|---|---|---|
+| Interest-rate risk | Active exposure to Treasury curve movements | Overweight 10-year key rate duration |
+| Spread / sector risk | Active exposure to credit, mortgage, swap, or sector spreads | Overweight BBB industrial spread duration |
+| Idiosyncratic risk | Issuer, issue, liquidity, and security-selection effects | Large position in one bank bond |
+
+The point is not just to compute a number. The point is to identify whether the tracking error is intentional, compensated, and controllable.
+
+#### Step 1: Isolate Each Factor
+
+If factor $k$ has volatility $\sigma_k$, the isolated tracking error from that factor is:
 
 $$
 \text{Isolated TE}_k = |\Delta x_k|\sigma_k.
 $$
 
-If factor correlations are zero, total systematic tracking error is:
+This is the active exposure times the volatility of the thing the portfolio is exposed to.
 
-$$
-\text{Systematic TE}
-=
-\sqrt{\sum_{k=1}^{K}\text{TE}_k^2}.
-$$
+::: {.callout-note title="Numerical Example: Active Exposures Become Tracking Error"}
+Suppose a portfolio has the following active exposures relative to its benchmark:
 
-If factors are correlated, the factor covariance matrix is needed:
+| Risk factor | Active exposure | Monthly factor volatility | Isolated TE |
+|---|---:|---:|---:|
+| Treasury level | +0.20 years | 30 bps | 6.0 bps |
+| 2-year key rate | -0.10 years | 25 bps | 2.5 bps |
+| 10-year key rate | +0.15 years | 35 bps | 5.25 bps |
+| IG corporate spread | +0.60 years | 18 bps | 10.8 bps |
+| Securitized spread | -0.25 years | 16 bps | 4.0 bps |
 
-$$
-\text{Systematic TE}
-=
-\sqrt{\Delta x' \Sigma_F \Delta x}.
-$$
-
-::: {.callout-note title="Worked Example: Isolated Risk Is Not Additive"}
-Suppose a bond portfolio has the following monthly isolated tracking errors:
-
-| Risk factor | Isolated TE (bps/month) |
-|---|---:|
-| Yield curve | 3.9 |
-| Swap spread | 2.6 |
-| Volatility | 1.3 |
-| Government-related spread | 0.8 |
-| Corporate spread | 2.8 |
-| Securitized spread | 2.5 |
-
-Adding them gives 13.9 bps, but that is wrong because standard deviations are not additive. Assuming zero correlations:
-
-$$
-\sqrt{3.9^2+2.6^2+1.3^2+0.8^2+2.8^2+2.5^2}=6.20
-$$
-
-bps per month.
+The largest isolated source of active risk is the IG corporate spread overweight. That does not automatically mean it is bad. It means the manager should be able to explain why this active credit exposure is intentional.
 :::
 
 ```{python}
@@ -714,37 +878,182 @@ bps per month.
 #| message: false
 #| warning: false
 
-risk_factors = pd.DataFrame(
+decomp = pd.DataFrame(
     {
         "Risk factor": [
-            "Yield curve",
-            "Swap spread",
-            "Volatility",
-            "Government-related spread",
-            "Corporate spread",
+            "Treasury level",
+            "2-year key rate",
+            "10-year key rate",
+            "IG corporate spread",
             "Securitized spread",
         ],
-        "Isolated TE (bps/month)": [3.9, 2.6, 1.3, 0.8, 2.8, 2.5],
+        "Active exposure": [0.20, -0.10, 0.15, 0.60, -0.25],
+        "Monthly factor volatility (bps)": [30, 25, 35, 18, 16],
     }
 )
-risk_factors
+decomp["Isolated TE (bps/month)"] = (
+    decomp["Active exposure"].abs() * decomp["Monthly factor volatility (bps)"]
+)
+decomp["Variance contribution if uncorrelated"] = decomp["Isolated TE (bps/month)"] ** 2
+decomp["Share of uncorrelated systematic variance"] = (
+    decomp["Variance contribution if uncorrelated"]
+    / decomp["Variance contribution if uncorrelated"].sum()
+)
+decomp[
+    [
+        "Risk factor",
+        "Active exposure",
+        "Monthly factor volatility (bps)",
+        "Isolated TE (bps/month)",
+    ]
+].round(2)
 ```
 
 ```{python}
-#| label: fig-factor-isolated-te
-#| fig-cap: "Illustrative isolated monthly tracking error by risk factor."
+#| label: fig-risk-decomposition-isolated-te
+#| fig-cap: "Isolated tracking error shows which active exposures are large before considering diversification across factors."
 #| echo: false
 #| message: false
 #| warning: false
 
+plot_decomp = decomp.sort_values("Isolated TE (bps/month)")
 fig, ax = plt.subplots()
-colors = ["#2563eb", "#16a34a", "#d97706", "#0891b2", "#dc2626", "#7c3aed"]
-ax.barh(risk_factors["Risk factor"], risk_factors["Isolated TE (bps/month)"], color=colors)
-ax.set_title("Isolated Tracking Error by Risk Factor")
-ax.set_xlabel("bps per month")
+ax.barh(
+    plot_decomp["Risk factor"],
+    plot_decomp["Isolated TE (bps/month)"],
+    color="#2563eb",
+)
+ax.set_title("Step 1: Isolated Active Risk by Factor")
+ax.set_xlabel("Isolated tracking error (bps/month)")
+for i, value in enumerate(plot_decomp["Isolated TE (bps/month)"]):
+    ax.text(value + 0.2, i, f"{value:.1f}", va="center")
 plt.tight_layout()
 plt.show()
 ```
+
+The plot has one purpose: it ranks the active bets before diversification. It tells the manager where to look first.
+
+#### Step 2: Combine Factors Correctly
+
+Tracking error is a standard deviation, so isolated tracking errors are not added directly. If factor correlations are zero, systematic tracking error is:
+
+$$
+\text{Systematic TE}
+=
+\sqrt{\sum_{k=1}^{K}\text{TE}_k^2}.
+$$
+
+For the example above:
+
+$$
+\sqrt{
+6.0^2+2.5^2+5.25^2+10.8^2+4.0^2
+}
+=14.23\text{ bps per month}.
+$$
+
+Adding the isolated numbers would give:
+
+$$
+6.0+2.5+5.25+10.8+4.0=28.55\text{ bps}.
+$$
+
+That is not the correct tracking error. It treats all factors as if their worst movements arrive in the same direction at the same time.
+
+```{python}
+#| echo: false
+#| message: false
+#| warning: false
+
+uncorrelated_systematic_te = np.sqrt(
+    decomp["Variance contribution if uncorrelated"].sum()
+)
+simple_sum_te = decomp["Isolated TE (bps/month)"].sum()
+pd.DataFrame(
+    {
+        "Method": [
+            "Incorrect simple sum",
+            "Correct uncorrelated systematic TE",
+        ],
+        "Result (bps/month)": [simple_sum_te, uncorrelated_systematic_te],
+    }
+).round(2)
+```
+
+#### Step 3: Correlations Can Reduce or Increase Risk
+
+The zero-correlation formula is useful for intuition, but real factors are often correlated. Treasury yields, corporate spreads, mortgage spreads, and volatility can move together in stress periods.
+
+With correlations, the systematic tracking error is:
+
+$$
+\text{Systematic TE}
+=
+\sqrt{\Delta x' \Sigma_F \Delta x}.
+$$
+
+The covariance matrix matters because two active bets may offset each other or reinforce each other.
+
+::: {.callout-note title="Two-Factor Correlation Example"}
+Suppose the only active risks are:
+
+- Treasury level isolated TE: 6 bps/month;
+- IG corporate spread isolated TE: 10.8 bps/month.
+
+If their correlation is zero:
+
+$$
+\sqrt{6^2+10.8^2}=12.35\text{ bps}.
+$$
+
+If their correlation is +0.50:
+
+$$
+\sqrt{6^2+10.8^2+2(0.50)(6)(10.8)}
+=14.73\text{ bps}.
+$$
+
+If their correlation is -0.50:
+
+$$
+\sqrt{6^2+10.8^2+2(-0.50)(6)(10.8)}
+=8.75\text{ bps}.
+$$
+
+The same two isolated risks can produce very different total tracking error depending on how the factors move together.
+:::
+
+```{python}
+#| label: fig-correlation-effect
+#| fig-cap: "Correlation changes total tracking error even when isolated factor risks are unchanged."
+#| echo: false
+#| message: false
+#| warning: false
+
+rho_grid = np.linspace(-0.9, 0.9, 181)
+te_rate = 6.0
+te_spread = 10.8
+combined_te = np.sqrt(
+    te_rate**2 + te_spread**2 + 2 * rho_grid * te_rate * te_spread
+)
+
+fig, ax = plt.subplots()
+ax.plot(rho_grid, combined_te, color="#dc2626", linewidth=2.5)
+ax.axvline(0, color="#334155", linewidth=1)
+ax.set_title("Step 2: Correlation Changes Combined Risk")
+ax.set_xlabel("Correlation between Treasury and spread active returns")
+ax.set_ylabel("Combined tracking error (bps/month)")
+for rho in [-0.5, 0, 0.5]:
+    te = np.sqrt(te_rate**2 + te_spread**2 + 2 * rho * te_rate * te_spread)
+    ax.scatter(rho, te, color="#111827")
+    ax.text(rho + 0.03, te, f"{te:.1f}", va="center")
+plt.tight_layout()
+plt.show()
+```
+
+This plot has one purpose: it shows why a risk model needs correlations, not just a list of active exposures.
+
+#### Step 4: Separate Systematic and Idiosyncratic Risk
 
 The same idea applies to systematic and idiosyncratic active risk. If they are modeled as independent:
 
@@ -754,190 +1063,223 @@ $$
 \sqrt{\text{Systematic TE}^2+\text{Idiosyncratic TE}^2}.
 $$
 
-::: {.callout-note title="Worked Example: Total Tracking Error"}
-Suppose systematic tracking error is 4.6 bps/month and idiosyncratic tracking error is 7.8 bps/month.
+Systematic risk is exposure to common factors. Idiosyncratic risk is the remaining issuer or security-specific active risk.
+
+Using the uncorrelated systematic tracking error from above, suppose idiosyncratic tracking error is 8.0 bps/month:
 
 $$
 \text{Total TE}
-=\sqrt{4.6^2+7.8^2}
-=9.1\text{ bps/month}.
+=\sqrt{14.23^2+8.0^2}
+=16.33\text{ bps/month}.
 $$
 
-Even if idiosyncratic risk is small relative to total portfolio volatility, it can dominate tracking error if the portfolio holds far fewer names than the benchmark.
-:::
-
 ```{python}
-#| label: fig-key-rate-mismatch
-#| fig-cap: "Example key rate duration mismatch versus a benchmark."
 #| echo: false
 #| message: false
 #| warning: false
 
-key_rates = ["6M", "2Y", "5Y", "10Y", "20Y", "30Y"]
-portfolio_krd = np.array([0.11, 0.59, 1.53, 1.39, 0.98, 0.96])
-benchmark_krd = np.array([0.11, 0.64, 1.43, 1.51, 0.91, 0.82])
-net_krd = portfolio_krd - benchmark_krd
+idio_te = 8.0
+total_te = np.sqrt(uncorrelated_systematic_te**2 + idio_te**2)
+pd.DataFrame(
+    {
+        "Component": ["Systematic TE", "Idiosyncratic TE", "Total TE"],
+        "bps/month": [uncorrelated_systematic_te, idio_te, total_te],
+        "bps/year": [
+            uncorrelated_systematic_te * np.sqrt(12),
+            idio_te * np.sqrt(12),
+            total_te * np.sqrt(12),
+        ],
+    }
+).round(2)
+```
+
+This distinction matters in bond portfolios because the benchmark may contain thousands of small issuer positions. A sampled portfolio may match duration and sector exposures well, but still have issuer concentration risk.
+
+```{python}
+#| label: fig-systematic-idio-risk
+#| fig-cap: "Total tracking error combines systematic factor risk and idiosyncratic security-selection risk in variance terms."
+#| echo: false
+#| message: false
+#| warning: false
+
+components = pd.DataFrame(
+    {
+        "Component": ["Systematic", "Idiosyncratic"],
+        "Variance": [uncorrelated_systematic_te**2, idio_te**2],
+    }
+)
+components["Share"] = components["Variance"] / components["Variance"].sum()
 
 fig, ax = plt.subplots()
-ax.bar(key_rates, net_krd, color=np.where(net_krd >= 0, "#16a34a", "#dc2626"))
-ax.axhline(0, color="#334155", linewidth=1)
-ax.set_title("Net Key Rate Duration: Portfolio - Benchmark")
-ax.set_ylabel("Years")
+ax.bar(
+    components["Component"],
+    components["Share"] * 100,
+    color=["#2563eb", "#d97706"],
+)
+ax.set_title("Step 3: What Drives Total Tracking Error?")
+ax.set_ylabel("Share of total TE variance (%)")
+for i, row in components.iterrows():
+    ax.text(i, row["Share"] * 100 + 1, f"{row['Share'] * 100:.0f}%", ha="center")
 plt.tight_layout()
 plt.show()
 ```
 
-Key rate duration matters because a portfolio can match total duration but still have curve-shape risk. A portfolio may be underweight 2-year duration and overweight 10-year duration. A parallel-shift metric hides that exposure.
+This plot has one purpose: it shows whether tracking error is mostly factor risk or mostly security-selection risk. The management response is different.
 
-::: {.callout-note title="Key Rate Duration Example"}
-The net 10-year key rate duration in the example is:
+#### Step 5: Convert Exposures into Scenario Returns
 
-$$
-1.39-1.51=-0.12.
-$$
+Tracking error is a volatility estimate. Managers also need to understand the sign of the exposure. A simple scenario turns the same factor exposures into an active return estimate.
 
-If the 10-year point alone rises by 50 basis points, holding other points constant, the approximate active return impact is:
-
-$$
--(-0.12)\times0.0050=0.0006=6\text{ bps}.
-$$
-
-The portfolio outperforms because it has less exposure than the benchmark to that part of the curve. The sign matters: an underweight duration position benefits when that rate rises.
-:::
-
-```{python}
-#| label: fig-fred-risk-factors
-#| fig-cap: "Real market data: Treasury yield and corporate spread risk factors. Data source: FRED, Federal Reserve Bank of St. Louis; ICE BofA indices."
-#| echo: false
-#| message: false
-#| warning: false
-
-def load_fred_series(series_ids, start="2020-01-01"):
-    ids = ",".join(series_ids)
-    url = f"https://fred.stlouisfed.org/graph/fredgraph.csv?id={ids}"
-    try:
-        with urllib.request.urlopen(url, timeout=8) as response:
-            raw = response.read()
-        data = pd.read_csv(io.BytesIO(raw), parse_dates=["observation_date"])
-        data = data.rename(columns={"observation_date": "date"}).set_index("date")
-        data = data.replace(".", np.nan).apply(pd.to_numeric, errors="coerce")
-        return data.loc[start:].dropna(how="all")
-    except Exception:
-        idx = pd.date_range("2020-01-31", periods=77, freq="ME")
-        return pd.DataFrame(
-            {
-                "DGS10": np.linspace(1.5, 4.5, len(idx)) + 0.6 * np.sin(np.linspace(0, 10, len(idx))),
-                "BAMLC0A0CM": np.linspace(2.0, 0.8, len(idx)) + 0.35 * np.sin(np.linspace(0, 12, len(idx))),
-                "BAMLH0A0HYM2": np.linspace(6.0, 2.9, len(idx)) + 1.2 * np.sin(np.linspace(0, 11, len(idx))),
-            },
-            index=idx,
-        )
-
-fred = load_fred_series(["DGS10", "BAMLC0A0CM", "BAMLH0A0HYM2"], start="2020-01-01")
-monthly_fred = fred.resample("ME").last()
-
-fig, ax1 = plt.subplots()
-ax1.plot(monthly_fred.index, monthly_fred["DGS10"], color="#2563eb", linewidth=2, label="10-year Treasury yield")
-ax1.set_ylabel("10-year Treasury yield (%)", color="#2563eb")
-ax1.tick_params(axis="y", labelcolor="#2563eb")
-
-ax2 = ax1.twinx()
-ax2.plot(monthly_fred.index, monthly_fred["BAMLC0A0CM"], color="#16a34a", linewidth=2, label="IG corporate OAS")
-ax2.plot(monthly_fred.index, monthly_fred["BAMLH0A0HYM2"], color="#dc2626", linewidth=2, label="High-yield OAS")
-ax2.set_ylabel("Option-adjusted spread (%)")
-ax2.grid(False)
-
-lines = ax1.get_lines() + ax2.get_lines()
-labels = [line.get_label() for line in lines]
-ax1.legend(lines, labels, loc="best")
-ax1.set_title("Real Risk Factors Used in Bond Portfolio Construction")
-plt.tight_layout()
-plt.show()
-```
-
-This plot is useful because it shows why a bond portfolio model needs multiple factors. Treasury yields and credit spreads do not always move together. During risk-off periods, Treasury yields may fall while spreads widen.
-
-The next example turns those real factor movements into approximate active returns. Suppose a portfolio has the following active exposures relative to its benchmark:
-
-- net duration: +0.15 years;
-- net investment-grade spread duration: +0.60 years;
-- net high-yield spread duration: +0.20 years.
-
-The approximate monthly active return from these factor mismatches is:
+For duration-like exposures:
 
 $$
 \Delta R_{\text{active}}
 \approx
--D_{\text{active}}\Delta y_{\text{Treasury}}
--SD_{\text{IG, active}}\Delta s_{\text{IG}}
--SD_{\text{HY, active}}\Delta s_{\text{HY}}.
+-(\text{active exposure})(\text{factor change}).
 $$
 
-This is not a full return model, but it is the core intuition of factor-based risk attribution.
+Using the earlier active exposures, suppose over one month:
+
+| Factor | Active exposure | Factor change |
+|---|---:|---:|
+| Treasury level | +0.20 years | +40 bps |
+| 2-year key rate | -0.10 years | +20 bps |
+| 10-year key rate | +0.15 years | +50 bps |
+| IG corporate spread | +0.60 years | +25 bps |
+| Securitized spread | -0.25 years | +15 bps |
 
 ```{python}
-#| label: fig-real-factor-active-return
-#| fig-cap: "Approximate active return from real monthly factor changes and assumed active exposures."
 #| echo: false
 #| message: false
 #| warning: false
 
-factor_changes = monthly_fred[["DGS10", "BAMLC0A0CM", "BAMLH0A0HYM2"]].dropna().diff().dropna()
-recent_changes = factor_changes.loc["2022-01-01":].copy()
-if recent_changes.empty:
-    recent_changes = factor_changes.tail(36).copy()
+scenario = decomp[["Risk factor", "Active exposure"]].copy()
+scenario["Factor change (bps)"] = [40, 20, 50, 25, 15]
+scenario["Active return impact (bps)"] = (
+    -scenario["Active exposure"] * scenario["Factor change (bps)"]
+)
+scenario.round(2)
+```
 
-active_duration = 0.15
-active_ig_spread_duration = 0.60
-active_hy_spread_duration = 0.20
+The total approximate active return is:
 
-active_components = pd.DataFrame(index=recent_changes.index)
-active_components["Treasury duration active return (bps)"] = -active_duration * recent_changes["DGS10"] * 100
-active_components["IG spread active return (bps)"] = -active_ig_spread_duration * recent_changes["BAMLC0A0CM"] * 100
-active_components["HY spread active return (bps)"] = -active_hy_spread_duration * recent_changes["BAMLH0A0HYM2"] * 100
-active_components["Total modeled active return (bps)"] = active_components.sum(axis=1)
+```{python}
+#| echo: false
+#| message: false
+#| warning: false
 
-plot_components = active_components.tail(36)
+scenario_total = scenario["Active return impact (bps)"].sum()
+pd.DataFrame(
+    {
+        "Measure": ["Total approximate active return"],
+        "bps": [scenario_total],
+    }
+).round(2)
+```
+
+In this scenario, the portfolio underperforms because it is long duration and long corporate spread duration in a month when rates rise and spreads widen. The negative securitized spread exposure helps slightly because securitized spreads also widen.
+
+```{python}
+#| label: fig-scenario-active-return
+#| fig-cap: "Scenario analysis converts active exposures into signed active return impacts."
+#| echo: false
+#| message: false
+#| warning: false
+
 fig, ax = plt.subplots()
-ax.plot(plot_components.index, plot_components["Total modeled active return (bps)"], color="#111827", linewidth=2.5, label="Total modeled active return")
-ax.bar(plot_components.index, plot_components["Treasury duration active return (bps)"], width=20, alpha=0.45, color="#2563eb", label="Treasury duration")
-ax.bar(plot_components.index, plot_components["IG spread active return (bps)"], width=20, alpha=0.45, color="#16a34a", label="IG spread")
-ax.bar(plot_components.index, plot_components["HY spread active return (bps)"], width=20, alpha=0.45, color="#dc2626", label="HY spread")
+colors = np.where(scenario["Active return impact (bps)"] >= 0, "#16a34a", "#dc2626")
+ax.barh(scenario["Risk factor"], scenario["Active return impact (bps)"], color=colors)
 ax.axhline(0, color="#334155", linewidth=1)
-ax.set_title("Factor Changes Create Active Returns")
-ax.set_ylabel("Approximate active return (bps)")
-ax.legend(loc="best", fontsize=8)
+ax.axvline(0, color="#334155", linewidth=1)
+ax.set_title("Step 4: Scenario Active Return by Factor")
+ax.set_xlabel("Approximate active return impact (bps)")
+for i, value in enumerate(scenario["Active return impact (bps)"]):
+    offset = 0.25 if value >= 0 else -0.25
+    ha = "left" if value >= 0 else "right"
+    ax.text(value + offset, i, f"{value:.1f}", va="center", ha=ha)
 plt.tight_layout()
 plt.show()
 ```
 
+This plot has one purpose: it shows the sign of each active bet in a specific market move. The isolated TE plot shows size; the scenario plot shows direction.
+
+#### Step 6: Key Rate Decomposition Shows Curve-Shape Risk
+
+Total duration can hide curve-shape risk. Two portfolios can both have duration 5.4, but one may be overweight the 2-year point while the other is overweight the 10-year point.
+
+Suppose the portfolio and benchmark have these key rate durations:
+
 ```{python}
 #| echo: false
 #| message: false
 #| warning: false
 
-factor_te_summary = pd.DataFrame(
+key_rate_table = pd.DataFrame(
     {
-        "Measure": [
-            "Monthly standard deviation of modeled active return",
-            "Annualized modeled tracking error",
-            "Worst monthly modeled active return",
-            "Best monthly modeled active return",
-        ],
-        "Value (bps)": [
-            active_components["Total modeled active return (bps)"].std(ddof=1),
-            active_components["Total modeled active return (bps)"].std(ddof=1) * np.sqrt(12),
-            active_components["Total modeled active return (bps)"].min(),
-            active_components["Total modeled active return (bps)"].max(),
-        ],
+        "Key rate": ["2Y", "5Y", "10Y", "30Y"],
+        "Portfolio KRD": [0.70, 1.35, 2.10, 1.25],
+        "Benchmark KRD": [1.00, 1.30, 1.70, 1.40],
     }
 )
-factor_te_summary.round(1)
+key_rate_table["Active KRD"] = (
+    key_rate_table["Portfolio KRD"] - key_rate_table["Benchmark KRD"]
+)
+key_rate_table.round(2)
 ```
 
-::: {.callout-tip title="Real-Data Intuition"}
-The same active exposure can look harmless in quiet markets and painful in volatile markets. Tracking error depends on both the size of the active exposure and the volatility/correlation of the factors that move that exposure.
-:::
+The total active duration is:
+
+$$
+-0.30+0.05+0.40-0.15=0.00.
+$$
+
+So a simple duration report says the portfolio is matched to the benchmark. But it is not neutral to curve shape.
+
+If the curve steepens with the 2-year yield falling 20 bps and the 10-year yield rising 40 bps, the active return impact is:
+
+$$
+-(-0.30)(-20)-(+0.40)(+40)
+=-6-16=-22\text{ bps},
+$$
+
+before including the smaller 5-year and 30-year effects. The portfolio loses because it is underweight the front end and overweight the 10-year point in this steepening scenario.
+
+```{python}
+#| label: fig-key-rate-decomposition
+#| fig-cap: "Key rate decomposition reveals curve-shape risk that total duration can hide."
+#| echo: false
+#| message: false
+#| warning: false
+
+fig, ax1 = plt.subplots()
+x = np.arange(len(key_rate_table))
+width = 0.36
+ax1.bar(
+    x - width / 2,
+    key_rate_table["Portfolio KRD"],
+    width,
+    label="Portfolio",
+    color="#2563eb",
+)
+ax1.bar(
+    x + width / 2,
+    key_rate_table["Benchmark KRD"],
+    width,
+    label="Benchmark",
+    color="#94a3b8",
+)
+ax1.set_xticks(x)
+ax1.set_xticklabels(key_rate_table["Key rate"])
+ax1.set_ylabel("Key rate duration")
+ax1.set_title("Same Total Duration, Different Curve Exposure")
+ax1.legend(loc="upper left")
+plt.tight_layout()
+plt.show()
+```
+
+This plot has one purpose: it compares where the portfolio and benchmark have their rate exposure. It is not a general "risk level" chart; it is a curve-shape diagnostic.
+
+#### Step 7: Translate the Decomposition into a Decision
 
 Risk decomposition should lead to an action. A manager uses it to decide which risk is intentional, which risk is accidental, and which risk should be hedged or reduced.
 
@@ -948,6 +1290,16 @@ Risk decomposition should lead to an action. A manager uses it to decide which r
 | Is this risk hedgeable? | Use Treasury futures to neutralize unwanted duration. |
 | Is this risk diversifiable? | Replace a concentrated issuer position with several similar bonds. |
 | Is this risk cheap to trade? | Fix large liquid Treasury mismatches before small illiquid corporate mismatches. |
+
+The full picture is:
+
+1. Holdings create exposures.
+2. Active exposures create active return sensitivity.
+3. Factor volatilities and correlations convert those sensitivities into predicted tracking error.
+4. Idiosyncratic issuer and issue risk is added separately.
+5. The manager decides which active risks are deliberate and which should be reduced.
+
+Risk decomposition is therefore a bridge between portfolio analytics and portfolio construction. It turns a single tracking-error number into a set of specific decisions.
 
 ### Portfolio Construction Using a Multi-Factor Model and an Optimizer
 

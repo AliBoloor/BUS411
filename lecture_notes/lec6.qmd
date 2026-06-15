@@ -577,6 +577,28 @@ $$
 
 where $\Delta \boldsymbol{\beta}$ is the vector of portfolio-minus-benchmark factor exposures, $\Sigma_F$ is the factor covariance matrix, and $\sigma_{\epsilon}^2$ is idiosyncratic active variance.
 
+Here, an **exposure** means sensitivity to a risk factor. It answers: if this factor moves, how much should the bond or portfolio return move?
+
+For a portfolio, factor exposure is usually a market-value-weighted average of security-level exposures:
+
+$$
+x_{p,k}=\sum_i w_{p,i}x_{i,k},
+$$
+
+where $w_{p,i}$ is the portfolio weight of bond $i$ and $x_{i,k}$ is that bond's exposure to factor $k$. The benchmark exposure is calculated the same way:
+
+$$
+x_{b,k}=\sum_i w_{b,i}x_{i,k}.
+$$
+
+The active exposure is then:
+
+$$
+\Delta x_k=x_{p,k}-x_{b,k}.
+$$
+
+For example, if a bond has duration of 6.0 years and a 2% portfolio weight, it contributes $0.02 \times 6.0=0.12$ years to portfolio duration. Adding this across all bonds gives total portfolio duration.
+
 If active returns are approximately normal, tracking error gives a rough range of outcomes. If expected active return is zero and annual tracking error is 100 bps, then active return is within about +/-100 bps in roughly two-thirds of years and within about +/-200 bps in roughly 95% of years. This is a model-based statement, not a guarantee.
 
 ```{mermaid}
@@ -595,7 +617,7 @@ flowchart LR
   linkStyle default stroke:#64748b,stroke-width:2.5px;
 ```
 
-> Historical tracking error is a realized statistic, while predicted tracking error is a current-position risk estimate. A manager controls future risk with the second measure, and asses past performance with the first.
+> Historical tracking error is a realized statistic, while predicted tracking error is a current-position risk estimate. A manager controls future risk with the second measure, and assesses past performance with the first.
 
 ## Tracking Error and Active versus Passive Strategies
 
@@ -783,6 +805,44 @@ For fixed income, factors often include:
 - interest-rate volatility;
 - currency risk;
 - issuer and issue residual risk.
+
+### Where the Model Inputs Come From
+
+A risk model needs three types of inputs:
+
+1. Holdings and weights
+2. Security-level factor exposures
+3. Factor covariance and residual risk estimates
+
+Holdings and weights come from the portfolio accounting system and the benchmark provider. For each bond, the manager needs market value, price, accrued interest, coupon, maturity, issuer, sector, rating, currency, and benchmark weight.
+
+Security-level exposures usually come from analytics systems rather than being estimated manually. Common fixed-income exposures include:
+
+| Exposure | Meaning | Example |
+|---|---|---|
+| Duration | Sensitivity to parallel interest-rate changes | A duration of 5 means a 100 bp yield rise is roughly a 5% price loss |
+| Key rate duration | Sensitivity to specific maturity points on the yield curve | Exposure to the 2-year, 5-year, 10-year, or 30-year point |
+| Spread duration | Sensitivity to credit or sector spread changes | A corporate bond may lose value if BBB spreads widen |
+| Convexity | Curvature in the price-yield relationship | Long callable or mortgage bonds can behave differently when rates move |
+| Sector / rating exposure | Weight or spread sensitivity by group | Overweight BBB industrials versus the benchmark |
+| Issuer exposure | Active concentration in one issuer | Holding more JPMorgan bonds than the benchmark |
+
+The factor covariance matrix, $\Sigma_F$, is estimated from historical factor movements. A risk vendor or internal risk team collects time series of factor changes, such as Treasury curve shifts, spread changes, mortgage spread changes, volatility changes, and currency moves. The covariance matrix summarizes how volatile each factor is and how factors move together.
+
+For example, Treasury rates and corporate spreads may be negatively correlated in a flight-to-quality episode: Treasury yields fall while credit spreads widen. A covariance matrix captures that relationship. Without it, the model would treat every active exposure as independent.
+
+Residual variance estimates come from the part of bond returns not explained by the common factors. After accounting for duration, spread, sector, rating, and other modeled risks, some return variation remains issuer-specific or issue-specific. This residual risk is larger for concentrated positions, less liquid bonds, lower-rated issuers, and securities with unusual structures.
+
+In practice, brokers and data platforms can provide many of the raw inputs:
+
+- prices, yields, spreads, and accrued interest;
+- duration, spread duration, convexity, and key rate durations;
+- issuer, sector, rating, maturity, coupon, and currency classifications;
+- benchmark constituents and weights;
+- market depth, bid-ask spreads, dealer runs, axes, and recent trade information;
+- TRACE-style transaction data for corporate bonds where available.
+
+However, brokers do not always provide a complete portfolio risk model. The full factor covariance matrix and residual risk model usually come from a dedicated risk system, benchmark analytics platform, or internal quantitative risk team. Broker data helps populate the model; the risk model converts those inputs into predicted tracking error.
 
 The portfolio is compared with the benchmark factor by factor. Active risk comes from differences between portfolio exposures and benchmark exposures.
 
@@ -1156,7 +1216,6 @@ scenario["Factor change (bps)"] = [40, 20, 50, 25, 15]
 scenario["Active return impact (bps)"] = (
     -scenario["Active exposure"] * scenario["Factor change (bps)"]
 )
-scenario.round(2)
 ```
 
 The total approximate active return is:

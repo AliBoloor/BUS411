@@ -395,7 +395,9 @@ window.Quarto = {
   <li><a href="#portfolio-construction-using-a-multi-factor-model-and-an-optimizer" id="toc-portfolio-construction-using-a-multi-factor-model-and-an-optimizer" class="nav-link" data-scroll-target="#portfolio-construction-using-a-multi-factor-model-and-an-optimizer">Portfolio Construction Using a Multi-Factor Model and an Optimizer</a></li>
   <li><a href="#portfolio-rebalancing" id="toc-portfolio-rebalancing" class="nav-link" data-scroll-target="#portfolio-rebalancing">Portfolio Rebalancing</a></li>
   </ul></li>
+  <li><a href="#key-points" id="toc-key-points" class="nav-link" data-scroll-target="#key-points"><span class="header-section-number">3.2</span> Key Points</a></li>
   </ul></li>
+  <li><a href="#suggested-readings" id="toc-suggested-readings" class="nav-link" data-scroll-target="#suggested-readings"><span class="header-section-number">4</span> Suggested Readings</a></li>
   </ul>
 <div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="lec6.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></nav>
 </nav>
@@ -437,6 +439,8 @@ window.Quarto = {
 <li>Explain the cell-based approach to bond portfolio construction and identify its limitations.</li>
 <li>Describe why pure bond indexing is difficult in practice.</li>
 <li>Explain the purpose of a multi-factor fixed-income risk model.</li>
+<li>Explain what exposure is and how it is measured.</li>
+<li>Explain how factor covariance and residual risk are estimated.</li>
 <li>Use a multi-factor model to identify the sources of portfolio risk relative to a benchmark.</li>
 <li>Explain how a manager can construct and rebalance a bond portfolio using a multi-factor model and an optimizer.</li>
 </ul>
@@ -508,7 +512,7 @@ E(R_p)=w_1E(R_1)+w_2E(R_2),
 </div>
 </div>
 <div id="cell-interactive-two-asset-variance" class="cell" data-message="false" data-execution_count="2">
-<div id="interactive-two-asset-variance" class="cell-output cell-output-display" data-execution_count="29">
+<div id="interactive-two-asset-variance" class="cell-output cell-output-display" data-execution_count="106">
 
 <div id="two-asset-variance-widget" style="max-width: 980px; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">
   <div style="border: 1px solid #d6dde8; border-radius: 8px; padding: 12px; margin-bottom: 12px;">
@@ -772,9 +776,9 @@ flowchart LR
 </div>
 <p>The practical fixed-income solution is to model returns through a smaller set of common factors:</p>
 <p><span class="math display">\[
-R_i = \alpha_i + \beta_{i1}F_1+\beta_{i2}F_2+\cdots+\beta_{iK}F_K+\epsilon_i.
+R_i = \alpha_i + x_{i1}F_1+x_{i2}F_2+\cdots+x_{iK}F_K+\epsilon_i.
 \]</span></p>
-<p>Here, <span class="math inline">\(F_k\)</span> are factors such as Treasury curve shifts, credit spreads, mortgage spreads, volatility, currency, and sector effects. The residual <span class="math inline">\(\epsilon_i\)</span> is idiosyncratic return.</p>
+<p>Here, <span class="math inline">\(x_{ik}\)</span> is bond <span class="math inline">\(i\)</span>’s exposure to factor <span class="math inline">\(k\)</span>. The factor shock <span class="math inline">\(F_k\)</span> may represent a Treasury curve shift, credit spread change, mortgage spread change, volatility shock, currency move, or sector effect. The residual <span class="math inline">\(\epsilon_i\)</span> is idiosyncratic return.</p>
 <p>This is why modern bond portfolio construction is usually framed around exposures:</p>
 <ul>
 <li>effective duration and key rate duration;</li>
@@ -851,143 +855,9 @@ R_i = \alpha_i + \beta_{i1}F_1+\beta_{i2}F_2+\cdots+\beta_{iK}F_K+\epsilon_i.
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>The table below uses monthly returns for two hypothetical portfolios. Portfolio A stays close to the benchmark. Portfolio B takes larger active positions.</p>
-</div>
-</div>
-<div id="bb845927" class="cell" data-message="false" data-execution_count="4">
-<div class="cell-output cell-output-display" data-execution_count="31">
-<div>
-
-
-<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
-<thead>
-<tr class="header">
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">Month</th>
-<th data-quarto-table-cell-role="th">Benchmark return (%)</th>
-<th data-quarto-table-cell-role="th">Portfolio A return (%)</th>
-<th data-quarto-table-cell-role="th">A active return (%)</th>
-<th data-quarto-table-cell-role="th">Portfolio B return (%)</th>
-<th data-quarto-table-cell-role="th">B active return (%)</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">0</th>
-<td>Jan</td>
-<td>0.04</td>
-<td>0.02</td>
-<td>-0.02</td>
-<td>1.05</td>
-<td>1.01</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">1</th>
-<td>Feb</td>
-<td>1.54</td>
-<td>1.58</td>
-<td>0.04</td>
-<td>2.13</td>
-<td>0.59</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">2</th>
-<td>Mar</td>
-<td>0.00</td>
-<td>0.04</td>
-<td>0.04</td>
-<td>0.37</td>
-<td>0.37</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">3</th>
-<td>Apr</td>
-<td>0.54</td>
-<td>0.61</td>
-<td>0.07</td>
-<td>1.01</td>
-<td>0.47</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">4</th>
-<td>May</td>
-<td>0.76</td>
-<td>0.71</td>
-<td>-0.05</td>
-<td>1.44</td>
-<td>0.68</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">5</th>
-<td>Jun</td>
-<td>0.30</td>
-<td>0.27</td>
-<td>-0.03</td>
-<td>0.57</td>
-<td>0.27</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">6</th>
-<td>Jul</td>
-<td>0.83</td>
-<td>0.91</td>
-<td>0.08</td>
-<td>1.95</td>
-<td>1.12</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">7</th>
-<td>Aug</td>
-<td>1.23</td>
-<td>1.26</td>
-<td>0.03</td>
-<td>1.26</td>
-<td>0.03</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">8</th>
-<td>Sep</td>
-<td>0.76</td>
-<td>0.69</td>
-<td>-0.07</td>
-<td>2.17</td>
-<td>1.41</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">9</th>
-<td>Oct</td>
-<td>0.90</td>
-<td>0.95</td>
-<td>0.05</td>
-<td>1.80</td>
-<td>0.90</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">10</th>
-<td>Nov</td>
-<td>1.04</td>
-<td>1.08</td>
-<td>0.04</td>
-<td>2.13</td>
-<td>1.09</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">11</th>
-<td>Dec</td>
-<td>0.28</td>
-<td>0.02</td>
-<td>-0.26</td>
-<td>0.32</td>
-<td>0.04</td>
-</tr>
-</tbody>
-</table>
-
-</div>
-</div>
-</div>
-<div id="4d00182b" class="cell" data-message="false" data-execution_count="5">
-<div class="cell-output cell-output-display" data-execution_count="32">
+<p>The example uses monthly returns for two hypothetical portfolios. Portfolio A stays close to the benchmark. Portfolio B takes larger active positions.</p>
+<div id="ee7d0632" class="cell" data-message="false" data-execution_count="5">
+<div class="cell-output cell-output-display" data-execution_count="109">
 <div>
 
 
@@ -1037,6 +907,8 @@ Figure&nbsp;2: Monthly active returns for two portfolios. Portfolio B has much l
 </div>
 </div>
 <p>The intuition is direct: tracking error is not about whether returns are high or low. It is about whether the portfolio and benchmark move together. Portfolio B may outperform, but it is taking more active risk.</p>
+</div>
+</div>
 <div class="callout callout-style-default callout-note callout-titled" title="Example: Tracking Error from a Bond Mandate">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1129,13 +1001,13 @@ Figure&nbsp;2: Monthly active returns for two portfolios. Portfolio B has much l
 \text{Predicted TE}
 =
 \sqrt{
-(\Delta \boldsymbol{\beta})'
+(\Delta \mathbf{x})'
 \Sigma_F
-(\Delta \boldsymbol{\beta})
+(\Delta \mathbf{x})
 +\sigma_{\epsilon}^2
 },
 \]</span></p>
-<p>where <span class="math inline">\(\Delta \boldsymbol{\beta}\)</span> is the vector of portfolio-minus-benchmark factor exposures, <span class="math inline">\(\Sigma_F\)</span> is the factor covariance matrix, and <span class="math inline">\(\sigma_{\epsilon}^2\)</span> is idiosyncratic active variance.</p>
+<p>where <span class="math inline">\(\Delta \mathbf{x}\)</span> is the vector of portfolio-minus-benchmark factor exposures, <span class="math inline">\(\Sigma_F\)</span> is the factor covariance matrix, and <span class="math inline">\(\sigma_{\epsilon}^2\)</span> is idiosyncratic active variance.</p>
 <p>Here, an <strong>exposure</strong> means sensitivity to a risk factor. It answers: if this factor moves, how much should the bond or portfolio return move?</p>
 <p>For a portfolio, factor exposure is usually a market-value-weighted average of security-level exposures:</p>
 <p><span class="math display">\[
@@ -1205,8 +1077,8 @@ flowchart LR
 <p>If the optimizer predicts 65 bps of monthly tracking error, the portfolio violates the client’s risk budget even if the manager likes the trades.</p>
 </div>
 </div>
-<div id="b2f09a39" class="cell" data-message="false" data-execution_count="7">
-<div class="cell-output cell-output-display" data-execution_count="34">
+<div id="36c9b176" class="cell" data-message="false" data-execution_count="7">
+<div class="cell-output cell-output-display" data-execution_count="111">
 <div>
 
 
@@ -1321,56 +1193,17 @@ flowchart LR
 </div>
 </div>
 <p>The cell-based approach is intuitive and transparent. Its weakness is that it treats cells like separate boxes. It does not naturally account for correlations across cells. Two large cell mismatches may hedge each other, or two small mismatches may reinforce each other.</p>
-<div id="4e4c3b2b" class="cell" data-message="false" data-execution_count="8">
-<div class="cell-output cell-output-display" data-execution_count="35">
-<div>
-
-
-<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
-<thead>
-<tr class="header">
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">Sector</th>
-<th data-quarto-table-cell-role="th">Benchmark weight (%)</th>
-<th data-quarto-table-cell-role="th">Portfolio weight (%)</th>
-<th data-quarto-table-cell-role="th">Active weight (%)</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">0</th>
-<td>Treasury</td>
-<td>33.3</td>
-<td>29.5</td>
-<td>-3.8</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">1</th>
-<td>Agencies</td>
-<td>6.8</td>
-<td>3.6</td>
-<td>-3.2</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">2</th>
-<td>Corporates</td>
-<td>26.6</td>
-<td>34.8</td>
-<td>8.2</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">3</th>
-<td>Agency MBS</td>
-<td>33.3</td>
-<td>29.0</td>
-<td>-4.3</td>
-</tr>
-</tbody>
-</table>
-
+<div class="callout callout-style-default callout-note callout-titled" title="Example: Sector Active Weights">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Example: Sector Active Weights
 </div>
 </div>
-</div>
+<div class="callout-body-container callout-body">
+<p>Suppose a sampled portfolio differs from the benchmark by sector. The plot shows the active weights directly.</p>
 <div id="cell-fig-cell-sector-weights" class="cell" data-message="false" data-execution_count="9">
 <div class="cell-output cell-output-display">
 <div id="fig-cell-sector-weights" class="quarto-float quarto-figure quarto-figure-center anchored">
@@ -1382,6 +1215,8 @@ flowchart LR
 Figure&nbsp;3: Example sector active weights. A cell-based approach makes benchmark tilts visible.
 </figcaption>
 </figure>
+</div>
+</div>
 </div>
 </div>
 </div>
@@ -1549,6 +1384,24 @@ Figure&nbsp;3: Example sector active weights. A cell-based approach makes benchm
 <p>The factor covariance matrix, <span class="math inline">\(\Sigma_F\)</span>, is estimated from historical factor movements. A risk vendor or internal risk team collects time series of factor changes, such as Treasury curve shifts, spread changes, mortgage spread changes, volatility changes, and currency moves. The covariance matrix summarizes how volatile each factor is and how factors move together.</p>
 <p>For example, Treasury rates and corporate spreads may be negatively correlated in a flight-to-quality episode: Treasury yields fall while credit spreads widen. A covariance matrix captures that relationship. Without it, the model would treat every active exposure as independent.</p>
 <p>Residual variance estimates come from the part of bond returns not explained by the common factors. After accounting for duration, spread, sector, rating, and other modeled risks, some return variation remains issuer-specific or issue-specific. This residual risk is larger for concentrated positions, less liquid bonds, lower-rated issuers, and securities with unusual structures.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Cross-Sectional Regression View">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Cross-Sectional Regression View
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>One practical way to estimate factor returns and residual risk is a repeated cross-sectional regression. On each date <span class="math inline">\(t\)</span>, the risk team regresses bond returns across many securities on their known exposures:</p>
+<p><span class="math display">\[
+R_{i,t}=\alpha_t+x_{i1,t}F_{1,t}+x_{i2,t}F_{2,t}+\cdots+x_{iK,t}F_{K,t}+\epsilon_{i,t}.
+\]</span></p>
+<p>The estimated <span class="math inline">\(F_{k,t}\)</span> values form a time series of factor returns or factor shocks. The covariance of those estimated factor returns becomes an input to <span class="math inline">\(\Sigma_F\)</span>. The unexplained residuals, <span class="math inline">\(\epsilon_{i,t}\)</span>, are used to estimate issuer-level or issue-level residual variances, often grouped by rating, sector, liquidity, and security type.</p>
+<p>This is why clean prices, reliable returns, and broad cross-sectional coverage matter. Bad prices or stale marks can make the model think a security has idiosyncratic risk when the real problem is poor data.</p>
+</div>
+</div>
 <p>In practice, brokers and data platforms can provide many of the raw inputs:</p>
 <ul>
 <li>prices, yields, spreads, and accrued interest;</li>
@@ -1559,6 +1412,19 @@ Figure&nbsp;3: Example sector active weights. A cell-based approach makes benchm
 <li>TRACE-style transaction data for corporate bonds where available.</li>
 </ul>
 <p>However, brokers do not always provide a complete portfolio risk model. The full factor covariance matrix and residual risk model usually come from a dedicated risk system, benchmark analytics platform, or internal quantitative risk team. Broker data helps populate the model; the risk model converts those inputs into predicted tracking error.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Broker Data Example">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Broker Data Example
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A broker screen may show that a BBB industrial bond has a price of 98.75, yield of 5.82%, option-adjusted spread of 145 bps, effective duration of 6.4, spread duration of 6.1, and an indicated bid-ask spread of 35 bps. Those fields help estimate the bond’s exposure and trading cost. They do not, by themselves, tell the manager how that bond covaries with Treasury, credit, mortgage, and liquidity factors inside the full portfolio.</p>
+</div>
+</div>
 <p>The portfolio is compared with the benchmark factor by factor. Active risk comes from differences between portfolio exposures and benchmark exposures.</p>
 <div class="cell" data-layout-align="default">
 <div class="cell-output-display">
@@ -1719,8 +1585,6 @@ flowchart TB
 </tbody>
 </table>
 <p>The largest isolated source of active risk is the IG corporate spread overweight. That does not automatically mean it is bad. It means the manager should be able to explain why this active credit exposure is intentional.</p>
-</div>
-</div>
 <div id="cell-fig-risk-decomposition-isolated-te" class="cell" data-message="false" data-execution_count="11">
 <div class="cell-output cell-output-display">
 <div id="fig-risk-decomposition-isolated-te" class="quarto-float quarto-figure quarto-figure-center anchored">
@@ -1732,6 +1596,8 @@ flowchart TB
 Figure&nbsp;4: Isolated tracking error shows which active exposures are large before considering diversification across factors.
 </figcaption>
 </figure>
+</div>
+</div>
 </div>
 </div>
 </div>
@@ -1755,8 +1621,8 @@ Figure&nbsp;4: Isolated tracking error shows which active exposures are large be
 <p><span class="math display">\[
 6.0+2.5+5.25+10.8+4.0=28.55\text{ bps}.
 \]</span></p>
-<div id="fe61cfc2" class="cell" data-message="false" data-execution_count="12">
-<div class="cell-output cell-output-display" data-execution_count="39">
+<div id="3f960c02" class="cell" data-message="false" data-execution_count="12">
+<div class="cell-output cell-output-display" data-execution_count="116">
 <div>
 
 
@@ -1794,7 +1660,7 @@ Figure&nbsp;4: Isolated tracking error shows which active exposures are large be
 <p><span class="math display">\[
 \text{Systematic TE}
 =
-\sqrt{\Delta x' \Sigma_F \Delta x}.
+\sqrt{(\Delta \mathbf{x})' \Sigma_F (\Delta \mathbf{x})}.
 \]</span></p>
 <p>The covariance matrix matters because two active bets may offset each other or reinforce each other.</p>
 <div class="callout callout-style-default callout-note callout-titled" title="Two-Factor Correlation Example">
@@ -1827,8 +1693,6 @@ Figure&nbsp;4: Isolated tracking error shows which active exposures are large be
 =8.75\text{ bps}.
 \]</span></p>
 <p>The same two isolated risks can produce very different total tracking error depending on how the factors move together.</p>
-</div>
-</div>
 <div id="cell-fig-correlation-effect" class="cell" data-message="false" data-execution_count="13">
 <div class="cell-output cell-output-display">
 <div id="fig-correlation-effect" class="quarto-float quarto-figure quarto-figure-center anchored">
@@ -1844,6 +1708,8 @@ Figure&nbsp;5: Correlation changes total tracking error even when isolated facto
 </div>
 </div>
 <p>The plot shows why a risk model needs correlations, not just a list of active exposures. It shows how the correlation between two factors can reduce or increase total tracking error.</p>
+</div>
+</div>
 </section>
 <section id="step-4-separate-systematic-and-idiosyncratic-risk" class="level4">
 <h4 class="anchored" data-anchor-id="step-4-separate-systematic-and-idiosyncratic-risk">Step 4: Separate Systematic and Idiosyncratic Risk</h4>
@@ -1860,8 +1726,8 @@ Figure&nbsp;5: Correlation changes total tracking error even when isolated facto
 =\sqrt{14.23^2+8.0^2}
 =16.33\text{ bps/month}.
 \]</span></p>
-<div id="2d530548" class="cell" data-message="false" data-execution_count="14">
-<div class="cell-output cell-output-display" data-execution_count="41">
+<div id="b7c1e54d" class="cell" data-message="false" data-execution_count="14">
+<div class="cell-output cell-output-display" data-execution_count="118">
 <div>
 
 
@@ -1962,8 +1828,8 @@ Figure&nbsp;6: Total tracking error combines systematic factor risk and idiosync
 </tbody>
 </table>
 <p>The total approximate active return is:</p>
-<div id="06a01517" class="cell" data-message="false" data-execution_count="17">
-<div class="cell-output cell-output-display" data-execution_count="44">
+<div id="be9ed245" class="cell" data-message="false" data-execution_count="17">
+<div class="cell-output cell-output-display" data-execution_count="121">
 <div>
 
 
@@ -2008,8 +1874,8 @@ Figure&nbsp;7: Scenario analysis converts active exposures into signed active re
 <h4 class="anchored" data-anchor-id="step-6-key-rate-decomposition-shows-curve-shape-risk">Step 6: Key Rate Decomposition Shows Curve-Shape Risk</h4>
 <p>Total duration can hide curve-shape risk. Two portfolios can both have duration 5.4, but one may be overweight the 2-year point while the other is overweight the 10-year point.</p>
 <p>Suppose the portfolio and benchmark have these key rate durations:</p>
-<div id="683383c6" class="cell" data-message="false" data-execution_count="19">
-<div class="cell-output cell-output-display" data-execution_count="46">
+<div id="51c57a36" class="cell" data-message="false" data-execution_count="19">
+<div class="cell-output cell-output-display" data-execution_count="123">
 <div>
 
 
@@ -2131,39 +1997,133 @@ Figure&nbsp;8: Key rate decomposition reveals curve-shape risk that total durati
 </section>
 <section id="portfolio-construction-using-a-multi-factor-model-and-an-optimizer" class="level3">
 <h3 class="anchored" data-anchor-id="portfolio-construction-using-a-multi-factor-model-and-an-optimizer">Portfolio Construction Using a Multi-Factor Model and an Optimizer</h3>
-<p>A multi-factor model measures risk. An optimizer chooses holdings subject to objectives and constraints.</p>
-<p>The optimizer usually needs:</p>
-<ul>
-<li>a tradable universe;</li>
-<li>security prices and transaction costs;</li>
-<li>benchmark holdings and benchmark exposures;</li>
-<li>expected active returns or manager views;</li>
-<li>factor exposures and covariance estimates;</li>
-<li>issuer, sector, duration, spread, liquidity, and turnover constraints.</li>
-</ul>
-<p>The decision variables are the portfolio weights or dollar amounts in each candidate security. A common objective is:</p>
+<p>A multi-factor model measures the risk of any proposed portfolio. An optimizer searches across many possible portfolios and chooses the one that best satisfies the manager’s objective <strong>subject to constraints</strong>.</p>
+<p>The decision variables are the portfolio weights or dollar amounts in each candidate security:</p>
 <p><span class="math display">\[
-\min \text{Tracking Error}
+\mathbf{w}=(w_1,w_2,\ldots,w_N).
 \]</span></p>
-<p>subject to constraints such as:</p>
-<ul>
-<li>market value equals available capital;</li>
-<li>no short sales;</li>
-<li>maximum number of securities;</li>
-<li>duration within a range around the benchmark;</li>
-<li>sector active weights within limits;</li>
-<li>issuer concentration limits;</li>
-<li>minimum trade size;</li>
-<li>transaction-cost budget;</li>
-<li>tracking error below the risk budget.</li>
-</ul>
-<div class="callout callout-style-default callout-note callout-titled" title="Long Numerical Example: Building a 50-Bond Enhanced Index Portfolio">
+<p>Given those weights, the optimizer can compute portfolio exposures, active exposures, predicted tracking error, expected active return, transaction cost, issuer concentration, sector weights, and liquidity usage. The optimizer is therefore not choosing bonds in isolation. It is choosing a full portfolio whose combined exposures fit the mandate.</p>
+<p>The main inputs are:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Input</th>
+<th>Why it matters</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Tradable universe</td>
+<td>Defines which bonds the optimizer is allowed to buy or sell</td>
+</tr>
+<tr class="even">
+<td>Current holdings</td>
+<td>Determines starting exposures, taxable lots, turnover, and trade sizes</td>
+</tr>
+<tr class="odd">
+<td>Benchmark holdings and exposures</td>
+<td>Defines the active risk comparison</td>
+</tr>
+<tr class="even">
+<td>Security prices and accrued interest</td>
+<td>Converts weights into dollar trades and market value</td>
+</tr>
+<tr class="odd">
+<td>Expected active returns or manager views</td>
+<td>Rewards desired tilts such as credit overweight or curve steepener</td>
+</tr>
+<tr class="even">
+<td>Factor exposures and covariance estimates</td>
+<td>Converts holdings into predicted tracking error</td>
+</tr>
+<tr class="odd">
+<td>Bid-ask spreads and transaction costs</td>
+<td>Penalizes trades that are too expensive to justify</td>
+</tr>
+<tr class="even">
+<td>Issuer, sector, duration, spread, liquidity, and turnover limits</td>
+<td>Keeps the solution investable and mandate-compliant</td>
+</tr>
+</tbody>
+</table>
+<p>The objective depends on the mandate. A passive or enhanced-indexing portfolio may minimize tracking error:</p>
+<p><span class="math display">\[
+\min_{\mathbf{w}} \ \text{Predicted TE}(\mathbf{w}).
+\]</span></p>
+<p>An active benchmark-aware portfolio may instead maximize expected active return after risk and cost penalties:</p>
+<p><span class="math display">\[
+\max_{\mathbf{w}}
+\left[
+E(R_p-R_b)
+-\lambda \text{Predicted TE}(\mathbf{w})^2
+-\text{Transaction Cost}(\mathbf{w})
+\right].
+\]</span></p>
+<p>The parameter <span class="math inline">\(\lambda\)</span> controls risk aversion. A larger <span class="math inline">\(\lambda\)</span> forces the optimizer to care more about tracking error; a smaller <span class="math inline">\(\lambda\)</span> allows more active risk if expected active return is attractive.</p>
+<p>The constraints are often more important than the objective. They define what portfolios are allowed:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Constraint type</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Budget</td>
+<td>Portfolio market value must equal available capital</td>
+</tr>
+<tr class="even">
+<td>Long-only</td>
+<td>No short positions: <span class="math inline">\(w_i \ge 0\)</span></td>
+</tr>
+<tr class="odd">
+<td>Risk budget</td>
+<td>Predicted tracking error must be below the client limit</td>
+</tr>
+<tr class="even">
+<td>Duration</td>
+<td>Active duration must stay between -0.25 and +0.25 years</td>
+</tr>
+<tr class="odd">
+<td>Sector</td>
+<td>Corporate active weight must stay within +/-5%</td>
+</tr>
+<tr class="even">
+<td>Issuer</td>
+<td>Active issuer weight cannot exceed 3%</td>
+</tr>
+<tr class="odd">
+<td>Liquidity</td>
+<td>Avoid bonds below a minimum issue size or trading frequency</td>
+</tr>
+<tr class="even">
+<td>Trade size</td>
+<td>Avoid tiny odd-lot trades that are operationally inefficient</td>
+</tr>
+<tr class="odd">
+<td>Turnover and cost</td>
+<td>Total transaction cost must stay below a budget</td>
+</tr>
+</tbody>
+</table>
+<p>This is why optimization is useful: the manager can express a view, such as “overweight credit modestly,” while the optimizer finds the cheapest and lowest-risk way to implement that view without violating duration, issuer, liquidity, or tracking-error limits.</p>
+<p>Sometimes the constraints conflict. A 50-bond limit, a tight tracking-error budget, a large credit overweight, and a low transaction-cost budget may not all be feasible at once. In that case, the optimizer does not solve the economic problem for the manager; it reveals the tradeoff that must be relaxed.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Example: Building a 50-Bond Enhanced Index Portfolio">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Long Numerical Example: Building a 50-Bond Enhanced Index Portfolio
+<span class="screen-reader-only">Note</span>Example: Building a 50-Bond Enhanced Index Portfolio
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -2216,63 +2176,6 @@ Figure&nbsp;8: Key rate decomposition reveals curve-shape risk that total durati
 <p>The portfolio satisfies the duration and spread tilt constraints. The remaining question is whether those tilts fit inside the tracking error budget.</p>
 </div>
 </div>
-<div id="6ac20672" class="cell" data-message="false" data-execution_count="21">
-<div class="cell-output cell-output-display" data-execution_count="48">
-<div>
-
-
-<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
-<thead>
-<tr class="header">
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">Exposure</th>
-<th data-quarto-table-cell-role="th">Portfolio</th>
-<th data-quarto-table-cell-role="th">Benchmark</th>
-<th data-quarto-table-cell-role="th">Difference</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">0</th>
-<td>Duration</td>
-<td>5.56</td>
-<td>5.41</td>
-<td>0.15</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">1</th>
-<td>Spread duration</td>
-<td>5.37</td>
-<td>5.27</td>
-<td>0.10</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">2</th>
-<td>Convexity</td>
-<td>0.11</td>
-<td>0.06</td>
-<td>0.05</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">3</th>
-<td>Vega</td>
-<td>0.04</td>
-<td>0.03</td>
-<td>0.01</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">4</th>
-<td>Spread (bps)</td>
-<td>107.00</td>
-<td>57.00</td>
-<td>50.00</td>
-</tr>
-</tbody>
-</table>
-
-</div>
-</div>
-</div>
 <div class="callout callout-style-default callout-note callout-titled" title="Toy Optimizer Example: Choosing Representative Bonds">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -2283,11 +2186,9 @@ Figure&nbsp;8: Key rate decomposition reveals curve-shape risk that total durati
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Suppose a manager has $10 million to invest and wants to approximate a benchmark with duration near 5.0, spread duration near 3.0, and at least 30% in Treasuries for liquidity. The tradable universe is:</p>
-</div>
-</div>
-<div id="dd16b713" class="cell" data-message="false" data-execution_count="22">
-<div class="cell-output cell-output-display" data-execution_count="49">
+<p>Suppose a manager has $10 million to invest and wants to approximate a benchmark with duration near 5.0, spread duration near 3.0, at least 30% in Treasuries for liquidity, and no more than 40% in corporates. The table shows a small tradable universe and one feasible set of chosen weights:</p>
+<div id="256c656f" class="cell" data-message="false" data-execution_count="21">
+<div class="cell-output cell-output-display" data-execution_count="125">
 <div>
 
 
@@ -2355,59 +2256,23 @@ Figure&nbsp;8: Key rate decomposition reveals curve-shape risk that total durati
 </div>
 </div>
 </div>
-<div id="a95ce014" class="cell" data-message="false" data-execution_count="23">
-<div class="cell-output cell-output-display" data-execution_count="50">
-<div>
-
-
-<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
-<thead>
-<tr class="header">
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">Portfolio metric</th>
-<th data-quarto-table-cell-role="th">Value</th>
-<th data-quarto-table-cell-role="th">Benchmark / constraint</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">0</th>
-<td>Yield</td>
-<td>5.02</td>
-<td>5.0</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">1</th>
-<td>Duration</td>
-<td>5.46</td>
-<td>5.0</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">2</th>
-<td>Spread duration</td>
-<td>2.75</td>
-<td>3.0</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">3</th>
-<td>Treasury weight</td>
-<td>40.00</td>
-<td>&gt;= 30</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">4</th>
-<td>Corporate weight</td>
-<td>35.00</td>
-<td>&lt;= 40</td>
-</tr>
-</tbody>
-</table>
-
-</div>
-</div>
-</div>
-<p>The selected weights are not the result of a full industrial optimizer, but the logic is the same: candidate bonds are combined so portfolio exposures land near benchmark exposures while satisfying constraints. A real optimizer would also include issuer caps, minimum lot sizes, transaction costs, taxes, and predicted tracking error.</p>
-<div id="cell-fig-toy-portfolio-exposures" class="cell" data-message="false" data-execution_count="24">
+<p>The optimizer is choosing the weights. In this toy version, the constraints are:</p>
+<p><span class="math display">\[
+\sum_i w_i=1,\quad w_i\ge 0,
+\]</span></p>
+<p><span class="math display">\[
+\sum_i w_i\mathbf{1}_{\text{Treasury},i}\ge 30\%,
+\quad
+\sum_i w_i\mathbf{1}_{\text{Corporate},i}\le 40\%.
+\]</span></p>
+<p>It also tries to keep weighted-average duration and spread duration near the target:</p>
+<p><span class="math display">\[
+\sum_i w_iD_i \approx 5.0,
+\quad
+\sum_i w_iSD_i \approx 3.0.
+\]</span></p>
+<p>The selected weights are not the result of a full industrial optimizer, but the logic is the same: candidate bonds are combined so portfolio exposures land near target exposures while satisfying constraints. A real optimizer would also include issuer caps, minimum lot sizes, transaction costs, taxes, and predicted tracking error.</p>
+<div id="cell-fig-toy-portfolio-exposures" class="cell" data-message="false" data-execution_count="23">
 <div class="cell-output cell-output-display">
 <div id="fig-toy-portfolio-exposures" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
@@ -2418,6 +2283,8 @@ Figure&nbsp;8: Key rate decomposition reveals curve-shape risk that total durati
 Figure&nbsp;9: Toy portfolio construction: chosen exposures compared with target exposures.
 </figcaption>
 </figure>
+</div>
+</div>
 </div>
 </div>
 </div>
@@ -2452,7 +2319,47 @@ flowchart LR
 </div>
 </div>
 </div>
-<p>The reason optimization is valuable is not that it replaces judgment. It makes tradeoffs explicit. If the manager wants more corporate spread exposure, the optimizer shows which bonds add the exposure with the least tracking error, issuer concentration, and transaction cost.</p>
+<p>The reason optimization is valuable is not that it replaces judgment. It makes tradeoffs explicit. If the manager wants more corporate spread exposure, the optimizer shows which bonds add that exposure with the least tracking error, issuer concentration, and transaction cost.</p>
+<p>A manager should read the optimizer output as a diagnostic report:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Output</th>
+<th>Question to ask</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Predicted tracking error</td>
+<td>Is the portfolio inside the active-risk budget?</td>
+</tr>
+<tr class="even">
+<td>Factor risk decomposition</td>
+<td>Which exposures are driving active risk?</td>
+</tr>
+<tr class="odd">
+<td>Trade list</td>
+<td>Are the trades executable in realistic size?</td>
+</tr>
+<tr class="even">
+<td>Transaction cost estimate</td>
+<td>Is the expected benefit large enough to pay for the trades?</td>
+</tr>
+<tr class="odd">
+<td>Constraint shadow prices or binding constraints</td>
+<td>Which limits are forcing the solution?</td>
+</tr>
+<tr class="even">
+<td>Issuer and sector active weights</td>
+<td>Is the portfolio taking unintended concentration risk?</td>
+</tr>
+</tbody>
+</table>
+<p>If a constraint is binding, the optimizer is telling the manager that the limit matters. For example, if the issuer cap is binding, the manager cannot add more of the preferred bond without reducing another position in the same issuer or relaxing the mandate.</p>
 <div class="callout callout-style-default callout-tip callout-titled" title="Optimizer Intuition">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -2524,73 +2431,8 @@ flowchart LR
 </tbody>
 </table>
 <p>If the trades cost 6 bps and reduce monthly tracking error by only 0.2 bps, the manager must decide whether the risk reduction is worth the cost.</p>
-</div>
-</div>
-<div id="9da34627" class="cell" data-message="false" data-execution_count="25">
-<div class="cell-output cell-output-display" data-execution_count="52">
-<div>
-
-
-<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
-<thead>
-<tr class="header">
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">Exposure</th>
-<th data-quarto-table-cell-role="th">Before</th>
-<th data-quarto-table-cell-role="th">After</th>
-<th data-quarto-table-cell-role="th">Limit</th>
-<th data-quarto-table-cell-role="th">Unit</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">0</th>
-<td>Duration gap</td>
-<td>0.32</td>
-<td>0.18</td>
-<td>0.25</td>
-<td>years</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">1</th>
-<td>Corporate active weight</td>
-<td>9.50</td>
-<td>6.20</td>
-<td>8.00</td>
-<td>%</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">2</th>
-<td>Bank active weight</td>
-<td>8.00</td>
-<td>5.00</td>
-<td>5.00</td>
-<td>%</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">3</th>
-<td>Issuer concentration</td>
-<td>4.20</td>
-<td>2.90</td>
-<td>3.00</td>
-<td>%</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">4</th>
-<td>Predicted TE</td>
-<td>14.80</td>
-<td>10.60</td>
-<td>12.00</td>
-<td>bps/month</td>
-</tr>
-</tbody>
-</table>
-
-</div>
-</div>
-</div>
 <p>In this example, the manager does not need to eliminate every active position. The goal is to bring the portfolio back inside risk limits while preserving intentional views. The after-trade portfolio still has a corporate overweight, but the bank overweight, issuer concentration, duration gap, and predicted tracking error are now within limits.</p>
-<div id="cell-fig-rebalance-before-after" class="cell" data-message="false" data-execution_count="26">
+<div id="cell-fig-rebalance-before-after" class="cell" data-message="false" data-execution_count="25">
 <div class="cell-output cell-output-display">
 <div id="fig-rebalance-before-after" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
@@ -2604,7 +2446,9 @@ Figure&nbsp;10: Rebalancing should target the exposures that violate risk limits
 </div>
 </div>
 </div>
-<div id="cell-fig-rebalance-frontier" class="cell" data-message="false" data-execution_count="27">
+</div>
+</div>
+<div id="cell-fig-rebalance-frontier" class="cell" data-message="false" data-execution_count="26">
 <div class="cell-output cell-output-display">
 <div id="fig-rebalance-frontier" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
@@ -2632,11 +2476,30 @@ Figure&nbsp;11: Illustrative tradeoff between transaction cost and tracking erro
 <p>The before/after plot teaches control: which exposures breach limits and which trades fix them. The tradeoff plot teaches cost discipline: after a certain point, additional trades may lower tracking error only slightly while transaction costs keep rising.</p>
 </div>
 </div>
-<p>Sources used for lecture framing include Markowitz’s portfolio selection framework, Sharpe’s single-index model, fixed-income portfolio construction material from Fabozzi-style bond portfolio management chapters, NYU Stern fixed-income lecture material, MIT OpenCourseWare finance and portfolio theory material, and FRED series for Treasury yields and ICE BofA corporate option-adjusted spreads.</p>
-
-
 </section>
 </section>
+<section id="key-points" class="level2" data-number="3.2">
+<h2 data-number="3.2" class="anchored" data-anchor-id="key-points"><span class="header-section-number">3.2</span> Key Points</h2>
+<ul>
+<li>Bond portfolio construction is usually benchmark-aware, so tracking error is often more useful than total portfolio volatility.</li>
+<li>Historical tracking error measures realized active returns; predicted tracking error uses today’s holdings, exposures, covariance estimates, and residual risk.</li>
+<li>A factor exposure, <span class="math inline">\(x_{i,k}\)</span>, measures how sensitive bond <span class="math inline">\(i\)</span> is to factor <span class="math inline">\(k\)</span>. Portfolio and benchmark exposures are weighted averages of security-level exposures.</li>
+<li>Active exposure, <span class="math inline">\(\Delta x_k=x_{p,k}-x_{b,k}\)</span>, is the source of active risk relative to a benchmark.</li>
+<li>Factor covariance matters because active risks can offset each other or reinforce each other.</li>
+<li>Idiosyncratic risk remains important in bond portfolios because benchmark replication is difficult and issuer positions can be concentrated.</li>
+<li>Cell-based indexing is transparent, but it can miss correlations and security-specific risk inside cells.</li>
+<li>Multi-factor models and optimizers help managers translate views, constraints, trading costs, and risk budgets into implementable portfolios.</li>
+<li>Rebalancing should focus on risk that is large, unintended, uncompensated, or outside the client’s limits.</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="suggested-readings" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> Suggested Readings</h1>
+<p>Fabozzi – <em>Bond Markets, Analysis, and Strategies</em>:<br>
+<strong>Chapter 25: Bond Portfolio Construction</strong></p>
+
+
 </section>
 
 </main> <!-- /main -->

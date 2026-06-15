@@ -511,7 +511,7 @@ plt.show()
 
 The intuition is direct: tracking error is not about whether returns are high or low. It is about whether the portfolio and benchmark move together. Portfolio B may outperform, but it is taking more active risk.
 
-::: {.callout-note title="Long Example: Tracking Error from a Realistic Bond Mandate"}
+::: {.callout-note title="Example: Tracking Error from a Bond Mandate"}
 Suppose a core bond manager is benchmarked to a broad aggregate bond index. The manager's monthly active returns over six months are:
 
 | Month | Active return |
@@ -738,7 +738,6 @@ Bond indexing is harder than equity indexing for several reasons:
 - **Bid-ask spread:** benchmark returns often use bid-side pricing, while portfolio purchases occur near ask-side prices.
 - **Index pricing:** index provider prices may not be executable.
 - **Cash-flow reinvestment:** coupons, maturities, calls, and amortization create cash to reinvest.
-- **Mortgage aggregation:** agency MBS indexes often represent huge numbers of pools through generic cohorts.
 
 ::: {.callout-note title="Transaction Cost Example"}
 Suppose a manager tries to buy 1,000 small bond positions and pays an average 12 bps bid-ask and execution cost. On a $100 million portfolio:
@@ -752,7 +751,7 @@ That is 12 bps of immediate performance drag before any active decision is made.
 
 The reason enhanced indexing exists is pragmatic. A manager samples the benchmark to reduce transaction costs and operational complexity, then controls the resulting mismatch with cells or factor exposures.
 
-::: {.callout-note title="Why the Cell Diagram Matters"}
+::: {.callout-important title="Why the Cell Diagram Matters"}
 The cell diagram is not just a classification picture. It shows the manager's operational problem: a benchmark may contain thousands of bonds, but the portfolio might be able to hold only 100-300 names. The cell approach is a disciplined sampling rule that says, "If we cannot buy everything, at least match the major benchmark characteristics."
 :::
 
@@ -877,6 +876,7 @@ The largest isolated source of active risk is the IG corporate spread overweight
 #| echo: false
 #| message: false
 #| warning: false
+#| output: false
 
 decomp = pd.DataFrame(
     {
@@ -931,7 +931,6 @@ plt.tight_layout()
 plt.show()
 ```
 
-The plot has one purpose: it ranks the active bets before diversification. It tells the manager where to look first.
 
 #### Step 2: Combine Factors Correctly
 
@@ -958,7 +957,6 @@ $$
 6.0+2.5+5.25+10.8+4.0=28.55\text{ bps}.
 $$
 
-That is not the correct tracking error. It treats all factors as if their worst movements arrive in the same direction at the same time.
 
 ```{python}
 #| echo: false
@@ -979,6 +977,8 @@ pd.DataFrame(
     }
 ).round(2)
 ```
+
+That is not the correct tracking error. It treats all factors as if their worst movements arrive in the same direction at the same time.
 
 #### Step 3: Correlations Can Reduce or Increase Risk
 
@@ -1051,7 +1051,7 @@ plt.tight_layout()
 plt.show()
 ```
 
-This plot has one purpose: it shows why a risk model needs correlations, not just a list of active exposures.
+The plot shows why a risk model needs correlations, not just a list of active exposures. It shows how the correlation between two factors can reduce or increase total tracking error.
 
 #### Step 4: Separate Systematic and Idiosyncratic Risk
 
@@ -1123,8 +1123,6 @@ for i, row in components.iterrows():
 plt.tight_layout()
 plt.show()
 ```
-
-This plot has one purpose: it shows whether tracking error is mostly factor risk or mostly security-selection risk. The management response is different.
 
 #### Step 5: Convert Exposures into Scenario Returns
 
@@ -1201,7 +1199,7 @@ plt.tight_layout()
 plt.show()
 ```
 
-This plot has one purpose: it shows the sign of each active bet in a specific market move. The isolated TE plot shows size; the scenario plot shows direction.
+This plot shows the sign of each active bet in a specific market move. The isolated TE plot shows size; the scenario plot shows direction.
 
 #### Step 6: Key Rate Decomposition Shows Curve-Shape Risk
 
@@ -1277,7 +1275,7 @@ plt.tight_layout()
 plt.show()
 ```
 
-This plot has one purpose: it compares where the portfolio and benchmark have their rate exposure. It is not a general "risk level" chart; it is a curve-shape diagnostic.
+This plot compares where the portfolio and benchmark have their rate exposure.
 
 #### Step 7: Translate the Decomposition into a Decision
 
@@ -1289,7 +1287,6 @@ Risk decomposition should lead to an action. A manager uses it to decide which r
 | Is this risk compensated? | Reduce issuer concentration if it adds TE without expected alpha. |
 | Is this risk hedgeable? | Use Treasury futures to neutralize unwanted duration. |
 | Is this risk diversifiable? | Replace a concentrated issuer position with several similar bonds. |
-| Is this risk cheap to trade? | Fix large liquid Treasury mismatches before small illiquid corporate mismatches. |
 
 The full picture is:
 

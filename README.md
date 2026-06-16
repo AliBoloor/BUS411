@@ -28,23 +28,30 @@ This starts a local server; the site will open in your browser and auto-refresh 
 
 ## Render the Website
 
-To render the full website:
+To render the website HTML:
 
 ```bash
-quarto render
+quarto render --to html
 ```
 
 Output is written to the `docs/` directory. For GitHub Pages, configure your repository to serve the site from the `docs/` folder (Settings → Pages → Source: Deploy from a branch → Branch: main, folder: /docs).
 
-## Render Individual Lecture Notes to PDF
+## Render Public PDFs
 
-From the project root:
+The GitHub Action renders the public PDFs after the HTML site. To reproduce that locally, render the same selected targets:
 
 ```bash
-quarto render lecture_notes/lec1.qmd
+quarto render course-outline.md --to pdf
+quarto render lecture_notes/lec1.qmd --to pdf
+quarto render lecture_notes/lec2.qmd --to pdf
+quarto render lecture_notes/lec3.qmd --to pdf
+quarto render lecture_notes/lec4.qmd --to pdf
+quarto render lecture_notes/lec5.qmd --to pdf
+quarto render lecture_notes/lec6.qmd --to pdf
+quarto render assignments/assignment1/assignment-1-questions.qmd --to pdf
 ```
 
-This produces both HTML and PDF outputs. PDF output requires a LaTeX distribution (e.g., TinyTeX or full TeX Live).
+PDF output requires a LaTeX distribution such as TinyTeX or full TeX Live.
 
 ## Structure
 

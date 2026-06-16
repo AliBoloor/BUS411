@@ -3,24 +3,28 @@ name: Render Quarto Website
 on:
   push:
     branches: [main, master]
+  workflow_dispatch:
 
 concurrency:
-  group: quarto-render-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: false
+  group: quarto-render-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   render:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
+      PYTHONIOENCODING: utf-8
     permissions:
       contents: write
     if: github.actor != 'github-actions[bot]'
     steps:
       - name: Check out repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
         with:
+          fetch-depth: 0
           persist-credentials: true
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -35,31 +39,56 @@ jobs:
       - name: Report Quarto version
         run: quarto --version
 
-      - name: Install TeX fonts for syllabus PDF (Linux)
+      - name: Install common TeX packages
         run: |
           if command -v tlmgr >/dev/null 2>&1; then
-            tlmgr install --no-dependents tex-gyre || true
+            tlmgr update --self
+            tlmgr install tex-gyre koma-script fontspec unicode-math xetex luatex || true
           fi
 
       - name: Setup Python for Quarto execution
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v5
         with:
           python-version: "3.x"
+          cache: "pip"
+          cache-dependency-path: requirements.txt
 
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install numpy matplotlib pandas ipykernel jupyter
+          python -m pip install -r requirements.txt
           python -m ipykernel install --user --name python3 --display-name "Python 3"
 
-      - name: Render website (HTML + PDF)
-        run: quarto render
+      - name: Render website HTML
+        run: quarto render --to html
+
+      - name: Render public PDFs
+        run: |
+          set -euo pipefail
+          targets=(
+            "course-outline.md"
+            "lecture_notes/lec1.qmd"
+            "lecture_notes/lec2.qmd"
+            "lecture_notes/lec3.qmd"
+            "lecture_notes/lec4.qmd"
+            "lecture_notes/lec5.qmd"
+            "lecture_notes/lec6.qmd"
+            "assignments/assignment1/assignment-1-questions.qmd"
+          )
+          for target in "${targets[@]}"; do
+            quarto render "$target" --to pdf
+          done
 
       - name: Commit and push docs
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add docs/
-          git diff --staged --quiet || git commit -m "Render Quarto website to docs/"
+          if git diff --staged --quiet; then
+            echo "No rendered docs changes to commit."
+            exit 0
+          fi
+          git commit -m "Render Quarto website to docs/"
+          git pull --rebase --autostash origin "${GITHUB_REF_NAME}"
           git remote set-url origin "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
           git push

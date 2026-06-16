@@ -9,7 +9,7 @@ Course materials and lecture notes for **BUS 411: Fixed Income Security Analysis
 This repository contains:
 
 - **Lecture notes** (`.qmd` format) in `lecture_notes/`
-- **Assignments**, problem sets, labs, and exams (placeholders for future content)
+- Public assignment questions, plus local-only assignment drafts and exam materials
 - A **Quarto website** that builds into `docs/` for GitHub Pages
 
 ## Prerequisites
@@ -57,9 +57,9 @@ PDF output requires a LaTeX distribution such as TinyTeX or full TeX Live.
 
 - `lecture_notes/` — Lecture content (`.qmd` files)
 - `slides/` — Presentation slides
-- `assignments/` — Assignment landing page and materials
+- `assignments/` — Public assignment questions; drafts and data files are local-only
 - `problem_sets/` — Problem sets
 - `labs/` — Lab exercises
-- `exams/` — Exam materials
+- `exams/` — Local-only exam materials
 - `assets/` — Images, figures, PDFs, and data files
 - `docs/` — Rendered website output (for GitHub Pages)

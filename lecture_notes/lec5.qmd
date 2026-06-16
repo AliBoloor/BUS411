@@ -72,32 +72,7 @@ This benchmark role exists for practical reasons, not just theoretical ones. The
 FRED reported the 10-year Treasury constant maturity yield at **4.46% on June 2, 2026** and the 10-year breakeven inflation rate at **2.38% on June 3, 2026**. On June 2, 2026, broad U.S. corporate option-adjusted spreads were about **0.74%**, while high-yield spreads were about **2.71%**. Nominal Treasury rates set the base rate, TIPS help reveal inflation compensation, and corporate spreads price credit risk.
 :::
 
-```{mermaid}
-%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Inter, Arial, sans-serif", "primaryBorderColor": "#1d4ed8", "lineColor": "#64748b"}}}%%
-flowchart LR
-  A["U.S. Treasury securities<br/>base interest-rate curve"] --> B["Agency debt<br/>Treasury + agency/liquidity spread"]
-  A --> C["Investment-grade corporates<br/>Treasury + credit/liquidity spread"]
-  A --> D["High-yield bonds and loans<br/>Treasury or SOFR + larger credit spread"]
-  A --> E["TIPS<br/>real yield + inflation adjustment"]
-  A --> F["STRIPS<br/>zero-coupon Treasury cash flows"]
-  classDef treasury fill:#dbeafe,stroke:#1d4ed8,stroke-width:3px,color:#0f172a;
-  classDef agency fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#052e16;
-  classDef ig fill:#ede9fe,stroke:#7c3aed,stroke-width:2px,color:#2e1065;
-  classDef hy fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#450a0a;
-  classDef tips fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#451a03;
-  classDef strips fill:#cffafe,stroke:#0891b2,stroke-width:2px,color:#083344;
-  class A treasury;
-  class B agency;
-  class C ig;
-  class D hy;
-  class E tips;
-  class F strips;
-  linkStyle 0 stroke:#16a34a,stroke-width:2.5px;
-  linkStyle 1 stroke:#7c3aed,stroke-width:2.5px;
-  linkStyle 2 stroke:#dc2626,stroke-width:2.5px;
-  linkStyle 3 stroke:#d97706,stroke-width:2.5px;
-  linkStyle 4 stroke:#0891b2,stroke-width:2.5px;
-```
+![Diagram](lec5_files/figure-latex/mermaid-figure-1.png){fig-align="center"}
 
 ## Types of Treasury Securities
 
@@ -164,62 +139,17 @@ A Treasury bill is mostly a promise about **one future dollar**. A Treasury note
 <div style="display: flex; flex-direction: row; gap: 2rem; justify-content: space-around; align-items: flex-start; flex-wrap: wrap;">
 <div style="flex: 1; min-width: 270px;">
 
-```{mermaid}
-%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Inter, Arial, sans-serif", "lineColor": "#64748b"}}}%%
-flowchart TD
-  subgraph Bills["Treasury bill"]
-    A["Pay discounted price today"] --> B["Receive one par payment<br/>at maturity"]
-  end
-  classDef today fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#082f49;
-  classDef cash fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#052e16;
-  classDef group fill:#f8fafc,stroke:#94a3b8,stroke-width:1.5px,color:#0f172a;
-  class A today;
-  class B cash;
-  class Bills group;
-  linkStyle 0 stroke:#0284c7,stroke-width:2.5px;
-```
+![Diagram](lec5_files/figure-latex/mermaid-figure-2.png){fig-align="center"}
 
 </div>
 <div style="flex: 1; min-width: 270px;">
 
-```{mermaid}
-%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Inter, Arial, sans-serif", "lineColor": "#64748b"}}}%%
-flowchart TD
-  subgraph Coupons["Treasury note or bond"]
-    C["Pay clean + accrued price"] --> D["Receive semiannual coupons"]
-    D --> E["Receive final coupon + par"]
-  end
-  classDef today fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#082f49;
-  classDef cash fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#052e16;
-  classDef group fill:#f8fafc,stroke:#94a3b8,stroke-width:1.5px,color:#0f172a;
-  class C today;
-  class D,E cash;
-  class Coupons group;
-  linkStyle 0 stroke:#16a34a,stroke-width:2.5px;
-  linkStyle 1 stroke:#16a34a,stroke-width:2.5px;
-```
+![Diagram](lec5_files/figure-latex/mermaid-figure-3.png){fig-align="center"}
 
 </div>
 <div style="flex: 1; min-width: 270px;">
 
-```{mermaid}
-%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Inter, Arial, sans-serif", "lineColor": "#64748b"}}}%%
-flowchart TD
-  subgraph FRNs["Treasury FRN"]
-    F["Pay price today"] --> G["Coupon resets quarterly<br/>with short rates"]
-    G --> H["Receive par at maturity"]
-  end
-  classDef today fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#082f49;
-  classDef cash fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#052e16;
-  classDef reset fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#451a03;
-  classDef group fill:#f8fafc,stroke:#94a3b8,stroke-width:1.5px,color:#0f172a;
-  class F today;
-  class G reset;
-  class H cash;
-  class FRNs group;
-  linkStyle 0 stroke:#d97706,stroke-width:2.5px;
-  linkStyle 1 stroke:#16a34a,stroke-width:2.5px;
-```
+![Diagram](lec5_files/figure-latex/mermaid-figure-4.png){fig-align="center"}
 
 </div>
 </div>
@@ -351,26 +281,7 @@ U.S. Treasury auctions are **single-price auctions**. All successful bidders rec
 
 Within about an hour after the 1:00 p.m. auction deadline, Treasury announces the results. These include the stop-out yield, associated price, percentage awarded at the stop-out yield, amount of noncompetitive tenders, median-yield bid, bid-to-cover ratio, and, for notes and bonds, the coupon rate.
 
-```{mermaid}
-%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Inter, Arial, sans-serif", "lineColor": "#475569"}}}%%
-flowchart LR
-  A["Announcement"] --> B["Noncompetitive<br/>deducted first"]
-  B --> C["Competitive bids<br/>ranked low yield to high"]
-  C --> D["High yield"]
-  D --> E["Single-price<br/>award"]
-  E --> F["Results<br/>and settlement"]
-  classDef announce fill:#dbeafe,stroke:#2563eb,stroke-width:2.5px,color:#0f172a;
-  classDef access fill:#dcfce7,stroke:#16a34a,stroke-width:2.5px,color:#052e16;
-  classDef rank fill:#fef3c7,stroke:#d97706,stroke-width:2.5px,color:#451a03;
-  classDef clear fill:#fee2e2,stroke:#dc2626,stroke-width:2.5px,color:#450a0a;
-  classDef market fill:#ede9fe,stroke:#7c3aed,stroke-width:2.5px,color:#2e1065;
-  class A announce;
-  class B access;
-  class C rank;
-  class D clear;
-  class E,F market;
-  linkStyle default stroke:#475569,stroke-width:2.5px;
-```
+![Diagram](lec5_files/figure-latex/mermaid-figure-5.png){fig-align="center"}
 
 ::: {.callout-note title="Auction Example: Finding the Stop-Out Yield"}
 **Setup**
@@ -610,29 +521,7 @@ $$
 
 The economic reason for stripping is matching. A coupon Treasury delivers cash repeatedly; a STRIP delivers cash once. If an insurer knows it must pay a claim reserve in exactly 12 years, a 12-year principal STRIP is cleaner than buying a coupon bond and reinvesting intermediate coupons. STRIPS also make duration exposure more concentrated because no cash comes back before maturity.
 
-```{mermaid}
-%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Inter, Arial, sans-serif", "lineColor": "#64748b"}}}%%
-flowchart LR
-  A["10-year coupon Treasury<br/>one bundled security"] --> B["Coupon STRIP 1"]
-  A --> C["Coupon STRIP 2"]
-  A --> D["..."]
-  A --> E["Coupon STRIP 20"]
-  A --> F["Principal STRIP"]
-  F --> G["One known cash flow<br/>at maturity"]
-  B --> H["Liability matching<br/>specific coupon date"]
-  E --> I["Zero-coupon pricing<br/>specific future date"]
-  classDef source fill:#dbeafe,stroke:#2563eb,stroke-width:3px,color:#0f172a;
-  classDef coupon fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#451a03;
-  classDef principal fill:#dcfce7,stroke:#16a34a,stroke-width:2.5px,color:#052e16;
-  classDef usecase fill:#ede9fe,stroke:#7c3aed,stroke-width:2px,color:#2e1065;
-  class A source;
-  class B,C,D,E coupon;
-  class F,G principal;
-  class H,I usecase;
-  linkStyle 0,1,2,3 stroke:#d97706,stroke-width:2.2px;
-  linkStyle 4,5 stroke:#16a34a,stroke-width:2.8px;
-  linkStyle 6,7 stroke:#7c3aed,stroke-width:2px,stroke-dasharray: 5 4;
-```
+![Diagram](lec5_files/figure-latex/mermaid-figure-6.png){fig-align="center"}
 
 ## Tax Treatment
 
@@ -770,55 +659,13 @@ But the spread is not just default probability. It also reflects expected recove
 
 Corporate debt exists because it is often cheaper and less dilutive than equity. For investors, it creates a contractual claim with priority over equity but limited upside. This asymmetry explains why bondholders care less about maximum growth and more about downside protection, asset coverage, and restrictions on risk-shifting.
 
-```{mermaid}
-%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Inter, Arial, sans-serif", "lineColor": "#64748b"}}}%%
-flowchart LR
-  A["Company financing need"] --> B["Commercial paper<br/>days to months"]
-  A --> C["Bank loan / revolver<br/>flexible credit facility"]
-  A --> D["MTN<br/>tailored maturity or payoff"]
-  A --> E["Corporate bond<br/>public long-term funding"]
-  A --> F["High-yield bond / leveraged loan<br/>speculative-grade funding"]
-  classDef need fill:#dbeafe,stroke:#2563eb,stroke-width:3px,color:#0f172a;
-  classDef short fill:#cffafe,stroke:#0891b2,stroke-width:2px,color:#083344;
-  classDef bank fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#052e16;
-  classDef custom fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#451a03;
-  classDef public fill:#ede9fe,stroke:#7c3aed,stroke-width:2px,color:#2e1065;
-  classDef risky fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#450a0a;
-  class A need;
-  class B short;
-  class C bank;
-  class D custom;
-  class E public;
-  class F risky;
-  linkStyle 0 stroke:#0891b2,stroke-width:2.4px;
-  linkStyle 1 stroke:#16a34a,stroke-width:2.4px;
-  linkStyle 2 stroke:#d97706,stroke-width:2.4px;
-  linkStyle 3 stroke:#7c3aed,stroke-width:2.4px;
-  linkStyle 4 stroke:#dc2626,stroke-width:2.4px;
-```
+![Diagram](lec5_files/figure-latex/mermaid-figure-7.png){fig-align="center"}
 
 ## Seniority of Debt in a Corporation's Capital Structure
 
 Seniority determines who gets paid first if the issuer cannot meet its obligations. A simplified capital structure is:
 
-```{mermaid}
-%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Inter, Arial, sans-serif", "lineColor": "#64748b"}}}%%
-flowchart TB
-  A["Senior secured debt<br/>first claim on pledged collateral"] --> B["Senior unsecured debt<br/>general creditor claim"]
-  B --> C["Senior subordinated debt"]
-  C --> D["Subordinated debt"]
-  D --> E["Preferred stock"]
-  E --> F["Common equity<br/>residual claim"]
-  classDef top fill:#dcfce7,stroke:#16a34a,stroke-width:3px,color:#052e16;
-  classDef senior fill:#dbeafe,stroke:#2563eb,stroke-width:2.5px,color:#0f172a;
-  classDef junior fill:#fef3c7,stroke:#d97706,stroke-width:2.5px,color:#451a03;
-  classDef equity fill:#fee2e2,stroke:#dc2626,stroke-width:2.5px,color:#450a0a;
-  class A top;
-  class B senior;
-  class C,D junior;
-  class E,F equity;
-  linkStyle default stroke:#64748b,stroke-width:2.5px;
-```
+![Diagram](lec5_files/figure-latex/mermaid-figure-8.png){fig-align="center"}
 
 Senior secured debt is backed by collateral. Senior unsecured debt has no specific collateral but has a general claim on the issuer's assets after secured claims. Subordinated debt ranks below senior debt. Equity is last.
 
@@ -961,23 +808,7 @@ Covenants are especially important in high-yield bonds and leveraged loans becau
 
 The reason covenants exist is agency conflict. After debt is issued, shareholders and managers may prefer actions that increase equity upside while increasing creditor downside: more debt, dividends, asset sales, risky acquisitions, or collateral pledges to new lenders. Covenants limit those transfers of value.
 
-```{mermaid}
-%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Inter, Arial, sans-serif", "lineColor": "#64748b"}}}%%
-flowchart TB
-  A["Potential borrower action"] --> B{"Can it harm creditors?"}
-  B -->|More leverage| C["Debt incurrence covenant"]
-  B -->|Cash leaves firm| D["Restricted payments covenant"]
-  B -->|Assets leave firm| E["Asset sale covenant"]
-  B -->|Collateral moves up| F["Lien covenant"]
-  B -->|Business changes| G["Merger covenant"]
-  classDef action fill:#dbeafe,stroke:#2563eb,stroke-width:2.5px,color:#0f172a;
-  classDef decision fill:#fef3c7,stroke:#d97706,stroke-width:3px,color:#451a03;
-  classDef covenant fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#450a0a;
-  class A action;
-  class B decision;
-  class C,D,E,F,G covenant;
-  linkStyle default stroke:#dc2626,stroke-width:2.2px;
-```
+![Diagram](lec5_files/figure-latex/mermaid-figure-9.png){fig-align="center"}
 
 ### Special Structures for High-Yield Corporate Bonds
 
@@ -1152,32 +983,7 @@ The issuer's choice depends on the rate environment, desired flexibility, and in
 
 CLOs are structured finance vehicles backed by pools of leveraged loans. They turn one pool of loans into multiple securities with different priority, ratings, and risk.
 
-```{mermaid}
-%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Inter, Arial, sans-serif", "lineColor": "#64748b"}}}%%
-flowchart LR
-  A["Pool of leveraged loans<br/>assets"] --> B["CLO special purpose vehicle"]
-  B --> C["AAA senior notes<br/>paid first, lowest spread"]
-  B --> D["A/BBB mezzanine notes"]
-  B --> E["BB/B notes"]
-  B --> F["Equity tranche<br/>residual cash flow, first loss"]
-  classDef assets fill:#dbeafe,stroke:#2563eb,stroke-width:3px,color:#0f172a;
-  classDef vehicle fill:#ede9fe,stroke:#7c3aed,stroke-width:3px,color:#2e1065;
-  classDef senior fill:#dcfce7,stroke:#16a34a,stroke-width:2.5px,color:#052e16;
-  classDef mezz fill:#fef3c7,stroke:#d97706,stroke-width:2.5px,color:#451a03;
-  classDef junior fill:#fed7aa,stroke:#ea580c,stroke-width:2.5px,color:#431407;
-  classDef equity fill:#fee2e2,stroke:#dc2626,stroke-width:2.5px,color:#450a0a;
-  class A assets;
-  class B vehicle;
-  class C senior;
-  class D mezz;
-  class E junior;
-  class F equity;
-  linkStyle 0 stroke:#2563eb,stroke-width:3px;
-  linkStyle 1 stroke:#16a34a,stroke-width:2.8px;
-  linkStyle 2 stroke:#d97706,stroke-width:2.8px;
-  linkStyle 3 stroke:#ea580c,stroke-width:2.8px;
-  linkStyle 4 stroke:#dc2626,stroke-width:2.8px;
-```
+![Diagram](lec5_files/figure-latex/mermaid-figure-10.png){fig-align="center"}
 
 Senior CLO tranches are paid first and can receive investment-grade ratings even though the underlying loans are below investment grade. Equity receives the residual cash flow but absorbs first losses. CLOs exist because different investors want different versions of the same loan-pool exposure: senior rated floating-rate debt, mezzanine credit risk, or levered equity-like exposure.
 

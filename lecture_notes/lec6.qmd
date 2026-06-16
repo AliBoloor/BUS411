@@ -339,25 +339,7 @@ In a broad equity portfolio, idiosyncratic risk can often be diversified away wi
 A 75 basis point rise in Treasury yields is systematic for a high-quality bond portfolio because many bonds lose value together. A surprise downgrade of one bank bond is idiosyncratic because it mainly affects that issuer. A portfolio can be nearly neutral to Treasury duration and still have large idiosyncratic risk if it holds concentrated issuer positions.
 :::
 
-```{mermaid}
-%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Inter, Arial, sans-serif", "lineColor": "#64748b"}}}%%
-flowchart LR
-  A["Portfolio risk"] --> B["Systematic risk<br/>curve, spread, volatility, sector factors"]
-  A --> C["Idiosyncratic risk<br/>issuer, issue, liquidity, documentation"]
-  B --> D["Measured with factor exposures"]
-  C --> E["Reduced with diversification<br/>but not eliminated automatically"]
-  D --> F["Tracking error versus benchmark"]
-  E --> F
-  classDef root fill:#dbeafe,stroke:#2563eb,stroke-width:3px,color:#0f172a;
-  classDef systematic fill:#dcfce7,stroke:#16a34a,stroke-width:2.5px,color:#052e16;
-  classDef idio fill:#fee2e2,stroke:#dc2626,stroke-width:2.5px,color:#450a0a;
-  classDef result fill:#ede9fe,stroke:#7c3aed,stroke-width:2.5px,color:#2e1065;
-  class A root;
-  class B,D systematic;
-  class C,E idio;
-  class F result;
-  linkStyle default stroke:#64748b,stroke-width:2.5px;
-```
+![Diagram](lec6_files/figure-latex/mermaid-figure-1.png){fig-align="center"}
 
 ## Application of Portfolio Theory to Bond Portfolio Construction
 
@@ -611,21 +593,7 @@ For example, if a bond has duration of 6.0 years and a 2% portfolio weight, it c
 
 If active returns are approximately normal, tracking error gives a rough range of outcomes. If expected active return is zero and annual tracking error is 100 bps, then active return is within about +/-100 bps in roughly two-thirds of years and within about +/-200 bps in roughly 95% of years. This is a model-based statement, not a guarantee.
 
-```{mermaid}
-%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Inter, Arial, sans-serif", "lineColor": "#64748b"}}}%%
-flowchart LR
-  A["Backward-looking TE<br/>uses realized active returns"] --> B["Performance review<br/>what actually happened?"]
-  C["Forward-looking TE<br/>uses current holdings + risk model"] --> D["Risk control<br/>what could happen next?"]
-  E["Portfolio trades today"] --> C
-  E -. "not reflected until later" .-> A
-  classDef backward fill:#dbeafe,stroke:#2563eb,stroke-width:2.5px,color:#0f172a;
-  classDef forward fill:#dcfce7,stroke:#16a34a,stroke-width:2.5px,color:#052e16;
-  classDef trade fill:#fef3c7,stroke:#d97706,stroke-width:2.5px,color:#451a03;
-  class A,B backward;
-  class C,D forward;
-  class E trade;
-  linkStyle default stroke:#64748b,stroke-width:2.5px;
-```
+![Diagram](lec6_files/figure-latex/mermaid-figure-2.png){fig-align="center"}
 
 > Historical tracking error is a realized statistic, while predicted tracking error is a current-position risk estimate. A manager controls future risk with the second measure, and assesses past performance with the first.
 
@@ -684,27 +652,7 @@ The cell-based approach divides the benchmark into buckets, or cells, based on c
 
 The manager then selects representative securities for each cell. If a benchmark has 30% corporate bonds, a passive cell-based portfolio should allocate about 30% to corporate cells. If the manager believes corporates will outperform, the manager may overweight corporate cells and underweight other cells.
 
-```{mermaid}
-%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Inter, Arial, sans-serif", "lineColor": "#64748b"}}}%%
-flowchart LR
-  A["Benchmark index"] --> B["Partition into cells"]
-  B --> C["Duration buckets"]
-  B --> D["Sector buckets"]
-  B --> E["Credit buckets"]
-  B --> F["Optionality buckets"]
-  C --> G["Representative bonds"]
-  D --> G
-  E --> G
-  F --> G
-  G --> H["Portfolio weights<br/>match or tilt vs benchmark"]
-  classDef root fill:#dbeafe,stroke:#2563eb,stroke-width:3px,color:#0f172a;
-  classDef cell fill:#fef3c7,stroke:#d97706,stroke-width:2.5px,color:#451a03;
-  classDef portfolio fill:#dcfce7,stroke:#16a34a,stroke-width:2.5px,color:#052e16;
-  class A root;
-  class B,C,D,E,F cell;
-  class G,H portfolio;
-  linkStyle default stroke:#64748b,stroke-width:2.5px;
-```
+![Diagram](lec6_files/figure-latex/mermaid-figure-3.png){fig-align="center"}
 
 ::: {.callout-note title="Worked Example: Counting Cells"}
 Suppose an investment-grade bond benchmark is divided by:
@@ -875,28 +823,7 @@ A broker screen may show that a BBB industrial bond has a price of 98.75, yield 
 
 The portfolio is compared with the benchmark factor by factor. Active risk comes from differences between portfolio exposures and benchmark exposures.
 
-```{mermaid}
-%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Inter, Arial, sans-serif", "lineColor": "#64748b"}}}%%
-flowchart TB
-  A["Current holdings"] --> C["Factor exposures"]
-  B["Benchmark holdings"] --> D["Benchmark exposures"]
-  C --> E["Active exposures<br/>portfolio - benchmark"]
-  D --> E
-  E --> F["Factor volatilities<br/>and correlations"]
-  E --> G["Issuer / issue residual risk"]
-  F --> H["Predicted tracking error"]
-  G --> H
-  H --> I["Risk control and optimizer"]
-  classDef holdings fill:#dbeafe,stroke:#2563eb,stroke-width:2.5px,color:#0f172a;
-  classDef exposure fill:#fef3c7,stroke:#d97706,stroke-width:2.5px,color:#451a03;
-  classDef model fill:#ede9fe,stroke:#7c3aed,stroke-width:2.5px,color:#2e1065;
-  classDef result fill:#dcfce7,stroke:#16a34a,stroke-width:2.5px,color:#052e16;
-  class A,B holdings;
-  class C,D,E exposure;
-  class F,G,H model;
-  class I result;
-  linkStyle default stroke:#64748b,stroke-width:2.5px;
-```
+![Diagram](lec6_files/figure-latex/mermaid-figure-4.png){fig-align="center"}
 
 A key advantage is scenario analysis. Before trading, the manager can ask:
 
@@ -1562,28 +1489,7 @@ plt.show()
 ```
 :::
 
-```{mermaid}
-%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Inter, Arial, sans-serif", "lineColor": "#64748b"}}}%%
-flowchart LR
-  A["Manager views<br/>duration, spread, sector"] --> C["Objective function<br/>min TE or maximize alpha per TE"]
-  B["Client constraints<br/>risk budget, issuers, sectors"] --> C
-  D["Tradable universe<br/>prices, liquidity, costs"] --> C
-  E["Factor risk model<br/>exposures + covariance"] --> C
-  C --> F["Optimizer"]
-  F --> G["Candidate portfolio"]
-  G --> H{"Accept risk<br/>and cost?"}
-  H -->|Yes| I["Trade list"]
-  H -->|No| B
-  classDef input fill:#dbeafe,stroke:#2563eb,stroke-width:2.5px,color:#0f172a;
-  classDef objective fill:#fef3c7,stroke:#d97706,stroke-width:2.5px,color:#451a03;
-  classDef output fill:#dcfce7,stroke:#16a34a,stroke-width:2.5px,color:#052e16;
-  classDef decision fill:#ede9fe,stroke:#7c3aed,stroke-width:3px,color:#2e1065;
-  class A,B,D,E input;
-  class C,F objective;
-  class G,I output;
-  class H decision;
-  linkStyle default stroke:#64748b,stroke-width:2.5px;
-```
+![Diagram](lec6_files/figure-latex/mermaid-figure-5.png){fig-align="center"}
 
 The reason optimization is valuable is not that it replaces judgment. It makes tradeoffs explicit. If the manager wants more corporate spread exposure, the optimizer shows which bonds add that exposure with the least tracking error, issuer concentration, and transaction cost.
 

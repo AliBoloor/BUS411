@@ -126,7 +126,7 @@ jobs:
           set -euo pipefail
           rm -rf docs
           echo "Rendering ${{ matrix.target }}"
-          timeout 12m quarto render "${{ matrix.target }}" --to pdf
+          timeout --kill-after=1m 8m quarto render "${{ matrix.target }}" --to pdf
 
       - name: Upload PDF render
         uses: actions/upload-artifact@v7

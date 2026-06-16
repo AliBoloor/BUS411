@@ -98,36 +98,13 @@ jobs:
           version: "1.9.37"
           tinytex: true
 
-      - name: Install common TeX packages
+      - name: Report PDF tools
         run: |
           set -euo pipefail
-          tlmgr option repository ctan
-          tlmgr install \
-            latexmk \
-            xetex \
-            tex-gyre \
-            koma-script \
-            fontspec \
-            unicode-math \
-            enumitem \
-            geometry \
-            hyperref \
-            bookmark \
-            booktabs \
-            longtable \
-            array \
-            xcolor \
-            colortbl \
-            makecell \
-            multirow \
-            caption \
-            float \
-            framed \
-            fvextra \
-            mdframed \
-            needspace \
-            pdfcol \
-            upquote
+          quarto check
+          command -v xelatex || true
+          command -v lualatex || true
+          command -v tlmgr || true
 
       - name: Setup Python for Quarto execution
         uses: actions/setup-python@v5

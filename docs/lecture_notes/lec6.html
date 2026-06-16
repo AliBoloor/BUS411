@@ -2,16 +2,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.9.37">
+<meta name="generator" content="quarto-1.8.27">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
 <title>Lecture 6: Bond Portfolio Construction – BUS 411 — Fixed Income Security Analysis and Valuation</title>
 <style>
-/* Default styles provided by pandoc.
-** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
-*/
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
 div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -35,18 +32,19 @@ ul.task-list li input[type="checkbox"] {
 <meta name="quarto:offset" content="../">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-d0ae9245876894da5ac7e18953ecc5cc.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-4d9afe2b8d18ee9fa5d0d57b5ed4214d.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-5063acb1c7173512134af017c3d19607.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-090e4568e165f7d74d1237fe666b9f1c.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../site_libs/bootstrap/bootstrap-5063acb1c7173512134af017c3d19607.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-97afdd19a946a7800d02dd55b4e8b647.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-aeaf3e155c33cdd5728541c7b417a725.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-97afdd19a946a7800d02dd55b4e8b647.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -79,7 +77,7 @@ ul.task-list li input[type="checkbox"] {
 <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -387,14 +385,14 @@ window.Quarto = {
   <li><a href="#cell-based-approach-to-bond-portfolio-construction" id="toc-cell-based-approach-to-bond-portfolio-construction" class="nav-link" data-scroll-target="#cell-based-approach-to-bond-portfolio-construction"><span class="header-section-number">3</span> Cell-Based Approach to Bond Portfolio Construction</a>
   <ul class="collapse">
   <li><a href="#complications-in-bond-indexing" id="toc-complications-in-bond-indexing" class="nav-link" data-scroll-target="#complications-in-bond-indexing">Complications in Bond Indexing</a></li>
-  <li><a href="#portfolio-construction-with-multi-factor-models" id="toc-portfolio-construction-with-multi-factor-models" class="nav-link" data-scroll-target="#portfolio-construction-with-multi-factor-models"><span class="header-section-number">3.1</span> Portfolio Construction with Multi-Factor Models</a>
+  </ul></li>
+  <li><a href="#portfolio-construction-with-multi-factor-models" id="toc-portfolio-construction-with-multi-factor-models" class="nav-link" data-scroll-target="#portfolio-construction-with-multi-factor-models"><span class="header-section-number">4</span> Portfolio Construction with Multi-Factor Models</a>
   <ul class="collapse">
   <li><a href="#where-the-model-inputs-come-from" id="toc-where-the-model-inputs-come-from" class="nav-link" data-scroll-target="#where-the-model-inputs-come-from">Where the Model Inputs Come From</a></li>
   <li><a href="#risk-decomposition" id="toc-risk-decomposition" class="nav-link" data-scroll-target="#risk-decomposition">Risk Decomposition</a></li>
   <li><a href="#portfolio-construction-using-a-multi-factor-model-and-an-optimizer" id="toc-portfolio-construction-using-a-multi-factor-model-and-an-optimizer" class="nav-link" data-scroll-target="#portfolio-construction-using-a-multi-factor-model-and-an-optimizer">Portfolio Construction Using a Multi-Factor Model and an Optimizer</a></li>
   <li><a href="#portfolio-rebalancing" id="toc-portfolio-rebalancing" class="nav-link" data-scroll-target="#portfolio-rebalancing">Portfolio Rebalancing</a></li>
-  </ul></li>
-  <li><a href="#key-points" id="toc-key-points" class="nav-link" data-scroll-target="#key-points"><span class="header-section-number">3.2</span> Key Points</a></li>
+  <li><a href="#key-points" id="toc-key-points" class="nav-link" data-scroll-target="#key-points"><span class="header-section-number">4.1</span> Key Points</a></li>
   </ul></li>
   <li><a href="#suggested-readings" id="toc-suggested-readings" class="nav-link" data-scroll-target="#suggested-readings">Suggested Readings</a></li>
   </ul>
@@ -693,7 +691,7 @@ E(R_p)=w_1E(R_1)+w_2E(R_2),
 <div id="fig-efficient-frontier" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-efficient-frontier-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="lec6_files/figure-html/fig-efficient-frontier-output-1.png" width="710" height="393" class="figure-img">
+<img src="lec6_files/figure-html/fig-efficient-frontier-output-1.png" width="709" height="392" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-efficient-frontier-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;1: Stylized mean-variance frontier. The efficient frontier contains portfolios with the highest expected return for each risk level.
@@ -833,7 +831,7 @@ R_i = \alpha_i + x_{i1}F_1+x_{i2}F_2+\cdots+x_{iK}F_K+\epsilon_i.
 </div>
 <div class="callout-body-container callout-body">
 <p>The example uses monthly returns for two hypothetical portfolios. Portfolio A stays close to the benchmark. Portfolio B takes larger active positions.</p>
-<div id="378619cd" class="cell" data-message="false" data-execution_count="5">
+<div id="788bdb97" class="cell" data-message="false" data-execution_count="5">
 <div class="cell-output cell-output-display" data-execution_count="5">
 <div>
 
@@ -874,7 +872,7 @@ R_i = \alpha_i + x_{i1}F_1+x_{i2}F_2+\cdots+x_{iK}F_K+\epsilon_i.
 <div id="fig-active-returns" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-active-returns-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="lec6_files/figure-html/fig-active-returns-output-1.png" width="711" height="393" class="figure-img">
+<img src="lec6_files/figure-html/fig-active-returns-output-1.png" width="709" height="393" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-active-returns-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;2: Monthly active returns for two portfolios. Portfolio B has much larger tracking error.
@@ -1002,7 +1000,7 @@ x_{b,k}=\sum_i w_{b,i}x_{i,k}.
 <p>If active returns are approximately normal, tracking error gives a rough range of outcomes. If expected active return is zero and annual tracking error is 100 bps, then active return is within about +/-100 bps in roughly two-thirds of years and within about +/-200 bps in roughly 95% of years. This is a model-based statement, not a guarantee.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="lec6_files/figure-latex/mermaid-figure-2.png" class="img-fluid figure-img"></p>
+<p><img src="lec6_files/figure-latex/mermaid-figure-5.png" class="img-fluid figure-img"></p>
 <figcaption>Diagram</figcaption>
 </figure>
 </div>
@@ -1036,7 +1034,7 @@ x_{b,k}=\sum_i w_{b,i}x_{i,k}.
 <p>If the optimizer predicts 65 bps of monthly tracking error, the portfolio violates the client’s risk budget even if the manager likes the trades.</p>
 </div>
 </div>
-<div id="9a7c62e6" class="cell" data-message="false" data-execution_count="7">
+<div id="76a9ef8c" class="cell" data-message="false" data-execution_count="7">
 <div class="cell-output cell-output-display" data-execution_count="7">
 <div>
 
@@ -1139,7 +1137,7 @@ x_{b,k}=\sum_i w_{b,i}x_{i,k}.
 <div id="fig-cell-sector-weights" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-cell-sector-weights-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="lec6_files/figure-html/fig-cell-sector-weights-output-1.png" width="711" height="395" class="figure-img">
+<img src="lec6_files/figure-html/fig-cell-sector-weights-output-1.png" width="709" height="393" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-cell-sector-weights-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;3: Example sector active weights. A cell-based approach makes benchmark tilts visible.
@@ -1179,19 +1177,6 @@ Figure&nbsp;3: Example sector active weights. A cell-based approach makes benchm
 </div>
 </div>
 <p>The reason enhanced indexing exists is pragmatic. A manager samples the benchmark to reduce transaction costs and operational complexity, then controls the resulting mismatch with cells or factor exposures.</p>
-<div class="callout callout-style-default callout-important callout-titled" title="Why the Cell Diagram Matters">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Important</span>Why the Cell Diagram Matters
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>The cell diagram is not just a classification picture. It shows the manager’s operational problem: a benchmark may contain thousands of bonds, but the portfolio might be able to hold only 100-300 names. The cell approach is a disciplined sampling rule that says, “If we cannot buy everything, at least match the major benchmark characteristics.”</p>
-</div>
-</div>
 <p>The limitations are important enough to state directly:</p>
 <table class="caption-top table">
 <colgroup>
@@ -1227,22 +1212,256 @@ Figure&nbsp;3: Example sector active weights. A cell-based approach makes benchm
 </tr>
 </tbody>
 </table>
-<div class="callout callout-style-default callout-note callout-titled" title="Numerical Example: Hidden Risk Inside a Cell">
+<div class="callout callout-style-default callout-note callout-titled" title="Example: Hidden Risk Inside a Cell">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Numerical Example: Hidden Risk Inside a Cell
+<span class="screen-reader-only">Note</span>Example: Hidden Risk Inside a Cell
 </div>
 </div>
 <div class="callout-body-container callout-body">
 <p>Two portfolios both allocate 20% to BBB industrial bonds with 5-7 year maturities. Portfolio X holds 40 issuers at 0.5% each. Portfolio Y holds 4 issuers at 5% each. A cell-based report says both portfolios match the same cell, but Portfolio Y has much larger idiosyncratic issuer risk.</p>
 </div>
 </div>
+<div class="callout callout-style-default callout-note callout-titled" title="Comprehensive Example: Cell-Based Bond Portfolio Construction">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Comprehensive Example: Cell-Based Bond Portfolio Construction
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Suppose a manager is asked to build a portfolio that tracks a broad investment-grade bond benchmark. The benchmark contains thousands of bonds, so buying every security is impractical. Instead, the manager uses a cell-based approach.</p>
+<p>The benchmark is divided into cells based on four characteristics:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Dimension</th>
+<th>Buckets</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Sector</td>
+<td>Treasury, agency, corporate, MBS</td>
+</tr>
+<tr class="even">
+<td>Maturity</td>
+<td>0-3 years, 3-7 years, 7+ years</td>
+</tr>
+<tr class="odd">
+<td>Credit quality</td>
+<td>AAA/AA, A, BBB</td>
+</tr>
+<tr class="even">
+<td>Coupon type</td>
+<td>Fixed-rate, floating-rate</td>
+</tr>
+</tbody>
+</table>
+<p>The total number of possible cells is:</p>
+<p><span class="math display">\[
+4 \times 3 \times 3 \times 2 = 72.
+\]</span></p>
+<p>Each benchmark bond is assigned to one cell. The manager then calculates the benchmark weight in each cell.</p>
+<p>For example, suppose four cells are especially important:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 15%">
+<col style="width: 15%">
+<col style="width: 20%">
+<col style="width: 15%">
+<col style="width: 15%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Cell</th>
+<th>Sector</th>
+<th style="text-align: right;">Maturity</th>
+<th>Credit quality</th>
+<th>Coupon type</th>
+<th style="text-align: right;">Benchmark weight</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>Treasury</td>
+<td style="text-align: right;">3-7 years</td>
+<td>AAA/AA</td>
+<td>Fixed-rate</td>
+<td style="text-align: right;">18%</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>Corporate</td>
+<td style="text-align: right;">3-7 years</td>
+<td>A</td>
+<td>Fixed-rate</td>
+<td style="text-align: right;">14%</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>Corporate</td>
+<td style="text-align: right;">7+ years</td>
+<td>BBB</td>
+<td>Fixed-rate</td>
+<td style="text-align: right;">10%</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>MBS</td>
+<td style="text-align: right;">3-7 years</td>
+<td>AAA/AA</td>
+<td>Fixed-rate</td>
+<td style="text-align: right;">16%</td>
+</tr>
+</tbody>
+</table>
+<p>A passive manager tries to match these weights closely. If the benchmark has 14% in intermediate A-rated corporate bonds, the portfolio should also hold about 14% in that cell.</p>
+<p>The manager then chooses representative bonds within each cell:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 21%">
+<col style="width: 28%">
+<col style="width: 28%">
+<col style="width: 21%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Cell</th>
+<th style="text-align: right;">Benchmark weight</th>
+<th style="text-align: right;">Portfolio weight</th>
+<th>Representative holdings</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Treasury, 3-7 year, AAA/AA, fixed</td>
+<td style="text-align: right;">18%</td>
+<td style="text-align: right;">18%</td>
+<td>5-year and 7-year Treasury notes</td>
+</tr>
+<tr class="even">
+<td>Corporate, 3-7 year, A, fixed</td>
+<td style="text-align: right;">14%</td>
+<td style="text-align: right;">13%</td>
+<td>Apple, Microsoft, JPMorgan intermediate bonds</td>
+</tr>
+<tr class="odd">
+<td>Corporate, 7+ year, BBB, fixed</td>
+<td style="text-align: right;">10%</td>
+<td style="text-align: right;">11%</td>
+<td>Utilities, telecom, and energy BBB bonds</td>
+</tr>
+<tr class="even">
+<td>MBS, 3-7 year, AAA/AA, fixed</td>
+<td style="text-align: right;">16%</td>
+<td style="text-align: right;">16%</td>
+<td>Agency MBS pass-throughs</td>
+</tr>
+</tbody>
+</table>
+<p>The portfolio does not need to own every bond in the benchmark. It only needs to match the benchmark’s main risk exposures well enough.</p>
+<p>The manager checks whether the portfolio matches the benchmark on key risk measures:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Risk measure</th>
+<th style="text-align: right;">Benchmark</th>
+<th style="text-align: right;">Portfolio</th>
+<th style="text-align: right;">Active difference</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Effective duration</td>
+<td style="text-align: right;">6.20</td>
+<td style="text-align: right;">6.25</td>
+<td style="text-align: right;">+0.05</td>
+</tr>
+<tr class="even">
+<td>Spread duration</td>
+<td style="text-align: right;">4.10</td>
+<td style="text-align: right;">4.15</td>
+<td style="text-align: right;">+0.05</td>
+</tr>
+<tr class="odd">
+<td>Corporate weight</td>
+<td style="text-align: right;">38%</td>
+<td style="text-align: right;">39%</td>
+<td style="text-align: right;">+1%</td>
+</tr>
+<tr class="even">
+<td>BBB weight</td>
+<td style="text-align: right;">12%</td>
+<td style="text-align: right;">13%</td>
+<td style="text-align: right;">+1%</td>
+</tr>
+<tr class="odd">
+<td>MBS weight</td>
+<td style="text-align: right;">16%</td>
+<td style="text-align: right;">16%</td>
+<td style="text-align: right;">0%</td>
+</tr>
+</tbody>
+</table>
+<p>These active differences are small, so predicted tracking error should be low.</p>
+<p>Now suppose the manager has a mild active view: BBB corporate spreads look attractive. The manager may intentionally overweight the BBB corporate cell:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Cell</th>
+<th style="text-align: right;">Benchmark weight</th>
+<th style="text-align: right;">Passive portfolio</th>
+<th style="text-align: right;">Active portfolio</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Corporate, 7+ year, BBB, fixed</td>
+<td style="text-align: right;">10%</td>
+<td style="text-align: right;">10%</td>
+<td style="text-align: right;">12%</td>
+</tr>
+<tr class="even">
+<td>Treasury, 3-7 year, AAA/AA, fixed</td>
+<td style="text-align: right;">18%</td>
+<td style="text-align: right;">18%</td>
+<td style="text-align: right;">16%</td>
+</tr>
+</tbody>
+</table>
+<p>This creates an active credit tilt. The portfolio is no longer purely passive, but the tilt is controlled and easy to measure.</p>
+<p>The key idea is that the cell-based approach reduces a huge bond-selection problem into a smaller matching problem:</p>
+<p><span class="math display">\[
+\text{match benchmark cell weights}
+\quad
+\Rightarrow
+\quad
+\text{match benchmark risk exposures}.
+\]</span></p>
+<p>A good cell-based portfolio should have:</p>
+<ul>
+<li>similar duration exposure;</li>
+<li>similar sector weights;</li>
+<li>similar credit-quality distribution;</li>
+<li>similar maturity structure;</li>
+<li>enough securities within each cell to avoid issuer concentration;</li>
+<li>low turnover and realistic transaction costs.</li>
+</ul>
+<p>The approach is practical because fixed-income benchmarks often contain many bonds that are illiquid, unavailable, or too small to trade efficiently.</p>
+</div>
+</div>
 </section>
-<section id="portfolio-construction-with-multi-factor-models" class="level2" data-number="3.1">
-<h2 data-number="3.1" class="anchored" data-anchor-id="portfolio-construction-with-multi-factor-models"><span class="header-section-number">3.1</span> Portfolio Construction with Multi-Factor Models</h2>
+</section>
+<section id="portfolio-construction-with-multi-factor-models" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> Portfolio Construction with Multi-Factor Models</h1>
 <p>Multi-factor models are the practical response to the covariance problem. Instead of estimating the covariance of every bond with every other bond, they estimate a smaller set of common risk factors.</p>
 <p>For fixed income, factors often include:</p>
 <ul>
@@ -1490,7 +1709,7 @@ R_{i,t}=\alpha_t+x_{i1,t}F_{1,t}+x_{i2,t}F_{2,t}+\cdots+x_{iK,t}F_{K,t}+\epsilon
 <div id="fig-risk-decomposition-isolated-te" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-risk-decomposition-isolated-te-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="lec6_files/figure-html/fig-risk-decomposition-isolated-te-output-1.png" width="721" height="393" class="figure-img">
+<img src="lec6_files/figure-html/fig-risk-decomposition-isolated-te-output-1.png" width="711" height="392" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-risk-decomposition-isolated-te-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;4: Isolated tracking error shows which active exposures are large before considering diversification across factors.
@@ -1521,7 +1740,7 @@ Figure&nbsp;4: Isolated tracking error shows which active exposures are large be
 <p><span class="math display">\[
 6.0+2.5+5.25+10.8+4.0=28.55\text{ bps}.
 \]</span></p>
-<div id="28bd17e7" class="cell" data-message="false" data-execution_count="12">
+<div id="cb058d2c" class="cell" data-message="false" data-execution_count="12">
 <div class="cell-output cell-output-display" data-execution_count="12">
 <div>
 
@@ -1590,7 +1809,7 @@ Figure&nbsp;4: Isolated tracking error shows which active exposures are large be
 <p>If their correlation is -0.50:</p>
 <p><span class="math display">\[
 \sqrt{6^2+10.8^2+2(-0.50)(6)(10.8)}
-=8.75\text{ bps}.
+=9.37\text{ bps}.
 \]</span></p>
 <p>The same two isolated risks can produce very different total tracking error depending on how the factors move together.</p>
 <div id="cell-fig-correlation-effect" class="cell" data-message="false" data-execution_count="13">
@@ -1598,7 +1817,7 @@ Figure&nbsp;4: Isolated tracking error shows which active exposures are large be
 <div id="fig-correlation-effect" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-correlation-effect-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="lec6_files/figure-html/fig-correlation-effect-output-1.png" width="711" height="393" class="figure-img">
+<img src="lec6_files/figure-html/fig-correlation-effect-output-1.png" width="709" height="392" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-correlation-effect-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;5: Correlation changes total tracking error even when isolated factor risks are unchanged.
@@ -1626,7 +1845,7 @@ Figure&nbsp;5: Correlation changes total tracking error even when isolated facto
 =\sqrt{14.23^2+8.0^2}
 =16.33\text{ bps/month}.
 \]</span></p>
-<div id="074abce9" class="cell" data-message="false" data-execution_count="14">
+<div id="c4257880" class="cell" data-message="false" data-execution_count="14">
 <div class="cell-output cell-output-display" data-execution_count="14">
 <div>
 
@@ -1671,7 +1890,7 @@ Figure&nbsp;5: Correlation changes total tracking error even when isolated facto
 <div id="fig-systematic-idio-risk" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-systematic-idio-risk-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="lec6_files/figure-html/fig-systematic-idio-risk-output-1.png" width="711" height="393" class="figure-img">
+<img src="lec6_files/figure-html/fig-systematic-idio-risk-output-1.png" width="709" height="393" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-systematic-idio-risk-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;6: Total tracking error combines systematic factor risk and idiosyncratic security-selection risk in variance terms.
@@ -1728,7 +1947,7 @@ Figure&nbsp;6: Total tracking error combines systematic factor risk and idiosync
 </tbody>
 </table>
 <p>The total approximate active return is:</p>
-<div id="55a07e17" class="cell" data-message="false" data-execution_count="17">
+<div id="8bde1c9b" class="cell" data-message="false" data-execution_count="17">
 <div class="cell-output cell-output-display" data-execution_count="17">
 <div>
 
@@ -1759,7 +1978,7 @@ Figure&nbsp;6: Total tracking error combines systematic factor risk and idiosync
 <div id="fig-scenario-active-return" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-scenario-active-return-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="lec6_files/figure-html/fig-scenario-active-return-output-1.png" width="721" height="393" class="figure-img">
+<img src="lec6_files/figure-html/fig-scenario-active-return-output-1.png" width="710" height="392" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-scenario-active-return-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;7: Scenario analysis converts active exposures into signed active return impacts.
@@ -1774,7 +1993,7 @@ Figure&nbsp;7: Scenario analysis converts active exposures into signed active re
 <h4 class="anchored" data-anchor-id="step-6-key-rate-decomposition-shows-curve-shape-risk">Step 6: Key Rate Decomposition Shows Curve-Shape Risk</h4>
 <p>Total duration can hide curve-shape risk. Two portfolios can both have duration 5.4, but one may be overweight the 2-year point while the other is overweight the 10-year point.</p>
 <p>Suppose the portfolio and benchmark have these key rate durations:</p>
-<div id="c7d0391c" class="cell" data-message="false" data-execution_count="19">
+<div id="bd57fdeb" class="cell" data-message="false" data-execution_count="19">
 <div class="cell-output cell-output-display" data-execution_count="19">
 <div>
 
@@ -1840,7 +2059,7 @@ Figure&nbsp;7: Scenario analysis converts active exposures into signed active re
 <div id="fig-key-rate-decomposition" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-key-rate-decomposition-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="lec6_files/figure-html/fig-key-rate-decomposition-output-1.png" width="712" height="394" class="figure-img">
+<img src="lec6_files/figure-html/fig-key-rate-decomposition-output-1.png" width="709" height="393" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-key-rate-decomposition-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;8: Key rate decomposition reveals curve-shape risk that total duration can hide.
@@ -2087,7 +2306,7 @@ E(R_p-R_b)
 </div>
 <div class="callout-body-container callout-body">
 <p>Suppose a manager has $10 million to invest and wants to approximate a benchmark with duration near 5.0, spread duration near 3.0, at least 30% in Treasuries for liquidity, and no more than 40% in corporates. The table shows a small tradable universe and one feasible set of chosen weights:</p>
-<div id="b49ba3e7" class="cell" data-message="false" data-execution_count="21">
+<div id="c03b5faa" class="cell" data-message="false" data-execution_count="21">
 <div class="cell-output cell-output-display" data-execution_count="21">
 <div>
 
@@ -2177,7 +2396,7 @@ E(R_p-R_b)
 <div id="fig-toy-portfolio-exposures" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-toy-portfolio-exposures-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="lec6_files/figure-html/fig-toy-portfolio-exposures-output-1.png" width="711" height="393" class="figure-img">
+<img src="lec6_files/figure-html/fig-toy-portfolio-exposures-output-1.png" width="709" height="393" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-toy-portfolio-exposures-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;9: Toy portfolio construction: chosen exposures compared with target exposures.
@@ -2190,7 +2409,7 @@ Figure&nbsp;9: Toy portfolio construction: chosen exposures compared with target
 </div>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="lec6_files/figure-latex/mermaid-figure-5.png" class="img-fluid figure-img"></p>
+<p><img src="lec6_files/figure-latex/mermaid-figure-2.png" class="img-fluid figure-img"></p>
 <figcaption>Diagram</figcaption>
 </figure>
 </div>
@@ -2312,7 +2531,7 @@ Figure&nbsp;9: Toy portfolio construction: chosen exposures compared with target
 <div id="fig-rebalance-before-after" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-rebalance-before-after-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="lec6_files/figure-html/fig-rebalance-before-after-output-1.png" width="711" height="396" class="figure-img">
+<img src="lec6_files/figure-html/fig-rebalance-before-after-output-1.png" width="709" height="392" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-rebalance-before-after-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;10: Rebalancing should target the exposures that violate risk limits, not mechanically eliminate all active views.
@@ -2328,7 +2547,7 @@ Figure&nbsp;10: Rebalancing should target the exposures that violate risk limits
 <div id="fig-rebalance-frontier" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-rebalance-frontier-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="lec6_files/figure-html/fig-rebalance-frontier-output-1.png" width="712" height="393" class="figure-img">
+<img src="lec6_files/figure-html/fig-rebalance-frontier-output-1.png" width="708" height="392" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-rebalance-frontier-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;11: Illustrative tradeoff between transaction cost and tracking error reduction.
@@ -2352,9 +2571,8 @@ Figure&nbsp;11: Illustrative tradeoff between transaction cost and tracking erro
 </div>
 </div>
 </section>
-</section>
-<section id="key-points" class="level2" data-number="3.2">
-<h2 data-number="3.2" class="anchored" data-anchor-id="key-points"><span class="header-section-number">3.2</span> Key Points</h2>
+<section id="key-points" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="key-points"><span class="header-section-number">4.1</span> Key Points</h2>
 <ul>
 <li>Bond portfolio construction is usually benchmark-aware, so tracking error is often more useful than total portfolio volatility.</li>
 <li>Historical tracking error measures realized active returns; predicted tracking error uses today’s holdings, exposures, covariance estimates, and residual risk.</li>

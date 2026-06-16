@@ -593,7 +593,7 @@ For example, if a bond has duration of 6.0 years and a 2% portfolio weight, it c
 
 If active returns are approximately normal, tracking error gives a rough range of outcomes. If expected active return is zero and annual tracking error is 100 bps, then active return is within about +/-100 bps in roughly two-thirds of years and within about +/-200 bps in roughly 95% of years. This is a model-based statement, not a guarantee.
 
-![Diagram](lec6_files/figure-latex/mermaid-figure-2.png){fig-align="center"}
+![Diagram](lec6_files/figure-latex/mermaid-figure-5.png){fig-align="center"}
 
 > Historical tracking error is a realized statistic, while predicted tracking error is a current-position risk estimate. A manager controls future risk with the second measure, and assesses past performance with the first.
 
@@ -734,9 +734,6 @@ That is 12 bps of immediate performance drag before any active decision is made.
 
 The reason enhanced indexing exists is pragmatic. A manager samples the benchmark to reduce transaction costs and operational complexity, then controls the resulting mismatch with cells or factor exposures.
 
-::: {.callout-important title="Why the Cell Diagram Matters"}
-The cell diagram is not just a classification picture. It shows the manager's operational problem: a benchmark may contain thousands of bonds, but the portfolio might be able to hold only 100-300 names. The cell approach is a disciplined sampling rule that says, "If we cannot buy everything, at least match the major benchmark characteristics."
-:::
 
 The limitations are important enough to state directly:
 
@@ -748,11 +745,96 @@ The limitations are important enough to state directly:
 | Security selection inside cells | A representative bond may not behave like the whole cell. |
 | Benchmark turnover | Index composition changes as bonds mature, are issued, or become ineligible. |
 
-::: {.callout-note title="Numerical Example: Hidden Risk Inside a Cell"}
+::: {.callout-note title="Example: Hidden Risk Inside a Cell"}
 Two portfolios both allocate 20% to BBB industrial bonds with 5-7 year maturities. Portfolio X holds 40 issuers at 0.5% each. Portfolio Y holds 4 issuers at 5% each. A cell-based report says both portfolios match the same cell, but Portfolio Y has much larger idiosyncratic issuer risk.
 :::
 
-## Portfolio Construction with Multi-Factor Models
+::: {.callout-note title="Comprehensive Example: Cell-Based Bond Portfolio Construction"}
+Suppose a manager is asked to build a portfolio that tracks a broad investment-grade bond benchmark. The benchmark contains thousands of bonds, so buying every security is impractical. Instead, the manager uses a cell-based approach.
+
+The benchmark is divided into cells based on four characteristics:
+
+| Dimension | Buckets |
+|---|---|
+| Sector | Treasury, agency, corporate, MBS |
+| Maturity | 0-3 years, 3-7 years, 7+ years |
+| Credit quality | AAA/AA, A, BBB |
+| Coupon type | Fixed-rate, floating-rate |
+
+The total number of possible cells is:
+
+$$
+4 \times 3 \times 3 \times 2 = 72.
+$$
+
+Each benchmark bond is assigned to one cell. The manager then calculates the benchmark weight in each cell.
+
+For example, suppose four cells are especially important:
+
+| Cell | Sector | Maturity | Credit quality | Coupon type | Benchmark weight |
+|---|---|---:|---|---|---:|
+| 1 | Treasury | 3-7 years | AAA/AA | Fixed-rate | 18% |
+| 2 | Corporate | 3-7 years | A | Fixed-rate | 14% |
+| 3 | Corporate | 7+ years | BBB | Fixed-rate | 10% |
+| 4 | MBS | 3-7 years | AAA/AA | Fixed-rate | 16% |
+
+A passive manager tries to match these weights closely. If the benchmark has 14% in intermediate A-rated corporate bonds, the portfolio should also hold about 14% in that cell.
+
+The manager then chooses representative bonds within each cell:
+
+| Cell | Benchmark weight | Portfolio weight | Representative holdings |
+|---|---:|---:|---|
+| Treasury, 3-7 year, AAA/AA, fixed | 18% | 18% | 5-year and 7-year Treasury notes |
+| Corporate, 3-7 year, A, fixed | 14% | 13% | Apple, Microsoft, JPMorgan intermediate bonds |
+| Corporate, 7+ year, BBB, fixed | 10% | 11% | Utilities, telecom, and energy BBB bonds |
+| MBS, 3-7 year, AAA/AA, fixed | 16% | 16% | Agency MBS pass-throughs |
+
+The portfolio does not need to own every bond in the benchmark. It only needs to match the benchmark's main risk exposures well enough.
+
+The manager checks whether the portfolio matches the benchmark on key risk measures:
+
+| Risk measure | Benchmark | Portfolio | Active difference |
+|---|---:|---:|---:|
+| Effective duration | 6.20 | 6.25 | +0.05 |
+| Spread duration | 4.10 | 4.15 | +0.05 |
+| Corporate weight | 38% | 39% | +1% |
+| BBB weight | 12% | 13% | +1% |
+| MBS weight | 16% | 16% | 0% |
+
+These active differences are small, so predicted tracking error should be low.
+
+Now suppose the manager has a mild active view: BBB corporate spreads look attractive. The manager may intentionally overweight the BBB corporate cell:
+
+| Cell | Benchmark weight | Passive portfolio | Active portfolio |
+|---|---:|---:|---:|
+| Corporate, 7+ year, BBB, fixed | 10% | 10% | 12% |
+| Treasury, 3-7 year, AAA/AA, fixed | 18% | 18% | 16% |
+
+This creates an active credit tilt. The portfolio is no longer purely passive, but the tilt is controlled and easy to measure.
+
+The key idea is that the cell-based approach reduces a huge bond-selection problem into a smaller matching problem:
+
+$$
+\text{match benchmark cell weights}
+\quad
+\Rightarrow
+\quad
+\text{match benchmark risk exposures}.
+$$
+
+A good cell-based portfolio should have:
+
+- similar duration exposure;
+- similar sector weights;
+- similar credit-quality distribution;
+- similar maturity structure;
+- enough securities within each cell to avoid issuer concentration;
+- low turnover and realistic transaction costs.
+
+The approach is practical because fixed-income benchmarks often contain many bonds that are illiquid, unavailable, or too small to trade efficiently.
+:::
+
+# Portfolio Construction with Multi-Factor Models
 
 Multi-factor models are the practical response to the covariance problem. Instead of estimating the covariance of every bond with every other bond, they estimate a smaller set of common risk factors.
 
@@ -1033,7 +1115,7 @@ If their correlation is -0.50:
 
 $$
 \sqrt{6^2+10.8^2+2(-0.50)(6)(10.8)}
-=8.75\text{ bps}.
+=9.37\text{ bps}.
 $$
 
 The same two isolated risks can produce very different total tracking error depending on how the factors move together.
@@ -1489,7 +1571,7 @@ plt.show()
 ```
 :::
 
-![Diagram](lec6_files/figure-latex/mermaid-figure-5.png){fig-align="center"}
+![Diagram](lec6_files/figure-latex/mermaid-figure-2.png){fig-align="center"}
 
 The reason optimization is valuable is not that it replaces judgment. It makes tradeoffs explicit. If the manager wants more corporate spread exposure, the optimizer shows which bonds add that exposure with the least tracking error, issuer concentration, and transaction cost.
 

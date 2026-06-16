@@ -41,17 +41,17 @@ Output is written to the `docs/` directory. For GitHub Pages, configure your rep
 The GitHub Action renders the public PDFs after the HTML site. To reproduce that locally, render the same selected targets:
 
 ```bash
-quarto render course-outline.md --to pdf
-quarto render lecture_notes/lec1.qmd --to pdf
-quarto render lecture_notes/lec2.qmd --to pdf
-quarto render lecture_notes/lec3.qmd --to pdf
-quarto render lecture_notes/lec4.qmd --to pdf
-quarto render lecture_notes/lec5.qmd --to pdf
-quarto render lecture_notes/lec6.qmd --to pdf
-quarto render assignments/assignment1/assignment-1-questions.qmd --to pdf
+LC_ALL=C LANG=C quarto render course-outline.md --to pdf
+LC_ALL=C LANG=C quarto render lecture_notes/lec1.qmd --to pdf
+LC_ALL=C LANG=C quarto render lecture_notes/lec2.qmd --to pdf
+LC_ALL=C LANG=C quarto render lecture_notes/lec3.qmd --to pdf
+LC_ALL=C LANG=C quarto render lecture_notes/lec4.qmd --to pdf
+LC_ALL=C LANG=C quarto render lecture_notes/lec5.qmd --to pdf
+LC_ALL=C LANG=C quarto render lecture_notes/lec6.qmd --to pdf
+LC_ALL=C LANG=C quarto render assignments/assignment1/assignment-1-questions.qmd --to pdf
 ```
 
-PDF output requires a LaTeX distribution such as TinyTeX or full TeX Live.
+PDF output requires a LaTeX distribution such as TinyTeX or full TeX Live. The CI workflow renders each public PDF as a separate matrix job so one LaTeX or notebook failure identifies the specific source file and does not block the HTML render.
 
 ## Structure
 

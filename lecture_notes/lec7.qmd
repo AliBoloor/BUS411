@@ -1,0 +1,616 @@
+---
+title: "Lecture 7: Interest‑Rate Models"
+format:
+  html:
+    toc: true
+    toc-location: left
+    number-sections: true
+    number-depth: 2
+  pdf:
+    toc: true
+    number-sections: true
+    number-depth: 2
+jupyter: python3
+---
+
+## Learning Objectives {.unnumbered}
+
+After completing this lecture you will be able to:
+
+- Define an interest‑rate model and interpret its key components (drift, volatility and mean reversion).
+- Explain the mathematics behind one‑factor stochastic processes used to model interest rates.
+- Distinguish between **arbitrage‑free** and **equilibrium** interest‑rate models and understand the purpose of each.
+- Explain when a stochastic short‑rate model is needed, and when a discount curve alone is sufficient.
+- Describe how the Hull–White model fits today’s yield curve while modeling future rate dynamics.
+- Discuss empirical evidence on interest‑rate changes, including how volatility relates to rate levels and the possibility of negative rates.
+- Describe criteria for selecting an interest‑rate model in practice.
+- Compute historical interest‑rate volatility using real or simulated data.
+
+---
+
+# Mathematical Description of One‑Factor Interest‑Rate Models
+
+An **interest‑rate model** is a probabilistic description of how interest rates evolve over time. In fixed‑income portfolio management, models help value bonds and derivatives and simulate future yield curves. Models must specify how the short‑term rate evolves and how that short rate determines the rest of the term structure.
+
+### A basic continuous‑time stochastic process
+
+In a basic one‑factor model, the short rate $r_t$ is assumed to follow a **stochastic differential equation (SDE)** of the form
+
+$$
+\mathrm{d}r_t = b\,\mathrm{d}t + \sigma\,\mathrm{d}z_t,
+$$
+
+where:
+
+- $b$ is the **drift** term representing the expected direction of the change in the short rate.
+- $\sigma$ is the **volatility** term representing the magnitude of random shocks.
+- $z_t$ is a standard Wiener process (Brownian motion).
+
+The drift and volatility are constants in this simplest model. If $b=0$, the expected change in $r$ is zero and the variance of the change over a time interval of length $T$ is $\sigma^2 T$. Models of this type are sometimes called **normal models** because rate changes are independent of the current level.
+
+### Itô process
+
+In reality, drift and volatility are not constant; they can depend on the current level of the short rate $r$ and time $t$. An **Itô process** allows this by writing
+
+$$
+\mathrm{d}r_t = b(r_t,t)\,\mathrm{d}t + \sigma(r_t,t)\,\mathrm{d}z_t.
+$$
+
+Here, $b(r_t,t)$ and $\sigma(r_t,t)$ can be functions of $r_t$ and $t$. Itô processes are the building block of most one‑factor term‑structure models.
+
+### Specifying the dynamics of the drift term
+
+A common specification for the drift is **mean reversion**. The idea is that interest rates tend to revert toward a long‑run average $\bar{r}$. The **speed of mean reversion** is measured by a parameter $\alpha>0$. The drift becomes
+
+$$
+ b(r_t,t) = -\alpha\bigl(r_t - \bar{r}\bigr).
+$$
+
+When $r_t$ is above the long‑run mean, the drift is negative; when below, it is positive. The speed $\alpha$ controls how quickly $r_t$ moves back toward $\bar{r}$.
+
+### Specifying the dynamics of the volatility term
+
+Volatility can depend on the level of rates. A flexible specification is the **constant‑elasticity‑of‑variance (CEV)** model, which sets
+
+$$
+ \sigma(r_t,t) = \sigma_0\,r_t^{\gamma},
+$$
+
+where $\sigma_0>0$ is a scale parameter and $\gamma$ controls how volatility depends on $r_t$. Special cases include:
+
+- $\gamma=0$ (**Vasicek model**): volatility is constant and independent of $r_t$. This is a **normal model**.
+- $\gamma=1$ (**Dothan model**): volatility is proportional to $r_t$. This is a **lognormal model** (changes are proportional to the level).
+- $\gamma=\tfrac{1}{2}$ (**Cox–Ingersoll–Ross model**): volatility is proportional to $\sqrt{r_t}$. This avoids negative rates because $\sigma_0 r_t^{1/2}$ goes to zero as $r_t$ approaches zero.
+
+Combining mean reversion in drift with square‑root volatility yields the **mean‑reverting square‑root** model:
+
+$$
+ \mathrm{d}r_t = -\alpha(r_t-\bar{r})\,\mathrm{d}t + \sigma_0\sqrt{r_t}\,\mathrm{d}z_t.
+$$
+
+#### 🧮 *Example:* Simulating an Ornstein–Uhlenbeck process
+
+An Ornstein–Uhlenbeck (Vasicek) process has constant volatility and mean‑reverting drift. The following Python code simulates sample paths:
+
+```{python}
+#| label: fig-ou-simulation
+#| fig-cap: "Simulated short‑rate paths following an Ornstein–Uhlenbeck process"
+#| echo: false
+import numpy as np
+import matplotlib.pyplot as plt
+
+alpha = 0.5    # speed of mean reversion
+bar_r = 0.05   # long-run mean (5%)
+sigma0 = 0.02  # volatility (2%)
+r0 = 0.04      # starting short rate (4%)
+
+T = 5          # 5 years
+dt = 1/252     # daily time step
+steps = int(T/dt)
+paths = 5      # number of simulated paths
+
+times = np.linspace(0, T, steps)
+results = np.zeros((paths, steps))
+for i in range(paths):
+    r = r0
+    for j in range(steps):
+        dr = -alpha*(r - bar_r)*dt + sigma0*np.sqrt(dt)*np.random.randn()
+        r += dr
+        results[i,j] = r
+
+plt.figure(figsize=(8,5))
+for i in range(paths):
+    plt.plot(times, results[i])
+plt.xlabel("Time (years)")
+plt.ylabel("Short rate")
+plt.title("Ornstein–Uhlenbeck (Vasicek) process simulations")
+plt.grid(True)
+plt.show()
+```
+
+This graph shows sample short‑rate paths reverting toward the long‑run mean.
+
+---
+
+# Arbitrage‑Free versus Equilibrium Models
+
+Interest‑rate models can be classified by how they determine the term‑structure evolution.
+
+### Arbitrage‑free models
+
+**Arbitrage‑free** or **no‑arbitrage models** start with observed market prices of a set of benchmark instruments (Treasury bonds, swaps, etc.). The model assumes a random process for the short rate with unknown drift. Parameters are calibrated so that the model exactly reproduces the current term structure and prices of benchmark instruments. Once calibrated, the model can value other instruments consistently.
+
+**Common arbitrage‑free models** include:
+
+| Model | Type | Key features |
+|------|------|--------------|
+| **Ho–Lee** | Normal | Constant volatility; no mean reversion. Produces normally distributed rate changes. |
+| **Hull–White** | Normal | Adds mean reversion to the Ho–Lee model. Useful for pricing callable bonds. |
+| **Kalotay–Williams–Fabozzi (KWF)** | Lognormal | Models the logarithm of the short rate; no mean reversion. |
+| **Black–Karasinski** | Lognormal | Lognormal model with mean reversion. |
+| **Black–Derman–Toy** | Lognormal | Lognormal with endogenous mean reversion; calibrates to caps and floors. |
+| **Heath–Jarrow–Morton (HJM)** | General | Multi‑factor model specifying the volatility structure of forward rates. Many models (Ho–Lee, Hull–White, KWF, etc.) are special cases. |
+
+Because these models match observed prices, arbitrage opportunities are eliminated by construction. They are widely used in practice for pricing complex derivatives and bonds with embedded options.
+
+### Equilibrium models
+
+**Equilibrium models** explain the term structure by appealing to economic fundamentals and investor preferences. They assume a particular utility function and derive the stochastic process for rates from equilibrium conditions. Parameters are estimated from historical data rather than calibrated to market prices. Examples include the **Vasicek** and **Cox–Ingersoll–Ross (CIR)** equilibrium models, as well as the **Brennan–Schwartz** and **Longstaff–Schwartz** two‑factor models.
+
+Equilibrium models provide economic intuition but are less commonly used to price derivatives because they do not necessarily fit the current term structure. In practice, arbitrage‑free models dominate due to their ability to match observed prices and deliver consistent valuations.
+
+---
+
+# When Do We Need a No‑Arbitrage Short‑Rate Model?
+
+The first rule is simple: **do not use a stochastic interest‑rate model unless the cash flows require one**.
+
+For a plain‑vanilla Treasury bond or a fixed‑rate corporate bond, the promised cash flows are usually fixed. Once we have a discount curve, valuation is mainly:
+
+$$
+P = \sum_i CF_i \times P(0,t_i),
+$$
+
+where $CF_i$ is the cash flow at date $t_i$ and $P(0,t_i)$ is today's price of a zero‑coupon bond that pays $1 at $t_i$. Equivalently, $P(0,t_i)$ is the discount factor from $t_i$ back to today. The discount factors can be bootstrapped from Treasury prices, swap rates, or other benchmark instruments. No model of how future interest rates might move is required.
+
+If we calibrated a Hull–White model to the same initial discount curve, it would reproduce the same time‑0 value for this plain bond. That is useful as a consistency check, but it does not add much for valuing the plain bond itself.
+
+Short‑rate models become important when the value of the security depends on **future interest rates**, not just today’s discount curve. This happens when cash flows are option‑like, path dependent, or reset based on future market rates.
+
+Examples include:
+
+- callable bonds;
+- putable bonds;
+- mortgage‑backed securities;
+- caps and floors;
+- swaptions;
+- structured notes;
+- other bonds with embedded options.
+
+::: {.callout-tip}
+## What to remember
+
+A yield curve is a snapshot of today’s market. A short‑rate model is a rule for how interest rates may evolve through time. Plain bonds usually need the snapshot. Embedded options and interest‑rate derivatives need the evolution.
+:::
+
+## Yield curve versus short‑rate model
+
+The **yield curve** gives today’s market‑implied discount rates across maturities. It answers: “What discount factors are implied by market prices today?”
+
+A **short‑rate model** specifies the stochastic evolution of the instantaneous short rate $r_t$. It answers: “How might interest rates move in the future, and how would those future paths affect cash flows and discounting?”
+
+The distinction matters because a bond with fixed cash flows can be valued directly from today’s curve. A callable bond cannot. If rates fall, the issuer is more likely to call the bond. If rates rise, the bond is less likely to be called. The cash flows themselves depend on future rate paths, so a model of rate dynamics is needed.
+
+| Feature | Plain fixed‑rate bond | Callable bond or rate derivative |
+|---|---|---|
+| Cash flows | Fixed or mostly fixed | State‑dependent cash flows |
+| Main valuation input | Today's bootstrapped discount curve | Future yield curves generated by a model |
+| Typical method | Discounted cash flow | Backward induction, lattice, or simulation |
+| Exercise decision | None | Compare continuation value with exercise value |
+| Examples | Treasury bond, fixed‑rate corporate bond | Callable bond, MBS, cap, floor, swaption |
+
+## From a short‑rate process to a yield curve
+
+A one‑factor short‑rate model starts by specifying the evolution of $r_t$. Once we simulate or solve for possible paths of $r_t$, each path implies a discount factor:
+
+$$
+\exp\left(-\int_0^T r_s\,ds\right).
+$$
+
+Under risk‑neutral pricing, the zero‑coupon bond price is the expected discounted payoff:
+
+$$
+P(0,T) = \mathbb{E}^{\mathbb{Q}}\left[
+\exp\left(-\int_0^T r_s\,ds\right)
+\right].
+$$
+
+The continuously compounded zero rate follows from:
+
+$$
+y(0,T) = -\frac{\log P(0,T)}{T}.
+$$
+
+So the model generates the term structure through this chain:
+
+```{python}
+#| label: fig-short-rate-flow
+#| fig-cap: "How a short‑rate model generates the term structure"
+#| echo: false
+import matplotlib.pyplot as plt
+from matplotlib.patches import FancyBboxPatch, FancyArrowPatch
+
+steps = [
+    "Short-rate\nprocess",
+    "Future\nshort-rate paths",
+    "Pathwise\ndiscount factors",
+    "Zero-coupon\nbond prices",
+    "Yield\ncurve",
+]
+
+fig, ax = plt.subplots(figsize=(6.6, 1.9))
+ax.set_axis_off()
+
+box_width = 0.92
+box_height = 0.64
+spacing = 1.45
+y0 = 0.45
+
+for x, label in enumerate(steps):
+    x0 = x * spacing
+    box = FancyBboxPatch(
+        (x0, y0), box_width, box_height,
+        boxstyle="round,pad=0.08",
+        linewidth=1.2,
+        edgecolor="black",
+        facecolor="#E8F1FA",
+    )
+    ax.add_patch(box)
+    ax.text(x0 + box_width / 2, y0 + box_height / 2, label, ha="center", va="center", fontsize=7.8)
+    if x < len(steps) - 1:
+        arrow = FancyArrowPatch(
+            (x0 + box_width + 0.05, y0 + box_height / 2),
+            ((x + 1) * spacing - 0.10, y0 + box_height / 2),
+            arrowstyle="-|>",
+            mutation_scale=22,
+            linewidth=2.0,
+            color="black",
+        )
+        ax.add_patch(arrow)
+
+ax.set_xlim(-0.1, (len(steps) - 1) * spacing + box_width + 0.1)
+ax.set_ylim(0, 1.45)
+plt.tight_layout(pad=0.2)
+plt.show()
+```
+
+For time‑0 pricing, $P(0,T)$ is observed from the market or calibrated to the market. For a future date $t>0$, $P(t,T)$ is different: it is the model‑generated price at time $t$ of a zero‑coupon bond maturing at $T$, with $T>t$.
+
+In a one‑factor Hull–White model, once a future short rate $r_t$ is reached in the tree or simulation, that state determines the entire future yield curve at that date. In other words, each future node gives a full set of discount factors:
+
+$$
+P(t,T) \quad \text{for all maturities } T>t.
+$$
+
+## A simple short‑rate tree intuition
+
+A lattice or tree is a discrete version of the same idea. Starting from today’s short rate $r_0$, rates branch into possible future values. Each path has its own sequence of short rates and therefore its own discount factor. At each future node, the short rate implies a full future yield curve. For an option‑embedded bond, the model also checks whether exercise is optimal at each node.
+
+```{python}
+#| label: fig-short-rate-tree
+#| fig-cap: "A simple short‑rate tree: each future node implies a future yield curve"
+#| echo: false
+import matplotlib.pyplot as plt
+
+nodes = {
+    (0, 0): ("$r_0$\n$P(0,T)$", 0, 0),
+    (1, 1): ("$r_u$\n$P(t,T)$", 1, 1),
+    (1, -1): ("$r_d$\n$P(t,T)$", 1, -1),
+    (2, 2): ("$r_{uu}$\n$P(t,T)$", 2, 2),
+    (2, 0): ("$r_{ud}$\n$P(t,T)$", 2, 0),
+    (2, -2): ("$r_{dd}$\n$P(t,T)$", 2, -2),
+}
+
+edges = [
+    ((0, 0), (1, 1)),
+    ((0, 0), (1, -1)),
+    ((1, 1), (2, 2)),
+    ((1, 1), (2, 0)),
+    ((1, -1), (2, 0)),
+    ((1, -1), (2, -2)),
+]
+
+fig, ax = plt.subplots(figsize=(7, 3.5))
+for start, end in edges:
+    _, x0, y0 = nodes[start]
+    _, x1, y1 = nodes[end]
+    ax.plot([x0, x1], [y0, y1], color="gray", linewidth=1.2)
+
+for label, x, y in nodes.values():
+    ax.scatter(x, y, s=1250, color="#E8F1FA", edgecolor="black", zorder=3)
+    ax.text(x, y, label, ha="center", va="center", fontsize=9.5, zorder=4)
+
+ax.text(1, -2.75, "Each future node gives discount factors for remaining cash flows.",
+        ha="center", fontsize=10)
+ax.set_xlim(-0.4, 2.4)
+ax.set_ylim(-3.1, 2.5)
+ax.set_xticks([0, 1, 2])
+ax.set_xticklabels(["Today", "Step 1", "Step 2"])
+ax.set_yticks([])
+ax.set_title("Short-rate paths in a simple recombining tree")
+ax.spines[["left", "right", "top"]].set_visible(False)
+plt.show()
+```
+
+## The Hull–White model
+
+The one‑factor Hull–White model is a no‑arbitrage extension of the Vasicek model:
+
+$$
+dr_t = [\theta(t) - a r_t]\,dt + \sigma\,dW_t.
+$$
+
+Here:
+
+- $a$ is the speed of mean reversion;
+- $\sigma$ is the short‑rate volatility;
+- $\theta(t)$ is a time‑dependent drift function;
+- $W_t$ is Brownian motion under the risk‑neutral measure.
+
+At first, the model may look like it has only two parameters, $a$ and $\sigma$. If that were true, it could not match an entire observed yield curve. The key is that $\theta(t)$ is **not a single scalar parameter**. It is a function of time.
+
+Hull–White uses $\theta(t)$ to fit today’s initial term structure. The scalar parameters $a$ and $\sigma$ mainly control the future dynamics: how quickly rates mean‑revert and how volatile they are. In practice, $a$ and $\sigma$ are often calibrated to interest‑rate option prices such as swaptions.
+
+This is the main value added by Hull–White. It is not mainly a tool for repricing today’s plain fixed‑rate bonds. After calibration, those prices already come from the observed discount curve. Hull–White adds a no‑arbitrage way to generate future short‑rate scenarios and future yield curves that remain consistent with today’s market.
+
+```{python}
+#| label: fig-hull-white-fit
+#| fig-cap: "Hull–White calibration: theta(t) is chosen so the model fits today's observed curve"
+#| echo: false
+import numpy as np
+import matplotlib.pyplot as plt
+
+maturities = np.array([0.5, 1, 2, 3, 5, 7, 10, 20, 30])
+observed_curve = np.array([0.041, 0.040, 0.0385, 0.0375, 0.037, 0.0372, 0.0378, 0.039, 0.040])
+
+# Schematic fitted curve: close to the observed market curve by construction.
+model_curve = observed_curve + np.array([0.0000, -0.0001, 0.0001, 0.0000, -0.00005, 0.00005, 0.0000, -0.0001, 0.0001])
+
+plt.figure(figsize=(7.5, 4.5))
+plt.plot(maturities, observed_curve * 100, "o-", label="Today's observed yield curve")
+plt.plot(maturities, model_curve * 100, "s--", label="Model-fitted yield curve")
+plt.xlabel("Maturity (years)")
+plt.ylabel("Zero rate (%)")
+plt.title("No-arbitrage fit to the initial term structure")
+plt.grid(True, alpha=0.35)
+plt.legend()
+plt.show()
+```
+
+## Calibration logic
+
+The calibration workflow is usually:
+
+1. **Bootstrap the market discount curve.** Use observed benchmark instruments such as Treasuries, deposits, futures, or swaps to infer market discount factors.
+2. **Fit the initial term structure.** Choose $\theta(t)$ so that the model’s zero‑coupon bond prices match market zero‑coupon bond prices.
+3. **Fit future dynamics if needed.** Calibrate $a$ and $\sigma$ to liquid interest‑rate options, such as caps, floors, or swaptions.
+4. **Price the target instrument.** Use the calibrated model in a lattice, tree, finite‑difference method, or Monte Carlo simulation.
+
+For a plain fixed‑rate bond, step 1 is usually enough. Steps 2–4 become valuable when the instrument’s payoff depends on future rates or exercise behavior.
+
+The full pricing logic for an option‑embedded bond is:
+
+```{python}
+#| label: fig-hull-white-pricing-flow
+#| fig-cap: "Hull–White pricing workflow for option‑embedded bonds"
+#| echo: false
+import matplotlib.pyplot as plt
+from matplotlib.patches import FancyBboxPatch, FancyArrowPatch
+
+steps = [
+    "Observed curve\n$P(0,T)$",
+    "Calibrate\nHull–White",
+    "Simulate\n$r_t$",
+    "Generate future\n$P(t,T)$",
+    "Value remaining\ncash flows",
+    "Exercise\ndecision",
+    "Discount back\nto today",
+]
+
+fig, ax = plt.subplots(figsize=(7.2, 2.4))
+ax.set_axis_off()
+
+box_width = 0.82
+box_height = 0.68
+spacing = 1.03
+y0 = 0.75
+
+for i, label in enumerate(steps):
+    x0 = i * spacing
+    box = FancyBboxPatch(
+        (x0, y0), box_width, box_height,
+        boxstyle="round,pad=0.06",
+        linewidth=1.1,
+        edgecolor="black",
+        facecolor="#E8F1FA",
+    )
+    ax.add_patch(box)
+    ax.text(x0 + box_width / 2, y0 + box_height / 2, label, ha="center", va="center", fontsize=7.1)
+    if i < len(steps) - 1:
+        arrow = FancyArrowPatch(
+            (x0 + box_width + 0.02, y0 + box_height / 2),
+            ((i + 1) * spacing - 0.04, y0 + box_height / 2),
+            arrowstyle="-|>",
+            mutation_scale=14,
+            linewidth=1.4,
+            color="black",
+        )
+        ax.add_patch(arrow)
+
+ax.set_xlim(-0.05, (len(steps) - 1) * spacing + box_width + 0.05)
+ax.set_ylim(0.25, 1.75)
+plt.tight_layout(pad=0.2)
+plt.show()
+```
+
+## Callable bond intuition
+
+At a future call date, the model produces a future yield curve $P(t,T)$. That curve is used to value the remaining coupon and principal payments:
+
+$$
+V_{\text{continue}}(t) = \sum_i CF_i \times P(t,t_i).
+$$
+
+The issuer compares this continuation value with the call price. If rates have fallen, the old high‑coupon bond is valuable to investors but expensive for the issuer to keep outstanding. The issuer is more likely to call the bond. If rates have risen, the continuation value is usually below the call price, so the issuer does not call.
+
+For the bondholder at a call date:
+
+$$
+V(t) = \min\left(V_{\text{continue}}(t), \text{call price}\right).
+$$
+
+The minimum appears because the issuer controls the call option. The bondholder receives the lower of keeping the valuable bond alive or being paid the call price.
+
+```{python}
+#| label: fig-callable-bond-decision
+#| fig-cap: "Callable bond decision at a future call date"
+#| echo: false
+import matplotlib.pyplot as plt
+from matplotlib.patches import FancyBboxPatch, FancyArrowPatch
+
+steps = [
+    "Future curve\n$P(t,T)$",
+    "Value remaining\ncash flows",
+    "Compare with\ncall price",
+    "Call if\n$V_{continue}$ > call price",
+    "Do not call if\n$V_{continue}$ < call price",
+]
+
+positions = [(0, 1), (1.6, 1), (3.2, 1), (4.9, 1.55), (4.9, 0.45)]
+
+fig, ax = plt.subplots(figsize=(7, 2.8))
+ax.set_axis_off()
+
+box_width = 1.15
+box_height = 0.55
+
+for label, (x, y) in zip(steps, positions):
+    box = FancyBboxPatch(
+        (x, y), box_width, box_height,
+        boxstyle="round,pad=0.06",
+        linewidth=1.1,
+        edgecolor="black",
+        facecolor="#E8F1FA",
+    )
+    ax.add_patch(box)
+    ax.text(x + box_width / 2, y + box_height / 2, label, ha="center", va="center", fontsize=7.8)
+
+arrows = [
+    ((1.15, 1.275), (1.6, 1.275)),
+    ((2.75, 1.275), (3.2, 1.275)),
+    ((4.35, 1.275), (4.9, 1.82)),
+    ((4.35, 1.275), (4.9, 0.72)),
+]
+
+for start, end in arrows:
+    ax.add_patch(FancyArrowPatch(start, end, arrowstyle="-|>", mutation_scale=14, linewidth=1.3, color="black"))
+
+ax.set_xlim(-0.1, 6.25)
+ax.set_ylim(0.1, 2.35)
+plt.tight_layout(pad=0.2)
+plt.show()
+```
+
+::: {.callout-note}
+## Where the complexity enters
+
+Without derivatives or embedded options, individual bond valuation is relatively straightforward. Fixed‑income complexity usually comes from cash flows that change with future rates, embedded optionality, prepayment behavior, portfolio construction and risk management, and credit, liquidity, or spread modeling.
+:::
+
+---
+
+# Empirical Evidence on Interest‑Rate Changes
+
+When choosing a model, it helps to understand actual interest‑rate behaviour. Two issues are often discussed: the relationship between volatility and the level of rates, and the possibility of negative rates.
+
+### Volatility of rates and the level of interest rates
+
+Empirical studies of Treasury yield curves from the late 1970s to the 2000s show that the correlation between interest‑rate volatility and the level of rates changes across regimes. During periods when rates exceeded roughly 10% (late 1970s and early 1980s), volatility tended to increase with the level of rates. When rates were below 10%, the correlation weakened and volatility behaved more like a constant. This evidence suggests that in low‑rate environments (common since the 1990s), the **normal model** (constant volatility) may be adequate, whereas in high‑rate regimes a lognormal or square‑root model might better reflect the link between level and volatility.
+
+### Negative interest rates
+
+Historical episodes show that nominal rates can occasionally be negative. During the U.S. Great Depression, Treasury bills traded at negative yields; more recently some short‑term Japanese yen deposits briefly had negative yields in the late 1990s. Models with constant volatility allow negative rates, while models where volatility is proportional to the rate (lognormal) do not. Empirical tests indicate that the probability of negative rates under realistic parameter values is small and has little impact on derivative pricing. Hence, many practitioners are comfortable using normal models even though they admit negative rates.
+
+---
+
+# Selecting an Interest‑Rate Model
+
+When choosing a model for bond portfolio management, consider:
+
+1. **Purpose of the model.** For pricing complex derivatives or option‑embedded bonds, use arbitrage‑free models that fit the current term structure. For economic insight or macroeconomic forecasting, equilibrium models may suffice.
+2. **Volatility assumptions.** In low‑rate environments, constant volatility models (Vasicek, Ho–Lee, Hull–White) perform well. In high‑rate regimes or when negative rates must be ruled out, lognormal or square‑root volatility (CIR, Black–Karasinski) may be preferred.
+3. **Computational tractability.** Models should allow efficient calibration and pricing. Multi‑factor models offer flexibility but are more difficult to implement.
+4. **Data availability.** Arbitrage‑free models require reliable market prices for a reference set of instruments; equilibrium models require long historical series to estimate parameters.
+
+Ultimately, practitioners often choose the simplest model that fits the current term structure and provides robust valuations across scenarios.
+
+---
+
+# Estimating Interest‑Rate Volatility Using Historical Data
+
+Volatility is an important input for any rate model. Two common methods are **historical volatility** and **implied volatility**.
+
+### Historical volatility
+
+Historical volatility uses past interest‑rate observations to estimate the standard deviation of rate changes. Suppose $r_t$ is a series of weekly interest rates and $\Delta r_t$ is the change from one week to the next. The sample standard deviation of $\Delta r_t$ provides a weekly volatility. To annualize, multiply by $\sqrt{52}$ (assuming 52 weeks per year). For daily data, multiply the daily standard deviation by $\sqrt{n}$, where $n$ is the number of trading days in a year (commonly 250 or 260).
+
+#### Numerical example (artificial data)
+
+Consider a hypothetical sequence of weekly short rates (in percent) over 10 weeks:
+
+| Week | Rate (%) | Weekly change ($\Delta r_t$, bps) |
+|----|------|------------------|
+| 1  | 2.00 | – |
+| 2  | 2.05 | +5 |
+| 3  | 2.04 | −1 |
+| 4  | 2.08 | +4 |
+| 5  | 2.02 | −6 |
+| 6  | 2.10 | +8 |
+| 7  | 2.09 | −1 |
+| 8  | 2.12 | +3 |
+| 9  | 2.15 | +3 |
+| 10 | 2.14 | −1 |
+
+To compute the sample standard deviation of the changes, convert basis points to decimal form (e.g., +5 bps = 0.0005). Using the eight non‑missing changes (+5, −1, +4, −6, +8, −1, +3, +3, −1) we find:
+
+1. Mean change = $\frac{5 - 1 + 4 - 6 + 8 - 1 + 3 + 3 - 1}{9} = \frac{14}{9} \approx 1.556$ bps.
+2. Variance = $\frac{1}{8}\sum_{i=1}^{9} (\Delta r_i - \text{mean})^2$.  Calculating each squared deviation and summing yields $\approx 94.22$ (bp)$^2$. The sample variance is $94.22/8 \approx 11.78$ (bp)$^2$.
+3. Standard deviation = $\sqrt{11.78} \approx 3.43$ bps per week.
+4. Annualized volatility = $3.43 \times \sqrt{52} \approx 24.7$ bps per year.
+
+Thus, this simplified data set implies an annual volatility of about 25 basis points.
+
+
+### Implied volatility
+
+Implied volatility derives from market prices of option‑like instruments (caps, floors, swaptions). An option pricing model expresses the option price as a function of volatility. By inverting the model using observed prices, one obtains the market’s expected volatility. Implied volatility reflects current market conditions and forward‑looking expectations, whereas historical volatility reflects past behaviour.
+
+---
+
+# Key Points {.unnumbered}
+
+- An interest‑rate model specifies a stochastic process for the short rate and derives other rates from it. Drift, volatility and mean reversion are key components.
+- One‑factor models use a single source of uncertainty (Brownian motion). Mean‑reverting drift and level‑dependent volatility are common specifications.
+- Arbitrage‑free models (Ho–Lee, Hull–White, KWF, Black–Karasinski, BDT, HJM) calibrate to market prices and are widely used for valuation. Equilibrium models (Vasicek, CIR, Brennan–Schwartz, Longstaff–Schwartz) derive rates from economic assumptions.
+- Plain fixed‑rate bonds usually do not need a stochastic short‑rate model; a bootstrapped discount curve is typically enough.
+- Short‑rate models are central when cash flows depend on future rates, such as callable bonds, mortgage‑backed securities, caps, floors and swaptions.
+- In the Hull–White model, $\theta(t)$ is a time‑dependent function calibrated to fit today’s term structure; $a$ and $\sigma$ control future mean reversion and volatility.
+- $P(0,T)$ is today's observed or calibrated discount factor; $P(t,T)$ for $t>0$ is a model‑generated future discount factor used to value remaining cash flows.
+- Callable bond valuation requires future yield curves because the exercise decision compares the continuation value with the call price.
+- Empirical evidence suggests that volatility is largely independent of the level of rates when rates are below about 10%, supporting the normal model; at higher levels, volatility may increase with rates, favouring lognormal specifications.
+- Negative nominal rates can occur but are rare. Normal models admit negative rates; the probability of occurrence is small under realistic parameters.
+- Historical volatility is computed from past rate changes and annualized using square‑root‑of‑time scaling; implied volatility is extracted from option prices.
+
+---
+
+*Suggested readings:* Fabozzi, *Bond Markets: Analysis and Strategies*, Chapter 17.

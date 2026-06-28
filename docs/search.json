@@ -2262,7 +2262,7 @@
     "href": "lecture_notes/lec7.html",
     "title": "Lecture 7: Interest‑Rate Models",
     "section": "",
-    "text": "After completing this lecture you will be able to:\n\nDefine an interest‑rate model and interpret its key components (drift, volatility and mean reversion).\nExplain the mathematics behind one‑factor stochastic processes used to model interest rates.\nDistinguish between arbitrage‑free and equilibrium interest‑rate models and understand the purpose of each.\nDiscuss empirical evidence on interest‑rate changes, including how volatility relates to rate levels and the possibility of negative rates.\nDescribe criteria for selecting an interest‑rate model in practice.\nCompute historical interest‑rate volatility using real or simulated data.",
+    "text": "After completing this lecture you will be able to:\n\nDefine an interest‑rate model and interpret its key components (drift, volatility and mean reversion).\nExplain the mathematics behind one‑factor stochastic processes used to model interest rates.\nDistinguish between arbitrage‑free and equilibrium interest‑rate models and understand the purpose of each.\nExplain when a stochastic short‑rate model is needed, and when a discount curve alone is sufficient.\nDescribe how the Hull–White model fits today’s yield curve while modeling future rate dynamics.\nDiscuss empirical evidence on interest‑rate changes, including how volatility relates to rate levels and the possibility of negative rates.\nDescribe criteria for selecting an interest‑rate model in practice.\nCompute historical interest‑rate volatility using real or simulated data.",
     "crumbs": [
       "Home",
       "Lecture 7"
@@ -2273,7 +2273,7 @@
     "href": "lecture_notes/lec7.html#learning-objectives",
     "title": "Lecture 7: Interest‑Rate Models",
     "section": "",
-    "text": "After completing this lecture you will be able to:\n\nDefine an interest‑rate model and interpret its key components (drift, volatility and mean reversion).\nExplain the mathematics behind one‑factor stochastic processes used to model interest rates.\nDistinguish between arbitrage‑free and equilibrium interest‑rate models and understand the purpose of each.\nDiscuss empirical evidence on interest‑rate changes, including how volatility relates to rate levels and the possibility of negative rates.\nDescribe criteria for selecting an interest‑rate model in practice.\nCompute historical interest‑rate volatility using real or simulated data.",
+    "text": "After completing this lecture you will be able to:\n\nDefine an interest‑rate model and interpret its key components (drift, volatility and mean reversion).\nExplain the mathematics behind one‑factor stochastic processes used to model interest rates.\nDistinguish between arbitrage‑free and equilibrium interest‑rate models and understand the purpose of each.\nExplain when a stochastic short‑rate model is needed, and when a discount curve alone is sufficient.\nDescribe how the Hull–White model fits today’s yield curve while modeling future rate dynamics.\nDiscuss empirical evidence on interest‑rate changes, including how volatility relates to rate levels and the possibility of negative rates.\nDescribe criteria for selecting an interest‑rate model in practice.\nCompute historical interest‑rate volatility using real or simulated data.",
     "crumbs": [
       "Home",
       "Lecture 7"
@@ -4387,5 +4387,60 @@
     "title": "Exam 1 Solutions - June 2026",
     "section": "Problem B4",
     "text": "Problem B4\nA firm has issued a floating-rate note with quarterly coupons. The coupon rate each quarter is 3-month SOFR plus a quoted margin of 1.25%. The note has face value $5,000,000. There is a coupon floor of 2.00% and a cap of 6.50%. The next three SOFR reset rates are assumed to be:\n\n\n\nQuarter\nSOFR at reset\n\n\n\n\n1\n0.50%\n\n\n2\n3.80%\n\n\n3\n6.10%\n\n\n\nAnswer the following:\n\nCompute the uncapped annual coupon rate for each quarter.\n\nApply the floor and cap.\n\nCompute each quarterly coupon payment.\n\nExplain how the cap changes investor exposure.\n\nExplain why discount margin is more natural than yield to maturity for this security.\n\n\nSolution.\nThe uncapped annual coupon rate is SOFR plus the quoted margin:\n\n\n\nQuarter\nSOFR\nMargin\nUncapped annual coupon rate\n\n\n\n\n1\n0.50%\n1.25%\n1.75%\n\n\n2\n3.80%\n1.25%\n5.05%\n\n\n3\n6.10%\n1.25%\n7.35%\n\n\n\nApply the 2.00% floor and 6.50% cap:\n\n\n\nQuarter\nUncapped annual coupon rate\nCoupon after floor and cap\n\n\n\n\n1\n1.75%\n2.00%\n\n\n2\n5.05%\n5.05%\n\n\n3\n7.35%\n6.50%\n\n\n\nQuarterly coupon payments use one-fourth of the annual coupon rate:\n\\[\n\\text{Coupon payment}\n=5{,}000{,}000\\times \\frac{\\text{annual coupon rate}}{4}.\n\\]\n\n\n\nQuarter\nCoupon after floor and cap\nQuarterly coupon payment\n\n\n\n\n1\n2.00%\n$25,000.00\n\n\n2\n5.05%\n$63,125.00\n\n\n3\n6.50%\n$81,250.00\n\n\n\nThe cap limits the investor’s benefit from rising short-term rates. Without the cap, the third-quarter coupon would be based on 7.35%; with the cap, the investor receives only 6.50%. Economically, the investor has given up some upside when SOFR becomes high.\nDiscount margin is more natural than yield to maturity because the coupon resets with a reference rate. A single fixed YTM assumes fixed promised cash flows, but the FRN’s future coupons depend on future SOFR resets and any floor or cap. Discount margin instead measures the spread over the reference curve needed to price the note, which better matches the floating-rate structure."
+  },
+  {
+    "objectID": "lecture_notes/lec7.html#yield-curve-versus-shortrate-model",
+    "href": "lecture_notes/lec7.html#yield-curve-versus-shortrate-model",
+    "title": "Lecture 7: Interest‑Rate Models",
+    "section": "3.1 Yield curve versus short‑rate model",
+    "text": "3.1 Yield curve versus short‑rate model\nThe yield curve gives today’s market‑implied discount rates across maturities. It answers: “What discount factors are implied by market prices today?”\nA short‑rate model specifies the stochastic evolution of the instantaneous short rate \\(r_t\\). It answers: “How might interest rates move in the future, and how would those future paths affect cash flows and discounting?”\nThe distinction matters because a bond with fixed cash flows can be valued directly from today’s curve. A callable bond cannot. If rates fall, the issuer is more likely to call the bond. If rates rise, the bond is less likely to be called. The cash flows themselves depend on future rate paths, so a model of rate dynamics is needed.\n\n\n\n\n\n\n\n\nFeature\nPlain fixed‑rate bond\nEmbedded‑option bond or rate derivative\n\n\n\n\nCash flows\nFixed or mostly fixed\nDepend on future rates and exercise decisions\n\n\nMain valuation input\nBootstrapped discount curve\nDiscount curve plus rate dynamics\n\n\nTypical method\nDiscount each cash flow\nNo‑arbitrage tree, lattice, or Monte Carlo\n\n\nModel of future rates needed?\nUsually no\nYes\n\n\nExamples\nTreasury bond, fixed‑rate corporate bond\nCallable bond, MBS, cap, floor, swaption",
+    "crumbs": [
+      "Home",
+      "Lecture 7"
+    ]
+  },
+  {
+    "objectID": "lecture_notes/lec7.html#from-a-shortrate-process-to-a-yield-curve",
+    "href": "lecture_notes/lec7.html#from-a-shortrate-process-to-a-yield-curve",
+    "title": "Lecture 7: Interest‑Rate Models",
+    "section": "3.2 From a short‑rate process to a yield curve",
+    "text": "3.2 From a short‑rate process to a yield curve\nA one‑factor short‑rate model starts by specifying the evolution of \\(r_t\\). Once we simulate or solve for possible paths of \\(r_t\\), each path implies a discount factor:\n\\[\n\\exp\\left(-\\int_0^T r_s\\,ds\\right).\n\\]\nUnder risk‑neutral pricing, the zero‑coupon bond price is the expected discounted payoff:\n\\[\nP(0,T) = \\mathbb{E}^{\\mathbb{Q}}\\left[\n\\exp\\left(-\\int_0^T r_s\\,ds\\right)\n\\right].\n\\]\nThe continuously compounded zero rate follows from:\n\\[\ny(0,T) = -\\frac{\\log P(0,T)}{T}.\n\\]\nSo the model generates the term structure through this chain:\n\n\n\n\n\n\n\n\nFigure 2: How a short‑rate model generates the term structure",
+    "crumbs": [
+      "Home",
+      "Lecture 7"
+    ]
+  },
+  {
+    "objectID": "lecture_notes/lec7.html#a-simple-shortrate-tree-intuition",
+    "href": "lecture_notes/lec7.html#a-simple-shortrate-tree-intuition",
+    "title": "Lecture 7: Interest‑Rate Models",
+    "section": "3.3 A simple short‑rate tree intuition",
+    "text": "3.3 A simple short‑rate tree intuition\nA lattice or tree is a discrete version of the same idea. Starting from today’s short rate \\(r_0\\), rates branch into possible future values. Each path has its own sequence of short rates and therefore its own discount factor. For an option‑embedded bond, the model also checks whether exercise is optimal at each node.\n\n\n\n\n\n\n\n\nFigure 3: A simple short‑rate tree: each path implies a discount factor",
+    "crumbs": [
+      "Home",
+      "Lecture 7"
+    ]
+  },
+  {
+    "objectID": "lecture_notes/lec7.html#the-hullwhite-model",
+    "href": "lecture_notes/lec7.html#the-hullwhite-model",
+    "title": "Lecture 7: Interest‑Rate Models",
+    "section": "3.4 The Hull–White model",
+    "text": "3.4 The Hull–White model\nThe one‑factor Hull–White model is a no‑arbitrage extension of the Vasicek model:\n\\[\ndr_t = [\\theta(t) - a r_t]\\,dt + \\sigma\\,dW_t.\n\\]\nHere:\n\n\\(a\\) is the speed of mean reversion;\n\\(\\sigma\\) is the short‑rate volatility;\n\\(\\theta(t)\\) is a time‑dependent drift function;\n\\(W_t\\) is Brownian motion under the risk‑neutral measure.\n\nAt first, the model may look like it has only two parameters, \\(a\\) and \\(\\sigma\\). If that were true, it could not match an entire observed yield curve. The key is that \\(\\theta(t)\\) is not a single scalar parameter. It is a function of time.\nHull–White uses \\(\\theta(t)\\) to fit today’s initial term structure. The scalar parameters \\(a\\) and \\(\\sigma\\) mainly control the future dynamics: how quickly rates mean‑revert and how volatile they are. In practice, \\(a\\) and \\(\\sigma\\) are often calibrated to interest‑rate option prices such as swaptions.\n\n\n\n\n\n\n\n\nFigure 4: Hull–White calibration: theta(t) is chosen so the model fits today’s observed curve",
+    "crumbs": [
+      "Home",
+      "Lecture 7"
+    ]
+  },
+  {
+    "objectID": "lecture_notes/lec7.html#calibration-logic",
+    "href": "lecture_notes/lec7.html#calibration-logic",
+    "title": "Lecture 7: Interest‑Rate Models",
+    "section": "3.5 Calibration logic",
+    "text": "3.5 Calibration logic\nThe calibration workflow is usually:\n\nBootstrap the market discount curve. Use observed benchmark instruments such as Treasuries, deposits, futures, or swaps to infer market discount factors.\nFit the initial term structure. Choose \\(\\theta(t)\\) so that the model’s zero‑coupon bond prices match market zero‑coupon bond prices.\nFit future dynamics if needed. Calibrate \\(a\\) and \\(\\sigma\\) to liquid interest‑rate options, such as caps, floors, or swaptions.\nPrice the target instrument. Use the calibrated model in a lattice, tree, finite‑difference method, or Monte Carlo simulation.\n\nFor a plain fixed‑rate bond, step 1 is usually enough. Steps 2–4 become valuable when the instrument’s payoff depends on future rates or exercise behavior.\n\n\n\n\n\n\nNoteWhere the complexity enters\n\n\n\nWithout derivatives or embedded options, individual bond valuation is relatively straightforward. Fixed‑income complexity usually comes from cash flows that change with future rates, embedded optionality, prepayment behavior, portfolio construction and risk management, and credit, liquidity, or spread modeling.",
+    "crumbs": [
+      "Home",
+      "Lecture 7"
+    ]
   }
 ]

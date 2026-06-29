@@ -1,0 +1,147 @@
+---
+title: "Assignment 2"
+format:
+  html:
+    toc: true
+    toc-location: left
+    number-sections: true
+    number-depth: 3
+  pdf:
+    pdf-engine: xelatex
+    toc: true
+    number-sections: true
+    number-depth: 3
+---
+
+## Instructions
+
+This problem set is based on Lecture 7. It contains five hard, multi-step questions on interest-rate models, no-arbitrage short-rate models, Hull-White calibration, future discount curves, and callable bond valuation. The questions emphasize conceptual understanding and professional fixed-income reasoning.
+
+For each question:
+
+1. Read the scenario carefully.
+2. Identify whether today's discount curve is sufficient or whether future interest-rate dynamics matter.
+3. Explain the valuation logic before doing any calculations.
+4. Show formulas only where they clarify the economic reasoning.
+
+# Lecture 7: Interest-Rate Models
+
+## Question 1
+
+A junior analyst is valuing two securities for a client:
+
+| Security | Description | Cash-flow feature |
+|---|---|---|
+| A | 6-year Treasury note with a 4.25 percent annual coupon | Fixed cash flows |
+| B | 6-year agency bond with a 4.25 percent annual coupon, callable at par after year 2 | Issuer may redeem early |
+
+The analyst proposes using a Hull-White short-rate model for both securities because "interest rates are uncertain."
+
+Answer the following:
+
+a. Write the basic discounted-cash-flow expression for valuing Security A using discount factors.  
+b. Explain why a bootstrapped discount curve is usually enough for Security A.  
+c. Explain why calibrating Hull-White to today's curve should reproduce the same time-0 value for Security A.  
+d. Explain why Security B may require a short-rate model even though its coupon rate is the same as Security A.  
+e. Identify the main mistake in the analyst's statement.
+
+## Question 2
+
+A rates desk observes the following market discount factors at time 0:
+
+| Maturity $T$ | $P(0,T)$ |
+|---:|---:|
+| 1 | 0.9600 |
+| 2 | 0.9200 |
+| 3 | 0.8750 |
+| 4 | 0.8300 |
+| 5 | 0.7850 |
+
+The desk calibrates a one-factor Hull-White model to this initial curve. Later, in a simulated future state at time $t=2$, the model generates the following future discount factors:
+
+| Future maturity $T$ | $P(2,T)$ |
+|---:|---:|
+| 3 | 0.9650 |
+| 4 | 0.9250 |
+| 5 | 0.8800 |
+
+Answer the following:
+
+a. Explain the difference between $P(0,T)$ and $P(2,T)$.  
+b. Which set of discount factors is observed or calibrated at time 0, and which set is model-generated?  
+c. Use the time-0 discount factors to value a 5-year zero-coupon bond paying USD 1,000 at maturity.  
+d. Use the future discount factors to value, at time 2, remaining cash flows of USD 50 at years 3 and 4 and USD 1,050 at year 5.  
+e. Explain why the future value in part d matters for callable bond valuation.
+
+## Question 3
+
+A portfolio manager is reviewing a one-factor Hull-White model:
+
+$$
+dr_t = [\theta(t) - a r_t]dt + \sigma dW_t.
+$$
+
+The manager says: "The model has only two real parameters, $a$ and $\sigma$, so it cannot possibly fit an entire yield curve."
+
+Answer the following:
+
+a. Explain what $a$ controls.  
+b. Explain what $\sigma$ controls.  
+c. Explain why $\theta(t)$ is not just one scalar parameter.  
+d. Explain how $\theta(t)$ is used in calibration.  
+e. Explain why $a$ and $\sigma$ are often calibrated to option prices rather than plain bond prices.
+
+## Question 4
+
+A callable bond has three annual remaining cash flows after the first call date:
+
+| Payment date | Cash flow |
+|---:|---:|
+| 3 | USD 60 |
+| 4 | USD 60 |
+| 5 | USD 1,060 |
+
+At the call date $t=2$, the call price is USD 1,020. In one simulated interest-rate state, the model-generated future discount factors are:
+
+| Future maturity $T$ | $P(2,T)$ |
+|---:|---:|
+| 3 | 0.9850 |
+| 4 | 0.9550 |
+| 5 | 0.9200 |
+
+In another simulated state, the model-generated future discount factors are:
+
+| Future maturity $T$ | $P(2,T)$ |
+|---:|---:|
+| 3 | 0.9300 |
+| 4 | 0.8650 |
+| 5 | 0.8000 |
+
+Answer the following:
+
+a. Compute the continuation value at time 2 in the first state.  
+b. Decide whether the issuer calls the bond in the first state.  
+c. Compute the bondholder's value at time 2 in the first state.  
+d. Repeat parts a-c for the second state.  
+e. Explain the economic intuition behind the different call decisions.
+
+## Question 5
+
+An investment committee is comparing four instruments:
+
+| Instrument | Key feature |
+|---|---|
+| 1 | Fixed-rate Treasury bond |
+| 2 | Callable corporate bond |
+| 3 | Interest-rate cap |
+| 4 | Mortgage-backed security |
+
+The committee wants to know when a short-rate model is necessary and when it is unnecessary.
+
+Answer the following:
+
+a. Classify each instrument as usually requiring only today's discount curve or requiring future rate dynamics.  
+b. For each instrument that requires future rate dynamics, explain what future-rate-dependent feature drives the need for a model.  
+c. Explain why a yield curve is a snapshot but a short-rate model is a scenario generator.  
+d. Explain why mortgage-backed securities require more than just interest-rate modeling.  
+e. State one practical limitation of using a one-factor short-rate model for risk management.

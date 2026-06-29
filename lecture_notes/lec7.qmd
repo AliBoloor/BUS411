@@ -28,6 +28,74 @@ After completing this lecture you will be able to:
 
 ---
 
+# Why Do We Use Mathematical Models?
+
+A **mathematical model** is a simplified representation of reality. It takes a complex situation and describes the most important relationships using equations, assumptions, and parameters.
+
+Models are not exact copies of the real world. They are tools for organizing thinking, making predictions, valuing securities, and comparing risks. A useful model does not need to capture everything. It needs to capture the features that matter for the decision being made.
+
+For example, a bond pricing model may ignore many details about the economy but still be useful if it correctly discounts promised cash flows. A risk model may not predict the exact future path of interest rates, but it can still show how sensitive a portfolio is to rate changes.
+
+::: {.callout-tip}
+## Model intuition
+
+A model is useful when it helps answer a specific question better than intuition alone. The right model depends on the question.
+:::
+
+## Mathematical Modeling in Fixed Income
+
+In fixed income, models are used for several related but different tasks:
+
+- valuing bonds and derivatives;
+- estimating risk exposures such as duration, convexity, and spread sensitivity;
+- simulating future interest-rate scenarios;
+- pricing embedded options;
+- stress testing portfolios;
+- comparing relative value across securities.
+
+The simplest fixed-income model is discounted cash flow valuation:
+
+$$
+P = \sum_i CF_i \times P(0,t_i).
+$$
+
+This model says that a bond’s price equals the present value of its future cash flows. For a plain fixed-rate bond, this may be enough. If the cash flows are known and the discount curve is available, we do not need a complicated model of future interest rates.
+
+But many fixed-income securities are more complicated. Callable bonds, mortgage-backed securities, caps, floors, swaptions, and structured notes have values that depend on what interest rates do in the future. For these instruments, today’s yield curve is not enough. We need a model that describes how future interest rates may evolve.
+
+## Mathematical Modeling of Interest Rates
+
+An **interest-rate model** describes the behavior of interest rates over time. It usually starts by choosing one or more state variables. In a one-factor short-rate model, the state variable is the short rate, denoted $r_t$.
+
+The model then specifies how $r_t$ changes through time. A simple version is:
+
+$$
+\mathrm{d}r_t = b\,\mathrm{d}t + \sigma\,\mathrm{d}z_t.
+$$
+
+This equation separates interest-rate movements into two parts:
+
+- the **drift** term, $b\,\mathrm{d}t$, which represents the expected direction of movement;
+- the **random shock** term, $\sigma\,\mathrm{d}z_t$, which represents unexpected changes.
+
+The purpose is not to predict the exact future short rate. The purpose is to generate possible future paths of interest rates in a disciplined way.
+
+Those paths can then be used to answer questions such as:
+
+- What might the yield curve look like one year from now?
+- How much could a bond portfolio gain or lose if rates move?
+- When would an issuer call a callable bond?
+- What is the fair value of an interest-rate option?
+- How does interest-rate volatility affect the value of a security?
+
+## What Students Should Remember
+
+A yield curve is a snapshot of current market prices. An interest-rate model is a way to generate possible future yield curves.
+
+For plain bonds, the current discount curve is often sufficient. For securities whose cash flows depend on future rates, a model of interest-rate dynamics becomes necessary.
+
+---
+
 # Mathematical Description of One‑Factor Interest‑Rate Models
 
 An **interest‑rate model** is a probabilistic description of how interest rates evolve over time. In fixed‑income portfolio management, models help value bonds and derivatives and simulate future yield curves. Models must specify how the short‑term rate evolves and how that short rate determines the rest of the term structure.
@@ -46,7 +114,92 @@ where:
 - $\sigma$ is the **volatility** term representing the magnitude of random shocks.
 - $z_t$ is a standard Wiener process (Brownian motion).
 
+::: {.callout-tip}
+## Properties of $\mathrm{d}z_t$
+
+The term $\mathrm{d}z_t$ is the small random shock over the short time interval $\mathrm{d}t$. It has mean zero and variance $\mathrm{d}t$:
+
+$$
+\mathbb{E}[\mathrm{d}z_t]=0,
+\qquad
+\mathrm{Var}(\mathrm{d}z_t)=\mathrm{d}t.
+$$
+
+For intuition, over a small time step $\Delta t$, we often approximate it as:
+
+$$
+\Delta z_t \approx \sqrt{\Delta t}\,\varepsilon,
+\qquad
+\varepsilon \sim N(0,1).
+$$
+
+So random shocks scale with $\sqrt{\Delta t}$, not $\Delta t$.
+:::
+
 The drift and volatility are constants in this simplest model. If $b=0$, the expected change in $r$ is zero and the variance of the change over a time interval of length $T$ is $\sigma^2 T$. Models of this type are sometimes called **normal models** because rate changes are independent of the current level.
+
+```{python}
+#| label: fig-drift-and-random-shocks
+#| fig-cap: "Drift gives the expected path; at each future time, the short rate is normally distributed around that path"
+#| echo: false
+import numpy as np
+import matplotlib.pyplot as plt
+
+np.random.seed(7)
+
+r0 = 0.04
+b = 0.004
+sigma = 0.015
+T = 5
+dt = 1 / 252
+steps = int(T / dt) + 1
+times = np.linspace(0, T, steps)
+
+drift_path = r0 + b * times
+
+n_paths = 8
+paths = np.empty((n_paths, steps))
+paths[:, 0] = r0
+
+for i in range(n_paths):
+    shocks = sigma * np.sqrt(dt) * np.random.randn(steps - 1)
+    increments = b * dt + shocks
+    paths[i, 1:] = r0 + np.cumsum(increments)
+
+plt.figure(figsize=(7.2, 4.2))
+for i in range(n_paths):
+    plt.plot(times, paths[i] * 100, color="#9BBFE0", linewidth=1.1, alpha=0.9)
+
+plt.plot(times, drift_path * 100, color="black", linewidth=2.4, label="Expected drift path: $r_0 + bt$")
+
+# At any fixed future time, r_t is normally distributed:
+# r_t ~ N(r_0 + bt, sigma^2 t).  The bell curve below is a visual schematic.
+t_star = 3.0
+mean_star = r0 + b * t_star
+std_star = sigma * np.sqrt(t_star)
+y_grid = np.linspace(mean_star - 2.6 * std_star, mean_star + 2.6 * std_star, 200)
+pdf = np.exp(-0.5 * ((y_grid - mean_star) / std_star) ** 2)
+pdf = pdf / pdf.max() * 0.45
+
+plt.axvline(t_star, color="gray", linestyle="--", linewidth=1.1)
+plt.plot(t_star + pdf, y_grid * 100, color="#D55E00", linewidth=2.0, label=r"$r_t \sim N(r_0+bt,\sigma^2t)$")
+plt.scatter([t_star], [mean_star * 100], color="#D55E00", s=35, zorder=4)
+plt.annotate(
+    "At a fixed time $t$,\npossible $r_t$ values\nare normally distributed",
+    xy=(t_star + 0.35, mean_star * 100),
+    xytext=(3.65, 6.9),
+    arrowprops=dict(arrowstyle="->", linewidth=1.0),
+    fontsize=9,
+)
+
+plt.axhline(r0 * 100, color="gray", linestyle=":", linewidth=1)
+plt.xlabel("Time (years)")
+plt.ylabel("Short rate (%)")
+plt.title(r"Short-rate paths under $dr_t = b\,dt + \sigma\,dz_t$")
+plt.grid(True, alpha=0.3)
+plt.legend()
+plt.show()
+```
 
 ### Itô process
 
@@ -68,6 +221,62 @@ $$
 
 When $r_t$ is above the long‑run mean, the drift is negative; when below, it is positive. The speed $\alpha$ controls how quickly $r_t$ moves back toward $\bar{r}$.
 
+```{python}
+#| label: fig-mean-reversion-speed
+#| fig-cap: "Low versus high speed of mean reversion"
+#| echo: false
+import numpy as np
+import matplotlib.pyplot as plt
+
+np.random.seed(12)
+
+r0 = 0.075
+bar_r = 0.04
+sigma = 0.012
+T = 6
+dt = 1 / 252
+steps = int(T / dt) + 1
+times = np.linspace(0, T, steps)
+n_paths = 6
+
+low_alpha = 0.15
+high_alpha = 1.25
+
+shock_matrix = np.random.randn(n_paths, steps - 1)
+
+def simulate_mean_reversion(alpha):
+    paths = np.empty((n_paths, steps))
+    paths[:, 0] = r0
+    for i in range(n_paths):
+        for j in range(1, steps):
+            r_prev = paths[i, j - 1]
+            dr = -alpha * (r_prev - bar_r) * dt + sigma * np.sqrt(dt) * shock_matrix[i, j - 1]
+            paths[i, j] = r_prev + dr
+    return paths
+
+low_paths = simulate_mean_reversion(low_alpha)
+high_paths = simulate_mean_reversion(high_alpha)
+
+fig, axes = plt.subplots(1, 2, figsize=(8, 3.4), sharey=True)
+
+for ax, paths, alpha, title in [
+    (axes[0], low_paths, low_alpha, "Low mean reversion"),
+    (axes[1], high_paths, high_alpha, "High mean reversion"),
+]:
+    for i in range(n_paths):
+        ax.plot(times, paths[i] * 100, color="#9BBFE0", linewidth=1.1, alpha=0.9)
+    ax.axhline(bar_r * 100, color="black", linestyle="--", linewidth=1.5, label="Long-run mean")
+    ax.set_title(f"{title}\n$\\alpha={alpha}$")
+    ax.set_xlabel("Time (years)")
+    ax.grid(True, alpha=0.3)
+
+axes[0].set_ylabel("Short rate (%)")
+axes[1].legend(loc="upper right", fontsize=8)
+fig.suptitle("Higher $\\alpha$ pulls rates back toward the long-run mean faster", y=1.03)
+plt.tight_layout()
+plt.show()
+```
+
 ### Specifying the dynamics of the volatility term
 
 Volatility can depend on the level of rates. A flexible specification is the **constant‑elasticity‑of‑variance (CEV)** model, which sets
@@ -88,9 +297,17 @@ $$
  \mathrm{d}r_t = -\alpha(r_t-\bar{r})\,\mathrm{d}t + \sigma_0\sqrt{r_t}\,\mathrm{d}z_t.
 $$
 
-#### 🧮 *Example:* Simulating an Ornstein–Uhlenbeck process
+#### *Example:* Simulating an Ornstein–Uhlenbeck process
 
-An Ornstein–Uhlenbeck (Vasicek) process has constant volatility and mean‑reverting drift. The following Python code simulates sample paths:
+An Ornstein–Uhlenbeck (Vasicek) process has constant volatility and mean‑reverting drift. The plot shows simulated paths for the following set of parameters:
+
+- speed of mean reversion: $\alpha = 0.5$
+- long-run mean: $\bar{r} = 0.05$
+- volatility: $\sigma_0 = 0.02$
+- starting short rate: $r_0 = 0.04$
+- time horizon: $T = 5$ years
+- time step: $\Delta t = 1/252$ days
+- number of simulated paths: $5$
 
 ```{python}
 #| label: fig-ou-simulation
@@ -127,8 +344,6 @@ plt.title("Ornstein–Uhlenbeck (Vasicek) process simulations")
 plt.grid(True)
 plt.show()
 ```
-
-This graph shows sample short‑rate paths reverting toward the long‑run mean.
 
 ---
 

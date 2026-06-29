@@ -400,7 +400,6 @@ window.Quarto = {
   <li><a href="#a-simple-shortrate-tree-intuition" id="toc-a-simple-shortrate-tree-intuition" class="nav-link" data-scroll-target="#a-simple-shortrate-tree-intuition"><span class="header-section-number">4.3</span> A simple short‑rate tree intuition</a></li>
   <li><a href="#the-hullwhite-model" id="toc-the-hullwhite-model" class="nav-link" data-scroll-target="#the-hullwhite-model"><span class="header-section-number">4.4</span> The Hull–White model</a></li>
   <li><a href="#calibration-logic" id="toc-calibration-logic" class="nav-link" data-scroll-target="#calibration-logic"><span class="header-section-number">4.5</span> Calibration logic</a></li>
-  <li><a href="#callable-bond-intuition" id="toc-callable-bond-intuition" class="nav-link" data-scroll-target="#callable-bond-intuition"><span class="header-section-number">4.6</span> Callable bond intuition</a></li>
   </ul></li>
   <li><a href="#empirical-evidence-on-interestrate-changes" id="toc-empirical-evidence-on-interestrate-changes" class="nav-link" data-scroll-target="#empirical-evidence-on-interestrate-changes"><span class="header-section-number">5</span> Empirical Evidence on Interest‑Rate Changes</a>
   <ul class="collapse">
@@ -412,6 +411,12 @@ window.Quarto = {
   <ul class="collapse">
   <li><a href="#historical-volatility" id="toc-historical-volatility" class="nav-link" data-scroll-target="#historical-volatility">Historical volatility</a></li>
   <li><a href="#implied-volatility" id="toc-implied-volatility" class="nav-link" data-scroll-target="#implied-volatility">Implied volatility</a></li>
+  </ul></li>
+  <li><a href="#introduction-to-option-pricing" id="toc-introduction-to-option-pricing" class="nav-link" data-scroll-target="#introduction-to-option-pricing"><span class="header-section-number">8</span> Introduction to Option Pricing</a>
+  <ul class="collapse">
+  <li><a href="#a-one-period-binomial-tree" id="toc-a-one-period-binomial-tree" class="nav-link" data-scroll-target="#a-one-period-binomial-tree"><span class="header-section-number">8.1</span> A one-period binomial tree</a></li>
+  <li><a href="#backward-induction" id="toc-backward-induction" class="nav-link" data-scroll-target="#backward-induction"><span class="header-section-number">8.2</span> Backward induction</a></li>
+  <li><a href="#why-this-matters-for-fixed-income" id="toc-why-this-matters-for-fixed-income" class="nav-link" data-scroll-target="#why-this-matters-for-fixed-income"><span class="header-section-number">8.3</span> Why this matters for fixed income</a></li>
   </ul></li>
   <li><a href="#key-points" id="toc-key-points" class="nav-link" data-scroll-target="#key-points">Key Points</a></li>
   </ul>
@@ -909,33 +914,6 @@ Figure&nbsp;7: Hull–White pricing workflow for option‑embedded bonds
 </div>
 </div>
 </div>
-</section>
-<section id="callable-bond-intuition" class="level2" data-number="4.6">
-<h2 data-number="4.6" class="anchored" data-anchor-id="callable-bond-intuition"><span class="header-section-number">4.6</span> Callable bond intuition</h2>
-<p>At a future call date, the model produces a future yield curve <span class="math inline">\(P(t,T)\)</span>. That curve is used to value the remaining coupon and principal payments:</p>
-<p><span class="math display">\[
-V_{\text{continue}}(t) = \sum_i CF_i \times P(t,t_i).
-\]</span></p>
-<p>The issuer compares this continuation value with the call price. If rates have fallen, the old high‑coupon bond is valuable to investors but expensive for the issuer to keep outstanding. The issuer is more likely to call the bond. If rates have risen, the continuation value is usually below the call price, so the issuer does not call.</p>
-<p>For the bondholder at a call date:</p>
-<p><span class="math display">\[
-V(t) = \min\left(V_{\text{continue}}(t), \text{call price}\right).
-\]</span></p>
-<p>The minimum appears because the issuer controls the call option. The bondholder receives the lower of keeping the valuable bond alive or being paid the call price.</p>
-<div id="cell-fig-callable-bond-decision" class="cell" data-execution_count="8">
-<div class="cell-output cell-output-display">
-<div id="fig-callable-bond-decision" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-callable-bond-decision-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="lec7_files/figure-html/fig-callable-bond-decision-output-1.png" width="686" height="283" class="figure-img">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-callable-bond-decision-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;8: Callable bond decision at a future call date
-</figcaption>
-</figure>
-</div>
-</div>
-</div>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1060,6 +1038,130 @@ Figure&nbsp;8: Callable bond decision at a future call date
 <section id="implied-volatility" class="level3">
 <h3 class="anchored" data-anchor-id="implied-volatility">Implied volatility</h3>
 <p>Implied volatility derives from market prices of option‑like instruments (caps, floors, swaptions). An option pricing model expresses the option price as a function of volatility. By inverting the model using observed prices, one obtains the market’s expected volatility. Implied volatility reflects current market conditions and forward‑looking expectations, whereas historical volatility reflects past behaviour.</p>
+<hr>
+</section>
+</section>
+<section id="introduction-to-option-pricing" class="level1" data-number="8">
+<h1 data-number="8"><span class="header-section-number">8</span> Introduction to Option Pricing</h1>
+<p>Before analyzing bonds with embedded options, it is useful to understand the basic option pricing logic. An <strong>option</strong> gives one party a right, but not an obligation, to take an action in the future. The value of that right depends on what the underlying asset may be worth at the exercise date.</p>
+<p>In equity markets, the underlying asset is often a stock. In fixed income, the underlying asset may be:</p>
+<ul>
+<li>a bond;</li>
+<li>a future bond price;</li>
+<li>a future interest rate;</li>
+<li>a future yield curve;</li>
+<li>a swap rate;</li>
+<li>a mortgage pool whose cash flows depend on future rates.</li>
+</ul>
+<p>The important idea is the same: the option payoff depends on future states, so today’s valuation must account for multiple possible future outcomes.</p>
+<section id="a-one-period-binomial-tree" class="level2" data-number="8.1">
+<h2 data-number="8.1" class="anchored" data-anchor-id="a-one-period-binomial-tree"><span class="header-section-number">8.1</span> A one-period binomial tree</h2>
+<p>A simple way to introduce option pricing is with a <strong>binomial tree</strong>. Suppose a bond is worth <span class="math inline">\(B_0\)</span> today. Over one period, it can move to one of two possible values:</p>
+<ul>
+<li>an up state, <span class="math inline">\(B_u\)</span>;</li>
+<li>a down state, <span class="math inline">\(B_d\)</span>.</li>
+</ul>
+<p>An option on the bond has a payoff in each state. For example, a call option with strike price <span class="math inline">\(K\)</span> has payoff:</p>
+<p><span class="math display">\[
+C_u = \max(B_u-K,0),
+\qquad
+C_d = \max(B_d-K,0).
+\]</span></p>
+<p>The option value today is the discounted expected payoff under <strong>risk-neutral probabilities</strong>:</p>
+<p><span class="math display">\[
+C_0 = \frac{qC_u+(1-q)C_d}{1+r},
+\]</span></p>
+<p>where <span class="math inline">\(q\)</span> is the risk-neutral probability of the up state and <span class="math inline">\(r\)</span> is the one-period risk-free rate.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Intuition
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The risk-neutral probability is not a forecast of what will actually happen. It is the probability that makes the model consistent with no-arbitrage pricing. We use it to price cash flows consistently with today’s market prices.</p>
+</div>
+</div>
+<div id="cell-fig-one-period-option-tree" class="cell" data-execution_count="8">
+<div class="cell-output cell-output-display">
+<div id="fig-one-period-option-tree" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-one-period-option-tree-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lec7_files/figure-html/fig-one-period-option-tree-output-1.png" width="667" height="302" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-one-period-option-tree-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;8: A one-period binomial tree for an option on a fixed-income underlying asset
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="backward-induction" class="level2" data-number="8.2">
+<h2 data-number="8.2" class="anchored" data-anchor-id="backward-induction"><span class="header-section-number">8.2</span> Backward induction</h2>
+<p>For options with several possible exercise dates, the tree has many steps. The pricing method works <strong>backward</strong>:</p>
+<ol type="1">
+<li>Build possible future states of the underlying asset.</li>
+<li>Compute the option payoff at the final nodes.</li>
+<li>Move one step backward by discounting the expected future option value.</li>
+<li>If the option can be exercised early, compare the continuation value with the exercise value at each node.</li>
+<li>Continue backward until reaching today’s value.</li>
+</ol>
+<p>This is called <strong>backward induction</strong>. It is central for valuing callable and putable bonds because the exercise decision must be checked at each possible future call or put date.</p>
+</section>
+<section id="why-this-matters-for-fixed-income" class="level2" data-number="8.3">
+<h2 data-number="8.3" class="anchored" data-anchor-id="why-this-matters-for-fixed-income"><span class="header-section-number">8.3</span> Why this matters for fixed income</h2>
+<p>For a plain fixed-rate bond, the cash flows are fixed, so we can usually value the bond directly from today’s discount curve:</p>
+<p><span class="math display">\[
+P = \sum_i CF_i P(0,t_i).
+\]</span></p>
+<p>For a bond with an embedded option, the future cash flows depend on future rates. The tree must therefore generate future interest-rate states, future discount factors, and future bond values. At each exercise date, the model asks whether the option should be exercised.</p>
+<p>For a callable bond, the issuer owns the option. At a future call date, the model produces a future yield curve <span class="math inline">\(P(t,T)\)</span>. That curve is used to value the remaining coupon and principal payments:</p>
+<p><span class="math display">\[
+V_{\text{continue}}(t) = \sum_i CF_i \times P(t,t_i).
+\]</span></p>
+<p>The issuer compares this continuation value with the call price:</p>
+<ul>
+<li>the value of leaving the bond outstanding;</li>
+<li>the call price.</li>
+</ul>
+<p>If rates have fallen, the old high-coupon bond is valuable to investors but expensive for the issuer to keep outstanding. The continuation value is likely to exceed the call price, so the issuer calls the bond. If rates have risen, the continuation value is usually below the call price, so the issuer does not call.</p>
+<p>From the bondholder’s perspective:</p>
+<p><span class="math display">\[
+V(t) = \min\left(V_{\text{continue}}(t), \text{call price}\right).
+\]</span></p>
+<p>The minimum appears because the issuer controls the call option. The bondholder receives the lower of keeping the valuable bond alive or being paid the call price.</p>
+<div id="cell-fig-callable-bond-decision" class="cell" data-execution_count="9">
+<div class="cell-output cell-output-display">
+<div id="fig-callable-bond-decision" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-callable-bond-decision-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lec7_files/figure-html/fig-callable-bond-decision-output-1.png" width="686" height="283" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-callable-bond-decision-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;9: Callable bond decision at a future call date
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>This is why the short-rate models discussed in this lecture are useful. They provide the future rate tree needed to value fixed-income options and bonds with embedded options.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Bridge to the next lecture
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The next step is to apply this logic directly to bonds with embedded options. The key idea will be the same: build future interest-rate states, value the bond at future nodes, apply the exercise rule, and work backward to today.</p>
+</div>
+</div>
 <hr>
 </section>
 </section>

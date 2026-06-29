@@ -379,274 +379,177 @@ window.Quarto = {
 
 <section id="instructions" class="level2" data-number="0.1">
 <h2 data-number="0.1" class="anchored" data-anchor-id="instructions"><span class="header-section-number">0.1</span> Instructions</h2>
-<p>This problem set is based on Lecture 7. It contains five hard, multi-step questions on interest-rate models, no-arbitrage short-rate models, Hull-White calibration, future discount curves, and callable bond valuation. The questions emphasize conceptual understanding and professional fixed-income reasoning.</p>
+<p>This problem set is based on Lecture 7. It contains five conceptual questions on mathematical modeling of interest rates. The focus is not option valuation. The goal is to explain why short-rate models are used, when they are unnecessary, what drift and volatility assumptions mean, how arbitrage-free models differ from equilibrium models, and how volatility can be estimated from historical data.</p>
 <p>For each question:</p>
 <ol type="1">
-<li>Read the scenario carefully.</li>
-<li>Identify whether today’s discount curve is sufficient or whether future interest-rate dynamics matter.</li>
-<li>Explain the valuation logic before doing any calculations.</li>
-<li>Show formulas only where they clarify the economic reasoning.</li>
+<li>Explain the economic intuition before using formulas.</li>
+<li>Be clear about what the model is trying to answer.</li>
+<li>Distinguish today’s observed yield curve from possible future yield curves.</li>
+<li>Use concise reasoning. Do not over-mathematize.</li>
 </ol>
 </section>
 <section id="lecture-7-interest-rate-models" class="level1" data-number="1">
 <h1 data-number="1"><span class="header-section-number">1</span> Lecture 7: Interest-Rate Models</h1>
 <section id="question-1" class="level2" data-number="1.1">
 <h2 data-number="1.1" class="anchored" data-anchor-id="question-1"><span class="header-section-number">1.1</span> Question 1</h2>
-<p>A junior analyst is valuing two securities for a client:</p>
+<p>A junior analyst says:</p>
+<blockquote class="blockquote">
+<p>“Interest rates are uncertain, so we should use a short-rate model for every bond we price.”</p>
+</blockquote>
+<p>The analyst is comparing the following securities:</p>
 <table class="caption-top table">
-<colgroup>
-<col style="width: 33%">
-<col style="width: 33%">
-<col style="width: 33%">
-</colgroup>
 <thead>
 <tr class="header">
 <th>Security</th>
 <th>Description</th>
-<th>Cash-flow feature</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td>A</td>
-<td>6-year Treasury note with a 4.25 percent annual coupon</td>
-<td>Fixed cash flows</td>
+<td>5-year Treasury note with fixed annual coupons</td>
 </tr>
 <tr class="even">
 <td>B</td>
-<td>6-year agency bond with a 4.25 percent annual coupon, callable at par after year 2</td>
-<td>Issuer may redeem early</td>
+<td>5-year fixed-rate corporate bond with no embedded options</td>
+</tr>
+<tr class="odd">
+<td>C</td>
+<td>5-year callable agency bond</td>
+</tr>
+<tr class="even">
+<td>D</td>
+<td>Interest-rate cap</td>
+</tr>
+<tr class="odd">
+<td>E</td>
+<td>Mortgage-backed security</td>
 </tr>
 </tbody>
 </table>
-<p>The analyst proposes using a Hull-White short-rate model for both securities because “interest rates are uncertain.”</p>
 <p>Answer the following:</p>
 <ol type="a">
-<li>Write the basic discounted-cash-flow expression for valuing Security A using discount factors.<br>
+<li>Explain why Securities A and B usually do not require a stochastic short-rate model for time-0 valuation.<br>
 </li>
-<li>Explain why a bootstrapped discount curve is usually enough for Security A.<br>
+<li>State the basic valuation logic for a plain fixed-cash-flow bond using discount factors.<br>
 </li>
-<li>Explain why calibrating Hull-White to today’s curve should reproduce the same time-0 value for Security A.<br>
+<li>Explain what a bootstrapped discount curve provides.<br>
 </li>
-<li>Explain why Security B may require a short-rate model even though its coupon rate is the same as Security A.<br>
+<li>Identify which securities in the table require future interest-rate dynamics and explain why.<br>
 </li>
-<li>Identify the main mistake in the analyst’s statement.</li>
+<li>Correct the analyst’s statement in one or two sentences.</li>
 </ol>
 </section>
 <section id="question-2" class="level2" data-number="1.2">
 <h2 data-number="1.2" class="anchored" data-anchor-id="question-2"><span class="header-section-number">1.2</span> Question 2</h2>
-<p>A rates desk observes the following market discount factors at time 0:</p>
+<p>A portfolio manager asks why Lecture 7 spends time modeling the short rate if today’s yield curve is already observable.</p>
+<p>Answer the following:</p>
+<ol type="a">
+<li>Explain the difference between a yield curve and a short-rate model.<br>
+</li>
+<li>Explain what is meant by saying that a yield curve is a “snapshot.”<br>
+</li>
+<li>Explain what is meant by saying that a short-rate model is a “scenario generator.”<br>
+</li>
+<li>Explain why future discount curves <span class="math inline">\(P(t,T)\)</span> matter for securities whose cash flows depend on future rates.<br>
+</li>
+<li>Give two examples of portfolio or risk-management questions that cannot be answered well using only today’s yield curve.</li>
+</ol>
+</section>
+<section id="question-3" class="level2" data-number="1.3">
+<h2 data-number="1.3" class="anchored" data-anchor-id="question-3"><span class="header-section-number">1.3</span> Question 3</h2>
+<p>Consider the basic one-factor short-rate model:</p>
+<p><span class="math display">\[
+dr_t = b(r_t,t)dt + \sigma(r_t,t)dz_t.
+\]</span></p>
+<p>Answer the following:</p>
+<ol type="a">
+<li>Explain the role of the drift term.<br>
+</li>
+<li>Explain the role of the volatility term.<br>
+</li>
+<li>Explain what mean reversion means and why it may be a reasonable assumption for interest rates.<br>
+</li>
+<li>Compare the intuition behind constant volatility, level-proportional volatility, and square-root volatility.<br>
+</li>
+<li>Explain one practical consequence of choosing a normal model that allows negative rates.</li>
+</ol>
+</section>
+<section id="question-4" class="level2" data-number="1.4">
+<h2 data-number="1.4" class="anchored" data-anchor-id="question-4"><span class="header-section-number">1.4</span> Question 4</h2>
+<p>A fixed-income team is deciding between an equilibrium model and an arbitrage-free model.</p>
+<p>Answer the following:</p>
+<ol type="a">
+<li>Explain the main purpose of an equilibrium interest-rate model.<br>
+</li>
+<li>Explain the main purpose of an arbitrage-free interest-rate model.<br>
+</li>
+<li>Explain why arbitrage-free models are usually preferred for pricing derivatives and bonds with embedded options.<br>
+</li>
+<li>In the Hull-White model,</li>
+</ol>
+<p><span class="math display">\[
+dr_t = [\theta(t)-ar_t]dt+\sigma dW_t,
+\]</span></p>
+<p>explain why <span class="math inline">\(\theta(t)\)</span> is central to fitting today’s curve.<br>
+e. Explain why <span class="math inline">\(a\)</span> and <span class="math inline">\(\sigma\)</span> are usually calibrated to interest-rate option prices rather than plain bond prices.</p>
+</section>
+<section id="question-5" class="level2" data-number="1.5">
+<h2 data-number="1.5" class="anchored" data-anchor-id="question-5"><span class="header-section-number">1.5</span> Question 5</h2>
+<p>An analyst wants to estimate historical short-rate volatility from weekly data. The analyst observes the following weekly changes in the short rate:</p>
 <table class="caption-top table">
 <thead>
 <tr class="header">
-<th style="text-align: right;">Maturity <span class="math inline">\(T\)</span></th>
-<th style="text-align: right;"><span class="math inline">\(P(0,T)\)</span></th>
+<th style="text-align: right;">Week</th>
+<th style="text-align: right;">Change in short rate</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td style="text-align: right;">1</td>
-<td style="text-align: right;">0.9600</td>
+<td style="text-align: right;">+4 bps</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">2</td>
-<td style="text-align: right;">0.9200</td>
+<td style="text-align: right;">-2 bps</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">3</td>
-<td style="text-align: right;">0.8750</td>
+<td style="text-align: right;">+6 bps</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">4</td>
-<td style="text-align: right;">0.8300</td>
+<td style="text-align: right;">-5 bps</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">5</td>
-<td style="text-align: right;">0.7850</td>
-</tr>
-</tbody>
-</table>
-<p>The desk calibrates a one-factor Hull-White model to this initial curve. Later, in a simulated future state at time <span class="math inline">\(t=2\)</span>, the model generates the following future discount factors:</p>
-<table class="caption-top table">
-<thead>
-<tr class="header">
-<th style="text-align: right;">Future maturity <span class="math inline">\(T\)</span></th>
-<th style="text-align: right;"><span class="math inline">\(P(2,T)\)</span></th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: right;">3</td>
-<td style="text-align: right;">0.9650</td>
+<td style="text-align: right;">+3 bps</td>
 </tr>
 <tr class="even">
-<td style="text-align: right;">4</td>
-<td style="text-align: right;">0.9250</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">+1 bp</td>
 </tr>
 <tr class="odd">
-<td style="text-align: right;">5</td>
-<td style="text-align: right;">0.8800</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">-4 bps</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">+5 bps</td>
 </tr>
 </tbody>
 </table>
 <p>Answer the following:</p>
 <ol type="a">
-<li>Explain the difference between <span class="math inline">\(P(0,T)\)</span> and <span class="math inline">\(P(2,T)\)</span>.<br>
+<li>Explain why rate changes, rather than rate levels, are used to estimate volatility in this setting.<br>
 </li>
-<li>Which set of discount factors is observed or calibrated at time 0, and which set is model-generated?<br>
+<li>Describe the steps for estimating weekly historical volatility from these observations.<br>
 </li>
-<li>Use the time-0 discount factors to value a 5-year zero-coupon bond paying USD 1,000 at maturity.<br>
+<li>Compute the sample standard deviation of the weekly changes in basis points.<br>
 </li>
-<li>Use the future discount factors to value, at time 2, remaining cash flows of USD 50 at years 3 and 4 and USD 1,050 at year 5.<br>
+<li>Annualize the weekly volatility using <span class="math inline">\(\sqrt{52}\)</span>.<br>
 </li>
-<li>Explain why the future value in part d matters for callable bond valuation.</li>
-</ol>
-</section>
-<section id="question-3" class="level2" data-number="1.3">
-<h2 data-number="1.3" class="anchored" data-anchor-id="question-3"><span class="header-section-number">1.3</span> Question 3</h2>
-<p>A portfolio manager is reviewing a one-factor Hull-White model:</p>
-<p><span class="math display">\[
-dr_t = [\theta(t) - a r_t]dt + \sigma dW_t.
-\]</span></p>
-<p>The manager says: “The model has only two real parameters, <span class="math inline">\(a\)</span> and <span class="math inline">\(\sigma\)</span>, so it cannot possibly fit an entire yield curve.”</p>
-<p>Answer the following:</p>
-<ol type="a">
-<li>Explain what <span class="math inline">\(a\)</span> controls.<br>
-</li>
-<li>Explain what <span class="math inline">\(\sigma\)</span> controls.<br>
-</li>
-<li>Explain why <span class="math inline">\(\theta(t)\)</span> is not just one scalar parameter.<br>
-</li>
-<li>Explain how <span class="math inline">\(\theta(t)\)</span> is used in calibration.<br>
-</li>
-<li>Explain why <span class="math inline">\(a\)</span> and <span class="math inline">\(\sigma\)</span> are often calibrated to option prices rather than plain bond prices.</li>
-</ol>
-</section>
-<section id="question-4" class="level2" data-number="1.4">
-<h2 data-number="1.4" class="anchored" data-anchor-id="question-4"><span class="header-section-number">1.4</span> Question 4</h2>
-<p>A callable bond has three annual remaining cash flows after the first call date:</p>
-<table class="caption-top table">
-<thead>
-<tr class="header">
-<th style="text-align: right;">Payment date</th>
-<th style="text-align: right;">Cash flow</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: right;">3</td>
-<td style="text-align: right;">USD 60</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;">4</td>
-<td style="text-align: right;">USD 60</td>
-</tr>
-<tr class="odd">
-<td style="text-align: right;">5</td>
-<td style="text-align: right;">USD 1,060</td>
-</tr>
-</tbody>
-</table>
-<p>At the call date <span class="math inline">\(t=2\)</span>, the call price is USD 1,020. In one simulated interest-rate state, the model-generated future discount factors are:</p>
-<table class="caption-top table">
-<thead>
-<tr class="header">
-<th style="text-align: right;">Future maturity <span class="math inline">\(T\)</span></th>
-<th style="text-align: right;"><span class="math inline">\(P(2,T)\)</span></th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: right;">3</td>
-<td style="text-align: right;">0.9850</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;">4</td>
-<td style="text-align: right;">0.9550</td>
-</tr>
-<tr class="odd">
-<td style="text-align: right;">5</td>
-<td style="text-align: right;">0.9200</td>
-</tr>
-</tbody>
-</table>
-<p>In another simulated state, the model-generated future discount factors are:</p>
-<table class="caption-top table">
-<thead>
-<tr class="header">
-<th style="text-align: right;">Future maturity <span class="math inline">\(T\)</span></th>
-<th style="text-align: right;"><span class="math inline">\(P(2,T)\)</span></th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: right;">3</td>
-<td style="text-align: right;">0.9300</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;">4</td>
-<td style="text-align: right;">0.8650</td>
-</tr>
-<tr class="odd">
-<td style="text-align: right;">5</td>
-<td style="text-align: right;">0.8000</td>
-</tr>
-</tbody>
-</table>
-<p>Answer the following:</p>
-<ol type="a">
-<li>Compute the continuation value at time 2 in the first state.<br>
-</li>
-<li>Decide whether the issuer calls the bond in the first state.<br>
-</li>
-<li>Compute the bondholder’s value at time 2 in the first state.<br>
-</li>
-<li>Repeat parts a-c for the second state.<br>
-</li>
-<li>Explain the economic intuition behind the different call decisions.</li>
-</ol>
-</section>
-<section id="question-5" class="level2" data-number="1.5">
-<h2 data-number="1.5" class="anchored" data-anchor-id="question-5"><span class="header-section-number">1.5</span> Question 5</h2>
-<p>An investment committee is comparing four instruments:</p>
-<table class="caption-top table">
-<thead>
-<tr class="header">
-<th>Instrument</th>
-<th>Key feature</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>1</td>
-<td>Fixed-rate Treasury bond</td>
-</tr>
-<tr class="even">
-<td>2</td>
-<td>Callable corporate bond</td>
-</tr>
-<tr class="odd">
-<td>3</td>
-<td>Interest-rate cap</td>
-</tr>
-<tr class="even">
-<td>4</td>
-<td>Mortgage-backed security</td>
-</tr>
-</tbody>
-</table>
-<p>The committee wants to know when a short-rate model is necessary and when it is unnecessary.</p>
-<p>Answer the following:</p>
-<ol type="a">
-<li>Classify each instrument as usually requiring only today’s discount curve or requiring future rate dynamics.<br>
-</li>
-<li>For each instrument that requires future rate dynamics, explain what future-rate-dependent feature drives the need for a model.<br>
-</li>
-<li>Explain why a yield curve is a snapshot but a short-rate model is a scenario generator.<br>
-</li>
-<li>Explain why mortgage-backed securities require more than just interest-rate modeling.<br>
-</li>
-<li>State one practical limitation of using a one-factor short-rate model for risk management.</li>
+<li>Explain two limitations of using this historical volatility estimate as an input to a short-rate model.</li>
 </ol>
 
 

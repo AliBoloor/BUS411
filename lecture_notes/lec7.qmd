@@ -668,74 +668,6 @@ plt.tight_layout(pad=0.2)
 plt.show()
 ```
 
-## Callable bond intuition
-
-At a future call date, the model produces a future yield curve $P(t,T)$. That curve is used to value the remaining coupon and principal payments:
-
-$$
-V_{\text{continue}}(t) = \sum_i CF_i \times P(t,t_i).
-$$
-
-The issuer compares this continuation value with the call price. If rates have fallen, the old high‑coupon bond is valuable to investors but expensive for the issuer to keep outstanding. The issuer is more likely to call the bond. If rates have risen, the continuation value is usually below the call price, so the issuer does not call.
-
-For the bondholder at a call date:
-
-$$
-V(t) = \min\left(V_{\text{continue}}(t), \text{call price}\right).
-$$
-
-The minimum appears because the issuer controls the call option. The bondholder receives the lower of keeping the valuable bond alive or being paid the call price.
-
-```{python}
-#| label: fig-callable-bond-decision
-#| fig-cap: "Callable bond decision at a future call date"
-#| echo: false
-import matplotlib.pyplot as plt
-from matplotlib.patches import FancyBboxPatch, FancyArrowPatch
-
-steps = [
-    "Future curve\n$P(t,T)$",
-    "Value remaining\ncash flows",
-    "Compare with\ncall price",
-    "Call if\n$V_{continue}$ > call price",
-    "Do not call if\n$V_{continue}$ < call price",
-]
-
-positions = [(0, 1), (1.6, 1), (3.2, 1), (4.9, 1.55), (4.9, 0.45)]
-
-fig, ax = plt.subplots(figsize=(7, 2.8))
-ax.set_axis_off()
-
-box_width = 1.15
-box_height = 0.55
-
-for label, (x, y) in zip(steps, positions):
-    box = FancyBboxPatch(
-        (x, y), box_width, box_height,
-        boxstyle="round,pad=0.06",
-        linewidth=1.1,
-        edgecolor="black",
-        facecolor="#E8F1FA",
-    )
-    ax.add_patch(box)
-    ax.text(x + box_width / 2, y + box_height / 2, label, ha="center", va="center", fontsize=7.8)
-
-arrows = [
-    ((1.15, 1.275), (1.6, 1.275)),
-    ((2.75, 1.275), (3.2, 1.275)),
-    ((4.35, 1.275), (4.9, 1.82)),
-    ((4.35, 1.275), (4.9, 0.72)),
-]
-
-for start, end in arrows:
-    ax.add_patch(FancyArrowPatch(start, end, arrowstyle="-|>", mutation_scale=14, linewidth=1.3, color="black"))
-
-ax.set_xlim(-0.1, 6.25)
-ax.set_ylim(0.1, 2.35)
-plt.tight_layout(pad=0.2)
-plt.show()
-```
-
 ::: {.callout-note}
 ## Where the complexity enters
 
@@ -809,6 +741,204 @@ Thus, this simplified data set implies an annual volatility of about 25 basis p
 ### Implied volatility
 
 Implied volatility derives from market prices of option‑like instruments (caps, floors, swaptions). An option pricing model expresses the option price as a function of volatility. By inverting the model using observed prices, one obtains the market’s expected volatility. Implied volatility reflects current market conditions and forward‑looking expectations, whereas historical volatility reflects past behaviour.
+
+---
+
+# Introduction to Option Pricing
+
+Before analyzing bonds with embedded options, it is useful to understand the basic option pricing logic. An **option** gives one party a right, but not an obligation, to take an action in the future. The value of that right depends on what the underlying asset may be worth at the exercise date.
+
+In equity markets, the underlying asset is often a stock. In fixed income, the underlying asset may be:
+
+- a bond;
+- a future bond price;
+- a future interest rate;
+- a future yield curve;
+- a swap rate;
+- a mortgage pool whose cash flows depend on future rates.
+
+The important idea is the same: the option payoff depends on future states, so today's valuation must account for multiple possible future outcomes.
+
+## A one-period binomial tree
+
+A simple way to introduce option pricing is with a **binomial tree**. Suppose a bond is worth $B_0$ today. Over one period, it can move to one of two possible values:
+
+- an up state, $B_u$;
+- a down state, $B_d$.
+
+An option on the bond has a payoff in each state. For example, a call option with strike price $K$ has payoff:
+
+$$
+C_u = \max(B_u-K,0),
+\qquad
+C_d = \max(B_d-K,0).
+$$
+
+The option value today is the discounted expected payoff under **risk-neutral probabilities**:
+
+$$
+C_0 = \frac{qC_u+(1-q)C_d}{1+r},
+$$
+
+where $q$ is the risk-neutral probability of the up state and $r$ is the one-period risk-free rate.
+
+::: {.callout-tip}
+## Intuition
+
+The risk-neutral probability is not a forecast of what will actually happen. It is the probability that makes the model consistent with no-arbitrage pricing. We use it to price cash flows consistently with today's market prices.
+:::
+
+```{python}
+#| label: fig-one-period-option-tree
+#| fig-cap: "A one-period binomial tree for an option on a fixed-income underlying asset"
+#| echo: false
+import matplotlib.pyplot as plt
+from matplotlib.patches import FancyBboxPatch, FancyArrowPatch
+
+fig, ax = plt.subplots(figsize=(6.8, 3.0))
+ax.set_axis_off()
+
+nodes = {
+    "today": ("Today\nBond: $B_0$\nOption: $C_0$", 0.0, 0.9),
+    "up": ("Up state\nBond: $B_u$\nOption: $C_u$", 2.5, 1.55),
+    "down": ("Down state\nBond: $B_d$\nOption: $C_d$", 2.5, 0.25),
+}
+
+for key, (label, x, y) in nodes.items():
+    box = FancyBboxPatch(
+        (x, y), 1.45, 0.7,
+        boxstyle="round,pad=0.08",
+        linewidth=1.1,
+        edgecolor="black",
+        facecolor="#E8F1FA",
+    )
+    ax.add_patch(box)
+    ax.text(x + 0.725, y + 0.35, label, ha="center", va="center", fontsize=8.3)
+
+arrows = [
+    ((1.45, 1.25), (2.5, 1.9), "$q$"),
+    ((1.45, 1.25), (2.5, 0.6), "$1-q$"),
+]
+
+for start, end, label in arrows:
+    ax.add_patch(FancyArrowPatch(start, end, arrowstyle="-|>", mutation_scale=14, linewidth=1.3, color="black"))
+    mid_x = (start[0] + end[0]) / 2
+    mid_y = (start[1] + end[1]) / 2
+    ax.text(mid_x, mid_y + 0.08, label, ha="center", va="center", fontsize=10)
+
+# ax.text(
+#     3.95, 0.9,
+#     "$C_0 = \\dfrac{qC_u+(1-q)C_d}{1+r}$",
+#     fontsize=11,
+#     va="center",
+# )
+
+ax.set_xlim(-0.1, 6.4)
+ax.set_ylim(0.0, 2.5)
+plt.tight_layout(pad=0.2)
+plt.show()
+```
+
+## Backward induction
+
+For options with several possible exercise dates, the tree has many steps. The pricing method works **backward**:
+
+1. Build possible future states of the underlying asset.
+2. Compute the option payoff at the final nodes.
+3. Move one step backward by discounting the expected future option value.
+4. If the option can be exercised early, compare the continuation value with the exercise value at each node.
+5. Continue backward until reaching today's value.
+
+This is called **backward induction**. It is central for valuing callable and putable bonds because the exercise decision must be checked at each possible future call or put date.
+
+## Why this matters for fixed income
+
+For a plain fixed-rate bond, the cash flows are fixed, so we can usually value the bond directly from today's discount curve:
+
+$$
+P = \sum_i CF_i P(0,t_i).
+$$
+
+For a bond with an embedded option, the future cash flows depend on future rates. The tree must therefore generate future interest-rate states, future discount factors, and future bond values. At each exercise date, the model asks whether the option should be exercised.
+
+For a callable bond, the issuer owns the option. At a future call date, the model produces a future yield curve $P(t,T)$. That curve is used to value the remaining coupon and principal payments:
+
+$$
+V_{\text{continue}}(t) = \sum_i CF_i \times P(t,t_i).
+$$
+
+The issuer compares this continuation value with the call price:
+
+- the value of leaving the bond outstanding;
+- the call price.
+
+If rates have fallen, the old high-coupon bond is valuable to investors but expensive for the issuer to keep outstanding. The continuation value is likely to exceed the call price, so the issuer calls the bond. If rates have risen, the continuation value is usually below the call price, so the issuer does not call.
+
+From the bondholder's perspective:
+
+$$
+V(t) = \min\left(V_{\text{continue}}(t), \text{call price}\right).
+$$
+
+The minimum appears because the issuer controls the call option. The bondholder receives the lower of keeping the valuable bond alive or being paid the call price.
+
+```{python}
+#| label: fig-callable-bond-decision
+#| fig-cap: "Callable bond decision at a future call date"
+#| echo: false
+import matplotlib.pyplot as plt
+from matplotlib.patches import FancyBboxPatch, FancyArrowPatch
+
+steps = [
+    "Future curve\n$P(t,T)$",
+    "Value remaining\ncash flows",
+    "Compare with\ncall price",
+    "Call if\n$V_{continue}$ > call price",
+    "Do not call if\n$V_{continue}$ < call price",
+]
+
+positions = [(0, 1), (1.6, 1), (3.2, 1), (4.9, 1.55), (4.9, 0.45)]
+
+fig, ax = plt.subplots(figsize=(7, 2.8))
+ax.set_axis_off()
+
+box_width = 1.15
+box_height = 0.55
+
+for label, (x, y) in zip(steps, positions):
+    box = FancyBboxPatch(
+        (x, y), box_width, box_height,
+        boxstyle="round,pad=0.06",
+        linewidth=1.1,
+        edgecolor="black",
+        facecolor="#E8F1FA",
+    )
+    ax.add_patch(box)
+    ax.text(x + box_width / 2, y + box_height / 2, label, ha="center", va="center", fontsize=7.8)
+
+arrows = [
+    ((1.15, 1.275), (1.6, 1.275)),
+    ((2.75, 1.275), (3.2, 1.275)),
+    ((4.35, 1.275), (4.9, 1.82)),
+    ((4.35, 1.275), (4.9, 0.72)),
+]
+
+for start, end in arrows:
+    ax.add_patch(FancyArrowPatch(start, end, arrowstyle="-|>", mutation_scale=14, linewidth=1.3, color="black"))
+
+ax.set_xlim(-0.1, 6.25)
+ax.set_ylim(0.1, 2.35)
+plt.tight_layout(pad=0.2)
+plt.show()
+```
+
+This is why the short-rate models discussed in this lecture are useful. They provide the future rate tree needed to value fixed-income options and bonds with embedded options.
+
+::: {.callout-note}
+## Bridge to the next lecture
+
+The next step is to apply this logic directly to bonds with embedded options. The key idea will be the same: build future interest-rate states, value the bond at future nodes, apply the exercise rule, and work backward to today.
+:::
 
 ---
 

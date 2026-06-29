@@ -1613,6 +1613,39 @@
     ]
   },
   {
+    "objectID": "lecture_notes/lec7.html#mathematical-modeling-in-fixed-income",
+    "href": "lecture_notes/lec7.html#mathematical-modeling-in-fixed-income",
+    "title": "Lecture 7: Interest‑Rate Models",
+    "section": "1.1 Mathematical Modeling in Fixed Income",
+    "text": "1.1 Mathematical Modeling in Fixed Income\nIn fixed income, models are used for several related but different tasks:\n\nvaluing bonds and derivatives;\nestimating risk exposures such as duration, convexity, and spread sensitivity;\nsimulating future interest-rate scenarios;\npricing embedded options;\nstress testing portfolios;\ncomparing relative value across securities.\n\nThe simplest fixed-income model is discounted cash flow valuation:\n\\[\nP = \\sum_i CF_i \\times P(0,t_i).\n\\]\nThis model says that a bond’s price equals the present value of its future cash flows. For a plain fixed-rate bond, this may be enough. If the cash flows are known and the discount curve is available, we do not need a complicated model of future interest rates.\nBut many fixed-income securities are more complicated. Callable bonds, mortgage-backed securities, caps, floors, swaptions, and structured notes have values that depend on what interest rates do in the future. For these instruments, today’s yield curve is not enough. We need a model that describes how future interest rates may evolve.",
+    "crumbs": [
+      "Lecture Notes",
+      "Lecture 7: Interest‑Rate Models"
+    ]
+  },
+  {
+    "objectID": "lecture_notes/lec7.html#mathematical-modeling-of-interest-rates",
+    "href": "lecture_notes/lec7.html#mathematical-modeling-of-interest-rates",
+    "title": "Lecture 7: Interest‑Rate Models",
+    "section": "1.2 Mathematical Modeling of Interest Rates",
+    "text": "1.2 Mathematical Modeling of Interest Rates\nAn interest-rate model describes the behavior of interest rates over time. It usually starts by choosing one or more state variables. In a one-factor short-rate model, the state variable is the short rate, denoted \\(r_t\\).\nThe model then specifies how \\(r_t\\) changes through time. A simple version is:\n\\[\n\\mathrm{d}r_t = b\\,\\mathrm{d}t + \\sigma\\,\\mathrm{d}z_t.\n\\]\nThis equation separates interest-rate movements into two parts:\n\nthe drift term, \\(b\\,\\mathrm{d}t\\), which represents the expected direction of movement;\nthe random shock term, \\(\\sigma\\,\\mathrm{d}z_t\\), which represents unexpected changes.\n\nThe purpose is not to predict the exact future short rate. The purpose is to generate possible future paths of interest rates in a disciplined way.\nThose paths can then be used to answer questions such as:\n\nWhat might the yield curve look like one year from now?\nHow much could a bond portfolio gain or lose if rates move?\nWhen would an issuer call a callable bond?\nWhat is the fair value of an interest-rate option?\nHow does interest-rate volatility affect the value of a security?",
+    "crumbs": [
+      "Lecture Notes",
+      "Lecture 7: Interest‑Rate Models"
+    ]
+  },
+  {
+    "objectID": "lecture_notes/lec7.html#what-students-should-remember",
+    "href": "lecture_notes/lec7.html#what-students-should-remember",
+    "title": "Lecture 7: Interest‑Rate Models",
+    "section": "1.3 What Students Should Remember",
+    "text": "1.3 What Students Should Remember\nA yield curve is a snapshot of current market prices. An interest-rate model is a way to generate possible future yield curves.\nFor plain bonds, the current discount curve is often sufficient. For securities whose cash flows depend on future rates, a model of interest-rate dynamics becomes necessary.",
+    "crumbs": [
+      "Lecture Notes",
+      "Lecture 7: Interest‑Rate Models"
+    ]
+  },
+  {
     "objectID": "lecture_notes/lec7.html#yield-curve-versus-shortrate-model",
     "href": "lecture_notes/lec7.html#yield-curve-versus-shortrate-model",
     "title": "Lecture 7: Interest‑Rate Models",
@@ -1668,11 +1701,33 @@
     ]
   },
   {
-    "objectID": "lecture_notes/lec7.html#callable-bond-intuition",
-    "href": "lecture_notes/lec7.html#callable-bond-intuition",
+    "objectID": "lecture_notes/lec7.html#a-one-period-binomial-tree",
+    "href": "lecture_notes/lec7.html#a-one-period-binomial-tree",
     "title": "Lecture 7: Interest‑Rate Models",
-    "section": "4.6 Callable bond intuition",
-    "text": "4.6 Callable bond intuition\nAt a future call date, the model produces a future yield curve \\(P(t,T)\\). That curve is used to value the remaining coupon and principal payments:\n\\[\nV_{\\text{continue}}(t) = \\sum_i CF_i \\times P(t,t_i).\n\\]\nThe issuer compares this continuation value with the call price. If rates have fallen, the old high‑coupon bond is valuable to investors but expensive for the issuer to keep outstanding. The issuer is more likely to call the bond. If rates have risen, the continuation value is usually below the call price, so the issuer does not call.\nFor the bondholder at a call date:\n\\[\nV(t) = \\min\\left(V_{\\text{continue}}(t), \\text{call price}\\right).\n\\]\nThe minimum appears because the issuer controls the call option. The bondholder receives the lower of keeping the valuable bond alive or being paid the call price.\n\n\n\n\n\n\n\n\nFigure 8: Callable bond decision at a future call date\n\n\n\n\n\n\n\n\n\n\n\nNoteWhere the complexity enters\n\n\n\nWithout derivatives or embedded options, individual bond valuation is relatively straightforward. Fixed‑income complexity usually comes from cash flows that change with future rates, embedded optionality, prepayment behavior, portfolio construction and risk management, and credit, liquidity, or spread modeling.",
+    "section": "8.1 A one-period binomial tree",
+    "text": "8.1 A one-period binomial tree\nA simple way to introduce option pricing is with a binomial tree. Suppose a bond is worth \\(B_0\\) today. Over one period, it can move to one of two possible values:\n\nan up state, \\(B_u\\);\na down state, \\(B_d\\).\n\nAn option on the bond has a payoff in each state. For example, a call option with strike price \\(K\\) has payoff:\n\\[\nC_u = \\max(B_u-K,0),\n\\qquad\nC_d = \\max(B_d-K,0).\n\\]\nThe option value today is the discounted expected payoff under risk-neutral probabilities:\n\\[\nC_0 = \\frac{qC_u+(1-q)C_d}{1+r},\n\\]\nwhere \\(q\\) is the risk-neutral probability of the up state and \\(r\\) is the one-period risk-free rate.\n\n\n\n\n\n\nTipIntuition\n\n\n\nThe risk-neutral probability is not a forecast of what will actually happen. It is the probability that makes the model consistent with no-arbitrage pricing. We use it to price cash flows consistently with today’s market prices.\n\n\n\n\n\n\n\n\n\n\nFigure 8: A one-period binomial tree for an option on a fixed-income underlying asset",
+    "crumbs": [
+      "Lecture Notes",
+      "Lecture 7: Interest‑Rate Models"
+    ]
+  },
+  {
+    "objectID": "lecture_notes/lec7.html#backward-induction",
+    "href": "lecture_notes/lec7.html#backward-induction",
+    "title": "Lecture 7: Interest‑Rate Models",
+    "section": "8.2 Backward induction",
+    "text": "8.2 Backward induction\nFor options with several possible exercise dates, the tree has many steps. The pricing method works backward:\n\nBuild possible future states of the underlying asset.\nCompute the option payoff at the final nodes.\nMove one step backward by discounting the expected future option value.\nIf the option can be exercised early, compare the continuation value with the exercise value at each node.\nContinue backward until reaching today’s value.\n\nThis is called backward induction. It is central for valuing callable and putable bonds because the exercise decision must be checked at each possible future call or put date.",
+    "crumbs": [
+      "Lecture Notes",
+      "Lecture 7: Interest‑Rate Models"
+    ]
+  },
+  {
+    "objectID": "lecture_notes/lec7.html#why-this-matters-for-fixed-income",
+    "href": "lecture_notes/lec7.html#why-this-matters-for-fixed-income",
+    "title": "Lecture 7: Interest‑Rate Models",
+    "section": "8.3 Why this matters for fixed income",
+    "text": "8.3 Why this matters for fixed income\nFor a plain fixed-rate bond, the cash flows are fixed, so we can usually value the bond directly from today’s discount curve:\n\\[\nP = \\sum_i CF_i P(0,t_i).\n\\]\nFor a bond with an embedded option, the future cash flows depend on future rates. The tree must therefore generate future interest-rate states, future discount factors, and future bond values. At each exercise date, the model asks whether the option should be exercised.\nFor a callable bond, the issuer owns the option. At a future call date, the model produces a future yield curve \\(P(t,T)\\). That curve is used to value the remaining coupon and principal payments:\n\\[\nV_{\\text{continue}}(t) = \\sum_i CF_i \\times P(t,t_i).\n\\]\nThe issuer compares this continuation value with the call price:\n\nthe value of leaving the bond outstanding;\nthe call price.\n\nIf rates have fallen, the old high-coupon bond is valuable to investors but expensive for the issuer to keep outstanding. The continuation value is likely to exceed the call price, so the issuer calls the bond. If rates have risen, the continuation value is usually below the call price, so the issuer does not call.\nFrom the bondholder’s perspective:\n\\[\nV(t) = \\min\\left(V_{\\text{continue}}(t), \\text{call price}\\right).\n\\]\nThe minimum appears because the issuer controls the call option. The bondholder receives the lower of keeping the valuable bond alive or being paid the call price.\n\n\n\n\n\n\n\n\nFigure 9: Callable bond decision at a future call date\n\n\n\n\n\nThis is why the short-rate models discussed in this lecture are useful. They provide the future rate tree needed to value fixed-income options and bonds with embedded options.\n\n\n\n\n\n\nNoteBridge to the next lecture\n\n\n\nThe next step is to apply this logic directly to bonds with embedded options. The key idea will be the same: build future interest-rate states, value the bond at future nodes, apply the exercise rule, and work backward to today.",
     "crumbs": [
       "Lecture Notes",
       "Lecture 7: Interest‑Rate Models"
@@ -1996,72 +2051,6 @@
     "text": "6.5 Question 30\nA portfolio manager rebalances a USD 100 million bond portfolio. Before rebalancing, predicted tracking error is 14.8 bps per month, duration gap is 0.32 years, and bank-sector active weight is 8.0 percent. The client limits are 12.0 bps tracking error, 0.25 years duration gap, and 5.0 percent bank active weight. A proposed package of trades costs 7 bps and changes the metrics to 10.6 bps tracking error, 0.18 years duration gap, and 5.0 percent bank active weight.\nAnswer the following:\n\nIdentify which constraints are violated before rebalancing.\n\nIdentify whether the proposed trades bring the portfolio inside the constraints.\n\nCompute the reduction in monthly tracking error.\n\nExplain why the manager should compare the risk reduction with transaction cost.\n\nExplain why rebalancing should not automatically eliminate every active view.",
     "crumbs": [
       "Assignment 1"
-    ]
-  },
-  {
-    "objectID": "lecture_notes/lec7.html#mathematical-modeling-in-fixed-income",
-    "href": "lecture_notes/lec7.html#mathematical-modeling-in-fixed-income",
-    "title": "Lecture 7: Interest‑Rate Models",
-    "section": "1.1 Mathematical Modeling in Fixed Income",
-    "text": "1.1 Mathematical Modeling in Fixed Income\nIn fixed income, models are used for several related but different tasks:\n\nvaluing bonds and derivatives;\nestimating risk exposures such as duration, convexity, and spread sensitivity;\nsimulating future interest-rate scenarios;\npricing embedded options;\nstress testing portfolios;\ncomparing relative value across securities.\n\nThe simplest fixed-income model is discounted cash flow valuation:\n\\[\nP = \\sum_i CF_i \\times P(0,t_i).\n\\]\nThis model says that a bond’s price equals the present value of its future cash flows. For a plain fixed-rate bond, this may be enough. If the cash flows are known and the discount curve is available, we do not need a complicated model of future interest rates.\nBut many fixed-income securities are more complicated. Callable bonds, mortgage-backed securities, caps, floors, swaptions, and structured notes have values that depend on what interest rates do in the future. For these instruments, today’s yield curve is not enough. We need a model that describes how future interest rates may evolve.",
-    "crumbs": [
-      "Lecture Notes",
-      "Lecture 7: Interest‑Rate Models"
-    ]
-  },
-  {
-    "objectID": "lecture_notes/lec7.html#mathematical-modeling-of-interest-rates",
-    "href": "lecture_notes/lec7.html#mathematical-modeling-of-interest-rates",
-    "title": "Lecture 7: Interest‑Rate Models",
-    "section": "1.2 Mathematical Modeling of Interest Rates",
-    "text": "1.2 Mathematical Modeling of Interest Rates\nAn interest-rate model describes the behavior of interest rates over time. It usually starts by choosing one or more state variables. In a one-factor short-rate model, the state variable is the short rate, denoted \\(r_t\\).\nThe model then specifies how \\(r_t\\) changes through time. A simple version is:\n\\[\n\\mathrm{d}r_t = b\\,\\mathrm{d}t + \\sigma\\,\\mathrm{d}z_t.\n\\]\nThis equation separates interest-rate movements into two parts:\n\nthe drift term, \\(b\\,\\mathrm{d}t\\), which represents the expected direction of movement;\nthe random shock term, \\(\\sigma\\,\\mathrm{d}z_t\\), which represents unexpected changes.\n\nThe purpose is not to predict the exact future short rate. The purpose is to generate possible future paths of interest rates in a disciplined way.\nThose paths can then be used to answer questions such as:\n\nWhat might the yield curve look like one year from now?\nHow much could a bond portfolio gain or lose if rates move?\nWhen would an issuer call a callable bond?\nWhat is the fair value of an interest-rate option?\nHow does interest-rate volatility affect the value of a security?",
-    "crumbs": [
-      "Lecture Notes",
-      "Lecture 7: Interest‑Rate Models"
-    ]
-  },
-  {
-    "objectID": "lecture_notes/lec7.html#what-students-should-remember",
-    "href": "lecture_notes/lec7.html#what-students-should-remember",
-    "title": "Lecture 7: Interest‑Rate Models",
-    "section": "1.3 What Students Should Remember",
-    "text": "1.3 What Students Should Remember\nA yield curve is a snapshot of current market prices. An interest-rate model is a way to generate possible future yield curves.\nFor plain bonds, the current discount curve is often sufficient. For securities whose cash flows depend on future rates, a model of interest-rate dynamics becomes necessary.",
-    "crumbs": [
-      "Lecture Notes",
-      "Lecture 7: Interest‑Rate Models"
-    ]
-  },
-  {
-    "objectID": "lecture_notes/lec7.html#a-one-period-binomial-tree",
-    "href": "lecture_notes/lec7.html#a-one-period-binomial-tree",
-    "title": "Lecture 7: Interest‑Rate Models",
-    "section": "8.1 A one-period binomial tree",
-    "text": "8.1 A one-period binomial tree\nA simple way to introduce option pricing is with a binomial tree. Suppose a bond is worth \\(B_0\\) today. Over one period, it can move to one of two possible values:\n\nan up state, \\(B_u\\);\na down state, \\(B_d\\).\n\nAn option on the bond has a payoff in each state. For example, a call option with strike price \\(K\\) has payoff:\n\\[\nC_u = \\max(B_u-K,0),\n\\qquad\nC_d = \\max(B_d-K,0).\n\\]\nThe option value today is the discounted expected payoff under risk-neutral probabilities:\n\\[\nC_0 = \\frac{qC_u+(1-q)C_d}{1+r},\n\\]\nwhere \\(q\\) is the risk-neutral probability of the up state and \\(r\\) is the one-period risk-free rate.\n\n\n\n\n\n\nTipIntuition\n\n\n\nThe risk-neutral probability is not a forecast of what will actually happen. It is the probability that makes the model consistent with no-arbitrage pricing. We use it to price cash flows consistently with today’s market prices.\n\n\n\n\n\n\n\n\n\n\nFigure 8: A one-period binomial tree for an option on a fixed-income underlying asset",
-    "crumbs": [
-      "Lecture Notes",
-      "Lecture 7: Interest‑Rate Models"
-    ]
-  },
-  {
-    "objectID": "lecture_notes/lec7.html#backward-induction",
-    "href": "lecture_notes/lec7.html#backward-induction",
-    "title": "Lecture 7: Interest‑Rate Models",
-    "section": "8.2 Backward induction",
-    "text": "8.2 Backward induction\nFor options with several possible exercise dates, the tree has many steps. The pricing method works backward:\n\nBuild possible future states of the underlying asset.\nCompute the option payoff at the final nodes.\nMove one step backward by discounting the expected future option value.\nIf the option can be exercised early, compare the continuation value with the exercise value at each node.\nContinue backward until reaching today’s value.\n\nThis is called backward induction. It is central for valuing callable and putable bonds because the exercise decision must be checked at each possible future call or put date.",
-    "crumbs": [
-      "Lecture Notes",
-      "Lecture 7: Interest‑Rate Models"
-    ]
-  },
-  {
-    "objectID": "lecture_notes/lec7.html#why-this-matters-for-fixed-income",
-    "href": "lecture_notes/lec7.html#why-this-matters-for-fixed-income",
-    "title": "Lecture 7: Interest‑Rate Models",
-    "section": "8.3 Why this matters for fixed income",
-    "text": "8.3 Why this matters for fixed income\nFor a plain fixed-rate bond, the cash flows are fixed, so we can usually value the bond directly from today’s discount curve:\n\\[\nP = \\sum_i CF_i P(0,t_i).\n\\]\nFor a bond with an embedded option, the future cash flows depend on future rates. The tree must therefore generate future interest-rate states, future discount factors, and future bond values. At each exercise date, the model asks whether the option should be exercised.\nFor a callable bond, the issuer owns the option. At a future call date, the model produces a future yield curve \\(P(t,T)\\). That curve is used to value the remaining coupon and principal payments:\n\\[\nV_{\\text{continue}}(t) = \\sum_i CF_i \\times P(t,t_i).\n\\]\nThe issuer compares this continuation value with the call price:\n\nthe value of leaving the bond outstanding;\nthe call price.\n\nIf rates have fallen, the old high-coupon bond is valuable to investors but expensive for the issuer to keep outstanding. The continuation value is likely to exceed the call price, so the issuer calls the bond. If rates have risen, the continuation value is usually below the call price, so the issuer does not call.\nFrom the bondholder’s perspective:\n\\[\nV(t) = \\min\\left(V_{\\text{continue}}(t), \\text{call price}\\right).\n\\]\nThe minimum appears because the issuer controls the call option. The bondholder receives the lower of keeping the valuable bond alive or being paid the call price.\n\n\n\n\n\n\n\n\nFigure 9: Callable bond decision at a future call date\n\n\n\n\n\nThis is why the short-rate models discussed in this lecture are useful. They provide the future rate tree needed to value fixed-income options and bonds with embedded options.\n\n\n\n\n\n\nNoteBridge to the next lecture\n\n\n\nThe next step is to apply this logic directly to bonds with embedded options. The key idea will be the same: build future interest-rate states, value the bond at future nodes, apply the exercise rule, and work backward to today.",
-    "crumbs": [
-      "Lecture Notes",
-      "Lecture 7: Interest‑Rate Models"
     ]
   }
 ]

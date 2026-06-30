@@ -1,0 +1,1093 @@
+---
+title: "Lecture 8: Valuation of Bonds with Embedded Options and Option-Adjusted Measures"
+format:
+  html:
+    toc: true
+    toc-location: left
+    number-sections: true
+    number-depth: 2
+  pdf:
+    toc: true
+    number-sections: true
+    number-depth: 2
+jupyter: python3
+execute:
+  echo: false
+---
+
+## Learning Objectives {.unnumbered}
+
+After completing this lecture you should be able to:
+
+- Explain why embedded options make bond cash flows state-dependent and why today's discount curve is no longer enough.
+- Explain why traditional yield-spread analysis fails for bonds with embedded options and identify the limitations of yield-to-maturity comparisons.
+- Interpret the **static spread** as a constant spread over the spot curve and explain why it still fails when cash flows are option-dependent.
+- Describe the investment characteristics of callable and putable bonds, including capped upside and negative convexity for callable bonds.
+- Decompose embedded-option bonds into an option-free bond plus or minus the value of the embedded option.
+- Explain how an interest-rate lattice represents future rate states and why backward induction is used for valuation.
+- Apply the node-level exercise rule for callable and putable bonds using the min/max logic.
+- Interpret the **option-adjusted spread (OAS)** as compensation after adjusting for embedded-option effects.
+- Explain why **effective duration** and **effective convexity** are needed when cash flows change as rates change.
+
+---
+
+## Big Picture: Why Embedded Options Change Everything
+
+In Lecture 7, the main idea was that a plain fixed-rate bond usually does **not** require a stochastic interest-rate model. If the cash flows are fixed, valuation is mostly discounted cash flow:
+
+$$
+P = \sum_i CF_i P(0,t_i).
+$$
+
+Bonds with embedded options are different. Their cash flows are not fully known today because someone has a future choice:
+
+- the issuer may call the bond;
+- the investor may put the bond back to the issuer;
+- mortgage borrowers may prepay;
+- a structured note may change coupons based on future rates.
+
+The option makes the bond's cash flows **state-dependent**. We do not only need today's discount curve. We need possible future interest-rate states, future bond values, and an exercise rule.
+
+::: {.callout-tip title="Core Intuition"}
+A plain bond asks: "What are the promised cash flows worth today?"
+
+A bond with an embedded option asks: "What might rates be in the future, what would the bond be worth in each future state, and would someone exercise the option?"
+:::
+
+```{python}
+#| label: fig-embedded-option-roadmap
+#| fig-cap: "Why embedded options require a model of future rates"
+#| echo: false
+import matplotlib.pyplot as plt
+from matplotlib.patches import FancyBboxPatch, FancyArrowPatch
+
+steps = [
+    "Today's\ncurve",
+    "Future\nrate states",
+    "Future bond\nvalues",
+    "Exercise\ndecision",
+    "Value\ntoday",
+]
+
+fig, ax = plt.subplots(figsize=(6.7, 2.25))
+ax.set_axis_off()
+
+box_width = 0.95
+box_height = 0.65
+spacing = 1.32
+y0 = 0.75
+
+for i, label in enumerate(steps):
+    x0 = i * spacing
+    box = FancyBboxPatch(
+        (x0, y0), box_width, box_height,
+        boxstyle="round,pad=0.08",
+        linewidth=1.1,
+        edgecolor="black",
+        facecolor="#E8F1FA",
+    )
+    ax.add_patch(box)
+    ax.text(x0 + box_width / 2, y0 + box_height / 2, label, ha="center", va="center", fontsize=8.0)
+    if i < len(steps) - 1:
+        ax.add_patch(
+            FancyArrowPatch(
+                (x0 + box_width + 0.05, y0 + box_height / 2),
+                ((i + 1) * spacing - 0.08, y0 + box_height / 2),
+                arrowstyle="-|>",
+                mutation_scale=15,
+                linewidth=1.4,
+                color="black",
+            )
+        )
+
+ax.text(0.05, 0.25, "Plain bonds usually stop at today's curve.", fontsize=8.2, color="#444444")
+ax.text(2.35, 0.25, "Embedded options require future states and exercise decisions.", fontsize=8.2, color="#444444")
+ax.set_xlim(-0.1, (len(steps) - 1) * spacing + box_width + 0.1)
+ax.set_ylim(0, 1.9)
+plt.tight_layout(pad=0.2)
+plt.show()
+```
+
+---
+
+## Drawbacks of Traditional Yield-Spread Analysis
+
+Historically, fixed-income analysts compared the **yield to maturity (YTM)** of a corporate bond with the yield of a Treasury security of similar maturity to measure compensation for credit and liquidity risk. The **yield spread** was defined as
+
+$$
+\text{Yield spread} = y_{\text{corporate}} - y_{\text{Treasury}}
+$$
+
+While straightforward, this measure suffers from several drawbacks:
+
+1. **Single-period perspective.** Yield to maturity assumes the investor holds the bond to maturity and reinvests coupons at the YTM. It does not capture the term structure of discount rates or the timing of cash flows.
+
+2. **Ignores embedded options.** Callable or putable bonds contain options that significantly affect cash flow timing and risk. Comparing YTMs of a callable corporate bond and a non-callable Treasury ignores the call option's value. The resulting yield spread blends credit, liquidity, and option premiums, making interpretation difficult.
+
+3. **Assumes parallel shifts.** Yield spread analysis implicitly treats interest-rate movements too simply. In reality, yield curves twist, steepen, flatten, and move non-parallel across maturities.
+
+4. **Fails to separate risk components.** Credit risk, liquidity risk, and option risk vary across issuers and over time. A simple yield spread bundles them together.
+
+Because of these limitations, modern valuation methods use term-structure models and option-adjusted measures to isolate risks and provide more consistent valuations.
+
+The practical problem is that a quoted yield spread is a **mixture**. For a callable corporate bond, the spread may compensate investors for credit risk, liquidity risk, and the fact that the investor is short the issuer's call option. A single YTM spread does not tell us how much comes from each source.
+
+```{python}
+#| label: fig-spread-components
+#| fig-cap: "A quoted yield spread bundles together several sources of compensation"
+#| echo: false
+import matplotlib.pyplot as plt
+
+components = ["Credit", "Liquidity", "Embedded\noption"]
+values = [75, 25, 50]
+colors = ["#4C78A8", "#72B7B2", "#F58518"]
+
+fig, ax = plt.subplots(figsize=(7, 2.6))
+left = 0
+for component, value, color in zip(components, values, colors):
+    ax.barh(["Quoted\nspread"], [value], left=left, color=color, edgecolor="black", height=0.45)
+    ax.text(left + value / 2, 0, f"{component}\n{value} bps", ha="center", va="center", fontsize=9)
+    left += value
+
+ax.set_xlim(0, sum(values) + 20)
+ax.set_xlabel("Basis points")
+ax.set_title("Why a raw yield spread is hard to interpret")
+ax.spines[["top", "right", "left"]].set_visible(False)
+ax.tick_params(axis="y", length=0)
+plt.tight_layout()
+plt.show()
+```
+
+---
+
+## Static Spread: An Alternative to Yield Spread
+
+The **static spread** (also called the **I-spread**) measures the constant margin over the Treasury spot curve that discounts a bond's cash flows to its market price. For a bond with cash flows \(\{CF_{t_i}\}\) at times \(t_1,t_2,\dots,t_n\) and Treasury zero rates \(\{r_{t_i}\}\), the static spread \(s\) solves
+
+$$
+P = \sum_{i=1}^{n} \frac{CF_{t_i}}{(1 + r_{t_i} + s)^{t_i}}
+$$
+
+where \(P\) is the observed price.
+
+Because the same spread \(s\) is added to all discount rates, the method accounts for the shape of the term structure while producing a single summary measure of compensation for non-Treasury risks. Unlike the yield spread, the static spread discounts each cash flow at a maturity-appropriate rate. That makes it more economically meaningful for coupon bonds, amortizing bonds, and bonds whose cash flows are distributed over time.
+
+However, the static spread still has an important weakness: it discounts **promised** cash flows, not **expected option-adjusted** cash flows. For a callable bond, the promised maturity cash flow may never be received if the issuer refinances and calls the bond when rates fall.
+
+::: {.callout-note title="Static Spread Intuition"}
+Static spread improves on a simple yield spread because each cash flow is discounted using the spot rate for its own maturity. But it still treats the cash-flow schedule as fixed. That is why it works better for option-free bonds than for callable, putable, or mortgage-backed securities.
+:::
+
+```{python}
+#| label: fig-static-spread-curve
+#| fig-cap: "Static spread adds the same margin to each point on the spot curve"
+#| echo: false
+import numpy as np
+import matplotlib.pyplot as plt
+
+maturities = np.array([0.5, 1, 2, 3, 5, 7, 10])
+spot_curve = np.array([0.025, 0.027, 0.030, 0.033, 0.037, 0.039, 0.041])
+static_spread = 0.008
+
+plt.figure(figsize=(7, 3.8))
+plt.plot(maturities, spot_curve * 100, "o-", label="Treasury spot curve")
+plt.plot(maturities, (spot_curve + static_spread) * 100, "s--", label="Spot curve + static spread")
+for x, y in zip(maturities, spot_curve):
+    plt.plot([x, x], [y * 100, (y + static_spread) * 100], color="gray", alpha=0.45, linewidth=1)
+
+plt.xlabel("Maturity (years)")
+plt.ylabel("Discount rate (%)")
+plt.title("Static spread as a constant vertical shift")
+plt.grid(True, alpha=0.3)
+plt.legend()
+plt.show()
+```
+
+### Example 1 - Computing the static spread
+
+Suppose a five-year corporate bond has semiannual coupons of 6 percent, so it pays \$30 every six months on a \$1,000 face value. The Treasury spot curve for maturities 0.5 years to 5 years is:
+
+$$
+\{2.0\%,\, 2.2\%,\, 2.6\%,\, 3.0\%,\, 3.4\%,\, 3.8\%,\, 4.0\%,\, 4.1\%,\, 4.2\%,\, 4.3\%\}
+$$
+
+Assume the bond trades at \$1,020. We estimate the static spread numerically by solving for \(s\) such that discounted cash flows equal the market price.
+
+```{python}
+#| label: fig-static-spread
+#| fig-cap: "Root-finding to determine the static spread that equates discounted cash flows to the observed price"
+import numpy as np
+import matplotlib.pyplot as plt
+
+coupons = np.array([30] * 10, dtype=float)
+coupons[-1] += 1000
+times = np.arange(0.5, 5.1, 0.5)
+
+spot = np.array([0.02, 0.022, 0.026, 0.03, 0.034, 0.038, 0.04, 0.041, 0.042, 0.043])
+price = 1020
+
+def price_with_spread(s):
+    disc = (1 + spot + s) ** (-times)
+    return np.sum(coupons * disc)
+
+spreads = np.linspace(0.0, 0.02, 300)
+vals = np.array([price_with_spread(s) for s in spreads])
+
+closest_idx = np.argmin(np.abs(vals - price))
+s_est = spreads[closest_idx]
+
+plt.figure(figsize=(7, 4))
+plt.plot(spreads * 10000, vals)
+plt.axhline(price, linestyle="--", label="Observed price")
+plt.axvline(s_est * 10000, linestyle="--", label=f"Static spread ≈ {s_est*10000:.0f} bps")
+plt.xlabel("Spread (basis points)")
+plt.ylabel("Present value ($)")
+plt.title("Finding the static spread")
+plt.legend()
+plt.grid(True)
+plt.show()
+
+print(f"Estimated static spread: {s_est*10000:.1f} basis points")
+```
+In this example the static spread is about 86 basis points. Economically, that means investors require roughly 86 basis points over the Treasury spot curve to hold this bond.
+
+---
+
+## Callable Bonds and Their Investment Characteristics
+
+A **callable bond** gives the issuer the right, but not the obligation, to redeem the bond before maturity at a specified call price according to a call schedule. The issuer will typically call the bond when prevailing rates fall below the coupon rate, allowing refinancing at a lower borrowing cost.
+
+This embedded call option changes the bond's economic behavior.
+
+::: {.callout-tip title="Borrower and Lender Intuition"}
+The issuer is like a homeowner with the right to refinance a mortgage. If rates fall, refinancing is attractive to the borrower. But that same event hurts the lender, because the lender loses a high-coupon asset and must reinvest at lower rates.
+:::
+
+```{python}
+#| label: fig-callable-bond-economic-states
+#| fig-cap: "Callable bond economics: falling rates help the issuer and limit investor upside"
+#| echo: false
+import numpy as np
+import matplotlib.pyplot as plt
+
+rates = np.array([2.0, 3.0, 4.0, 5.0, 6.0, 7.0])
+straight_value = np.array([125, 118, 110, 102, 95, 89])
+call_price = 100
+callable_value = np.minimum(straight_value, call_price)
+
+fig, ax = plt.subplots(figsize=(7, 3.8))
+ax.plot(rates, straight_value, "o-", label="Option-free value")
+ax.plot(rates, callable_value, "s--", label="Callable value to investor")
+ax.axhline(call_price, color="gray", linestyle=":", linewidth=1.4, label="Call price")
+ax.fill_between(rates, callable_value, straight_value, where=straight_value > callable_value, color="#F58518", alpha=0.25, label="Value transferred to issuer")
+
+ax.annotate(
+    "Rates fall:\nissuer likely calls",
+    xy=(2.5, 100),
+    xytext=(2.2, 88),
+    arrowprops=dict(arrowstyle="->", linewidth=1),
+    fontsize=9,
+)
+ax.annotate(
+    "Rates rise:\ncall is unlikely",
+    xy=(6.2, 92),
+    xytext=(5.0, 114),
+    arrowprops=dict(arrowstyle="->", linewidth=1),
+    fontsize=9,
+)
+
+ax.set_xlabel("Market yield (%)")
+ax.set_ylabel("Bond value")
+ax.set_title("The call feature caps the investor's upside")
+ax.grid(True, alpha=0.3)
+ax.legend(fontsize=8)
+plt.tight_layout()
+plt.show()
+```
+
+### Lower price than a comparable option-free bond
+
+Because the issuer owns the right to call, the investor is effectively **short a call option**. The callable bond therefore must be worth less than an otherwise identical option-free bond:
+
+$$
+V_{\text{callable}} = V_{\text{option-free}} - V_{\text{call option}}
+$$
+
+### Negative convexity
+
+As yields decline, the price of an option-free bond rises at an increasing rate. A callable bond does not. Once rates fall enough, the chance of being called rises sharply, which caps further price appreciation. This gives callable bonds **negative convexity** over some yield ranges.
+
+### Yield to worst
+
+Because a callable bond may be redeemed at one of several call dates, investors often compute:
+
+* yield to maturity
+* yield to each call date
+* **yield to worst**, which is the lowest among these yields
+
+Yield to worst is a practical convention, but it is not a full valuation framework. It does not explicitly model volatility or the contingent nature of cash flows.
+
+### Price-yield relationship for a callable bond
+
+To visualize negative convexity, we can compare the price-yield curve of an option-free bond with that of a callable bond.
+
+```{python}
+#| label: fig-callable-price-yield
+#| fig-cap: "Price-yield relationship for an option-free bond and a callable bond"
+import numpy as np
+import matplotlib.pyplot as plt
+
+def straight_bond_price(y, n, coupon, face=100):
+    t = np.arange(1, n + 1)
+    cfs = np.full(n, coupon, dtype=float)
+    cfs[-1] += face
+    yv = np.atleast_1d(y)
+    disc = (1 + yv[:, None]) ** (-t)
+    return np.sum(cfs * disc, axis=1)
+
+def callable_bond_price_simple(y, n, coupon, face=100, call_price=100, call_after=3):
+    yv = np.atleast_1d(y)
+    prices = []
+    cfs = np.full(n, coupon, dtype=float)
+    cfs[-1] += face
+    for yi in yv:
+        pv_early = np.sum(cfs[:call_after] / (1 + yi) ** np.arange(1, call_after + 1))
+        remaining = cfs[call_after:]
+        pv_remaining_at_call = np.sum(remaining / (1 + yi) ** np.arange(1, len(remaining) + 1))
+        continuation_at_call = min(call_price, pv_remaining_at_call)
+        prices.append(pv_early + continuation_at_call / (1 + yi) ** call_after)
+    return np.array(prices)
+
+ys = np.linspace(0.02, 0.12, 200)
+price_straight = straight_bond_price(ys, 10, 8)
+price_call = callable_bond_price_simple(ys, 10, 8, call_price=100, call_after=3)
+
+plt.figure(figsize=(7, 4))
+plt.plot(ys * 100, price_straight, label="Option-free bond")
+plt.plot(ys * 100, price_call, linestyle="--", label="Callable bond")
+plt.xlabel("Yield (%)")
+plt.ylabel("Price ($)")
+plt.title("Price-yield relationship")
+plt.legend()
+plt.grid(True)
+plt.show()
+```
+
+The callable bond's price is capped when yields fall enough for calling to become attractive to the issuer. This is the key intuition behind negative convexity.
+
+---
+
+## Components of a Bond with an Embedded Option
+
+A bond with an embedded option can be decomposed conceptually into two parts:
+
+1. **Option-free bond.** This is the value of the bond if no option existed.
+2. **Embedded option.** This is the value of the call or put written into the contract.
+
+For a callable bond:
+
+$$
+V_{\text{callable}} = V_{\text{straight}} - V_{\text{call option}}
+$$
+
+For a putable bond:
+
+$$
+V_{\text{putable}} = V_{\text{straight}} + V_{\text{put option}}
+$$
+
+This decomposition is useful because it tells us exactly where the pricing distortion comes from. The bond itself generates fixed-income cash flows. The option changes the timing and certainty of those cash flows.
+
+```{python}
+#| label: fig-embedded-option-decomposition
+#| fig-cap: "Embedded-option decomposition: who owns the option determines the sign"
+#| echo: false
+import matplotlib.pyplot as plt
+
+fig, axes = plt.subplots(1, 2, figsize=(7.0, 3.0), sharey=True)
+
+cases = [
+    ("Callable bond", [110, -8], ["Straight bond", "Issuer call"], ["#4C78A8", "#F58518"]),
+    ("Putable bond", [110, 6], ["Straight bond", "Investor put"], ["#4C78A8", "#54A24B"]),
+]
+
+for ax, (title, values, labels, colors) in zip(axes, cases):
+    bottom = 0
+    for value, label, color in zip(values, labels, colors):
+        ax.bar([0], [value], bottom=bottom, color=color, edgecolor="black", width=0.45)
+        y_text = bottom + value / 2
+        ax.text(0, y_text, label, ha="center", va="center", fontsize=8.2, color="white" if value > 20 else "black")
+        bottom += value
+    ax.axhline(0, color="black", linewidth=0.8)
+    ax.set_title(title)
+    ax.set_xticks([])
+    ax.grid(axis="y", alpha=0.25)
+
+axes[0].set_ylabel("Value contribution")
+fig.suptitle("Callable subtracts option value; putable adds option value", y=0.98, fontsize=11)
+plt.tight_layout(rect=[0, 0, 1, 0.94])
+plt.show()
+```
+
+---
+
+## Valuation Model for Bonds with Embedded Options
+
+The modern approach to valuing bonds with embedded options uses an **interest-rate lattice** and **risk-neutral valuation**.
+
+The general logic is:
+
+1. Build a tree of future short rates.
+2. Determine future bond values at the terminal nodes.
+3. Move backward through the tree using risk-neutral expectations.
+4. At each node, apply the embedded option rule:
+
+   * callable bond: issuer chooses the lower of holding value and call price
+   * putable bond: investor chooses the higher of holding value and put price
+
+The value at time 0 is the bond's model price.
+
+```{python}
+#| label: fig-backward-induction-intuition
+#| fig-cap: "Backward induction: start with future payoffs, then work back to today"
+#| echo: false
+import matplotlib.pyplot as plt
+from matplotlib.patches import FancyArrowPatch
+
+fig, ax = plt.subplots(figsize=(6.7, 3.6))
+
+nodes = {
+    (0, 0): ("Today\nprice", 0, 0),
+    (1, 1): ("Future\nstate", 1.5, 1),
+    (1, -1): ("Future\nstate", 1.5, -1),
+    (2, 2): ("Final\npayoff", 3.0, 2),
+    (2, 0): ("Final\npayoff", 3.0, 0),
+    (2, -2): ("Final\npayoff", 3.0, -2),
+}
+
+edges = [
+    ((0, 0), (1, 1)),
+    ((0, 0), (1, -1)),
+    ((1, 1), (2, 2)),
+    ((1, 1), (2, 0)),
+    ((1, -1), (2, 0)),
+    ((1, -1), (2, -2)),
+]
+
+for start, end in edges:
+    _, x0, y0 = nodes[start]
+    _, x1, y1 = nodes[end]
+    ax.plot([x0, x1], [y0, y1], color="gray", linewidth=1.1)
+
+for label, x, y in nodes.values():
+    ax.scatter(x, y, s=980, color="#E8F1FA", edgecolor="black", zorder=3)
+    ax.text(x, y, label, ha="center", va="center", fontsize=9, zorder=4)
+
+ax.add_patch(FancyArrowPatch((3.35, 1.75), (-0.15, 0.05), arrowstyle="-|>", mutation_scale=18, linewidth=2.0, color="#D55E00"))
+ax.text(1.55, 2.35, "Valuation moves backward", ha="center", color="#D55E00", fontsize=11)
+ax.text(1.55, -2.55, "Exercise decisions are checked before values are rolled back.", ha="center", fontsize=8.5)
+
+ax.set_xlim(-0.6, 3.8)
+ax.set_ylim(-2.8, 2.7)
+ax.set_xticks([0, 1.5, 3.0])
+ax.set_xticklabels(["Time 0", "Intermediate date", "Final date"])
+ax.set_yticks([])
+ax.spines[["left", "right", "top"]].set_visible(False)
+plt.tight_layout()
+plt.show()
+```
+
+### The key backward induction formula
+
+For an option-free bond, backward induction uses
+
+$$
+V_{i,j} = \frac{p\, V_{i+1,j+1} + (1-p)\, V_{i+1,j}}{1 + r_{i,j}} + CF_i
+$$
+
+where:
+
+* $V_{i,j}$ is the bond value at time step $i$ and state $j$
+* $p$ is the risk-neutral probability of an up move
+* $r_{i,j}$ is the short rate at node $(i,j)$
+* $CF_i$ is the coupon paid at that date
+
+For a callable bond:
+
+$$
+V_{i,j}^{\text{callable}} = \min\left\{ \frac{p\, V_{i+1,j+1} + (1-p)\, V_{i+1,j}}{1 + r_{i,j}} + CF_i,\ \text{Call Price} \right\}
+$$
+
+For a putable bond:
+
+$$
+V_{i,j}^{\text{putable}} = \max\left\{ \frac{p\, V_{i+1,j+1} + (1-p)\, V_{i+1,j}}{1 + r_{i,j}} + CF_i,\ \text{Put Price} \right\}
+$$
+
+---
+
+## Why the lattice matters
+
+The lattice is not just a computational trick. It is economically important.
+
+At each date, interest rates may move up or down. That means the bond's future value is not fixed today. The option's value comes from this uncertainty.
+
+The lattice lets us model three things at the same time:
+
+* the time value of money
+* uncertainty in future short rates
+* optimal exercise of the embedded option
+
+This is why spread measures based only on yield to maturity are inadequate for callable and putable bonds.
+
+A useful way to think about the tree is this:
+
+* the horizontal direction represents **time**
+* the vertical direction represents **interest-rate states**
+* each node represents a possible short rate that could prevail at that future date
+* at each node, someone makes an economic decision:
+
+  * the issuer decides whether to call
+  * the investor decides whether to put
+  * if neither side exercises, the bond continues
+
+So the embedded option makes the bond **path-dependent**. The value depends not only on maturity and coupon, but also on what happens to rates along the way.
+
+---
+
+## Constructing a simple binomial interest-rate tree
+
+To illustrate, consider a three-year bond with annual coupons of 8 on a face value of 100. Assume annual time steps. We first construct a simple short-rate tree directly for intuition.
+
+Suppose the short-rate lattice is:
+
+| Time | State 0 | State 1 | State 2 | State 3 |
+| ---- | ------: | ------: | ------: | ------: |
+| 0    |      5% |         |         |         |
+| 1    |      4% |      6% |         |         |
+| 2    |      3% |      5% |      7% |         |
+| 3    |      2% |      4% |      6% |      8% |
+
+Assume:
+
+* face value = 100
+* annual coupon = 8
+* callable at par, meaning call price = 100
+* first callable date = year 2
+* risk-neutral probability (p = 0.5)
+
+This simplified tree is excellent for teaching because it isolates the core logic of backward induction.
+
+---
+
+## Step-by-step numerical example: pricing an option-free bond and a callable bond
+
+We now price the bond **by hand** using backward induction.
+
+### Step 1: Terminal values at maturity
+
+At year 3 the bond pays final coupon plus principal:
+
+$$
+108 = 100 + 8
+$$
+
+So the year-3 node values are:
+
+| Node at Year 3 | Bond Value |
+| -------------- | ---------: |
+| 2% state       |     108.00 |
+| 4% state       |     108.00 |
+| 6% state       |     108.00 |
+| 8% state       |     108.00 |
+
+### Step 2: Move backward to year 2 for the option-free bond
+
+At each year-2 node, the option-free bond value is:
+
+$$
+V = \frac{0.5 \times 108 + 0.5 \times 108}{1 + r} + 8
+= \frac{108}{1+r} + 8
+$$
+
+#### Year 2, rate = 3%
+
+$$
+V = \frac{108}{1.03} + 8 = 104.8544 + 8 = 112.8544
+$$
+
+#### Year 2, rate = 5%
+
+$$
+V = \frac{108}{1.05} + 8 = 102.8571 + 8 = 110.8571
+$$
+
+#### Year 2, rate = 7%
+
+$$
+V = \frac{108}{1.07} + 8 = 100.9346 + 8 = 108.9346
+$$
+
+So the option-free values at year 2 are:
+
+| Node at Year 2 | Hold Value |
+| -------------- | ---------: |
+| 3% state       |     112.85 |
+| 5% state       |     110.86 |
+| 7% state       |     108.93 |
+
+### Step 3: Apply the call feature at year 2
+
+Because the bond is callable at par from year 2 onward, the issuer will compare the hold value with the call price of 100.
+
+For the callable bond:
+
+$$
+V^{\text{callable}} = \min\{\text{Hold Value},\ 100\}
+$$
+
+Thus:
+
+| Node at Year 2 | Hold Value | Callable Value |
+| -------------- | ---------: | -------------: |
+| 3% state       |     112.85 |         100.00 |
+| 5% state       |     110.86 |         100.00 |
+| 7% state       |     108.93 |         100.00 |
+
+This is the key economic point: at year 2 the straight bond is worth more than 100 in every state, so the issuer calls the bond immediately in every state.
+
+### Step 4: Move backward to year 1 for the option-free bond
+
+Now compute the option-free bond values at year 1 using the option-free year-2 values.
+
+#### Year 1, lower-rate node (r=4%)
+
+$$
+V = \frac{0.5(110.8571) + 0.5(112.8544)}{1.04} + 8
+$$
+
+$$
+V = \frac{111.8558}{1.04} + 8 = 107.5537 + 8 = 115.5537
+$$
+
+#### Year 1, higher-rate node (r=6%)
+
+$$
+V = \frac{0.5(108.9346) + 0.5(110.8571)}{1.06} + 8
+$$
+
+$$
+V = \frac{109.8959}{1.06} + 8 = 103.6754 + 8 = 111.6754
+$$
+
+So:
+
+| Node at Year 1 | Option-Free Value |
+| -------------- | ----------------: |
+| 4% state       |            115.55 |
+| 6% state       |            111.68 |
+
+### Step 5: Move backward to year 1 for the callable bond
+
+Now do the same using the callable values at year 2, which are both 100 in every reachable state.
+
+#### Year 1, rate = 4%
+
+$$
+V = \frac{0.5(100) + 0.5(100)}{1.04} + 8
+= \frac{100}{1.04} + 8
+= 96.1538 + 8
+= 104.1538
+$$
+
+#### Year 1, rate = 6%
+
+$$
+V = \frac{100}{1.06} + 8
+= 94.3396 + 8
+= 102.3396
+$$
+
+So:
+
+| Node at Year 1 | Callable Value |
+| -------------- | -------------: |
+| 4% state       |         104.15 |
+| 6% state       |         102.34 |
+
+### Step 6: Move backward to time 0
+
+#### Option-free bond at time 0
+
+$$
+V_0^{\text{straight}} =
+\frac{0.5(115.5537) + 0.5(111.6754)}{1.05} + 8
+$$
+
+$$
+V_0^{\text{straight}} =
+\frac{113.6146}{1.05} + 8
+= 108.2044 + 8
+= 116.2044
+$$
+
+#### Callable bond at time 0
+
+$$
+V_0^{\text{callable}} =
+\frac{0.5(104.1538) + 0.5(102.3396)}{1.05} + 8
+$$
+
+$$
+V_0^{\text{callable}} =
+\frac{103.2467}{1.05} + 8
+= 98.3302 + 8
+= 106.3302
+$$
+
+### Step 7: Embedded call option value
+
+The call option value is the difference between the straight bond value and the callable bond value:
+
+$$
+V_{\text{call option}} = V_{\text{straight}} - V_{\text{callable}}
+$$
+
+$$
+V_{\text{call option}} = 116.2044 - 106.3302 = 9.8742
+$$
+
+So in this example:
+
+| Quantity                   |  Value |
+| -------------------------- | -----: |
+| Option-free bond price     | 116.20 |
+| Callable bond price        | 106.33 |
+| Embedded call option value |   9.87 |
+
+### Interpretation of the numerical example
+
+This example teaches three important things.
+
+First, the callable bond is worth less than the straight bond because the issuer owns the call option.
+
+Second, the option matters most when rates are low and the straight bond is worth substantially above par. In those states, the issuer will refinance and cap the investor's upside.
+
+Third, the lattice makes the exercise decision explicit at each node. That is the real advantage of the model.
+
+::: {.callout-note title="Worked Example: When the Call Is Exercised Only in Low-Rate States"}
+The previous example calls the bond in every year-2 state. More realistically, the issuer may call only when rates are low enough.
+
+Assume the same 3-year annual-pay bond:
+
+- face value = 100;
+- coupon = 8;
+- callable at par from year 2;
+- risk-neutral probability $p=0.5$.
+
+Now suppose the year-2 short rates are higher:
+
+| Year-2 short rate | Option-free hold value |
+|---:|---:|
+| 4% | $\frac{108}{1.04}+8=111.85$ |
+| 8% | $\frac{108}{1.08}+8=108.00$ |
+| 12% | $\frac{108}{1.12}+8=104.43$ |
+
+If the call price is 107, the callable value at year 2 is:
+
+| Year-2 short rate | Hold value | Callable value |
+|---:|---:|---:|
+| 4% | 111.85 | 107.00 |
+| 8% | 108.00 | 107.00 |
+| 12% | 104.43 | 104.43 |
+
+The issuer calls in the 4% and 8% states because the bond is worth more than the call price. The issuer does not call in the 12% state because keeping the bond outstanding is cheaper than paying 107.
+
+The key lesson is that the call rule is **state-dependent**. The lattice is useful because it checks the exercise decision separately at each future node.
+:::
+
+---
+
+## A compact implementation of the same logic
+
+The same backward-induction logic can be implemented mechanically. The calculation below reproduces the option-free price, callable price, and embedded call option value from the classroom example.
+
+```{python}
+#| label: fig-binomial-valuation
+#| fig-cap: "Valuing a 3-year bond with and without a call option using a simple interest-rate lattice"
+rates = [
+    [0.05],
+    [0.04, 0.06],
+    [0.03, 0.05, 0.07],
+    [0.02, 0.04, 0.06, 0.08]
+]
+
+p = 0.5
+coupon = 8
+face = 100
+call_price = 100
+
+def backward_price(tree_rates, coupon, face, p=0.5, call_price=None, callable_from=None):
+    n = len(tree_rates) - 1
+    values = [face + coupon] * len(tree_rates[-1])
+
+    for i in range(n - 1, -1, -1):
+        new_values = []
+        for j in range(i + 1):
+            hold = (p * values[j + 1] + (1 - p) * values[j]) / (1 + tree_rates[i][j]) + coupon
+            if call_price is not None and callable_from is not None and i >= callable_from:
+                new_values.append(min(hold, call_price))
+            else:
+                new_values.append(hold)
+        values = new_values
+    return values[0]
+
+price_straight = backward_price(rates, coupon, face, p=p)
+price_callable = backward_price(rates, coupon, face, p=p, call_price=call_price, callable_from=2)
+option_value = price_straight - price_callable
+
+print(f"Option-free price: {price_straight:.4f}")
+print(f"Callable price:    {price_callable:.4f}")
+print(f"Call option value: {option_value:.4f}")
+```
+
+---
+
+## Constructing a model-based binomial tree
+
+In more formal models, rates evolve according to a short-rate process rather than being assigned directly. For example, with a lognormal up and down structure:
+
+$$
+u = e^{\sigma \sqrt{\Delta t}}, \qquad d = \frac{1}{u}
+$$
+
+and a stylized risk-neutral probability
+
+$$
+p = \frac{e^{r \Delta t} - d}{u - d}
+$$
+
+A short-rate tree can then be generated from an initial rate (r_0). The point of such a tree is not just to create possible future rates, but to calibrate those rates so that the model reproduces today's observed yield curve.
+
+```{python}
+#| label: fig-generated-tree
+#| fig-cap: "Example of a generated binomial short-rate tree"
+import numpy as np
+
+def generated_binomial_tree(r0, sigma, n, dt):
+    u = np.exp(sigma * np.sqrt(dt))
+    d = 1 / u
+    p = (np.exp(r0 * dt) - d) / (u - d)
+    rates = [[r0 * (u**j) * (d**(i-j)) for j in range(i + 1)] for i in range(n + 1)]
+    return rates, p
+
+rates_gen, p_gen = generated_binomial_tree(r0=0.05, sigma=0.10, n=3, dt=1.0)
+
+for i, level in enumerate(rates_gen):
+    print(f"Time {i}: {[round(x, 4) for x in level]}")
+print(f"Risk-neutral probability: {p_gen:.4f}")
+```
+
+In practice, professional valuation systems use calibrated models such as Ho-Lee, Black-Derman-Toy, Hull-White, or Black-Karasinski. The teaching objective here is not the full calibration machinery, but the economic structure of the valuation.
+
+---
+
+## Incorporating default risk
+
+The lattice framework can be extended to corporate bonds in several ways.
+
+One approach is to add a credit spread (s) to each node's short rate:
+
+$$
+r_{i,j}^{\text{risky}} = r_{i,j} + s
+$$
+
+Another is to introduce default probabilities and recovery assumptions directly into the tree. Then the node value reflects both survival and default scenarios.
+
+These extensions are important in practice because many callable bonds are corporate or structured products whose spreads reflect both credit and optionality.
+
+---
+
+## Implementation challenges
+
+Real-world implementation is harder than the classroom example suggests. A practical model must decide:
+
+* how to fit the current zero curve
+* how to model volatility
+* how to model mean reversion
+* how to treat credit risk and liquidity
+* how to handle complex call schedules
+* how to incorporate sinking funds, make-whole calls, or prepayment behavior
+
+Even so, the lattice remains one of the clearest frameworks for understanding the economics of embedded options.
+
+---
+
+## Option-Adjusted Spread (OAS)
+
+The **option-adjusted spread** measures the constant spread over the risk-free curve that equates the model price of a bond, after adjusting for embedded option effects, to its market price.
+
+Unlike the static spread, the OAS discounts **expected path-dependent cash flows**, not simply promised contractual cash flows.
+
+A general expression is:
+
+$$
+P_{\text{market}}
+  = \sum_{\text{paths}}
+  \frac{\Pr(\text{path}) \times CF_{\text{path}}}
+       {\prod_{i}(1 + r_{i,\text{path}} + s_{\text{OAS}})^{\Delta t}}
+$$
+
+where the sum runs over all interest-rate paths.
+
+### Why OAS matters
+
+Suppose two bonds have the same nominal spread over Treasuries, but one is callable and the other is not. The callable bond's spread partly compensates the investor for being short the call option. The OAS attempts to strip out that option effect.
+
+That makes OAS a cleaner measure of relative value when embedded options matter.
+
+### Relating nominal spread, static spread, and OAS
+
+* **Nominal spread** compares one yield with another yield.
+* **Static spread** discounts promised cash flows using the spot curve plus a constant spread.
+* **OAS** discounts expected option-adjusted cash flows using a model of future rates and option exercise.
+
+So for bonds with embedded options, OAS is usually the economically relevant spread measure.
+
+### Determining the option cost in spread terms
+
+If a callable bond has a nominal spread of 150 basis points but an OAS of 100 basis points, then roughly 50 basis points of the nominal spread reflect the call option rather than pure credit or liquidity compensation.
+
+```{python}
+#| label: fig-oas-option-cost
+#| fig-cap: "For a callable bond, part of the nominal spread compensates the investor for the embedded call option"
+#| echo: false
+import matplotlib.pyplot as plt
+
+nominal_spread = 150
+oas = 100
+option_cost = nominal_spread - oas
+
+fig, ax = plt.subplots(figsize=(7, 2.8))
+ax.barh(["Callable bond\nspread"], [oas], color="#4C78A8", edgecolor="black", height=0.45, label="OAS")
+ax.barh(["Callable bond\nspread"], [option_cost], left=[oas], color="#F58518", edgecolor="black", height=0.45, label="Option cost")
+
+ax.text(oas / 2, 0, "OAS\n100 bps", ha="center", va="center", color="white", fontsize=10)
+ax.text(oas + option_cost / 2, 0, "Option\ncost\n50 bps", ha="center", va="center", fontsize=10)
+ax.axvline(nominal_spread, color="black", linestyle="--", linewidth=1)
+ax.text(nominal_spread + 3, 0.28, "Nominal spread = 150 bps", fontsize=9)
+
+ax.set_xlim(0, 180)
+ax.set_xlabel("Basis points")
+ax.set_title("OAS removes the model-estimated option component")
+ax.spines[["top", "right", "left"]].set_visible(False)
+ax.tick_params(axis="y", length=0)
+plt.tight_layout()
+plt.show()
+```
+
+---
+
+## Effective Duration and Convexity
+
+For bonds with embedded options, traditional Macaulay duration and convexity are inadequate because cash flows depend on the future path of interest rates.
+
+Instead, we use **effective duration** and **effective convexity**, which are based on revaluing the bond after small changes in the entire yield curve.
+
+Let:
+
+* (P_0) = base price
+* $P_-$ = price when the curve shifts **down** by $\Delta y$
+* $P_+$ = price when the curve shifts **up** by $\Delta y$
+
+Then:
+
+$$
+D_e = \frac{P_- - P_+}{2P_0\Delta y}
+$$
+
+$$
+C_e = \frac{P_- + P_+ - 2P_0}{P_0(\Delta y)^2}
+$$
+
+For callable bonds, effective duration is often shorter than for an otherwise similar option-free bond, and effective convexity may become small or even negative when the bond is likely to be called.
+
+```{python}
+#| label: fig-effective-duration-intuition
+#| fig-cap: "Effective duration and convexity reprice the bond after rate shocks"
+#| echo: false
+import numpy as np
+import matplotlib.pyplot as plt
+
+rate_shocks = np.array([-0.50, 0.00, 0.50])
+option_free_prices = np.array([108, 103, 98])
+callable_prices = np.array([103.5, 102, 98.5])
+
+fig, ax = plt.subplots(figsize=(7, 3.8))
+ax.plot(rate_shocks, option_free_prices, "o-", label="Option-free bond")
+ax.plot(rate_shocks, callable_prices, "s--", label="Callable bond")
+ax.axvline(0, color="gray", linestyle=":", linewidth=1)
+ax.set_xlabel("Parallel rate shock (percentage points)")
+ax.set_ylabel("Repriced value")
+ax.set_title("Callable bonds respond asymmetrically to rate changes")
+ax.annotate(
+    "Rate decline:\nupside is capped",
+    xy=(-0.5, 103.5),
+    xytext=(-0.35, 100.0),
+    arrowprops=dict(arrowstyle="->", linewidth=1),
+    fontsize=9,
+)
+ax.grid(True, alpha=0.3)
+ax.legend()
+plt.tight_layout()
+plt.show()
+```
+
+### Example 2 - Effective duration and convexity
+
+Using the callable bond in our lattice example, we can shift the entire short-rate tree up and down by 50 basis points and reprice the bond.
+
+```{python}
+#| label: fig-effective-duration-convexity
+#| fig-cap: "Illustrating the computation of effective duration and convexity for a callable bond"
+delta_y = 0.005
+
+def shift_tree(tree, shift):
+    return [[r + shift for r in level] for level in tree]
+
+price_base = backward_price(rates, coupon, face, p=p, call_price=call_price, callable_from=2)
+price_up = backward_price(shift_tree(rates, delta_y), coupon, face, p=p, call_price=call_price, callable_from=2)
+price_down = backward_price(shift_tree(rates, -delta_y), coupon, face, p=p, call_price=call_price, callable_from=2)
+
+effective_duration = (price_down - price_up) / (2 * price_base * delta_y)
+effective_convexity = (price_down + price_up - 2 * price_base) / (price_base * delta_y**2)
+
+print(f"Base price:            {price_base:.4f}")
+print(f"Price with rates up:   {price_up:.4f}")
+print(f"Price with rates down: {price_down:.4f}")
+print(f"Effective duration:    {effective_duration:.4f}")
+print(f"Effective convexity:   {effective_convexity:.4f}")
+```
+
+Because the call feature limits upside when rates fall, the callable bond's price response is asymmetric. That is exactly what effective convexity is designed to capture.
+
+---
+
+## Key Points {.unnumbered}
+
+- Embedded options make bond valuation state-dependent: we need future rate states, future bond values, and an exercise rule.
+- **Yield spread** is easy to compute but mixes credit, liquidity, curve, and option compensation into one number.
+- **Static spread** improves on nominal spread by discounting promised cash flows off the spot curve, but it still assumes the cash-flow schedule is fixed.
+- A **callable bond** is worth less than an otherwise identical option-free bond because the investor is short the issuer's call option; a **putable bond** is worth more because the investor owns the put option.
+- Callable bonds have capped upside when rates fall, which can create negative convexity.
+- The **interest-rate lattice** is the core valuation tool because it models future short-rate uncertainty and allows exercise decisions at each node.
+- **Backward induction** starts from future payoffs and works back to today's price; callable bonds apply a min operator and putable bonds apply a max operator at exercise nodes.
+- The step-by-step lattice examples show that the call decision is state-dependent: the issuer calls only when the hold value exceeds the call price.
+- **OAS** is the spread that equates market price with model price after accounting for option effects, making it cleaner than nominal or static spread for option-embedded bonds.
+- **Effective duration** and **effective convexity** are repricing-based risk measures, so they can capture changing cash flows and changing exercise probabilities.
+
+---
+
+## Suggested Readings {.unnumbered}
+
+*Suggested readings:* Fabozzi, *Bond Markets: Analysis and Strategies*, Chapter 18.

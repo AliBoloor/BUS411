@@ -49,6 +49,7 @@ LC_ALL=C LANG=C quarto render lecture_notes/lec4.qmd --to pdf
 LC_ALL=C LANG=C quarto render lecture_notes/lec5.qmd --to pdf
 LC_ALL=C LANG=C quarto render lecture_notes/lec6.qmd --to pdf
 LC_ALL=C LANG=C quarto render lecture_notes/lec7.qmd --to pdf
+LC_ALL=C LANG=C quarto render lecture_notes/lec8.qmd --to pdf
 LC_ALL=C LANG=C quarto render assignments/assignment1/assignment-1-questions.qmd --to pdf
 LC_ALL=C LANG=C quarto render assignments/assignment2/assignment-2-questions.qmd --to pdf
 ```

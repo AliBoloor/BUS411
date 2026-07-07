@@ -117,3 +117,118 @@ b. Describe the steps for estimating weekly historical volatility from these obs
 c. Compute the sample standard deviation of the weekly changes in basis points.  
 d. Annualize the weekly volatility using $\sqrt{52}$.  
 e. Explain two limitations of using this historical volatility estimate as an input to a short-rate model.
+
+# Lecture 8: Bonds with Embedded Options and Option-Adjusted Measures
+
+## Question 6
+
+A 3-year annual-pay corporate bond has face value 100 and coupon rate 5%. The Treasury zero rates are:
+
+| Maturity | Zero rate |
+|---:|---:|
+| 1 year | 3.00% |
+| 2 years | 4.00% |
+| 3 years | 5.00% |
+
+The bond trades at 99.00.
+
+Answer the following:
+
+a. Write the promised cash flows of the bond.  
+b. Compute the value of the bond if its promised cash flows were discounted using only the Treasury zero curve.  
+c. Explain why the market price can be lower than this Treasury-discounted value.  
+d. Set up the static spread equation for this bond.  
+e. Use the following trial present values to estimate the static spread and explain why the price-spread relationship is nonlinear:
+
+| Spread | Present value |
+|---:|---:|
+| 0 bps | 100.18 |
+| 50 bps | 98.83 |
+| 100 bps | 97.50 |
+
+## Question 7
+
+A 3-year annual-pay bond has face value 100 and coupon 7. The risk-neutral probability is $p=0.5$. The short-rate lattice is:
+
+| State | Year 0 | Year 1 | Year 2 |
+|---|---:|---:|---:|
+| Low-rate state | 5% | 4% | 3% |
+| Middle state |  | 8% | 6% |
+| High-rate state |  |  | 10% |
+
+The bond is callable at 101 beginning in year 2.
+
+Answer the following:
+
+a. Compute the terminal payoff at year 3.  
+b. Compute the year-2 option-free hold values at the 3%, 6%, and 10% nodes.  
+c. Apply the call rule at year 2. Which nodes are called?  
+d. Roll the callable values back to year 1.  
+e. Compute the callable bond value at time 0 and compare it with the option-free value.
+
+## Question 8
+
+A 3-year annual-pay bond has face value 100 and coupon 4. The risk-neutral probability is $p=0.5$. The short-rate lattice is:
+
+| State | Year 0 | Year 1 | Year 2 |
+|---|---:|---:|---:|
+| Low-rate state | 5% | 3% | 4% |
+| Middle state |  | 9% | 8% |
+| High-rate state |  |  | 12% |
+
+The bond is putable at 100 beginning in year 1.
+
+Answer the following:
+
+a. Compute the terminal payoff at year 3.  
+b. Compute the year-2 option-free hold values.  
+c. Apply the put rule at year 2. Which nodes are put?  
+d. Roll the putable values back to year 1 and apply the put rule again.  
+e. Compute the putable bond value at time 0 and compare it with the option-free value.
+
+## Question 9
+
+An analyst says:
+
+> "A binomial interest-rate tree is determined by the starting short rate, volatility, and time step, so it cannot also fit the full zero curve."
+
+Assume a model uses the following structure:
+
+$$
+r_{t,j}=a_t e^{(2j-t)\sigma}.
+$$
+
+Answer the following:
+
+a. Explain what $\sigma$ controls in this tree.  
+b. Explain what the time-dependent level parameter $a_t$ controls.  
+c. Explain why a valuation-grade tree needs one calibration condition for each maturity on the zero curve.  
+d. Suppose the zero curve has four annual maturities. How many level parameters are needed to fit the four discount factors?  
+e. Correct the analyst's statement in one or two sentences.
+
+## Question 10
+
+A callable bond is priced with a calibrated 4-period lattice. The model price with OAS equal to 0 is 103.25, while the observed market price is 101.00. The analyst then tries several OAS values:
+
+| Trial OAS | Model price |
+|---:|---:|
+| 0 bps | 103.25 |
+| 50 bps | 101.80 |
+| 75 bps | 101.08 |
+| 80 bps | 100.94 |
+
+After solving for OAS, the analyst computes effective duration and convexity using a 50 bp parallel curve shock. The model produces:
+
+| Scenario | Repriced value |
+|---|---:|
+| Base curve | 101.00 |
+| Curve down 50 bps | 103.20 |
+| Curve up 50 bps | 98.90 |
+
+Answer the following:
+
+a. Explain what OAS is adding to the lattice.  
+b. Estimate the OAS from the trial values.  
+c. Explain why the OAS is positive in this example.  
+d. Compute effective duration.  
+e. Compute effective convexity and explain what these measures capture for a callable bond.

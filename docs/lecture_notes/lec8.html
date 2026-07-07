@@ -2,16 +2,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.9.37">
+<meta name="generator" content="quarto-1.8.27">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
 <title>Lecture 8: Valuation of Bonds with Embedded Options and Option-Adjusted Measures – BUS 411 — Fixed Income Security Analysis and Valuation</title>
 <style>
-/* Default styles provided by pandoc.
-** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
-*/
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
 div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -26,7 +23,7 @@ ul.task-list li input[type="checkbox"] {
 </style>
 
 
-<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="../site_libs/quarto-nav/quarto-nav.js"></script>
 <script src="../site_libs/quarto-nav/headroom.min.js"></script>
 <script src="../site_libs/clipboard/clipboard.min.js"></script>
 <script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
@@ -35,18 +32,19 @@ ul.task-list li input[type="checkbox"] {
 <meta name="quarto:offset" content="../">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-d0ae9245876894da5ac7e18953ecc5cc.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-4d9afe2b8d18ee9fa5d0d57b5ed4214d.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-5063acb1c7173512134af017c3d19607.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-090e4568e165f7d74d1237fe666b9f1c.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../site_libs/bootstrap/bootstrap-5063acb1c7173512134af017c3d19607.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-97afdd19a946a7800d02dd55b4e8b647.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-aeaf3e155c33cdd5728541c7b417a725.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-97afdd19a946a7800d02dd55b4e8b647.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -74,9 +72,12 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -385,10 +386,7 @@ window.Quarto = {
   <li><a href="#learning-objectives" id="toc-learning-objectives" class="nav-link active" data-scroll-target="#learning-objectives">Learning Objectives</a></li>
   <li><a href="#big-picture-why-embedded-options-change-everything" id="toc-big-picture-why-embedded-options-change-everything" class="nav-link" data-scroll-target="#big-picture-why-embedded-options-change-everything"><span class="header-section-number">1</span> Big Picture: Why Embedded Options Change Everything</a></li>
   <li><a href="#drawbacks-of-traditional-yield-spread-analysis" id="toc-drawbacks-of-traditional-yield-spread-analysis" class="nav-link" data-scroll-target="#drawbacks-of-traditional-yield-spread-analysis"><span class="header-section-number">2</span> Drawbacks of Traditional Yield-Spread Analysis</a></li>
-  <li><a href="#static-spread-an-alternative-to-yield-spread" id="toc-static-spread-an-alternative-to-yield-spread" class="nav-link" data-scroll-target="#static-spread-an-alternative-to-yield-spread"><span class="header-section-number">3</span> Static Spread: An Alternative to Yield Spread</a>
-  <ul class="collapse">
-  <li><a href="#example-1---computing-the-static-spread" id="toc-example-1---computing-the-static-spread" class="nav-link" data-scroll-target="#example-1---computing-the-static-spread">Example 1 - Computing the static spread</a></li>
-  </ul></li>
+  <li><a href="#static-spread-an-alternative-to-yield-spread" id="toc-static-spread-an-alternative-to-yield-spread" class="nav-link" data-scroll-target="#static-spread-an-alternative-to-yield-spread"><span class="header-section-number">3</span> Static Spread: An Alternative to Yield Spread</a></li>
   <li><a href="#callable-bonds-and-their-investment-characteristics" id="toc-callable-bonds-and-their-investment-characteristics" class="nav-link" data-scroll-target="#callable-bonds-and-their-investment-characteristics"><span class="header-section-number">4</span> Callable Bonds and Their Investment Characteristics</a>
   <ul class="collapse">
   <li><a href="#lower-price-than-a-comparable-option-free-bond" id="toc-lower-price-than-a-comparable-option-free-bond" class="nav-link" data-scroll-target="#lower-price-than-a-comparable-option-free-bond">Lower price than a comparable option-free bond</a></li>
@@ -412,22 +410,18 @@ window.Quarto = {
   <li><a href="#step-5-move-backward-to-year-1-for-the-callable-bond" id="toc-step-5-move-backward-to-year-1-for-the-callable-bond" class="nav-link" data-scroll-target="#step-5-move-backward-to-year-1-for-the-callable-bond">Step 5: Move backward to year 1 for the callable bond</a></li>
   <li><a href="#step-6-move-backward-to-time-0" id="toc-step-6-move-backward-to-time-0" class="nav-link" data-scroll-target="#step-6-move-backward-to-time-0">Step 6: Move backward to time 0</a></li>
   <li><a href="#step-7-embedded-call-option-value" id="toc-step-7-embedded-call-option-value" class="nav-link" data-scroll-target="#step-7-embedded-call-option-value">Step 7: Embedded call option value</a></li>
-  <li><a href="#interpretation-of-the-numerical-example" id="toc-interpretation-of-the-numerical-example" class="nav-link" data-scroll-target="#interpretation-of-the-numerical-example">Interpretation of the numerical example</a></li>
   </ul></li>
-  <li><a href="#a-compact-implementation-of-the-same-logic" id="toc-a-compact-implementation-of-the-same-logic" class="nav-link" data-scroll-target="#a-compact-implementation-of-the-same-logic"><span class="header-section-number">10</span> A compact implementation of the same logic</a></li>
-  <li><a href="#constructing-a-model-based-binomial-tree" id="toc-constructing-a-model-based-binomial-tree" class="nav-link" data-scroll-target="#constructing-a-model-based-binomial-tree"><span class="header-section-number">11</span> Constructing a model-based binomial tree</a></li>
-  <li><a href="#incorporating-default-risk" id="toc-incorporating-default-risk" class="nav-link" data-scroll-target="#incorporating-default-risk"><span class="header-section-number">12</span> Incorporating default risk</a></li>
-  <li><a href="#implementation-challenges" id="toc-implementation-challenges" class="nav-link" data-scroll-target="#implementation-challenges"><span class="header-section-number">13</span> Implementation challenges</a></li>
-  <li><a href="#option-adjusted-spread-oas" id="toc-option-adjusted-spread-oas" class="nav-link" data-scroll-target="#option-adjusted-spread-oas"><span class="header-section-number">14</span> Option-Adjusted Spread (OAS)</a>
+  <li><a href="#constructing-a-model-based-binomial-tree" id="toc-constructing-a-model-based-binomial-tree" class="nav-link" data-scroll-target="#constructing-a-model-based-binomial-tree"><span class="header-section-number">10</span> Constructing a model-based binomial tree</a></li>
+  <li><a href="#incorporating-default-risk" id="toc-incorporating-default-risk" class="nav-link" data-scroll-target="#incorporating-default-risk"><span class="header-section-number">11</span> Incorporating default risk</a></li>
+  <li><a href="#implementation-challenges" id="toc-implementation-challenges" class="nav-link" data-scroll-target="#implementation-challenges"><span class="header-section-number">12</span> Implementation challenges</a></li>
+  <li><a href="#option-adjusted-spread-oas" id="toc-option-adjusted-spread-oas" class="nav-link" data-scroll-target="#option-adjusted-spread-oas"><span class="header-section-number">13</span> Option-Adjusted Spread (OAS)</a>
   <ul class="collapse">
-  <li><a href="#why-oas-matters" id="toc-why-oas-matters" class="nav-link" data-scroll-target="#why-oas-matters">Why OAS matters</a></li>
-  <li><a href="#relating-nominal-spread-static-spread-and-oas" id="toc-relating-nominal-spread-static-spread-and-oas" class="nav-link" data-scroll-target="#relating-nominal-spread-static-spread-and-oas">Relating nominal spread, static spread, and OAS</a></li>
-  <li><a href="#determining-the-option-cost-in-spread-terms" id="toc-determining-the-option-cost-in-spread-terms" class="nav-link" data-scroll-target="#determining-the-option-cost-in-spread-terms">Determining the option cost in spread terms</a></li>
+  <li><a href="#why-oas-is-useful" id="toc-why-oas-is-useful" class="nav-link" data-scroll-target="#why-oas-is-useful">Why OAS is useful</a></li>
+  <li><a href="#benchmark-choice" id="toc-benchmark-choice" class="nav-link" data-scroll-target="#benchmark-choice">Benchmark choice</a></li>
+  <li><a href="#solving-for-oas" id="toc-solving-for-oas" class="nav-link" data-scroll-target="#solving-for-oas">Solving for OAS</a></li>
+  <li><a href="#option-cost-in-spread-terms" id="toc-option-cost-in-spread-terms" class="nav-link" data-scroll-target="#option-cost-in-spread-terms">Option cost in spread terms</a></li>
   </ul></li>
-  <li><a href="#effective-duration-and-convexity" id="toc-effective-duration-and-convexity" class="nav-link" data-scroll-target="#effective-duration-and-convexity"><span class="header-section-number">15</span> Effective Duration and Convexity</a>
-  <ul class="collapse">
-  <li><a href="#example-2---effective-duration-and-convexity" id="toc-example-2---effective-duration-and-convexity" class="nav-link" data-scroll-target="#example-2---effective-duration-and-convexity">Example 2 - Effective duration and convexity</a></li>
-  </ul></li>
+  <li><a href="#effective-duration-and-convexity" id="toc-effective-duration-and-convexity" class="nav-link" data-scroll-target="#effective-duration-and-convexity"><span class="header-section-number">14</span> Effective Duration and Convexity</a></li>
   <li><a href="#key-points" id="toc-key-points" class="nav-link" data-scroll-target="#key-points">Key Points</a></li>
   <li><a href="#suggested-readings" id="toc-suggested-readings" class="nav-link" data-scroll-target="#suggested-readings">Suggested Readings</a></li>
   </ul>
@@ -465,14 +459,15 @@ window.Quarto = {
 <p>After completing this lecture you should be able to:</p>
 <ul>
 <li>Explain why embedded options make bond cash flows state-dependent and why today’s discount curve is no longer enough.</li>
-<li>Explain why traditional yield-spread analysis fails for bonds with embedded options and identify the limitations of yield-to-maturity comparisons.</li>
-<li>Interpret the <strong>static spread</strong> as a constant spread over the spot curve and explain why it still fails when cash flows are option-dependent.</li>
+<li>Explain why traditional yield-spread analysis fails when one yield is used to summarize cash flows at many dates.</li>
+<li>Interpret the <strong>static spread</strong> as the constant spread over the spot curve that equates promised cash flows to market price.</li>
 <li>Describe the investment characteristics of callable and putable bonds, including capped upside and negative convexity for callable bonds.</li>
 <li>Decompose embedded-option bonds into an option-free bond plus or minus the value of the embedded option.</li>
-<li>Explain how an interest-rate lattice represents future rate states and why backward induction is used for valuation.</li>
-<li>Apply the node-level exercise rule for callable and putable bonds using the min/max logic.</li>
-<li>Interpret the <strong>option-adjusted spread (OAS)</strong> as compensation after adjusting for embedded-option effects.</li>
-<li>Explain why <strong>effective duration</strong> and <strong>effective convexity</strong> are needed when cash flows change as rates change.</li>
+<li>Use a short-rate lattice and backward induction to value option-free, callable, and putable bonds.</li>
+<li>Apply the node-level exercise rule: callable bonds use a minimum rule and putable bonds use a maximum rule.</li>
+<li>Explain why a valuation-grade interest-rate tree must be calibrated to the zero curve, not only generated from <span class="math inline">\(r_0\)</span>, <span class="math inline">\(\sigma\)</span>, and <span class="math inline">\(\Delta t\)</span>.</li>
+<li>Interpret the <strong>option-adjusted spread (OAS)</strong> as the spread that reconciles model value with market price after option exercise is modeled.</li>
+<li>Explain why <strong>effective duration</strong> and <strong>effective convexity</strong> are repricing-based risk measures for bonds whose cash flows can change.</li>
 </ul>
 <hr>
 </section>
@@ -509,7 +504,7 @@ P = \sum_i CF_i P(0,t_i).
 <div id="fig-embedded-option-roadmap" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-embedded-option-roadmap-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="lec8_files/figure-html/fig-embedded-option-roadmap-output-1.png" width="604" height="230" class="figure-img">
+<img src="lec8_files/figure-html/fig-embedded-option-roadmap-output-1.png" width="616" height="230" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-embedded-option-roadmap-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;1: Why embedded options require a model of future rates
@@ -528,7 +523,7 @@ Figure&nbsp;1: Why embedded options require a model of future rates
 \]</span></p>
 <p>While straightforward, this measure suffers from several drawbacks:</p>
 <ol type="1">
-<li><p><strong>Single-period perspective.</strong> Yield to maturity assumes the investor holds the bond to maturity and reinvests coupons at the YTM. It does not capture the term structure of discount rates or the timing of cash flows.</p></li>
+<li><p><strong>One-rate summary.</strong> Yield to maturity compresses all of a bond’s cash flows into a single average return. That single rate ignores that coupons and principal arrive at different dates and should be discounted using maturity-specific spot rates. It also embeds a reinvestment assumption: coupons are assumed to be reinvested at the YTM until maturity.</p></li>
 <li><p><strong>Ignores embedded options.</strong> Callable or putable bonds contain options that significantly affect cash flow timing and risk. Comparing YTMs of a callable corporate bond and a non-callable Treasury ignores the call option’s value. The resulting yield spread blends credit, liquidity, and option premiums, making interpretation difficult.</p></li>
 <li><p><strong>Assumes parallel shifts.</strong> Yield spread analysis implicitly treats interest-rate movements too simply. In reality, yield curves twist, steepen, flatten, and move non-parallel across maturities.</p></li>
 <li><p><strong>Fails to separate risk components.</strong> Credit risk, liquidity risk, and option risk vary across issuers and over time. A simple yield spread bundles them together.</p></li>
@@ -540,7 +535,7 @@ Figure&nbsp;1: Why embedded options require a model of future rates
 <div id="fig-spread-components" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-spread-components-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="lec8_files/figure-html/fig-spread-components-output-1.png" width="665" height="240" class="figure-img">
+<img src="lec8_files/figure-html/fig-spread-components-output-1.png" width="662" height="238" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-spread-components-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;2: A quoted yield spread bundles together several sources of compensation
@@ -553,13 +548,13 @@ Figure&nbsp;2: A quoted yield spread bundles together several sources of compens
 </section>
 <section id="static-spread-an-alternative-to-yield-spread" class="level2" data-number="3">
 <h2 data-number="3" class="anchored" data-anchor-id="static-spread-an-alternative-to-yield-spread"><span class="header-section-number">3</span> Static Spread: An Alternative to Yield Spread</h2>
-<p>The <strong>static spread</strong> (also called the <strong>I-spread</strong>) measures the constant margin over the Treasury spot curve that discounts a bond’s cash flows to its market price. For a bond with cash flows ({CF_{t_i}}) at times (t_1,t_2,,t_n) and Treasury zero rates ({r_{t_i}}), the static spread (s) solves</p>
+<p>The <strong>static spread</strong> (also called the <strong>zero-volatility spread</strong>) measures the constant margin over the Treasury spot curve that discounts a bond’s cash flows to its market price. For a bond with cash flows <span class="math inline">\(\{CF_{t_i}\}\)</span> at times <span class="math inline">\(t_1,t_2,\dots,t_n\)</span> and Treasury zero rates <span class="math inline">\(\{r_{t_i}\}\)</span>, the static spread <span class="math inline">\(s\)</span> solves</p>
 <p><span class="math display">\[
 P = \sum_{i=1}^{n} \frac{CF_{t_i}}{(1 + r_{t_i} + s)^{t_i}}
 \]</span></p>
-<p>where (P) is the observed price.</p>
-<p>Because the same spread (s) is added to all discount rates, the method accounts for the shape of the term structure while producing a single summary measure of compensation for non-Treasury risks. Unlike the yield spread, the static spread discounts each cash flow at a maturity-appropriate rate. That makes it more economically meaningful for coupon bonds, amortizing bonds, and bonds whose cash flows are distributed over time.</p>
-<p>However, the static spread still has an important weakness: it discounts <strong>promised</strong> cash flows, not <strong>expected option-adjusted</strong> cash flows. For a callable bond, the promised maturity cash flow may never be received if the issuer refinances and calls the bond when rates fall.</p>
+<p>where <span class="math inline">\(P\)</span> is the observed price.</p>
+<p>Because the same spread <span class="math inline">\(s\)</span> is added to all discount rates, the method accounts for the shape of the term structure while producing a single summary measure of compensation for non-Treasury risks. Unlike the yield spread, the static spread discounts each cash flow at a maturity-appropriate rate. That makes it more economically meaningful for coupon bonds, amortizing bonds, and bonds whose cash flows are distributed over time.</p>
+<p>However, the static spread still has an important weakness: it discounts <strong>promised</strong> cash flows, not <strong>expected</strong> cash flows. For a callable bond, the promised maturity cash flow may never be received if the issuer refinances and calls the bond when rates fall.</p>
 <div class="callout callout-style-default callout-note callout-titled" title="Static Spread Intuition">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -578,7 +573,7 @@ P = \sum_{i=1}^{n} \frac{CF_{t_i}}{(1 + r_{t_i} + s)^{t_i}}
 <div id="fig-static-spread-curve" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-static-spread-curve-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="lec8_files/figure-html/fig-static-spread-curve-output-1.png" width="590" height="362" class="figure-img">
+<img src="lec8_files/figure-html/fig-static-spread-curve-output-1.png" width="589" height="361" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-static-spread-curve-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;3: Static spread adds the same margin to each point on the spot curve
@@ -587,33 +582,47 @@ Figure&nbsp;3: Static spread adds the same margin to each point on the spot curv
 </div>
 </div>
 </div>
-<section id="example-1---computing-the-static-spread" class="level3">
-<h3 class="anchored" data-anchor-id="example-1---computing-the-static-spread">Example 1 - Computing the static spread</h3>
+<div class="callout callout-style-default callout-note callout-titled" title="Example 1: Computing the static spread">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Example 1: Computing the static spread
+</div>
+</div>
+<div class="callout-body-container callout-body">
 <p>Suppose a five-year corporate bond has semiannual coupons of 6 percent, so it pays $30 every six months on a $1,000 face value. The Treasury spot curve for maturities 0.5 years to 5 years is:</p>
 <p><span class="math display">\[
 \{2.0\%,\, 2.2\%,\, 2.6\%,\, 3.0\%,\, 3.4\%,\, 3.8\%,\, 4.0\%,\, 4.1\%,\, 4.2\%,\, 4.3\%\}
 \]</span></p>
-<p>Assume the bond trades at $1,020. We estimate the static spread numerically by solving for (s) such that discounted cash flows equal the market price.</p>
+<p>Assume the bond trades at $1,020. The static spread is the single number <span class="math inline">\(s\)</span> that makes the present value of the promised cash flows equal to the observed market price:</p>
+<p><span class="math display">\[
+1020=\sum_{i=1}^{10}\frac{CF_i}{(1+r_i+s)^{t_i}}.
+\]</span></p>
+<p>The graph below plots the model price for different trial spreads. The solid blue line is the present value of the bond’s promised cash flows as the assumed spread changes. This relationship is <strong>not linear</strong>:</p>
+<p><span class="math display">\[
+PV(s)=\sum_{i=1}^{10}\frac{CF_i}{(1+r_i+s)^{t_i}}.
+\]</span></p>
+<p>It may look nearly linear over a narrow spread range because a smooth curve is well approximated by a tangent line locally. The horizontal dashed line is the observed market price. The vertical dashed line marks the spread where the model price intersects the observed price.</p>
 <div id="cell-fig-static-spread" class="cell" data-execution_count="4">
 <div class="cell-output cell-output-display">
 <div id="fig-static-spread" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-static-spread-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="lec8_files/figure-html/fig-static-spread-output-1.png" width="602" height="377" class="figure-img">
+<img src="lec8_files/figure-html/fig-static-spread-output-1.png" width="647" height="392" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-static-spread-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;4: Root-finding to determine the static spread that equates discounted cash flows to the observed price
+Figure&nbsp;4: Static spread is the spread where model present value equals the observed price
 </figcaption>
 </figure>
 </div>
 </div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Estimated static spread: 139.8 basis points</code></pre>
+</div>
+<p>In this example, the static spread is about 140 basis points. Economically, investors require roughly 140 basis points over the Treasury spot curve to hold this bond at a price of $1,020.</p>
 </div>
 </div>
-<p>In this example the static spread is about 86 basis points. Economically, that means investors require roughly 86 basis points over the Treasury spot curve to hold this bond.</p>
 <hr>
-</section>
 </section>
 <section id="callable-bonds-and-their-investment-characteristics" class="level2" data-number="4">
 <h2 data-number="4" class="anchored" data-anchor-id="callable-bonds-and-their-investment-characteristics"><span class="header-section-number">4</span> Callable Bonds and Their Investment Characteristics</h2>
@@ -637,7 +646,7 @@ Figure&nbsp;4: Root-finding to determine the static spread that equates discount
 <div id="fig-callable-bond-economic-states" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-callable-bond-economic-states-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="lec8_files/figure-html/fig-callable-bond-economic-states-output-1.png" width="663" height="355" class="figure-img">
+<img src="lec8_files/figure-html/fig-callable-bond-economic-states-output-1.png" width="661" height="353" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-callable-bond-economic-states-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;5: Callable bond economics: falling rates help the issuer and limit investor upside
@@ -675,7 +684,7 @@ V_{\text{callable}} = V_{\text{option-free}} - V_{\text{call option}}
 <div id="fig-callable-price-yield" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-callable-price-yield-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="lec8_files/figure-html/fig-callable-price-yield-output-1.png" width="594" height="377" class="figure-img">
+<img src="lec8_files/figure-html/fig-callable-price-yield-output-1.png" width="593" height="376" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-callable-price-yield-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;6: Price-yield relationship for an option-free bond and a callable bond
@@ -709,10 +718,10 @@ V_{\text{putable}} = V_{\text{straight}} + V_{\text{put option}}
 <div id="fig-embedded-option-decomposition" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-embedded-option-decomposition-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="lec8_files/figure-html/fig-embedded-option-decomposition-output-1.png" width="663" height="287" class="figure-img">
+<img src="lec8_files/figure-html/fig-embedded-option-decomposition-output-1.png" width="661" height="372" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-embedded-option-decomposition-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;7: Embedded-option decomposition: who owns the option determines the sign
+Figure&nbsp;7: For a callable bond, the embedded call option is the gap between straight-bond value and callable-bond value
 </figcaption>
 </figure>
 </div>
@@ -740,7 +749,7 @@ Figure&nbsp;7: Embedded-option decomposition: who owns the option determines the
 <div id="fig-backward-induction-intuition" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-backward-induction-intuition-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="lec8_files/figure-html/fig-backward-induction-intuition-output-1.png" width="634" height="336" class="figure-img">
+<img src="lec8_files/figure-html/fig-backward-induction-intuition-output-1.png" width="634" height="335" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-backward-induction-intuition-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;8: Backward induction: start with future payoffs, then work back to today
@@ -801,46 +810,46 @@ V_{i,j}^{\text{putable}} = \max\left\{ \frac{p\, V_{i+1,j+1} + (1-p)\, V_{i+1,j}
 </section>
 <section id="constructing-a-simple-binomial-interest-rate-tree" class="level2" data-number="8">
 <h2 data-number="8" class="anchored" data-anchor-id="constructing-a-simple-binomial-interest-rate-tree"><span class="header-section-number">8</span> Constructing a simple binomial interest-rate tree</h2>
-<p>To illustrate, consider a three-year bond with annual coupons of 8 on a face value of 100. Assume annual time steps. We first construct a simple short-rate tree directly for intuition.</p>
+<p>To illustrate, consider a three-year bond with annual coupons of 8 on a face value of 100. Assume annual time steps. We first construct a short-rate tree directly for intuition.</p>
 <p>Suppose the short-rate lattice is:</p>
 <table class="caption-top table">
 <thead>
 <tr class="header">
-<th>Time</th>
-<th style="text-align: right;">State 0</th>
-<th style="text-align: right;">State 1</th>
-<th style="text-align: right;">State 2</th>
-<th style="text-align: right;">State 3</th>
+<th>State</th>
+<th style="text-align: right;">Year 0</th>
+<th style="text-align: right;">Year 1</th>
+<th style="text-align: right;">Year 2</th>
+<th style="text-align: right;">Year 3</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td>0</td>
+<td>Low-rate state</td>
+<td style="text-align: right;">6%</td>
 <td style="text-align: right;">5%</td>
-<td style="text-align: right;"></td>
-<td style="text-align: right;"></td>
-<td style="text-align: right;"></td>
+<td style="text-align: right;">4%</td>
+<td style="text-align: right;">3%</td>
 </tr>
 <tr class="even">
-<td>1</td>
-<td style="text-align: right;">4%</td>
-<td style="text-align: right;">6%</td>
+<td>Middle state</td>
 <td style="text-align: right;"></td>
-<td style="text-align: right;"></td>
+<td style="text-align: right;">9%</td>
+<td style="text-align: right;">8%</td>
+<td style="text-align: right;">7%</td>
 </tr>
 <tr class="odd">
-<td>2</td>
-<td style="text-align: right;">3%</td>
-<td style="text-align: right;">5%</td>
-<td style="text-align: right;">7%</td>
+<td>High-rate state</td>
 <td style="text-align: right;"></td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;">12%</td>
+<td style="text-align: right;">11%</td>
 </tr>
 <tr class="even">
-<td>3</td>
-<td style="text-align: right;">2%</td>
-<td style="text-align: right;">4%</td>
-<td style="text-align: right;">6%</td>
-<td style="text-align: right;">8%</td>
+<td>Very high-rate state</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;">15%</td>
 </tr>
 </tbody>
 </table>
@@ -848,73 +857,101 @@ V_{i,j}^{\text{putable}} = \max\left\{ \frac{p\, V_{i+1,j+1} + (1-p)\, V_{i+1,j}
 <ul>
 <li>face value = 100</li>
 <li>annual coupon = 8</li>
-<li>callable at par, meaning call price = 100</li>
+<li>callable at 107</li>
 <li>first callable date = year 2</li>
-<li>risk-neutral probability (p = 0.5)</li>
+<li>risk-neutral probability <span class="math inline">\(p=0.5\)</span></li>
 </ul>
-<p>This simplified tree is excellent for teaching because it isolates the core logic of backward induction.</p>
+<p>This table puts time horizontally and states vertically. At each date, the node value is computed from the two adjacent nodes one year ahead.</p>
+<div id="cell-fig-simple-rate-lattice" class="cell" data-execution_count="9">
+<div class="cell-output cell-output-display">
+<div id="fig-simple-rate-lattice" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-simple-rate-lattice-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lec8_files/figure-html/fig-simple-rate-lattice-output-1.png" width="662" height="354" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-simple-rate-lattice-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;9: Short-rate lattice used in the worked example
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
 <hr>
 </section>
 <section id="step-by-step-numerical-example-pricing-an-option-free-bond-and-a-callable-bond" class="level2" data-number="9">
 <h2 data-number="9" class="anchored" data-anchor-id="step-by-step-numerical-example-pricing-an-option-free-bond-and-a-callable-bond"><span class="header-section-number">9</span> Step-by-step numerical example: pricing an option-free bond and a callable bond</h2>
-<p>We now price the bond <strong>by hand</strong> using backward induction.</p>
+<p>We now price the bond by hand using backward induction. The point of the example is to see exactly where the option changes the cash flows.</p>
 <section id="step-1-terminal-values-at-maturity" class="level3">
 <h3 class="anchored" data-anchor-id="step-1-terminal-values-at-maturity">Step 1: Terminal values at maturity</h3>
 <p>At year 3 the bond pays final coupon plus principal:</p>
 <p><span class="math display">\[
 108 = 100 + 8
 \]</span></p>
-<p>So the year-3 node values are:</p>
+<p>So every year-3 terminal node has the same payoff:</p>
 <table class="caption-top table">
 <thead>
 <tr class="header">
-<th>Node at Year 3</th>
-<th style="text-align: right;">Bond Value</th>
+<th>State</th>
+<th style="text-align: right;">Year-3 payoff</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td>2% state</td>
+<td>Low-rate state</td>
 <td style="text-align: right;">108.00</td>
 </tr>
 <tr class="even">
-<td>4% state</td>
+<td>Middle state</td>
 <td style="text-align: right;">108.00</td>
 </tr>
 <tr class="odd">
-<td>6% state</td>
+<td>High-rate state</td>
 <td style="text-align: right;">108.00</td>
 </tr>
 <tr class="even">
-<td>8% state</td>
+<td>Very high-rate state</td>
 <td style="text-align: right;">108.00</td>
 </tr>
 </tbody>
 </table>
+<div id="cell-fig-terminal-payoff-lattice" class="cell" data-execution_count="10">
+<div class="cell-output cell-output-display">
+<div id="fig-terminal-payoff-lattice" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-terminal-payoff-lattice-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lec8_files/figure-html/fig-terminal-payoff-lattice-output-1.png" width="662" height="354" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-terminal-payoff-lattice-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;10: Step 1: terminal payoff is coupon plus principal at every maturity node
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
 </section>
 <section id="step-2-move-backward-to-year-2-for-the-option-free-bond" class="level3">
 <h3 class="anchored" data-anchor-id="step-2-move-backward-to-year-2-for-the-option-free-bond">Step 2: Move backward to year 2 for the option-free bond</h3>
-<p>At each year-2 node, the option-free bond value is:</p>
+<p>At year 2, the option-free hold value is:</p>
 <p><span class="math display">\[
 V = \frac{0.5 \times 108 + 0.5 \times 108}{1 + r} + 8
 = \frac{108}{1+r} + 8
 \]</span></p>
-<section id="year-2-rate-3" class="level4">
-<h4 class="anchored" data-anchor-id="year-2-rate-3">Year 2, rate = 3%</h4>
+<section id="year-2-rate-4" class="level4">
+<h4 class="anchored" data-anchor-id="year-2-rate-4">Year 2, rate = 4%</h4>
 <p><span class="math display">\[
-V = \frac{108}{1.03} + 8 = 104.8544 + 8 = 112.8544
+V = \frac{108}{1.04} + 8 = 103.8462 + 8 = 111.8462
 \]</span></p>
 </section>
-<section id="year-2-rate-5" class="level4">
-<h4 class="anchored" data-anchor-id="year-2-rate-5">Year 2, rate = 5%</h4>
+<section id="year-2-rate-8" class="level4">
+<h4 class="anchored" data-anchor-id="year-2-rate-8">Year 2, rate = 8%</h4>
 <p><span class="math display">\[
-V = \frac{108}{1.05} + 8 = 102.8571 + 8 = 110.8571
+V = \frac{108}{1.08} + 8 = 100.0000 + 8 = 108.0000
 \]</span></p>
 </section>
-<section id="year-2-rate-7" class="level4">
-<h4 class="anchored" data-anchor-id="year-2-rate-7">Year 2, rate = 7%</h4>
+<section id="year-2-rate-12" class="level4">
+<h4 class="anchored" data-anchor-id="year-2-rate-12">Year 2, rate = 12%</h4>
 <p><span class="math display">\[
-V = \frac{108}{1.07} + 8 = 100.9346 + 8 = 108.9346
+V = \frac{108}{1.12} + 8 = 96.4286 + 8 = 104.4286
 \]</span></p>
 <p>So the option-free values at year 2 are:</p>
 <table class="caption-top table">
@@ -926,27 +963,41 @@ V = \frac{108}{1.07} + 8 = 100.9346 + 8 = 108.9346
 </thead>
 <tbody>
 <tr class="odd">
-<td>3% state</td>
-<td style="text-align: right;">112.85</td>
+<td>4% state</td>
+<td style="text-align: right;">111.85</td>
 </tr>
 <tr class="even">
-<td>5% state</td>
-<td style="text-align: right;">110.86</td>
+<td>8% state</td>
+<td style="text-align: right;">108.00</td>
 </tr>
 <tr class="odd">
-<td>7% state</td>
-<td style="text-align: right;">108.93</td>
+<td>12% state</td>
+<td style="text-align: right;">104.43</td>
 </tr>
 </tbody>
 </table>
+<div id="cell-fig-year2-sublattice" class="cell" data-execution_count="11">
+<div class="cell-output cell-output-display">
+<div id="fig-year2-sublattice" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-year2-sublattice-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lec8_files/figure-html/fig-year2-sublattice-output-1.png" width="662" height="354" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-year2-sublattice-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;11: Step 2: each year-2 value is computed from the two adjacent terminal nodes
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
 </section>
 </section>
 <section id="step-3-apply-the-call-feature-at-year-2" class="level3">
 <h3 class="anchored" data-anchor-id="step-3-apply-the-call-feature-at-year-2">Step 3: Apply the call feature at year 2</h3>
-<p>Because the bond is callable at par from year 2 onward, the issuer will compare the hold value with the call price of 100.</p>
+<p>Because the bond is callable at 107 from year 2 onward, the issuer compares the hold value with the call price. The issuer calls only if calling is cheaper than leaving the bond outstanding.</p>
 <p>For the callable bond:</p>
 <p><span class="math display">\[
-V^{\text{callable}} = \min\{\text{Hold Value},\ 100\}
+V^{\text{callable}} = \min\{\text{Hold Value},\ 107\}
 \]</span></p>
 <p>Thus:</p>
 <table class="caption-top table">
@@ -959,43 +1010,57 @@ V^{\text{callable}} = \min\{\text{Hold Value},\ 100\}
 </thead>
 <tbody>
 <tr class="odd">
-<td>3% state</td>
-<td style="text-align: right;">112.85</td>
-<td style="text-align: right;">100.00</td>
+<td>4% state</td>
+<td style="text-align: right;">111.85</td>
+<td style="text-align: right;">107.00</td>
 </tr>
 <tr class="even">
-<td>5% state</td>
-<td style="text-align: right;">110.86</td>
-<td style="text-align: right;">100.00</td>
+<td>8% state</td>
+<td style="text-align: right;">108.00</td>
+<td style="text-align: right;">107.00</td>
 </tr>
 <tr class="odd">
-<td>7% state</td>
-<td style="text-align: right;">108.93</td>
-<td style="text-align: right;">100.00</td>
+<td>12% state</td>
+<td style="text-align: right;">104.43</td>
+<td style="text-align: right;">104.43</td>
 </tr>
 </tbody>
 </table>
-<p>This is the key economic point: at year 2 the straight bond is worth more than 100 in every state, so the issuer calls the bond immediately in every state.</p>
+<p>This is the key economic point: the issuer calls in the low-rate states but not in the high-rate state. The option exercise decision is state-dependent.</p>
+<div id="cell-fig-call-rule-sublattice" class="cell" data-execution_count="12">
+<div class="cell-output cell-output-display">
+<div id="fig-call-rule-sublattice" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-call-rule-sublattice-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lec8_files/figure-html/fig-call-rule-sublattice-output-1.png" width="662" height="354" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-call-rule-sublattice-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;12: Step 3: the call rule caps year-2 values above the call price
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
 </section>
 <section id="step-4-move-backward-to-year-1-for-the-option-free-bond" class="level3">
 <h3 class="anchored" data-anchor-id="step-4-move-backward-to-year-1-for-the-option-free-bond">Step 4: Move backward to year 1 for the option-free bond</h3>
 <p>Now compute the option-free bond values at year 1 using the option-free year-2 values.</p>
-<section id="year-1-lower-rate-node-r4" class="level4">
-<h4 class="anchored" data-anchor-id="year-1-lower-rate-node-r4">Year 1, lower-rate node (r=4%)</h4>
+<section id="year-1-lower-rate-node-r5" class="level4">
+<h4 class="anchored" data-anchor-id="year-1-lower-rate-node-r5">Year 1, lower-rate node, <span class="math inline">\(r=5\%\)</span></h4>
 <p><span class="math display">\[
-V = \frac{0.5(110.8571) + 0.5(112.8544)}{1.04} + 8
+V = \frac{0.5(108.0000) + 0.5(111.8462)}{1.05} + 8
 \]</span></p>
 <p><span class="math display">\[
-V = \frac{111.8558}{1.04} + 8 = 107.5537 + 8 = 115.5537
+V = \frac{109.9231}{1.05} + 8 = 104.6886 + 8 = 112.6886
 \]</span></p>
 </section>
-<section id="year-1-higher-rate-node-r6" class="level4">
-<h4 class="anchored" data-anchor-id="year-1-higher-rate-node-r6">Year 1, higher-rate node (r=6%)</h4>
+<section id="year-1-higher-rate-node-r9" class="level4">
+<h4 class="anchored" data-anchor-id="year-1-higher-rate-node-r9">Year 1, higher-rate node, <span class="math inline">\(r=9\%\)</span></h4>
 <p><span class="math display">\[
-V = \frac{0.5(108.9346) + 0.5(110.8571)}{1.06} + 8
+V = \frac{0.5(104.4286) + 0.5(108.0000)}{1.09} + 8
 \]</span></p>
 <p><span class="math display">\[
-V = \frac{109.8959}{1.06} + 8 = 103.6754 + 8 = 111.6754
+V = \frac{106.2143}{1.09} + 8 = 97.4443 + 8 = 105.4443
 \]</span></p>
 <p>So:</p>
 <table class="caption-top table">
@@ -1007,35 +1072,50 @@ V = \frac{109.8959}{1.06} + 8 = 103.6754 + 8 = 111.6754
 </thead>
 <tbody>
 <tr class="odd">
-<td>4% state</td>
-<td style="text-align: right;">115.55</td>
+<td>5% state</td>
+<td style="text-align: right;">112.69</td>
 </tr>
 <tr class="even">
-<td>6% state</td>
-<td style="text-align: right;">111.68</td>
+<td>9% state</td>
+<td style="text-align: right;">105.44</td>
 </tr>
 </tbody>
 </table>
+<div id="cell-fig-year1-straight-sublattice" class="cell" data-execution_count="13">
+<div class="cell-output cell-output-display">
+<div id="fig-year1-straight-sublattice" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-year1-straight-sublattice-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lec8_files/figure-html/fig-year1-straight-sublattice-output-1.png" width="662" height="354" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-year1-straight-sublattice-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;13: Step 4: option-free year-1 values are rolled back from option-free year-2 values
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
 </section>
 </section>
 <section id="step-5-move-backward-to-year-1-for-the-callable-bond" class="level3">
 <h3 class="anchored" data-anchor-id="step-5-move-backward-to-year-1-for-the-callable-bond">Step 5: Move backward to year 1 for the callable bond</h3>
-<p>Now do the same using the callable values at year 2, which are both 100 in every reachable state.</p>
-<section id="year-1-rate-4" class="level4">
-<h4 class="anchored" data-anchor-id="year-1-rate-4">Year 1, rate = 4%</h4>
+<p>Now do the same using the callable values at year 2.</p>
+<section id="year-1-rate-5" class="level4">
+<h4 class="anchored" data-anchor-id="year-1-rate-5">Year 1, rate = 5%</h4>
 <p><span class="math display">\[
-V = \frac{0.5(100) + 0.5(100)}{1.04} + 8
-= \frac{100}{1.04} + 8
-= 96.1538 + 8
-= 104.1538
+V = \frac{0.5(107.0000) + 0.5(107.0000)}{1.05} + 8
+= \frac{107}{1.05} + 8
+= 101.9048 + 8
+= 109.9048
 \]</span></p>
 </section>
-<section id="year-1-rate-6" class="level4">
-<h4 class="anchored" data-anchor-id="year-1-rate-6">Year 1, rate = 6%</h4>
+<section id="year-1-rate-9" class="level4">
+<h4 class="anchored" data-anchor-id="year-1-rate-9">Year 1, rate = 9%</h4>
 <p><span class="math display">\[
-V = \frac{100}{1.06} + 8
-= 94.3396 + 8
-= 102.3396
+V = \frac{0.5(104.4286) + 0.5(107.0000)}{1.09} + 8
+= \frac{105.7143}{1.09} + 8
+= 96.9856 + 8
+= 104.9856
 \]</span></p>
 <p>So:</p>
 <table class="caption-top table">
@@ -1047,15 +1127,29 @@ V = \frac{100}{1.06} + 8
 </thead>
 <tbody>
 <tr class="odd">
-<td>4% state</td>
-<td style="text-align: right;">104.15</td>
+<td>5% state</td>
+<td style="text-align: right;">109.90</td>
 </tr>
 <tr class="even">
-<td>6% state</td>
-<td style="text-align: right;">102.34</td>
+<td>9% state</td>
+<td style="text-align: right;">104.99</td>
 </tr>
 </tbody>
 </table>
+<div id="cell-fig-year1-callable-sublattice" class="cell" data-execution_count="14">
+<div class="cell-output cell-output-display">
+<div id="fig-year1-callable-sublattice" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-year1-callable-sublattice-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lec8_files/figure-html/fig-year1-callable-sublattice-output-1.png" width="662" height="354" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-year1-callable-sublattice-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;14: Step 5: callable year-1 values use the call-adjusted year-2 values
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
 </section>
 </section>
 <section id="step-6-move-backward-to-time-0" class="level3">
@@ -1064,27 +1158,41 @@ V = \frac{100}{1.06} + 8
 <h4 class="anchored" data-anchor-id="option-free-bond-at-time-0">Option-free bond at time 0</h4>
 <p><span class="math display">\[
 V_0^{\text{straight}} =
-\frac{0.5(115.5537) + 0.5(111.6754)}{1.05} + 8
+\frac{0.5(112.6886) + 0.5(105.4443)}{1.06} + 8
 \]</span></p>
 <p><span class="math display">\[
 V_0^{\text{straight}} =
-\frac{113.6146}{1.05} + 8
-= 108.2044 + 8
-= 116.2044
+\frac{109.0665}{1.06} + 8
+= 102.8930 + 8
+= 110.8930
 \]</span></p>
 </section>
 <section id="callable-bond-at-time-0" class="level4">
 <h4 class="anchored" data-anchor-id="callable-bond-at-time-0">Callable bond at time 0</h4>
 <p><span class="math display">\[
 V_0^{\text{callable}} =
-\frac{0.5(104.1538) + 0.5(102.3396)}{1.05} + 8
+\frac{0.5(109.9048) + 0.5(104.9856)}{1.06} + 8
 \]</span></p>
 <p><span class="math display">\[
 V_0^{\text{callable}} =
-\frac{103.2467}{1.05} + 8
-= 98.3302 + 8
-= 106.3302
+\frac{107.4452}{1.06} + 8
+= 101.3634 + 8
+= 109.3634
 \]</span></p>
+<div id="cell-fig-time0-sublattice" class="cell" data-execution_count="15">
+<div class="cell-output cell-output-display">
+<div id="fig-time0-sublattice" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-time0-sublattice-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lec8_files/figure-html/fig-time0-sublattice-output-1.png" width="662" height="354" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-time0-sublattice-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;15: Step 6: final rollback gives today’s option-free and callable values
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
 </section>
 </section>
 <section id="step-7-embedded-call-option-value" class="level3">
@@ -1094,7 +1202,7 @@ V_0^{\text{callable}} =
 V_{\text{call option}} = V_{\text{straight}} - V_{\text{callable}}
 \]</span></p>
 <p><span class="math display">\[
-V_{\text{call option}} = 116.2044 - 106.3302 = 9.8742
+V_{\text{call option}} = 110.8930 - 109.3634 = 1.5296
 \]</span></p>
 <p>So in this example:</p>
 <table class="caption-top table">
@@ -1107,153 +1215,295 @@ V_{\text{call option}} = 116.2044 - 106.3302 = 9.8742
 <tbody>
 <tr class="odd">
 <td>Option-free bond price</td>
-<td style="text-align: right;">116.20</td>
+<td style="text-align: right;">110.89</td>
 </tr>
 <tr class="even">
 <td>Callable bond price</td>
-<td style="text-align: right;">106.33</td>
+<td style="text-align: right;">109.36</td>
 </tr>
 <tr class="odd">
 <td>Embedded call option value</td>
-<td style="text-align: right;">9.87</td>
+<td style="text-align: right;">1.53</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="interpretation-of-the-numerical-example" class="level3">
-<h3 class="anchored" data-anchor-id="interpretation-of-the-numerical-example">Interpretation of the numerical example</h3>
-<p>This example teaches three important things.</p>
-<p>First, the callable bond is worth less than the straight bond because the issuer owns the call option.</p>
-<p>Second, the option matters most when rates are low and the straight bond is worth substantially above par. In those states, the issuer will refinance and cap the investor’s upside.</p>
-<p>Third, the lattice makes the exercise decision explicit at each node. That is the real advantage of the model.</p>
-<div class="callout callout-style-default callout-note callout-titled" title="Worked Example: When the Call Is Exercised Only in Low-Rate States">
+<div class="callout callout-style-default callout-important callout-titled" title="Interpretation of the numerical example">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Worked Example: When the Call Is Exercised Only in Low-Rate States
+<span class="screen-reader-only">Important</span>Interpretation of the numerical example
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>The previous example calls the bond in every year-2 state. More realistically, the issuer may call only when rates are low enough.</p>
-<p>Assume the same 3-year annual-pay bond:</p>
 <ul>
-<li>face value = 100;</li>
-<li>coupon = 8;</li>
-<li>callable at par from year 2;</li>
-<li>risk-neutral probability <span class="math inline">\(p=0.5\)</span>.</li>
+<li><p>The callable bond is worth less than the straight bond because the issuer owns the call option.</p></li>
+<li><p>The option matters most in low-rate states. At year 2, the issuer calls in the 4% and 8% states because the hold value is above the call price of 107. At 12%, the issuer does not call because the bond is worth only 104.43 if left outstanding.</p></li>
+<li><p>The lattice makes the exercise decision explicit at each node. That is the real advantage of the method: the model does not assume one call date mechanically; it checks whether exercise is economically optimal in each state.</p></li>
 </ul>
-<p>Now suppose the year-2 short rates are higher:</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Worked Example: Pricing a Putable Bond on a Lattice">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Worked Example: Pricing a Putable Bond on a Lattice
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Now consider a two-year annual-pay bond with:</p>
+<ul>
+<li>face value = 100</li>
+<li>annual coupon = 5</li>
+<li>current one-year short rate = 6%</li>
+<li>year-1 short rates: 4% in the low-rate state and 12% in the high-rate state</li>
+<li>risk-neutral probability <span class="math inline">\(p=0.5\)</span></li>
+<li>putable at 100 in year 1</li>
+</ul>
+<p>The short-rate lattice is:</p>
 <table class="caption-top table">
 <thead>
 <tr class="header">
-<th style="text-align: right;">Year-2 short rate</th>
-<th style="text-align: right;">Option-free hold value</th>
+<th>State</th>
+<th style="text-align: right;">Year 0</th>
+<th style="text-align: right;">Year 1</th>
+<th style="text-align: right;">Year 2</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
+<td>Low-rate state</td>
+<td style="text-align: right;">6%</td>
 <td style="text-align: right;">4%</td>
-<td style="text-align: right;"><span class="math inline">\(\frac{108}{1.04}+8=111.85\)</span></td>
+<td style="text-align: right;"></td>
 </tr>
 <tr class="even">
-<td style="text-align: right;">8%</td>
-<td style="text-align: right;"><span class="math inline">\(\frac{108}{1.08}+8=108.00\)</span></td>
-</tr>
-<tr class="odd">
+<td>High-rate state</td>
+<td style="text-align: right;"></td>
 <td style="text-align: right;">12%</td>
-<td style="text-align: right;"><span class="math inline">\(\frac{108}{1.12}+8=104.43\)</span></td>
+<td style="text-align: right;"></td>
 </tr>
 </tbody>
 </table>
-<p>If the call price is 107, the callable value at year 2 is:</p>
+<p>At maturity, the payoff is:</p>
+<p><span class="math display">\[
+105 = 100 + 5.
+\]</span></p>
+<p>At year 1, first compute the continuation value before applying the put:</p>
+<p><span class="math display">\[
+V_{\text{hold}}=\frac{105}{1+r}+5.
+\]</span></p>
+<p>For the low-rate node:</p>
+<p><span class="math display">\[
+V_{\text{hold, low}}=\frac{105}{1.04}+5=105.9615.
+\]</span></p>
+<p>For the high-rate node:</p>
+<p><span class="math display">\[
+V_{\text{hold, high}}=\frac{105}{1.12}+5=98.7500.
+\]</span></p>
+<p>The investor keeps the bond in the low-rate state, but puts the bond back to the issuer in the high-rate state:</p>
 <table class="caption-top table">
 <thead>
 <tr class="header">
-<th style="text-align: right;">Year-2 short rate</th>
+<th>Year-1 state</th>
 <th style="text-align: right;">Hold value</th>
-<th style="text-align: right;">Callable value</th>
+<th style="text-align: right;">Put value</th>
+<th style="text-align: right;">Putable value</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: right;">4%</td>
-<td style="text-align: right;">111.85</td>
-<td style="text-align: right;">107.00</td>
+<td>4% state</td>
+<td style="text-align: right;">105.96</td>
+<td style="text-align: right;">100.00</td>
+<td style="text-align: right;">105.96</td>
 </tr>
 <tr class="even">
-<td style="text-align: right;">8%</td>
-<td style="text-align: right;">108.00</td>
-<td style="text-align: right;">107.00</td>
-</tr>
-<tr class="odd">
-<td style="text-align: right;">12%</td>
-<td style="text-align: right;">104.43</td>
-<td style="text-align: right;">104.43</td>
+<td>12% state</td>
+<td style="text-align: right;">98.75</td>
+<td style="text-align: right;">100.00</td>
+<td style="text-align: right;">100.00</td>
 </tr>
 </tbody>
 </table>
-<p>The issuer calls in the 4% and 8% states because the bond is worth more than the call price. The issuer does not call in the 12% state because keeping the bond outstanding is cheaper than paying 107.</p>
-<p>The key lesson is that the call rule is <strong>state-dependent</strong>. The lattice is useful because it checks the exercise decision separately at each future node.</p>
-</div>
-</div>
-<hr>
-</section>
-</section>
-<section id="a-compact-implementation-of-the-same-logic" class="level2" data-number="10">
-<h2 data-number="10" class="anchored" data-anchor-id="a-compact-implementation-of-the-same-logic"><span class="header-section-number">10</span> A compact implementation of the same logic</h2>
-<p>The same backward-induction logic can be implemented mechanically. The calculation below reproduces the option-free price, callable price, and embedded call option value from the classroom example.</p>
-<div id="fig-binomial-valuation" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-execution_count="9">
+<p>Finally, roll the year-1 values back to today:</p>
+<p><span class="math display">\[
+V_0^{\text{putable}}
+=
+\frac{0.5(105.9615)+0.5(100.0000)}{1.06}+5
+=102.1517.
+\]</span></p>
+<div id="cell-fig-putable-worked-example" class="cell" data-execution_count="16">
+<div class="cell-output cell-output-display">
+<div id="fig-putable-worked-example" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-binomial-valuation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div class="cell-output cell-output-stdout">
-<pre><code>Option-free price: 116.2043
-Callable price:    106.3302
-Call option value: 9.8740</code></pre>
+<div aria-describedby="fig-putable-worked-example-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lec8_files/figure-html/fig-putable-worked-example-output-1.png" width="662" height="354" class="figure-img">
 </div>
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-binomial-valuation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;9
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-putable-worked-example-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;16: Worked Example 2: pricing a putable bond by backward induction
 </figcaption>
 </figure>
 </div>
+</div>
+</div>
+<p>This second example shows that the same lattice logic works for an investor-owned option. A callable bond uses a <strong>minimum</strong> rule because the issuer chooses the lower cost. A putable bond uses a <strong>maximum</strong> rule because the investor chooses the higher value.</p>
+</div>
+</div>
 <hr>
 </section>
-<section id="constructing-a-model-based-binomial-tree" class="level2" data-number="11">
-<h2 data-number="11" class="anchored" data-anchor-id="constructing-a-model-based-binomial-tree"><span class="header-section-number">11</span> Constructing a model-based binomial tree</h2>
-<p>In more formal models, rates evolve according to a short-rate process rather than being assigned directly. For example, with a lognormal up and down structure:</p>
+</section>
+<section id="constructing-a-model-based-binomial-tree" class="level2" data-number="10">
+<h2 data-number="10" class="anchored" data-anchor-id="constructing-a-model-based-binomial-tree"><span class="header-section-number">10</span> Constructing a model-based binomial tree</h2>
+<p>The previous tree was chosen for teaching. A model-based tree is different: it is built so that it is consistent with observable market prices.</p>
+<p>The inputs are:</p>
+<ul>
+<li>today’s benchmark spot curve or issuer curve;</li>
+<li>a short-rate model;</li>
+<li>an assumed interest-rate volatility;</li>
+<li>a time step, such as one year, six months, or one month.</li>
+</ul>
+<p>The first node is today’s one-period short rate. From that node, the model allows rates to move up or down. A common lognormal specification uses an up factor and a down factor:</p>
 <p><span class="math display">\[
 u = e^{\sigma \sqrt{\Delta t}}, \qquad d = \frac{1}{u}
 \]</span></p>
-<p>and a stylized risk-neutral probability</p>
+<p>where <span class="math inline">\(\sigma\)</span> is the assumed volatility and <span class="math inline">\(\Delta t\)</span> is the length of one time step. Higher volatility spreads the upper and lower nodes farther apart. Lower volatility keeps the tree tighter.</p>
+<p>Calibration then chooses the level of rates at each future date so that the tree prices the market’s on-the-run issues correctly. This is why the tree is called <strong>arbitrage-free</strong>: if the model could not reproduce the prices of the benchmark bonds used to build it, the model would be internally inconsistent with the observed curve.</p>
+<p>The construction is iterative:</p>
+<ol type="1">
+<li>Start with today’s one-period rate.</li>
+<li>Choose a trial value for the lower future short rate.</li>
+<li>Use the volatility assumption to determine the corresponding higher rate.</li>
+<li>Price the next benchmark bond by backward induction.</li>
+<li>Adjust the trial rate until the model price equals the observed market price.</li>
+<li>Repeat the process one maturity at a time to extend the tree.</li>
+</ol>
+<p>For example, suppose one-year rates can move up or down after one year. If the lower one-year forward rate one year from now is <span class="math inline">\(r_{1,L}\)</span>, a lognormal tree with annual volatility <span class="math inline">\(\sigma\)</span> sets the upper rate as:</p>
 <p><span class="math display">\[
-p = \frac{e^{r \Delta t} - d}{u - d}
+r_{1,H}=r_{1,L}e^{2\sigma}.
 \]</span></p>
-<p>A short-rate tree can then be generated from an initial rate (r_0). The point of such a tree is not just to create possible future rates, but to calibrate those rates so that the model reproduces today’s observed yield curve.</p>
-<div id="fig-generated-tree" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-execution_count="10">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-generated-tree-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div class="cell-output cell-output-stdout">
-<pre><code>Time 0: [np.float64(0.05)]
-Time 1: [np.float64(0.0452), np.float64(0.0553)]
-Time 2: [np.float64(0.0409), np.float64(0.05), np.float64(0.0611)]
-Time 3: [np.float64(0.037), np.float64(0.0452), np.float64(0.0553), np.float64(0.0675)]
-Risk-neutral probability: 0.7309</code></pre>
+<p>The factor <span class="math inline">\(e^{2\sigma}\)</span> creates the spread between the low and high future rates. If <span class="math inline">\(\sigma=10\%\)</span> and <span class="math inline">\(r_{1,L}=4.074\%\)</span>, then:</p>
+<p><span class="math display">\[
+r_{1,H}=4.074\% \times e^{0.20}=4.976\%.
+\]</span></p>
+<p>This pair of rates is not chosen because it looks plausible. It is accepted only if, when used in the tree, it correctly prices the relevant two-year benchmark bond. The same logic is then used to find the next set of rates for year 2, and so on.</p>
+<p>The key intuition is that the tree has two jobs. It must represent possible future rate uncertainty, and it must remain anchored to today’s observed term structure. A tree that only simulates rates but does not fit current bond prices is not suitable for valuation.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Example: Calibrating Four Maturities of the Zero Curve">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Example: Calibrating Four Maturities of the Zero Curve
 </div>
 </div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-generated-tree-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;10
-</figcaption>
-</figure>
+<div class="callout-body-container callout-body">
+<p>Suppose the annual zero curve is:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: right;">Maturity</th>
+<th style="text-align: right;">Zero rate</th>
+<th style="text-align: right;">Market discount factor</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1 year</td>
+<td style="text-align: right;">4.00%</td>
+<td style="text-align: right;">0.96154</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2 years</td>
+<td style="text-align: right;">4.50%</td>
+<td style="text-align: right;">0.91573</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3 years</td>
+<td style="text-align: right;">5.00%</td>
+<td style="text-align: right;">0.86384</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4 years</td>
+<td style="text-align: right;">5.25%</td>
+<td style="text-align: right;">0.81469</td>
+</tr>
+</tbody>
+</table>
+<p>A tree with only <span class="math inline">\(r_0\)</span>, <span class="math inline">\(\sigma\)</span>, and <span class="math inline">\(\Delta t\)</span> cannot generally fit all four discount factors. A calibrated tree adds one level parameter per time step. A simple way to write this is:</p>
+<p><span class="math display">\[
+r_{t,j}=a_t e^{(2j-t)\sigma},
+\]</span></p>
+<p>where <span class="math inline">\(a_t\)</span> is the level parameter for year <span class="math inline">\(t\)</span>, <span class="math inline">\(j\)</span> indexes the state, and <span class="math inline">\(\sigma\)</span> controls the spacing between states. The volatility fixes the relative distance between rates at the same date; calibration chooses <span class="math inline">\(a_t\)</span> so the tree matches the market zero price for that maturity.</p>
+<p>With annual steps, <span class="math inline">\(\sigma=10\%\)</span>, and equal risk-neutral probabilities, one calibrated set of short rates is:</p>
+<div id="08dcb2fd" class="cell" data-execution_count="17">
+<div class="cell-output cell-output-display" data-execution_count="17">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Maturity</th>
+<th data-quarto-table-cell-role="th">Market DF</th>
+<th data-quarto-table-cell-role="th">Calibrated level a_t</th>
+<th data-quarto-table-cell-role="th">Short rates at that date</th>
+<th data-quarto-table-cell-role="th">Tree DF</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>1 year</td>
+<td>0.96154</td>
+<td>4.00%</td>
+<td>4.00%</td>
+<td>0.96154</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>2 years</td>
+<td>0.91573</td>
+<td>4.98%</td>
+<td>4.51%, 5.50%</td>
+<td>0.91573</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>3 years</td>
+<td>0.86384</td>
+<td>5.96%</td>
+<td>4.88%, 5.96%, 7.28%</td>
+<td>0.86384</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3</th>
+<td>4 years</td>
+<td>0.81491</td>
+<td>5.93%</td>
+<td>4.40%, 5.37%, 6.56%, 8.01%</td>
+<td>0.81491</td>
+</tr>
+</tbody>
+</table>
+
 </div>
-<p>In practice, professional valuation systems use calibrated models such as Ho-Lee, Black-Derman-Toy, Hull-White, or Black-Karasinski. The teaching objective here is not the full calibration machinery, but the economic structure of the valuation.</p>
+</div>
+</div>
+<p>The important point is not the specific numbers. The important point is the number of calibration knobs. With four maturities, the tree uses four level parameters, <span class="math inline">\(a_0,a_1,a_2,a_3\)</span>, to fit four market discount factors. The volatility parameter still matters, but it controls the spread between states, not the overall level needed to match the zero curve.</p>
+</div>
+</div>
+<p>In practice, professional valuation systems use calibrated models such as Ho-Lee, Black-Derman-Toy, Hull-White, or Black-Karasinski. The teaching objective here is not the full calibration machinery, but the economic structure: volatility determines the spacing of nodes, while calibration determines the level of the tree.</p>
 <hr>
 </section>
-<section id="incorporating-default-risk" class="level2" data-number="12">
-<h2 data-number="12" class="anchored" data-anchor-id="incorporating-default-risk"><span class="header-section-number">12</span> Incorporating default risk</h2>
+<section id="incorporating-default-risk" class="level2" data-number="11">
+<h2 data-number="11" class="anchored" data-anchor-id="incorporating-default-risk"><span class="header-section-number">11</span> Incorporating default risk</h2>
 <p>The lattice framework can be extended to corporate bonds in several ways.</p>
-<p>One approach is to add a credit spread (s) to each node’s short rate:</p>
+<p>One approach is to add a credit spread <span class="math inline">\(s\)</span> to each node’s short rate:</p>
 <p><span class="math display">\[
 r_{i,j}^{\text{risky}} = r_{i,j} + s
 \]</span></p>
@@ -1261,73 +1511,113 @@ r_{i,j}^{\text{risky}} = r_{i,j} + s
 <p>These extensions are important in practice because many callable bonds are corporate or structured products whose spreads reflect both credit and optionality.</p>
 <hr>
 </section>
-<section id="implementation-challenges" class="level2" data-number="13">
-<h2 data-number="13" class="anchored" data-anchor-id="implementation-challenges"><span class="header-section-number">13</span> Implementation challenges</h2>
-<p>Real-world implementation is harder than the classroom example suggests. A practical model must decide:</p>
+<section id="implementation-challenges" class="level2" data-number="12">
+<h2 data-number="12" class="anchored" data-anchor-id="implementation-challenges"><span class="header-section-number">12</span> Implementation challenges</h2>
+<p>The classroom tree is intentionally small. The main implementation issues in practice are narrower and more specific:</p>
 <ul>
-<li>how to fit the current zero curve</li>
-<li>how to model volatility</li>
-<li>how to model mean reversion</li>
-<li>how to treat credit risk and liquidity</li>
-<li>how to handle complex call schedules</li>
-<li>how to incorporate sinking funds, make-whole calls, or prepayment behavior</li>
+<li><strong>Curve fit.</strong> The model must reproduce the current benchmark curve or issuer curve used for valuation. A poor curve fit contaminates every node value.</li>
+<li><strong>Volatility input.</strong> Callable-bond values are sensitive to assumed rate volatility. Higher volatility increases the value of the issuer’s call option and lowers the callable bond’s value.</li>
+<li><strong>Exercise rule.</strong> The model must reflect the actual call schedule, call prices, notice periods, make-whole terms, and any restrictions on exercise.</li>
+<li><strong>Timing.</strong> Real cash flows may not fall exactly on lattice dates. The model must handle coupon dates, call dates, and settlement dates without distorting discounting.</li>
+<li><strong>Credit treatment.</strong> For corporate bonds, the analyst must decide whether credit risk enters through an issuer curve, an added spread, explicit default probabilities, or some combination.</li>
 </ul>
-<p>Even so, the lattice remains one of the clearest frameworks for understanding the economics of embedded options.</p>
+<p>These choices matter because OAS and effective duration are model outputs. They are only as reliable as the curve, volatility, and exercise assumptions used to produce them.</p>
 <hr>
 </section>
-<section id="option-adjusted-spread-oas" class="level2" data-number="14">
-<h2 data-number="14" class="anchored" data-anchor-id="option-adjusted-spread-oas"><span class="header-section-number">14</span> Option-Adjusted Spread (OAS)</h2>
-<p>The <strong>option-adjusted spread</strong> measures the constant spread over the risk-free curve that equates the model price of a bond, after adjusting for embedded option effects, to its market price.</p>
-<p>Unlike the static spread, the OAS discounts <strong>expected path-dependent cash flows</strong>, not simply promised contractual cash flows.</p>
-<p>A general expression is:</p>
+<section id="option-adjusted-spread-oas" class="level2" data-number="13">
+<h2 data-number="13" class="anchored" data-anchor-id="option-adjusted-spread-oas"><span class="header-section-number">13</span> Option-Adjusted Spread (OAS)</h2>
+<p>The <strong>option-adjusted spread (OAS)</strong> is the constant spread added to every short rate in the calibrated tree so that the model value equals the market price.</p>
+<p>The word <strong>option-adjusted</strong> matters. For a callable bond, the model first allows future cash flows to change when the issuer optimally calls the bond. The spread is then solved after those option-dependent cash flows have been modeled.</p>
+<p>Conceptually, OAS solves:</p>
 <p><span class="math display">\[
 P_{\text{market}}
-  = \sum_{\text{paths}}
-  \frac{\Pr(\text{path}) \times CF_{\text{path}}}
-       {\prod_{i}(1 + r_{i,\text{path}} + s_{\text{OAS}})^{\Delta t}}
+  =
+  \text{model value using }
+  (r_{i,j}+s_{\text{OAS}})
+  \text{ and the embedded-option exercise rule.}
 \]</span></p>
-<p>where the sum runs over all interest-rate paths.</p>
-<section id="why-oas-matters" class="level3">
-<h3 class="anchored" data-anchor-id="why-oas-matters">Why OAS matters</h3>
-<p>Suppose two bonds have the same nominal spread over Treasuries, but one is callable and the other is not. The callable bond’s spread partly compensates the investor for being short the call option. The OAS attempts to strip out that option effect.</p>
-<p>That makes OAS a cleaner measure of relative value when embedded options matter.</p>
-</section>
-<section id="relating-nominal-spread-static-spread-and-oas" class="level3">
-<h3 class="anchored" data-anchor-id="relating-nominal-spread-static-spread-and-oas">Relating nominal spread, static spread, and OAS</h3>
+<p>This is different from a static spread. Static spread discounts the promised cash-flow schedule. OAS discounts model-implied cash flows that may change across interest-rate paths.</p>
+<section id="why-oas-is-useful" class="level3">
+<h3 class="anchored" data-anchor-id="why-oas-is-useful">Why OAS is useful</h3>
+<p>Traditional yield spread has two major weaknesses for callable bonds. First, it compares one yield with one benchmark maturity, so it does not fully use the spot curve. Second, it ignores the fact that future cash flows may change when rates move. Static spread fixes the first problem but not the second. OAS is designed to address both.</p>
+<p>For a callable bond, the quoted spread includes compensation for:</p>
 <ul>
-<li><strong>Nominal spread</strong> compares one yield with another yield.</li>
-<li><strong>Static spread</strong> discounts promised cash flows using the spot curve plus a constant spread.</li>
-<li><strong>OAS</strong> discounts expected option-adjusted cash flows using a model of future rates and option exercise.</li>
+<li>credit and liquidity risk;</li>
+<li>uncertainty about future rates;</li>
+<li>the investor’s short position in the issuer’s call option.</li>
 </ul>
-<p>So for bonds with embedded options, OAS is usually the economically relevant spread measure.</p>
+<p>OAS attempts to express the compensation left after the model has accounted for the embedded option.</p>
 </section>
-<section id="determining-the-option-cost-in-spread-terms" class="level3">
-<h3 class="anchored" data-anchor-id="determining-the-option-cost-in-spread-terms">Determining the option cost in spread terms</h3>
-<p>If a callable bond has a nominal spread of 150 basis points but an OAS of 100 basis points, then roughly 50 basis points of the nominal spread reflect the call option rather than pure credit or liquidity compensation.</p>
-<div id="cell-fig-oas-option-cost" class="cell" data-execution_count="11">
-<div class="cell-output cell-output-display">
-<div id="fig-oas-option-cost" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-oas-option-cost-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="lec8_files/figure-html/fig-oas-option-cost-output-1.png" width="675" height="257" class="figure-img">
+<section id="benchmark-choice" class="level3">
+<h3 class="anchored" data-anchor-id="benchmark-choice">Benchmark choice</h3>
+<p>The interpretation of OAS depends on the curve used to build the tree:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 38%">
+<col style="width: 61%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Tree built from</th>
+<th>What OAS mainly reflects</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Treasury or risk-free curve</td>
+<td>Credit, liquidity, relative value, and any model error after option effects</td>
+</tr>
+<tr class="even">
+<td>Issuer curve</td>
+<td>Richness or cheapness relative to that issuer’s own curve</td>
+</tr>
+</tbody>
+</table>
+<p>This is why an OAS quote is incomplete unless we know the benchmark curve, volatility assumption, and model.</p>
+</section>
+<section id="solving-for-oas" class="level3">
+<h3 class="anchored" data-anchor-id="solving-for-oas">Solving for OAS</h3>
+<p>The calculation is a root-finding problem:</p>
+<ol type="1">
+<li>Build an arbitrage-free short-rate tree from the chosen curve and volatility.</li>
+<li>Add a trial spread to every node rate.</li>
+<li>Value the bond by backward induction, applying the call or put rule at each exercise node.</li>
+<li>Compare the model value with the market price.</li>
+<li>Raise or lower the trial spread until the model value equals the market price.</li>
+</ol>
+</section>
+<section id="option-cost-in-spread-terms" class="level3">
+<h3 class="anchored" data-anchor-id="option-cost-in-spread-terms">Option cost in spread terms</h3>
+<p>For an option-free bond, static spread and OAS are usually close if the same curve is used. For a callable bond, the static spread is usually larger because it values the promised maturity cash flows and ignores that the issuer may call the bond.</p>
+<p>The option cost in spread terms is often summarized as:</p>
+<p><span class="math display">\[
+\text{Option cost} = \text{Static spread} - \text{OAS}.
+\]</span></p>
+<p>For example, if a callable bond has a static spread of 150 basis points and an OAS of 100 basis points, then about 50 basis points compensate the investor for the embedded call option.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="OAS Intuition">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
 </div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-oas-option-cost-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;11: For a callable bond, part of the nominal spread compensates the investor for the embedded call option
-</figcaption>
-</figure>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>OAS Intuition
 </div>
 </div>
+<div class="callout-body-container callout-body">
+<p>OAS is not the total spread investors see in a yield quote. It is the spread left after the model has allowed interest rates to move and has allowed the embedded option to change the bond’s cash flows.</p>
 </div>
+</div>
+<p>Higher assumed volatility generally lowers the OAS of a callable bond because the issuer’s call option becomes more valuable. For a putable bond, higher volatility tends to raise the value of the investor’s put option.</p>
 <hr>
 </section>
 </section>
-<section id="effective-duration-and-convexity" class="level2" data-number="15">
-<h2 data-number="15" class="anchored" data-anchor-id="effective-duration-and-convexity"><span class="header-section-number">15</span> Effective Duration and Convexity</h2>
+<section id="effective-duration-and-convexity" class="level2" data-number="14">
+<h2 data-number="14" class="anchored" data-anchor-id="effective-duration-and-convexity"><span class="header-section-number">14</span> Effective Duration and Convexity</h2>
 <p>For bonds with embedded options, traditional Macaulay duration and convexity are inadequate because cash flows depend on the future path of interest rates.</p>
 <p>Instead, we use <strong>effective duration</strong> and <strong>effective convexity</strong>, which are based on revaluing the bond after small changes in the entire yield curve.</p>
 <p>Let:</p>
 <ul>
-<li>(P_0) = base price</li>
+<li><span class="math inline">\(P_0\)</span> = base price</li>
 <li><span class="math inline">\(P_-\)</span> = price when the curve shifts <strong>down</strong> by <span class="math inline">\(\Delta y\)</span></li>
 <li><span class="math inline">\(P_+\)</span> = price when the curve shifts <strong>up</strong> by <span class="math inline">\(\Delta y\)</span></li>
 </ul>
@@ -1339,56 +1629,271 @@ D_e = \frac{P_- - P_+}{2P_0\Delta y}
 C_e = \frac{P_- + P_+ - 2P_0}{P_0(\Delta y)^2}
 \]</span></p>
 <p>For callable bonds, effective duration is often shorter than for an otherwise similar option-free bond, and effective convexity may become small or even negative when the bond is likely to be called.</p>
-<div id="cell-fig-effective-duration-intuition" class="cell" data-execution_count="12">
+<div id="cell-fig-effective-duration-intuition" class="cell" data-execution_count="18">
 <div class="cell-output cell-output-display">
 <div id="fig-effective-duration-intuition" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-effective-duration-intuition-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="lec8_files/figure-html/fig-effective-duration-intuition-output-1.png" width="663" height="355" class="figure-img">
+<img src="lec8_files/figure-html/fig-effective-duration-intuition-output-1.png" width="661" height="353" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-effective-duration-intuition-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;12: Effective duration and convexity reprice the bond after rate shocks
+Figure&nbsp;17: Effective duration and convexity reprice the bond after rate shocks
 </figcaption>
 </figure>
 </div>
 </div>
 </div>
-<section id="example-2---effective-duration-and-convexity" class="level3">
-<h3 class="anchored" data-anchor-id="example-2---effective-duration-and-convexity">Example 2 - Effective duration and convexity</h3>
-<p>Using the callable bond in our lattice example, we can shift the entire short-rate tree up and down by 50 basis points and reprice the bond.</p>
-<div id="fig-effective-duration-convexity" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-execution_count="13">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-effective-duration-convexity-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div class="cell-output cell-output-stdout">
-<pre><code>Base price:            106.3302
-Price with rates up:   105.4363
-Price with rates down: 107.2369
-Effective duration:    1.6934
-Effective convexity:   4.7739</code></pre>
+<div class="callout callout-style-default callout-note callout-titled" title="Interactive Example: Four-Period Lattice Valuation">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Interactive Example: Four-Period Lattice Valuation
 </div>
 </div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-effective-duration-convexity-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;13
-</figcaption>
-</figure>
+<div class="callout-body-container callout-body">
+<p>The maturity is fixed at four annual periods. Change the bond and lattice assumptions to see how the short-rate tree, model price, OAS, effective duration, and effective convexity respond.</p>
+<p>This example is interactive in the HTML version of the lecture.</p>
+<div id="lec8-lattice-tool" style="padding: 1em; background: #f8f9fa; border-radius: 6px; margin: 1em 0;">
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0.75em; align-items: end;">
+    <label><strong>Face value</strong><br>
+      <input type="number" id="lec8-face" value="100" min="1" step="1" style="width: 100%;">
+    </label>
+    <label><strong>Coupon rate (%)</strong><br>
+      <input type="number" id="lec8-coupon-rate" value="6" min="0" step="0.25" style="width: 100%;">
+    </label>
+    <label><strong>Current short rate (%)</strong><br>
+      <input type="number" id="lec8-r0" value="5" min="0" step="0.25" style="width: 100%;">
+    </label>
+    <label><strong>Volatility (%)</strong><br>
+      <input type="number" id="lec8-sigma" value="12" min="0" step="1" style="width: 100%;">
+    </label>
+    <label><strong>Option type</strong><br>
+      <select id="lec8-option-type" style="width: 100%;">
+        <option value="call">Callable</option>
+        <option value="put">Putable</option>
+        <option value="none">Option-free</option>
+      </select>
+    </label>
+    <label><strong>Option price</strong><br>
+      <input type="number" id="lec8-option-price" value="100" min="0" step="0.25" style="width: 100%;">
+    </label>
+    <label><strong>First exercise period</strong><br>
+      <input type="number" id="lec8-exercise-from" value="2" min="1" max="3" step="1" style="width: 100%;">
+    </label>
+    <label><strong>Market price</strong><br>
+      <input type="number" id="lec8-market-price" value="102" min="1" step="0.25" style="width: 100%;">
+    </label>
+    <label><strong>Rate shock (bp)</strong><br>
+      <input type="number" id="lec8-shock-bp" value="50" min="1" step="1" style="width: 100%;">
+    </label>
+  </div>
+
+  <div id="lec8-lattice-results" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.6em; margin-top: 1em;"></div>
+  <div id="lec8-lattice-svg" style="overflow-x: auto; margin-top: 1em; background: white; border: 1px solid #ddd; border-radius: 6px;"></div>
+  <p style="font-size: 0.9em; margin-top: 0.75em;">The displayed node value is the option-adjusted bond value at that node. OAS is solved by adding a constant spread to every node rate until the model price equals the market price.</p>
+</div>
+
+<script>
+function lec8FormatPct(x) {
+  return (100 * x).toFixed(2) + "%";
+}
+
+function lec8BuildTree(r0, sigma, n, shift) {
+  const tree = [];
+  for (let i = 0; i <= n; i++) {
+    const level = [];
+    for (let j = 0; j <= i; j++) {
+      level.push(Math.max(-0.95, r0 * Math.exp((2 * j - i) * sigma) + shift));
+    }
+    tree.push(level);
+  }
+  return tree;
+}
+
+function lec8PriceTree(rateTree, params, spread) {
+  const n = 4;
+  const p = 0.5;
+  const coupon = params.face * params.couponRate;
+  let values = Array(n + 1).fill(params.face + coupon);
+  const levels = [values.slice()];
+
+  for (let i = n - 1; i >= 0; i--) {
+    const next = [];
+    for (let j = 0; j <= i; j++) {
+      const r = rateTree[i][j] + spread;
+      let hold = (p * values[j + 1] + (1 - p) * values[j]) / (1 + r) + coupon;
+      if (params.optionType === "call" && i >= params.exerciseFrom && i < n) {
+        hold = Math.min(hold, params.optionPrice);
+      } else if (params.optionType === "put" && i >= params.exerciseFrom && i < n) {
+        hold = Math.max(hold, params.optionPrice);
+      }
+      next.push(hold);
+    }
+    values = next;
+    levels.unshift(values.slice());
+  }
+
+  return { price: values[0], levels: levels };
+}
+
+function lec8SolveOas(rateTree, params) {
+  let lo = -0.20;
+  let hi = 0.20;
+  const priceAt = s => lec8PriceTree(rateTree, params, s).price;
+  let priceLo = priceAt(lo);
+  let priceHi = priceAt(hi);
+
+  if (!Number.isFinite(priceLo) || !Number.isFinite(priceHi) || params.marketPrice > priceLo || params.marketPrice < priceHi) {
+    return NaN;
+  }
+
+  for (let k = 0; k < 80; k++) {
+    const mid = 0.5 * (lo + hi);
+    const priceMid = priceAt(mid);
+    if (priceMid > params.marketPrice) {
+      lo = mid;
+    } else {
+      hi = mid;
+    }
+  }
+  return 0.5 * (lo + hi);
+}
+
+function lec8DrawSvg(rateTree, valueLevels, params, oas) {
+  const width = 900;
+  const height = 470;
+  const marginX = 80;
+  const midY = 235;
+  const stepX = 180;
+  const stepY = 74;
+  const n = 4;
+  const positions = [];
+
+  for (let i = 0; i <= n; i++) {
+    positions[i] = [];
+    for (let j = 0; j <= i; j++) {
+      positions[i][j] = {
+        x: marginX + i * stepX,
+        y: midY + (i - 2 * j) * stepY / 2
+      };
+    }
+  }
+
+  let svg = `<svg viewBox="0 0 ${width} ${height}" width="100%" height="470" role="img" aria-label="Four-period interest-rate lattice">`;
+  svg += `<rect x="0" y="0" width="${width}" height="${height}" fill="white"></rect>`;
+
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j <= i; j++) {
+      const a = positions[i][j];
+      const b = positions[i + 1][j];
+      const c = positions[i + 1][j + 1];
+      svg += `<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="#888" stroke-width="1.4"></line>`;
+      svg += `<line x1="${a.x}" y1="${a.y}" x2="${c.x}" y2="${c.y}" stroke="#888" stroke-width="1.4"></line>`;
+    }
+  }
+
+  for (let i = 0; i <= n; i++) {
+    svg += `<text x="${marginX + i * stepX}" y="440" text-anchor="middle" font-size="14">T${i}</text>`;
+    for (let j = 0; j <= i; j++) {
+      const pos = positions[i][j];
+      const rate = lec8FormatPct(rateTree[i][j]);
+      const value = valueLevels[i] && valueLevels[i][j] !== undefined ? valueLevels[i][j].toFixed(2) : "";
+      svg += `<circle cx="${pos.x}" cy="${pos.y}" r="39" fill="#E8F1FA" stroke="black" stroke-width="1.6"></circle>`;
+      svg += `<text x="${pos.x}" y="${pos.y - 8}" text-anchor="middle" font-size="12">r=${rate}</text>`;
+      svg += `<text x="${pos.x}" y="${pos.y + 10}" text-anchor="middle" font-size="12">V=${value}</text>`;
+    }
+  }
+
+  svg += `<text x="20" y="25" font-size="14">Maturity fixed at 4 periods; p = 0.5; OAS = ${Number.isFinite(oas) ? (10000 * oas).toFixed(1) + " bp" : "not bracketed"}</text>`;
+  svg += `</svg>`;
+  return svg;
+}
+
+function lec8UpdateLatticeTool() {
+  const params = {
+    face: parseFloat(document.getElementById("lec8-face").value),
+    couponRate: parseFloat(document.getElementById("lec8-coupon-rate").value) / 100,
+    r0: parseFloat(document.getElementById("lec8-r0").value) / 100,
+    sigma: parseFloat(document.getElementById("lec8-sigma").value) / 100,
+    optionType: document.getElementById("lec8-option-type").value,
+    optionPrice: parseFloat(document.getElementById("lec8-option-price").value),
+    exerciseFrom: parseInt(document.getElementById("lec8-exercise-from").value, 10),
+    marketPrice: parseFloat(document.getElementById("lec8-market-price").value),
+    shock: parseFloat(document.getElementById("lec8-shock-bp").value) / 10000
+  };
+
+  const rateTree = lec8BuildTree(params.r0, params.sigma, 4, 0);
+  const base = lec8PriceTree(rateTree, params, 0);
+  const oas = lec8SolveOas(rateTree, params);
+
+  let duration = NaN;
+  let convexity = NaN;
+  let valueLevels = base.levels;
+
+  if (Number.isFinite(oas)) {
+    valueLevels = lec8PriceTree(rateTree, params, oas).levels;
+    const upTree = lec8BuildTree(params.r0, params.sigma, 4, params.shock);
+    const downTree = lec8BuildTree(params.r0, params.sigma, 4, -params.shock);
+    const p0 = lec8PriceTree(rateTree, params, oas).price;
+    const pUp = lec8PriceTree(upTree, params, oas).price;
+    const pDown = lec8PriceTree(downTree, params, oas).price;
+    duration = (pDown - pUp) / (2 * p0 * params.shock);
+    convexity = (pDown + pUp - 2 * p0) / (p0 * params.shock * params.shock);
+  }
+
+  const resultItems = [
+    ["Model price", base.price.toFixed(3)],
+    ["OAS", Number.isFinite(oas) ? (10000 * oas).toFixed(1) + " bp" : "not bracketed"],
+    ["Effective duration", Number.isFinite(duration) ? duration.toFixed(3) : "n/a"],
+    ["Effective convexity", Number.isFinite(convexity) ? convexity.toFixed(2) : "n/a"]
+  ];
+
+  document.getElementById("lec8-lattice-results").innerHTML = resultItems.map(item =>
+    `<div style="background: white; border: 1px solid #ddd; border-radius: 6px; padding: 0.65em;"><div style="font-size: 0.85em; color: #555;">${item[0]}</div><div style="font-size: 1.15em; font-weight: 700;">${item[1]}</div></div>`
+  ).join("");
+
+  document.getElementById("lec8-lattice-svg").innerHTML = lec8DrawSvg(rateTree, valueLevels, params, oas);
+}
+
+function lec8InitLatticeTool() {
+  const tool = document.getElementById("lec8-lattice-tool");
+  if (!tool || tool.dataset.initialized === "true") return;
+  tool.dataset.initialized = "true";
+
+  document.querySelectorAll("#lec8-lattice-tool input, #lec8-lattice-tool select").forEach(el => {
+    el.addEventListener("input", lec8UpdateLatticeTool);
+    el.addEventListener("change", lec8UpdateLatticeTool);
+  });
+  lec8UpdateLatticeTool();
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", lec8InitLatticeTool);
+} else {
+  lec8InitLatticeTool();
+}
+</script>
+</div>
 </div>
 <p>Because the call feature limits upside when rates fall, the callable bond’s price response is asymmetric. That is exactly what effective convexity is designed to capture.</p>
 <hr>
-</section>
 </section>
 <section id="key-points" class="level2 unnumbered">
 <h2 class="unnumbered anchored" data-anchor-id="key-points">Key Points</h2>
 <ul>
 <li>Embedded options make bond valuation state-dependent: we need future rate states, future bond values, and an exercise rule.</li>
-<li><strong>Yield spread</strong> is easy to compute but mixes credit, liquidity, curve, and option compensation into one number.</li>
-<li><strong>Static spread</strong> improves on nominal spread by discounting promised cash flows off the spot curve, but it still assumes the cash-flow schedule is fixed.</li>
+<li><strong>Yield spread</strong> is easy to compute but compresses many dated cash flows into one yield and mixes credit, liquidity, curve, and option compensation.</li>
+<li><strong>Static spread</strong> improves on nominal spread by discounting promised cash flows off the full spot curve, but it still assumes the cash-flow schedule is fixed.</li>
 <li>A <strong>callable bond</strong> is worth less than an otherwise identical option-free bond because the investor is short the issuer’s call option; a <strong>putable bond</strong> is worth more because the investor owns the put option.</li>
 <li>Callable bonds have capped upside when rates fall, which can create negative convexity.</li>
 <li>The <strong>interest-rate lattice</strong> is the core valuation tool because it models future short-rate uncertainty and allows exercise decisions at each node.</li>
 <li><strong>Backward induction</strong> starts from future payoffs and works back to today’s price; callable bonds apply a min operator and putable bonds apply a max operator at exercise nodes.</li>
-<li>The step-by-step lattice examples show that the call decision is state-dependent: the issuer calls only when the hold value exceeds the call price.</li>
-<li><strong>OAS</strong> is the spread that equates market price with model price after accounting for option effects, making it cleaner than nominal or static spread for option-embedded bonds.</li>
-<li><strong>Effective duration</strong> and <strong>effective convexity</strong> are repricing-based risk measures, so they can capture changing cash flows and changing exercise probabilities.</li>
+<li>A model-based tree needs calibration knobs, usually one level parameter per time step, so it can fit the observed zero curve while volatility controls the spacing between states.</li>
+<li>The step-by-step lattice examples show that exercise is state-dependent: the issuer calls when the hold value exceeds the call price, while the investor puts when the put price exceeds the hold value.</li>
+<li><strong>OAS</strong> is the spread that equates market price with model price after accounting for option exercise, making it cleaner than nominal or static spread for option-embedded bonds.</li>
+<li><strong>Effective duration</strong> and <strong>effective convexity</strong> reprice the bond after curve shocks, so they can capture changing cash flows and changing exercise probabilities.</li>
 </ul>
 <hr>
 </section>

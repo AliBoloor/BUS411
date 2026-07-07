@@ -20,14 +20,15 @@ execute:
 After completing this lecture you should be able to:
 
 - Explain why embedded options make bond cash flows state-dependent and why today's discount curve is no longer enough.
-- Explain why traditional yield-spread analysis fails for bonds with embedded options and identify the limitations of yield-to-maturity comparisons.
-- Interpret the **static spread** as a constant spread over the spot curve and explain why it still fails when cash flows are option-dependent.
+- Explain why traditional yield-spread analysis fails when one yield is used to summarize cash flows at many dates.
+- Interpret the **static spread** as the constant spread over the spot curve that equates promised cash flows to market price.
 - Describe the investment characteristics of callable and putable bonds, including capped upside and negative convexity for callable bonds.
 - Decompose embedded-option bonds into an option-free bond plus or minus the value of the embedded option.
-- Explain how an interest-rate lattice represents future rate states and why backward induction is used for valuation.
-- Apply the node-level exercise rule for callable and putable bonds using the min/max logic.
-- Interpret the **option-adjusted spread (OAS)** as compensation after adjusting for embedded-option effects.
-- Explain why **effective duration** and **effective convexity** are needed when cash flows change as rates change.
+- Use a short-rate lattice and backward induction to value option-free, callable, and putable bonds.
+- Apply the node-level exercise rule: callable bonds use a minimum rule and putable bonds use a maximum rule.
+- Explain why a valuation-grade interest-rate tree must be calibrated to the zero curve, not only generated from $r_0$, $\sigma$, and $\Delta t$.
+- Interpret the **option-adjusted spread (OAS)** as the spread that reconciles model value with market price after option exercise is modeled.
+- Explain why **effective duration** and **effective convexity** are repricing-based risk measures for bonds whose cash flows can change.
 
 ---
 
@@ -120,7 +121,7 @@ $$
 
 While straightforward, this measure suffers from several drawbacks:
 
-1. **Single-period perspective.** Yield to maturity assumes the investor holds the bond to maturity and reinvests coupons at the YTM. It does not capture the term structure of discount rates or the timing of cash flows.
+1. **One-rate summary.** Yield to maturity compresses all of a bond's cash flows into a single average return. That single rate ignores that coupons and principal arrive at different dates and should be discounted using maturity-specific spot rates. It also embeds a reinvestment assumption: coupons are assumed to be reinvested at the YTM until maturity.
 
 2. **Ignores embedded options.** Callable or putable bonds contain options that significantly affect cash flow timing and risk. Comparing YTMs of a callable corporate bond and a non-callable Treasury ignores the call option's value. The resulting yield spread blends credit, liquidity, and option premiums, making interpretation difficult.
 
@@ -162,17 +163,17 @@ plt.show()
 
 ## Static Spread: An Alternative to Yield Spread
 
-The **static spread** (also called the **I-spread**) measures the constant margin over the Treasury spot curve that discounts a bond's cash flows to its market price. For a bond with cash flows \(\{CF_{t_i}\}\) at times \(t_1,t_2,\dots,t_n\) and Treasury zero rates \(\{r_{t_i}\}\), the static spread \(s\) solves
+The **static spread** (also called the **zero-volatility spread**) measures the constant margin over the Treasury spot curve that discounts a bond's cash flows to its market price. For a bond with cash flows $\{CF_{t_i}\}$ at times $t_1,t_2,\dots,t_n$ and Treasury zero rates $\{r_{t_i}\}$, the static spread $s$ solves
 
 $$
 P = \sum_{i=1}^{n} \frac{CF_{t_i}}{(1 + r_{t_i} + s)^{t_i}}
 $$
 
-where \(P\) is the observed price.
+where $P$ is the observed price.
 
-Because the same spread \(s\) is added to all discount rates, the method accounts for the shape of the term structure while producing a single summary measure of compensation for non-Treasury risks. Unlike the yield spread, the static spread discounts each cash flow at a maturity-appropriate rate. That makes it more economically meaningful for coupon bonds, amortizing bonds, and bonds whose cash flows are distributed over time.
+Because the same spread $s$ is added to all discount rates, the method accounts for the shape of the term structure while producing a single summary measure of compensation for non-Treasury risks. Unlike the yield spread, the static spread discounts each cash flow at a maturity-appropriate rate. That makes it more economically meaningful for coupon bonds, amortizing bonds, and bonds whose cash flows are distributed over time.
 
-However, the static spread still has an important weakness: it discounts **promised** cash flows, not **expected option-adjusted** cash flows. For a callable bond, the promised maturity cash flow may never be received if the issuer refinances and calls the bond when rates fall.
+However, the static spread still has an important weakness: it discounts **promised** cash flows, not **expected** cash flows. For a callable bond, the promised maturity cash flow may never be received if the issuer refinances and calls the bond when rates fall.
 
 ::: {.callout-note title="Static Spread Intuition"}
 Static spread improves on a simple yield spread because each cash flow is discounted using the spot rate for its own maturity. But it still treats the cash-flow schedule as fixed. That is why it works better for option-free bonds than for callable, putable, or mortgage-backed securities.
@@ -203,7 +204,7 @@ plt.legend()
 plt.show()
 ```
 
-### Example 1 - Computing the static spread
+::: {.callout-note title="Example 1: Computing the static spread"}
 
 Suppose a five-year corporate bond has semiannual coupons of 6 percent, so it pays \$30 every six months on a \$1,000 face value. The Treasury spot curve for maturities 0.5 years to 5 years is:
 
@@ -211,11 +212,23 @@ $$
 \{2.0\%,\, 2.2\%,\, 2.6\%,\, 3.0\%,\, 3.4\%,\, 3.8\%,\, 4.0\%,\, 4.1\%,\, 4.2\%,\, 4.3\%\}
 $$
 
-Assume the bond trades at \$1,020. We estimate the static spread numerically by solving for \(s\) such that discounted cash flows equal the market price.
+Assume the bond trades at \$1,020. The static spread is the single number $s$ that makes the present value of the promised cash flows equal to the observed market price:
+
+$$
+1020=\sum_{i=1}^{10}\frac{CF_i}{(1+r_i+s)^{t_i}}.
+$$
+
+The graph below plots the model price for different trial spreads. The solid blue line is the present value of the bond's promised cash flows as the assumed spread changes. This relationship is **not linear**:
+
+$$
+PV(s)=\sum_{i=1}^{10}\frac{CF_i}{(1+r_i+s)^{t_i}}.
+$$
+
+It may look nearly linear over a narrow spread range because a smooth curve is well approximated by a tangent line locally. The horizontal dashed line is the observed market price. The vertical dashed line marks the spread where the model price intersects the observed price.
 
 ```{python}
 #| label: fig-static-spread
-#| fig-cap: "Root-finding to determine the static spread that equates discounted cash flows to the observed price"
+#| fig-cap: "Static spread is the spread where model present value equals the observed price"
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -230,26 +243,51 @@ def price_with_spread(s):
     disc = (1 + spot + s) ** (-times)
     return np.sum(coupons * disc)
 
-spreads = np.linspace(0.0, 0.02, 300)
+spreads = np.linspace(-0.01, 0.06, 500)
 vals = np.array([price_with_spread(s) for s in spreads])
 
-closest_idx = np.argmin(np.abs(vals - price))
-s_est = spreads[closest_idx]
+order = np.argsort(vals)
+s_est = np.interp(price, vals[order], spreads[order])
+pv_at_s = price_with_spread(s_est)
 
-plt.figure(figsize=(7, 4))
-plt.plot(spreads * 10000, vals)
-plt.axhline(price, linestyle="--", label="Observed price")
-plt.axvline(s_est * 10000, linestyle="--", label=f"Static spread ≈ {s_est*10000:.0f} bps")
+fig, ax = plt.subplots(figsize=(7, 4.2))
+ax.plot(spreads * 10000, vals, color="#1f77b4", linewidth=2.2, label="Model PV using spot curve + trial spread")
+
+ds = 0.0001
+slope_at_solution = (price_with_spread(s_est + ds) - price_with_spread(s_est - ds)) / (2 * ds)
+tangent = pv_at_s + slope_at_solution * (spreads - s_est)
+ax.plot(
+    spreads * 10000,
+    tangent,
+    color="#7A7A7A",
+    linestyle=":",
+    linewidth=1.6,
+    label="Local linear approximation",
+)
+
+ax.axhline(price, color="black", linestyle="--", linewidth=1.4, label="Observed market price")
+ax.axvline(s_est * 10000, color="dimgray", linestyle="--", linewidth=1.4, label=f"Static spread = {s_est*10000:.1f} bps")
+ax.scatter([s_est * 10000], [pv_at_s], s=55, color="black", zorder=3)
+ax.annotate(
+    "Intersection solves for the static spread",
+    xy=(s_est * 10000, pv_at_s),
+    xytext=(s_est * 10000 + 28, pv_at_s + 18),
+    arrowprops=dict(arrowstyle="->", linewidth=1),
+    fontsize=9,
+)
+ax.text(-80, vals[0] - 75, "Higher spread means heavier discounting\nand a lower present value.", fontsize=8.5)
+ax.text(355, price - 90, "The curve is smooth, not linear;\nit only looks linear over short ranges.", fontsize=8.5)
 plt.xlabel("Spread (basis points)")
 plt.ylabel("Present value ($)")
-plt.title("Finding the static spread")
-plt.legend()
-plt.grid(True)
+plt.title("Finding the static spread from a nonlinear present-value curve")
+plt.legend(fontsize=8)
+plt.grid(True, alpha=0.3)
+plt.tight_layout()
 plt.show()
-
-print(f"Estimated static spread: {s_est*10000:.1f} basis points")
 ```
-In this example the static spread is about 86 basis points. Economically, that means investors require roughly 86 basis points over the Treasury spot curve to hold this bond.
+
+In this example, the static spread is about 140 basis points. Economically, investors require roughly 140 basis points over the Treasury spot curve to hold this bond at a price of \$1,020.
+:::
 
 ---
 
@@ -400,32 +438,50 @@ This decomposition is useful because it tells us exactly where the pricing disto
 
 ```{python}
 #| label: fig-embedded-option-decomposition
-#| fig-cap: "Embedded-option decomposition: who owns the option determines the sign"
+#| fig-cap: "For a callable bond, the embedded call option is the gap between straight-bond value and callable-bond value"
 #| echo: false
+import numpy as np
 import matplotlib.pyplot as plt
 
-fig, axes = plt.subplots(1, 2, figsize=(7.0, 3.0), sharey=True)
+yields = np.linspace(0.025, 0.12, 250)
+coupon = 0.08
+face = 100
+n = 10
+t = np.arange(1, n + 1)
+cash_flows = np.full(n, coupon * face)
+cash_flows[-1] += face
 
-cases = [
-    ("Callable bond", [110, -8], ["Straight bond", "Issuer call"], ["#4C78A8", "#F58518"]),
-    ("Putable bond", [110, 6], ["Straight bond", "Investor put"], ["#4C78A8", "#54A24B"]),
-]
+straight = np.sum(cash_flows / (1 + yields[:, None]) ** t, axis=1)
+callable_price = straight - 16 / (1 + np.exp((yields - 0.055) / 0.007))
 
-for ax, (title, values, labels, colors) in zip(axes, cases):
-    bottom = 0
-    for value, label, color in zip(values, labels, colors):
-        ax.bar([0], [value], bottom=bottom, color=color, edgecolor="black", width=0.45)
-        y_text = bottom + value / 2
-        ax.text(0, y_text, label, ha="center", va="center", fontsize=8.2, color="white" if value > 20 else "black")
-        bottom += value
-    ax.axhline(0, color="black", linewidth=0.8)
-    ax.set_title(title)
-    ax.set_xticks([])
-    ax.grid(axis="y", alpha=0.25)
+target_yield = 0.045
+idx = np.argmin(np.abs(yields - target_yield))
 
-axes[0].set_ylabel("Value contribution")
-fig.suptitle("Callable subtracts option value; putable adds option value", y=0.98, fontsize=11)
-plt.tight_layout(rect=[0, 0, 1, 0.94])
+fig, ax = plt.subplots(figsize=(7, 4.0))
+ax.plot(yields * 100, straight, color="#1f77b4", linewidth=2.2, label="Option-free bond")
+ax.plot(yields * 100, callable_price, color="#2ca02c", linewidth=2.2, label="Callable bond")
+ax.vlines(
+    yields[idx] * 100,
+    callable_price[idx],
+    straight[idx],
+    color="black",
+    linewidth=1.5,
+    linestyles="--",
+)
+ax.annotate(
+    "Embedded call option value",
+    xy=(yields[idx] * 100, (straight[idx] + callable_price[idx]) / 2),
+    xytext=(6.4, 118),
+    arrowprops=dict(arrowstyle="->", linewidth=1),
+    fontsize=9,
+)
+ax.text(8.5, 104, r"$V_{\mathrm{callable}}=V_{\mathrm{straight}}-V_{\mathrm{call}}$", fontsize=10)
+ax.set_xlabel("Yield (%)")
+ax.set_ylabel("Bond value")
+ax.set_title("Decomposing a callable bond")
+ax.grid(True, alpha=0.3)
+ax.legend(fontsize=8)
+plt.tight_layout()
 plt.show()
 ```
 
@@ -452,7 +508,6 @@ The value at time 0 is the bond's model price.
 #| fig-cap: "Backward induction: start with future payoffs, then work back to today"
 #| echo: false
 import matplotlib.pyplot as plt
-from matplotlib.patches import FancyArrowPatch
 
 fig, ax = plt.subplots(figsize=(6.7, 3.6))
 
@@ -483,8 +538,7 @@ for label, x, y in nodes.values():
     ax.scatter(x, y, s=980, color="#E8F1FA", edgecolor="black", zorder=3)
     ax.text(x, y, label, ha="center", va="center", fontsize=9, zorder=4)
 
-ax.add_patch(FancyArrowPatch((3.35, 1.75), (-0.15, 0.05), arrowstyle="-|>", mutation_scale=18, linewidth=2.0, color="#D55E00"))
-ax.text(1.55, 2.35, "Valuation moves backward", ha="center", color="#D55E00", fontsize=11)
+ax.text(1.55, 2.35, "Valuation moves backward from payoffs to today's price", ha="center", color="black", fontsize=10.5)
 ax.text(1.55, -2.55, "Exercise decisions are checked before values are rolled back.", ha="center", fontsize=8.5)
 
 ax.set_xlim(-0.6, 3.8)
@@ -557,32 +611,99 @@ So the embedded option makes the bond **path-dependent**. The value depends not 
 
 ## Constructing a simple binomial interest-rate tree
 
-To illustrate, consider a three-year bond with annual coupons of 8 on a face value of 100. Assume annual time steps. We first construct a simple short-rate tree directly for intuition.
+To illustrate, consider a three-year bond with annual coupons of 8 on a face value of 100. Assume annual time steps. We first construct a short-rate tree directly for intuition.
 
 Suppose the short-rate lattice is:
 
-| Time | State 0 | State 1 | State 2 | State 3 |
-| ---- | ------: | ------: | ------: | ------: |
-| 0    |      5% |         |         |         |
-| 1    |      4% |      6% |         |         |
-| 2    |      3% |      5% |      7% |         |
-| 3    |      2% |      4% |      6% |      8% |
+| State | Year 0 | Year 1 | Year 2 | Year 3 |
+| ----- | -----: | -----: | -----: | -----: |
+| Low-rate state | 6% | 5% | 4% | 3% |
+| Middle state |  | 9% | 8% | 7% |
+| High-rate state |  |  | 12% | 11% |
+| Very high-rate state |  |  |  | 15% |
 
 Assume:
 
 * face value = 100
 * annual coupon = 8
-* callable at par, meaning call price = 100
+* callable at 107
 * first callable date = year 2
-* risk-neutral probability (p = 0.5)
+* risk-neutral probability $p=0.5$
 
-This simplified tree is excellent for teaching because it isolates the core logic of backward induction.
+This table puts time horizontally and states vertically. At each date, the node value is computed from the two adjacent nodes one year ahead.
+
+```{python}
+#| label: fig-simple-rate-lattice
+#| fig-cap: "Short-rate lattice used in the worked example"
+#| echo: false
+import matplotlib.pyplot as plt
+
+def draw_lattice(
+    nodes,
+    edges,
+    title,
+    node_color="#E8F1FA",
+    highlight_edges=None,
+    xticks=None,
+    xticklabels=None,
+    xlim=None,
+    node_size=1250,
+    font_size=8.5,
+):
+    fig, ax = plt.subplots(figsize=(7.0, 3.8))
+    highlight_edges = set(highlight_edges or [])
+
+    for start, end in edges:
+        x0, y0, _ = nodes[start]
+        x1, y1, _ = nodes[end]
+        color = "black" if (start, end) in highlight_edges else "#8A8A8A"
+        linewidth = 2.0 if (start, end) in highlight_edges else 1.1
+        ax.plot([x0, x1], [y0, y1], color=color, linewidth=linewidth, zorder=1)
+
+    for key, (x, y, label) in nodes.items():
+        ax.scatter(x, y, s=node_size, color=node_color, edgecolor="black", zorder=3)
+        ax.text(x, y, label, ha="center", va="center", fontsize=font_size, zorder=4)
+
+    ax.set_title(title)
+    ax.set_xticks(xticks or [0, 1, 2, 3])
+    ax.set_xticklabels(xticklabels or ["Year 0", "Year 1", "Year 2", "Year 3"])
+    ax.set_yticks([])
+    ax.spines[["left", "right", "top"]].set_visible(False)
+    ax.set_xlim(xlim or (-0.35, 3.35))
+    ax.set_ylim(-3.6, 3.6)
+    plt.tight_layout()
+    plt.show()
+
+rate_nodes = {
+    "0": (0, 0, "6%"),
+    "1L": (1, 1, "5%"),
+    "1H": (1, -1, "9%"),
+    "2L": (2, 2, "4%"),
+    "2M": (2, 0, "8%"),
+    "2H": (2, -2, "12%"),
+    "3L": (3, 3, "3%"),
+    "3ML": (3, 1, "7%"),
+    "3MH": (3, -1, "11%"),
+    "3H": (3, -3, "15%"),
+}
+
+lattice_edges = [
+    ("0", "1L"), ("0", "1H"),
+    ("1L", "2L"), ("1L", "2M"),
+    ("1H", "2M"), ("1H", "2H"),
+    ("2L", "3L"), ("2L", "3ML"),
+    ("2M", "3ML"), ("2M", "3MH"),
+    ("2H", "3MH"), ("2H", "3H"),
+]
+
+draw_lattice(rate_nodes, lattice_edges, "Each node is a possible one-year short rate")
+```
 
 ---
 
 ## Step-by-step numerical example: pricing an option-free bond and a callable bond
 
-We now price the bond **by hand** using backward induction.
+We now price the bond by hand using backward induction. The point of the example is to see exactly where the option changes the cash flows.
 
 ### Step 1: Terminal values at maturity
 
@@ -592,128 +713,254 @@ $$
 108 = 100 + 8
 $$
 
-So the year-3 node values are:
+So every year-3 terminal node has the same payoff:
 
-| Node at Year 3 | Bond Value |
-| -------------- | ---------: |
-| 2% state       |     108.00 |
-| 4% state       |     108.00 |
-| 6% state       |     108.00 |
-| 8% state       |     108.00 |
+| State | Year-3 payoff |
+| ----- | ------------: |
+| Low-rate state | 108.00 |
+| Middle state | 108.00 |
+| High-rate state | 108.00 |
+| Very high-rate state | 108.00 |
+
+```{python}
+#| label: fig-terminal-payoff-lattice
+#| fig-cap: "Step 1: terminal payoff is coupon plus principal at every maturity node"
+#| echo: false
+terminal_nodes = {
+    "0": (0, 0, "6%"),
+    "1L": (1, 1, "5%"),
+    "1H": (1, -1, "9%"),
+    "2L": (2, 2, "4%"),
+    "2M": (2, 0, "8%"),
+    "2H": (2, -2, "12%"),
+    "3L": (3, 3, "108"),
+    "3ML": (3, 1, "108"),
+    "3MH": (3, -1, "108"),
+    "3H": (3, -3, "108"),
+}
+
+draw_lattice(terminal_nodes, lattice_edges, "Start at maturity: value = 100 + 8 = 108")
+```
 
 ### Step 2: Move backward to year 2 for the option-free bond
 
-At each year-2 node, the option-free bond value is:
+At year 2, the option-free hold value is:
 
 $$
 V = \frac{0.5 \times 108 + 0.5 \times 108}{1 + r} + 8
 = \frac{108}{1+r} + 8
 $$
 
-#### Year 2, rate = 3%
+#### Year 2, rate = 4%
 
 $$
-V = \frac{108}{1.03} + 8 = 104.8544 + 8 = 112.8544
+V = \frac{108}{1.04} + 8 = 103.8462 + 8 = 111.8462
 $$
 
-#### Year 2, rate = 5%
+#### Year 2, rate = 8%
 
 $$
-V = \frac{108}{1.05} + 8 = 102.8571 + 8 = 110.8571
+V = \frac{108}{1.08} + 8 = 100.0000 + 8 = 108.0000
 $$
 
-#### Year 2, rate = 7%
+#### Year 2, rate = 12%
 
 $$
-V = \frac{108}{1.07} + 8 = 100.9346 + 8 = 108.9346
+V = \frac{108}{1.12} + 8 = 96.4286 + 8 = 104.4286
 $$
 
 So the option-free values at year 2 are:
 
 | Node at Year 2 | Hold Value |
 | -------------- | ---------: |
-| 3% state       |     112.85 |
-| 5% state       |     110.86 |
-| 7% state       |     108.93 |
+| 4% state       |     111.85 |
+| 8% state       |     108.00 |
+| 12% state      |     104.43 |
+
+```{python}
+#| label: fig-year2-sublattice
+#| fig-cap: "Step 2: each year-2 value is computed from the two adjacent terminal nodes"
+#| echo: false
+year2_nodes = {
+    "2L": (0, 2, "Year 2\nr=4%\nV=111.85"),
+    "2M": (0, 0, "Year 2\nr=8%\nV=108.00"),
+    "2H": (0, -2, "Year 2\nr=12%\nV=104.43"),
+    "3L": (1.4, 3, "108"),
+    "3ML": (1.4, 1, "108"),
+    "3MH": (1.4, -1, "108"),
+    "3H": (1.4, -3, "108"),
+}
+year2_edges = [
+    ("2L", "3L"), ("2L", "3ML"),
+    ("2M", "3ML"), ("2M", "3MH"),
+    ("2H", "3MH"), ("2H", "3H"),
+]
+
+draw_lattice(
+    year2_nodes,
+    year2_edges,
+    "Move from year 3 payoffs back to year 2 values",
+    xticks=[0, 1.4],
+    xticklabels=["Year 2", "Year 3"],
+    xlim=(-0.45, 1.85),
+    node_size=1700,
+    font_size=8.0,
+)
+```
 
 ### Step 3: Apply the call feature at year 2
 
-Because the bond is callable at par from year 2 onward, the issuer will compare the hold value with the call price of 100.
+Because the bond is callable at 107 from year 2 onward, the issuer compares the hold value with the call price. The issuer calls only if calling is cheaper than leaving the bond outstanding.
 
 For the callable bond:
 
 $$
-V^{\text{callable}} = \min\{\text{Hold Value},\ 100\}
+V^{\text{callable}} = \min\{\text{Hold Value},\ 107\}
 $$
 
 Thus:
 
 | Node at Year 2 | Hold Value | Callable Value |
 | -------------- | ---------: | -------------: |
-| 3% state       |     112.85 |         100.00 |
-| 5% state       |     110.86 |         100.00 |
-| 7% state       |     108.93 |         100.00 |
+| 4% state       |     111.85 |         107.00 |
+| 8% state       |     108.00 |         107.00 |
+| 12% state      |     104.43 |         104.43 |
 
-This is the key economic point: at year 2 the straight bond is worth more than 100 in every state, so the issuer calls the bond immediately in every state.
+This is the key economic point: the issuer calls in the low-rate states but not in the high-rate state. The option exercise decision is state-dependent.
+
+```{python}
+#| label: fig-call-rule-sublattice
+#| fig-cap: "Step 3: the call rule caps year-2 values above the call price"
+#| echo: false
+call_rule_nodes = {
+    "2L": (0, 2, "H=111.85\nC=107.00"),
+    "2M": (0, 0, "H=108.00\nC=107.00"),
+    "2H": (0, -2, "H=104.43\nNo call\nV=104.43"),
+}
+
+draw_lattice(
+    call_rule_nodes,
+    [],
+    "Callable value at year 2 is min(hold value, 107)",
+    xticks=[0],
+    xticklabels=["Year 2"],
+    xlim=(-0.75, 0.75),
+    node_size=2100,
+    font_size=7.8,
+)
+```
 
 ### Step 4: Move backward to year 1 for the option-free bond
 
 Now compute the option-free bond values at year 1 using the option-free year-2 values.
 
-#### Year 1, lower-rate node (r=4%)
+#### Year 1, lower-rate node, $r=5\%$
 
 $$
-V = \frac{0.5(110.8571) + 0.5(112.8544)}{1.04} + 8
-$$
-
-$$
-V = \frac{111.8558}{1.04} + 8 = 107.5537 + 8 = 115.5537
-$$
-
-#### Year 1, higher-rate node (r=6%)
-
-$$
-V = \frac{0.5(108.9346) + 0.5(110.8571)}{1.06} + 8
+V = \frac{0.5(108.0000) + 0.5(111.8462)}{1.05} + 8
 $$
 
 $$
-V = \frac{109.8959}{1.06} + 8 = 103.6754 + 8 = 111.6754
+V = \frac{109.9231}{1.05} + 8 = 104.6886 + 8 = 112.6886
+$$
+
+#### Year 1, higher-rate node, $r=9\%$
+
+$$
+V = \frac{0.5(104.4286) + 0.5(108.0000)}{1.09} + 8
+$$
+
+$$
+V = \frac{106.2143}{1.09} + 8 = 97.4443 + 8 = 105.4443
 $$
 
 So:
 
 | Node at Year 1 | Option-Free Value |
 | -------------- | ----------------: |
-| 4% state       |            115.55 |
-| 6% state       |            111.68 |
+| 5% state       |            112.69 |
+| 9% state       |            105.44 |
+
+```{python}
+#| label: fig-year1-straight-sublattice
+#| fig-cap: "Step 4: option-free year-1 values are rolled back from option-free year-2 values"
+#| echo: false
+year1_straight_nodes = {
+    "1L": (0, 1, "Year 1\nr=5%\nV=112.69"),
+    "1H": (0, -1, "Year 1\nr=9%\nV=105.44"),
+    "2L": (1.4, 2, "111.85"),
+    "2M": (1.4, 0, "108.00"),
+    "2H": (1.4, -2, "104.43"),
+}
+year1_edges = [
+    ("1L", "2L"), ("1L", "2M"),
+    ("1H", "2M"), ("1H", "2H"),
+]
+
+draw_lattice(
+    year1_straight_nodes,
+    year1_edges,
+    "Option-free rollback from year 2 to year 1",
+    xticks=[0, 1.4],
+    xticklabels=["Year 1", "Year 2"],
+    xlim=(-0.45, 1.85),
+    node_size=1900,
+    font_size=7.8,
+)
+```
 
 ### Step 5: Move backward to year 1 for the callable bond
 
-Now do the same using the callable values at year 2, which are both 100 in every reachable state.
+Now do the same using the callable values at year 2.
 
-#### Year 1, rate = 4%
-
-$$
-V = \frac{0.5(100) + 0.5(100)}{1.04} + 8
-= \frac{100}{1.04} + 8
-= 96.1538 + 8
-= 104.1538
-$$
-
-#### Year 1, rate = 6%
+#### Year 1, rate = 5%
 
 $$
-V = \frac{100}{1.06} + 8
-= 94.3396 + 8
-= 102.3396
+V = \frac{0.5(107.0000) + 0.5(107.0000)}{1.05} + 8
+= \frac{107}{1.05} + 8
+= 101.9048 + 8
+= 109.9048
+$$
+
+#### Year 1, rate = 9%
+
+$$
+V = \frac{0.5(104.4286) + 0.5(107.0000)}{1.09} + 8
+= \frac{105.7143}{1.09} + 8
+= 96.9856 + 8
+= 104.9856
 $$
 
 So:
 
 | Node at Year 1 | Callable Value |
 | -------------- | -------------: |
-| 4% state       |         104.15 |
-| 6% state       |         102.34 |
+| 5% state       |         109.90 |
+| 9% state       |         104.99 |
+
+```{python}
+#| label: fig-year1-callable-sublattice
+#| fig-cap: "Step 5: callable year-1 values use the call-adjusted year-2 values"
+#| echo: false
+year1_callable_nodes = {
+    "1L": (0, 1, "Year 1\nr=5%\nV=109.90"),
+    "1H": (0, -1, "Year 1\nr=9%\nV=104.99"),
+    "2L": (1.4, 2, "107.00"),
+    "2M": (1.4, 0, "107.00"),
+    "2H": (1.4, -2, "104.43"),
+}
+
+draw_lattice(
+    year1_callable_nodes,
+    year1_edges,
+    "Callable rollback from year 2 to year 1",
+    xticks=[0, 1.4],
+    xticklabels=["Year 1", "Year 2"],
+    xlim=(-0.45, 1.85),
+    node_size=1900,
+    font_size=7.8,
+)
+```
 
 ### Step 6: Move backward to time 0
 
@@ -721,29 +968,52 @@ So:
 
 $$
 V_0^{\text{straight}} =
-\frac{0.5(115.5537) + 0.5(111.6754)}{1.05} + 8
+\frac{0.5(112.6886) + 0.5(105.4443)}{1.06} + 8
 $$
 
 $$
 V_0^{\text{straight}} =
-\frac{113.6146}{1.05} + 8
-= 108.2044 + 8
-= 116.2044
+\frac{109.0665}{1.06} + 8
+= 102.8930 + 8
+= 110.8930
 $$
 
 #### Callable bond at time 0
 
 $$
 V_0^{\text{callable}} =
-\frac{0.5(104.1538) + 0.5(102.3396)}{1.05} + 8
+\frac{0.5(109.9048) + 0.5(104.9856)}{1.06} + 8
 $$
 
 $$
 V_0^{\text{callable}} =
-\frac{103.2467}{1.05} + 8
-= 98.3302 + 8
-= 106.3302
+\frac{107.4452}{1.06} + 8
+= 101.3634 + 8
+= 109.3634
 $$
+
+```{python}
+#| label: fig-time0-sublattice
+#| fig-cap: "Step 6: final rollback gives today's option-free and callable values"
+#| echo: false
+time0_nodes = {
+    "0": (0, 0, "Today\nr=6%\nS=110.89\nC=109.36"),
+    "1L": (1.55, 1, "Year 1\nS=112.69\nC=109.90"),
+    "1H": (1.55, -1, "Year 1\nS=105.44\nC=104.99"),
+}
+time0_edges = [("0", "1L"), ("0", "1H")]
+
+draw_lattice(
+    time0_nodes,
+    time0_edges,
+    "Roll year-1 values back to time 0",
+    xticks=[0, 1.55],
+    xticklabels=["Year 0", "Year 1"],
+    xlim=(-0.55, 2.15),
+    node_size=2900,
+    font_size=7.3,
+)
+```
 
 ### Step 7: Embedded call option value
 
@@ -754,141 +1024,246 @@ V_{\text{call option}} = V_{\text{straight}} - V_{\text{callable}}
 $$
 
 $$
-V_{\text{call option}} = 116.2044 - 106.3302 = 9.8742
+V_{\text{call option}} = 110.8930 - 109.3634 = 1.5296
 $$
 
 So in this example:
 
 | Quantity                   |  Value |
 | -------------------------- | -----: |
-| Option-free bond price     | 116.20 |
-| Callable bond price        | 106.33 |
-| Embedded call option value |   9.87 |
+| Option-free bond price     | 110.89 |
+| Callable bond price        | 109.36 |
+| Embedded call option value |   1.53 |
 
-### Interpretation of the numerical example
+::: {.callout-important title="Interpretation of the numerical example"}
 
-This example teaches three important things.
+- The callable bond is worth less than the straight bond because the issuer owns the call option.
 
-First, the callable bond is worth less than the straight bond because the issuer owns the call option.
+- The option matters most in low-rate states. At year 2, the issuer calls in the 4% and 8% states because the hold value is above the call price of 107. At 12%, the issuer does not call because the bond is worth only 104.43 if left outstanding.
 
-Second, the option matters most when rates are low and the straight bond is worth substantially above par. In those states, the issuer will refinance and cap the investor's upside.
-
-Third, the lattice makes the exercise decision explicit at each node. That is the real advantage of the model.
-
-::: {.callout-note title="Worked Example: When the Call Is Exercised Only in Low-Rate States"}
-The previous example calls the bond in every year-2 state. More realistically, the issuer may call only when rates are low enough.
-
-Assume the same 3-year annual-pay bond:
-
-- face value = 100;
-- coupon = 8;
-- callable at par from year 2;
-- risk-neutral probability $p=0.5$.
-
-Now suppose the year-2 short rates are higher:
-
-| Year-2 short rate | Option-free hold value |
-|---:|---:|
-| 4% | $\frac{108}{1.04}+8=111.85$ |
-| 8% | $\frac{108}{1.08}+8=108.00$ |
-| 12% | $\frac{108}{1.12}+8=104.43$ |
-
-If the call price is 107, the callable value at year 2 is:
-
-| Year-2 short rate | Hold value | Callable value |
-|---:|---:|---:|
-| 4% | 111.85 | 107.00 |
-| 8% | 108.00 | 107.00 |
-| 12% | 104.43 | 104.43 |
-
-The issuer calls in the 4% and 8% states because the bond is worth more than the call price. The issuer does not call in the 12% state because keeping the bond outstanding is cheaper than paying 107.
-
-The key lesson is that the call rule is **state-dependent**. The lattice is useful because it checks the exercise decision separately at each future node.
+- The lattice makes the exercise decision explicit at each node. That is the real advantage of the method: the model does not assume one call date mechanically; it checks whether exercise is economically optimal in each state.
 :::
 
----
+::: {.callout-note title="Worked Example: Pricing a Putable Bond on a Lattice"}
 
-## A compact implementation of the same logic
+Now consider a two-year annual-pay bond with:
 
-The same backward-induction logic can be implemented mechanically. The calculation below reproduces the option-free price, callable price, and embedded call option value from the classroom example.
+* face value = 100
+* annual coupon = 5
+* current one-year short rate = 6%
+* year-1 short rates: 4% in the low-rate state and 12% in the high-rate state
+* risk-neutral probability $p=0.5$
+* putable at 100 in year 1
+
+The short-rate lattice is:
+
+| State | Year 0 | Year 1 | Year 2 |
+| ----- | -----: | -----: | -----: |
+| Low-rate state | 6% | 4% |  |
+| High-rate state |  | 12% |  |
+
+At maturity, the payoff is:
+
+$$
+105 = 100 + 5.
+$$
+
+At year 1, first compute the continuation value before applying the put:
+
+$$
+V_{\text{hold}}=\frac{105}{1+r}+5.
+$$
+
+For the low-rate node:
+
+$$
+V_{\text{hold, low}}=\frac{105}{1.04}+5=105.9615.
+$$
+
+For the high-rate node:
+
+$$
+V_{\text{hold, high}}=\frac{105}{1.12}+5=98.7500.
+$$
+
+The investor keeps the bond in the low-rate state, but puts the bond back to the issuer in the high-rate state:
+
+| Year-1 state | Hold value | Put value | Putable value |
+| ------------ | ---------: | --------: | ------------: |
+| 4% state | 105.96 | 100.00 | 105.96 |
+| 12% state | 98.75 | 100.00 | 100.00 |
+
+Finally, roll the year-1 values back to today:
+
+$$
+V_0^{\text{putable}}
+=
+\frac{0.5(105.9615)+0.5(100.0000)}{1.06}+5
+=102.1517.
+$$
 
 ```{python}
-#| label: fig-binomial-valuation
-#| fig-cap: "Valuing a 3-year bond with and without a call option using a simple interest-rate lattice"
-rates = [
-    [0.05],
-    [0.04, 0.06],
-    [0.03, 0.05, 0.07],
-    [0.02, 0.04, 0.06, 0.08]
+#| label: fig-putable-worked-example
+#| fig-cap: "Worked Example 2: pricing a putable bond by backward induction"
+#| echo: false
+putable_nodes = {
+    "0": (0, 0, "Today\nr=6%\nV=102.15"),
+    "1L": (1.45, 1.35, "Year 1\nr=4%\nHold=105.96\nV=105.96"),
+    "1H": (1.45, -1.35, "Year 1\nr=12%\nHold=98.75\nPut=100.00\nV=100.00"),
+    "2L": (2.9, 2.5, "105"),
+    "2M": (2.9, 0, "105"),
+    "2H": (2.9, -2.5, "105"),
+}
+putable_edges = [
+    ("0", "1L"), ("0", "1H"),
+    ("1L", "2L"), ("1L", "2M"),
+    ("1H", "2M"), ("1H", "2H"),
 ]
 
-p = 0.5
-coupon = 8
-face = 100
-call_price = 100
-
-def backward_price(tree_rates, coupon, face, p=0.5, call_price=None, callable_from=None):
-    n = len(tree_rates) - 1
-    values = [face + coupon] * len(tree_rates[-1])
-
-    for i in range(n - 1, -1, -1):
-        new_values = []
-        for j in range(i + 1):
-            hold = (p * values[j + 1] + (1 - p) * values[j]) / (1 + tree_rates[i][j]) + coupon
-            if call_price is not None and callable_from is not None and i >= callable_from:
-                new_values.append(min(hold, call_price))
-            else:
-                new_values.append(hold)
-        values = new_values
-    return values[0]
-
-price_straight = backward_price(rates, coupon, face, p=p)
-price_callable = backward_price(rates, coupon, face, p=p, call_price=call_price, callable_from=2)
-option_value = price_straight - price_callable
-
-print(f"Option-free price: {price_straight:.4f}")
-print(f"Callable price:    {price_callable:.4f}")
-print(f"Call option value: {option_value:.4f}")
+draw_lattice(
+    putable_nodes,
+    putable_edges,
+    "Putable bond: max(hold value, put price) at year 1",
+    xticks=[0, 1.45, 2.9],
+    xticklabels=["Year 0", "Year 1", "Year 2"],
+    xlim=(-0.45, 3.35),
+    node_size=2600,
+    font_size=7.2,
+)
 ```
+
+This second example shows that the same lattice logic works for an investor-owned option. A callable bond uses a **minimum** rule because the issuer chooses the lower cost. A putable bond uses a **maximum** rule because the investor chooses the higher value.
+:::
 
 ---
 
 ## Constructing a model-based binomial tree
 
-In more formal models, rates evolve according to a short-rate process rather than being assigned directly. For example, with a lognormal up and down structure:
+The previous tree was chosen for teaching. A model-based tree is different: it is built so that it is consistent with observable market prices.
+
+The inputs are:
+
+* today's benchmark spot curve or issuer curve;
+* a short-rate model;
+* an assumed interest-rate volatility;
+* a time step, such as one year, six months, or one month.
+
+The first node is today's one-period short rate. From that node, the model allows rates to move up or down. A common lognormal specification uses an up factor and a down factor:
 
 $$
 u = e^{\sigma \sqrt{\Delta t}}, \qquad d = \frac{1}{u}
 $$
 
-and a stylized risk-neutral probability
+where $\sigma$ is the assumed volatility and $\Delta t$ is the length of one time step. Higher volatility spreads the upper and lower nodes farther apart. Lower volatility keeps the tree tighter.
+
+Calibration then chooses the level of rates at each future date so that the tree prices the market's on-the-run issues correctly. This is why the tree is called **arbitrage-free**: if the model could not reproduce the prices of the benchmark bonds used to build it, the model would be internally inconsistent with the observed curve.
+
+The construction is iterative:
+
+1. Start with today's one-period rate.
+2. Choose a trial value for the lower future short rate.
+3. Use the volatility assumption to determine the corresponding higher rate.
+4. Price the next benchmark bond by backward induction.
+5. Adjust the trial rate until the model price equals the observed market price.
+6. Repeat the process one maturity at a time to extend the tree.
+
+For example, suppose one-year rates can move up or down after one year. If the lower one-year forward rate one year from now is $r_{1,L}$, a lognormal tree with annual volatility $\sigma$ sets the upper rate as:
 
 $$
-p = \frac{e^{r \Delta t} - d}{u - d}
+r_{1,H}=r_{1,L}e^{2\sigma}.
 $$
 
-A short-rate tree can then be generated from an initial rate (r_0). The point of such a tree is not just to create possible future rates, but to calibrate those rates so that the model reproduces today's observed yield curve.
+The factor $e^{2\sigma}$ creates the spread between the low and high future rates. If $\sigma=10\%$ and $r_{1,L}=4.074\%$, then:
+
+$$
+r_{1,H}=4.074\% \times e^{0.20}=4.976\%.
+$$
+
+This pair of rates is not chosen because it looks plausible. It is accepted only if, when used in the tree, it correctly prices the relevant two-year benchmark bond. The same logic is then used to find the next set of rates for year 2, and so on.
+
+The key intuition is that the tree has two jobs. It must represent possible future rate uncertainty, and it must remain anchored to today's observed term structure. A tree that only simulates rates but does not fit current bond prices is not suitable for valuation.
+
+::: {.callout-note title="Example: Calibrating Four Maturities of the Zero Curve"}
+Suppose the annual zero curve is:
+
+| Maturity | Zero rate | Market discount factor |
+| -------: | --------: | ---------------------: |
+| 1 year | 4.00% | 0.96154 |
+| 2 years | 4.50% | 0.91573 |
+| 3 years | 5.00% | 0.86384 |
+| 4 years | 5.25% | 0.81469 |
+
+A tree with only $r_0$, $\sigma$, and $\Delta t$ cannot generally fit all four discount factors. A calibrated tree adds one level parameter per time step. A simple way to write this is:
+
+$$
+r_{t,j}=a_t e^{(2j-t)\sigma},
+$$
+
+where $a_t$ is the level parameter for year $t$, $j$ indexes the state, and $\sigma$ controls the spacing between states. The volatility fixes the relative distance between rates at the same date; calibration chooses $a_t$ so the tree matches the market zero price for that maturity.
+
+With annual steps, $\sigma=10\%$, and equal risk-neutral probabilities, one calibrated set of short rates is:
 
 ```{python}
-#| label: fig-generated-tree
-#| fig-cap: "Example of a generated binomial short-rate tree"
+#| echo: false
 import numpy as np
+import pandas as pd
 
-def generated_binomial_tree(r0, sigma, n, dt):
-    u = np.exp(sigma * np.sqrt(dt))
-    d = 1 / u
-    p = (np.exp(r0 * dt) - d) / (u - d)
-    rates = [[r0 * (u**j) * (d**(i-j)) for j in range(i + 1)] for i in range(n + 1)]
-    return rates, p
+zero_rates = np.array([0.0400, 0.0450, 0.0500, 0.0525])
+maturities = np.arange(1, 5)
+market_dfs = (1 + zero_rates) ** (-maturities)
+sigma = 0.10
 
-rates_gen, p_gen = generated_binomial_tree(r0=0.05, sigma=0.10, n=3, dt=1.0)
+levels = []
+state_rates = []
+tree_dfs = []
 
-for i, level in enumerate(rates_gen):
-    print(f"Time {i}: {[round(x, 4) for x in level]}")
-print(f"Risk-neutral probability: {p_gen:.4f}")
+previous_discount_values = np.array([1.0])
+
+for t, market_df in enumerate(market_dfs):
+    spacing = np.exp((2 * np.arange(t + 1) - t) * sigma)
+
+    def model_df(level):
+        rates = level * spacing
+        discounted_next = np.zeros(t + 1)
+        discounted_next[0] += 0.5 * previous_discount_values[0] / (1 + rates[0])
+        discounted_next[-1] += 0.5 * previous_discount_values[-1] / (1 + rates[-1])
+        for j in range(1, t):
+            discounted_next[j] += 0.5 * previous_discount_values[j - 1] / (1 + rates[j])
+            discounted_next[j] += 0.5 * previous_discount_values[j] / (1 + rates[j])
+        return discounted_next.sum(), discounted_next
+
+    lo, hi = 0.0, 0.30
+    for _ in range(80):
+        mid = (lo + hi) / 2
+        df_mid, _ = model_df(mid)
+        if df_mid > market_df:
+            lo = mid
+        else:
+            hi = mid
+
+    level = (lo + hi) / 2
+    df_model, previous_discount_values = model_df(level)
+    rates = level * spacing
+
+    levels.append(level)
+    state_rates.append(", ".join(f"{100 * r:.2f}%" for r in rates))
+    tree_dfs.append(df_model)
+
+calibration_table = pd.DataFrame({
+    "Maturity": [f"{t} year" if t == 1 else f"{t} years" for t in maturities],
+    "Market DF": [f"{x:.5f}" for x in market_dfs],
+    "Calibrated level a_t": [f"{100 * x:.2f}%" for x in levels],
+    "Short rates at that date": state_rates,
+    "Tree DF": [f"{x:.5f}" for x in tree_dfs],
+})
+
+calibration_table
 ```
 
-In practice, professional valuation systems use calibrated models such as Ho-Lee, Black-Derman-Toy, Hull-White, or Black-Karasinski. The teaching objective here is not the full calibration machinery, but the economic structure of the valuation.
+The important point is not the specific numbers. The important point is the number of calibration knobs. With four maturities, the tree uses four level parameters, $a_0,a_1,a_2,a_3$, to fit four market discount factors. The volatility parameter still matters, but it controls the spread between states, not the overall level needed to match the zero curve.
+:::
+
+In practice, professional valuation systems use calibrated models such as Ho-Lee, Black-Derman-Toy, Hull-White, or Black-Karasinski. The teaching objective here is not the full calibration machinery, but the economic structure: volatility determines the spacing of nodes, while calibration determines the level of the tree.
 
 ---
 
@@ -896,7 +1271,7 @@ In practice, professional valuation systems use calibrated models such as Ho-Lee
 
 The lattice framework can be extended to corporate bonds in several ways.
 
-One approach is to add a credit spread (s) to each node's short rate:
+One approach is to add a credit spread $s$ to each node's short rate:
 
 $$
 r_{i,j}^{\text{risky}} = r_{i,j} + s
@@ -910,81 +1285,86 @@ These extensions are important in practice because many callable bonds are corpo
 
 ## Implementation challenges
 
-Real-world implementation is harder than the classroom example suggests. A practical model must decide:
+The classroom tree is intentionally small. The main implementation issues in practice are narrower and more specific:
 
-* how to fit the current zero curve
-* how to model volatility
-* how to model mean reversion
-* how to treat credit risk and liquidity
-* how to handle complex call schedules
-* how to incorporate sinking funds, make-whole calls, or prepayment behavior
+* **Curve fit.** The model must reproduce the current benchmark curve or issuer curve used for valuation. A poor curve fit contaminates every node value.
+* **Volatility input.** Callable-bond values are sensitive to assumed rate volatility. Higher volatility increases the value of the issuer's call option and lowers the callable bond's value.
+* **Exercise rule.** The model must reflect the actual call schedule, call prices, notice periods, make-whole terms, and any restrictions on exercise.
+* **Timing.** Real cash flows may not fall exactly on lattice dates. The model must handle coupon dates, call dates, and settlement dates without distorting discounting.
+* **Credit treatment.** For corporate bonds, the analyst must decide whether credit risk enters through an issuer curve, an added spread, explicit default probabilities, or some combination.
 
-Even so, the lattice remains one of the clearest frameworks for understanding the economics of embedded options.
+These choices matter because OAS and effective duration are model outputs. They are only as reliable as the curve, volatility, and exercise assumptions used to produce them.
 
 ---
 
 ## Option-Adjusted Spread (OAS)
 
-The **option-adjusted spread** measures the constant spread over the risk-free curve that equates the model price of a bond, after adjusting for embedded option effects, to its market price.
+The **option-adjusted spread (OAS)** is the constant spread added to every short rate in the calibrated tree so that the model value equals the market price.
 
-Unlike the static spread, the OAS discounts **expected path-dependent cash flows**, not simply promised contractual cash flows.
+The word **option-adjusted** matters. For a callable bond, the model first allows future cash flows to change when the issuer optimally calls the bond. The spread is then solved after those option-dependent cash flows have been modeled.
 
-A general expression is:
+Conceptually, OAS solves:
 
 $$
 P_{\text{market}}
-  = \sum_{\text{paths}}
-  \frac{\Pr(\text{path}) \times CF_{\text{path}}}
-       {\prod_{i}(1 + r_{i,\text{path}} + s_{\text{OAS}})^{\Delta t}}
+  =
+  \text{model value using }
+  (r_{i,j}+s_{\text{OAS}})
+  \text{ and the embedded-option exercise rule.}
 $$
 
-where the sum runs over all interest-rate paths.
+This is different from a static spread. Static spread discounts the promised cash-flow schedule. OAS discounts model-implied cash flows that may change across interest-rate paths.
 
-### Why OAS matters
+### Why OAS is useful
 
-Suppose two bonds have the same nominal spread over Treasuries, but one is callable and the other is not. The callable bond's spread partly compensates the investor for being short the call option. The OAS attempts to strip out that option effect.
+Traditional yield spread has two major weaknesses for callable bonds. First, it compares one yield with one benchmark maturity, so it does not fully use the spot curve. Second, it ignores the fact that future cash flows may change when rates move. Static spread fixes the first problem but not the second. OAS is designed to address both.
 
-That makes OAS a cleaner measure of relative value when embedded options matter.
+For a callable bond, the quoted spread includes compensation for:
 
-### Relating nominal spread, static spread, and OAS
+* credit and liquidity risk;
+* uncertainty about future rates;
+* the investor's short position in the issuer's call option.
 
-* **Nominal spread** compares one yield with another yield.
-* **Static spread** discounts promised cash flows using the spot curve plus a constant spread.
-* **OAS** discounts expected option-adjusted cash flows using a model of future rates and option exercise.
+OAS attempts to express the compensation left after the model has accounted for the embedded option.
 
-So for bonds with embedded options, OAS is usually the economically relevant spread measure.
+### Benchmark choice
 
-### Determining the option cost in spread terms
+The interpretation of OAS depends on the curve used to build the tree:
 
-If a callable bond has a nominal spread of 150 basis points but an OAS of 100 basis points, then roughly 50 basis points of the nominal spread reflect the call option rather than pure credit or liquidity compensation.
+| Tree built from | What OAS mainly reflects |
+| --------------- | ------------------------ |
+| Treasury or risk-free curve | Credit, liquidity, relative value, and any model error after option effects |
+| Issuer curve | Richness or cheapness relative to that issuer's own curve |
 
-```{python}
-#| label: fig-oas-option-cost
-#| fig-cap: "For a callable bond, part of the nominal spread compensates the investor for the embedded call option"
-#| echo: false
-import matplotlib.pyplot as plt
+This is why an OAS quote is incomplete unless we know the benchmark curve, volatility assumption, and model.
 
-nominal_spread = 150
-oas = 100
-option_cost = nominal_spread - oas
+### Solving for OAS
 
-fig, ax = plt.subplots(figsize=(7, 2.8))
-ax.barh(["Callable bond\nspread"], [oas], color="#4C78A8", edgecolor="black", height=0.45, label="OAS")
-ax.barh(["Callable bond\nspread"], [option_cost], left=[oas], color="#F58518", edgecolor="black", height=0.45, label="Option cost")
+The calculation is a root-finding problem:
 
-ax.text(oas / 2, 0, "OAS\n100 bps", ha="center", va="center", color="white", fontsize=10)
-ax.text(oas + option_cost / 2, 0, "Option\ncost\n50 bps", ha="center", va="center", fontsize=10)
-ax.axvline(nominal_spread, color="black", linestyle="--", linewidth=1)
-ax.text(nominal_spread + 3, 0.28, "Nominal spread = 150 bps", fontsize=9)
+1. Build an arbitrage-free short-rate tree from the chosen curve and volatility.
+2. Add a trial spread to every node rate.
+3. Value the bond by backward induction, applying the call or put rule at each exercise node.
+4. Compare the model value with the market price.
+5. Raise or lower the trial spread until the model value equals the market price.
 
-ax.set_xlim(0, 180)
-ax.set_xlabel("Basis points")
-ax.set_title("OAS removes the model-estimated option component")
-ax.spines[["top", "right", "left"]].set_visible(False)
-ax.tick_params(axis="y", length=0)
-plt.tight_layout()
-plt.show()
-```
+### Option cost in spread terms
+
+For an option-free bond, static spread and OAS are usually close if the same curve is used. For a callable bond, the static spread is usually larger because it values the promised maturity cash flows and ignores that the issuer may call the bond.
+
+The option cost in spread terms is often summarized as:
+
+$$
+\text{Option cost} = \text{Static spread} - \text{OAS}.
+$$
+
+For example, if a callable bond has a static spread of 150 basis points and an OAS of 100 basis points, then about 50 basis points compensate the investor for the embedded call option.
+
+::: {.callout-note title="OAS Intuition"}
+OAS is not the total spread investors see in a yield quote. It is the spread left after the model has allowed interest rates to move and has allowed the embedded option to change the bond's cash flows.
+:::
+
+Higher assumed volatility generally lowers the OAS of a callable bond because the issuer's call option becomes more valuable. For a putable bond, higher volatility tends to raise the value of the investor's put option.
 
 ---
 
@@ -996,7 +1376,7 @@ Instead, we use **effective duration** and **effective convexity**, which are ba
 
 Let:
 
-* (P_0) = base price
+* $P_0$ = base price
 * $P_-$ = price when the curve shifts **down** by $\Delta y$
 * $P_+$ = price when the curve shifts **up** by $\Delta y$
 
@@ -1043,31 +1423,234 @@ plt.tight_layout()
 plt.show()
 ```
 
-### Example 2 - Effective duration and convexity
+::: {.callout-note title="Interactive Example: Four-Period Lattice Valuation"}
+The maturity is fixed at four annual periods. Change the bond and lattice assumptions to see how the short-rate tree, model price, OAS, effective duration, and effective convexity respond.
 
-Using the callable bond in our lattice example, we can shift the entire short-rate tree up and down by 50 basis points and reprice the bond.
+This example is interactive in the HTML version of the lecture.
 
-```{python}
-#| label: fig-effective-duration-convexity
-#| fig-cap: "Illustrating the computation of effective duration and convexity for a callable bond"
-delta_y = 0.005
+```{=html}
+<div id="lec8-lattice-tool" style="padding: 1em; background: #f8f9fa; border-radius: 6px; margin: 1em 0;">
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0.75em; align-items: end;">
+    <label><strong>Face value</strong><br>
+      <input type="number" id="lec8-face" value="100" min="1" step="1" style="width: 100%;">
+    </label>
+    <label><strong>Coupon rate (%)</strong><br>
+      <input type="number" id="lec8-coupon-rate" value="6" min="0" step="0.25" style="width: 100%;">
+    </label>
+    <label><strong>Current short rate (%)</strong><br>
+      <input type="number" id="lec8-r0" value="5" min="0" step="0.25" style="width: 100%;">
+    </label>
+    <label><strong>Volatility (%)</strong><br>
+      <input type="number" id="lec8-sigma" value="12" min="0" step="1" style="width: 100%;">
+    </label>
+    <label><strong>Option type</strong><br>
+      <select id="lec8-option-type" style="width: 100%;">
+        <option value="call">Callable</option>
+        <option value="put">Putable</option>
+        <option value="none">Option-free</option>
+      </select>
+    </label>
+    <label><strong>Option price</strong><br>
+      <input type="number" id="lec8-option-price" value="100" min="0" step="0.25" style="width: 100%;">
+    </label>
+    <label><strong>First exercise period</strong><br>
+      <input type="number" id="lec8-exercise-from" value="2" min="1" max="3" step="1" style="width: 100%;">
+    </label>
+    <label><strong>Market price</strong><br>
+      <input type="number" id="lec8-market-price" value="102" min="1" step="0.25" style="width: 100%;">
+    </label>
+    <label><strong>Rate shock (bp)</strong><br>
+      <input type="number" id="lec8-shock-bp" value="50" min="1" step="1" style="width: 100%;">
+    </label>
+  </div>
 
-def shift_tree(tree, shift):
-    return [[r + shift for r in level] for level in tree]
+  <div id="lec8-lattice-results" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.6em; margin-top: 1em;"></div>
+  <div id="lec8-lattice-svg" style="overflow-x: auto; margin-top: 1em; background: white; border: 1px solid #ddd; border-radius: 6px;"></div>
+  <p style="font-size: 0.9em; margin-top: 0.75em;">The displayed node value is the option-adjusted bond value at that node. OAS is solved by adding a constant spread to every node rate until the model price equals the market price.</p>
+</div>
 
-price_base = backward_price(rates, coupon, face, p=p, call_price=call_price, callable_from=2)
-price_up = backward_price(shift_tree(rates, delta_y), coupon, face, p=p, call_price=call_price, callable_from=2)
-price_down = backward_price(shift_tree(rates, -delta_y), coupon, face, p=p, call_price=call_price, callable_from=2)
+<script>
+function lec8FormatPct(x) {
+  return (100 * x).toFixed(2) + "%";
+}
 
-effective_duration = (price_down - price_up) / (2 * price_base * delta_y)
-effective_convexity = (price_down + price_up - 2 * price_base) / (price_base * delta_y**2)
+function lec8BuildTree(r0, sigma, n, shift) {
+  const tree = [];
+  for (let i = 0; i <= n; i++) {
+    const level = [];
+    for (let j = 0; j <= i; j++) {
+      level.push(Math.max(-0.95, r0 * Math.exp((2 * j - i) * sigma) + shift));
+    }
+    tree.push(level);
+  }
+  return tree;
+}
 
-print(f"Base price:            {price_base:.4f}")
-print(f"Price with rates up:   {price_up:.4f}")
-print(f"Price with rates down: {price_down:.4f}")
-print(f"Effective duration:    {effective_duration:.4f}")
-print(f"Effective convexity:   {effective_convexity:.4f}")
+function lec8PriceTree(rateTree, params, spread) {
+  const n = 4;
+  const p = 0.5;
+  const coupon = params.face * params.couponRate;
+  let values = Array(n + 1).fill(params.face + coupon);
+  const levels = [values.slice()];
+
+  for (let i = n - 1; i >= 0; i--) {
+    const next = [];
+    for (let j = 0; j <= i; j++) {
+      const r = rateTree[i][j] + spread;
+      let hold = (p * values[j + 1] + (1 - p) * values[j]) / (1 + r) + coupon;
+      if (params.optionType === "call" && i >= params.exerciseFrom && i < n) {
+        hold = Math.min(hold, params.optionPrice);
+      } else if (params.optionType === "put" && i >= params.exerciseFrom && i < n) {
+        hold = Math.max(hold, params.optionPrice);
+      }
+      next.push(hold);
+    }
+    values = next;
+    levels.unshift(values.slice());
+  }
+
+  return { price: values[0], levels: levels };
+}
+
+function lec8SolveOas(rateTree, params) {
+  let lo = -0.20;
+  let hi = 0.20;
+  const priceAt = s => lec8PriceTree(rateTree, params, s).price;
+  let priceLo = priceAt(lo);
+  let priceHi = priceAt(hi);
+
+  if (!Number.isFinite(priceLo) || !Number.isFinite(priceHi) || params.marketPrice > priceLo || params.marketPrice < priceHi) {
+    return NaN;
+  }
+
+  for (let k = 0; k < 80; k++) {
+    const mid = 0.5 * (lo + hi);
+    const priceMid = priceAt(mid);
+    if (priceMid > params.marketPrice) {
+      lo = mid;
+    } else {
+      hi = mid;
+    }
+  }
+  return 0.5 * (lo + hi);
+}
+
+function lec8DrawSvg(rateTree, valueLevels, params, oas) {
+  const width = 900;
+  const height = 470;
+  const marginX = 80;
+  const midY = 235;
+  const stepX = 180;
+  const stepY = 74;
+  const n = 4;
+  const positions = [];
+
+  for (let i = 0; i <= n; i++) {
+    positions[i] = [];
+    for (let j = 0; j <= i; j++) {
+      positions[i][j] = {
+        x: marginX + i * stepX,
+        y: midY + (i - 2 * j) * stepY / 2
+      };
+    }
+  }
+
+  let svg = `<svg viewBox="0 0 ${width} ${height}" width="100%" height="470" role="img" aria-label="Four-period interest-rate lattice">`;
+  svg += `<rect x="0" y="0" width="${width}" height="${height}" fill="white"></rect>`;
+
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j <= i; j++) {
+      const a = positions[i][j];
+      const b = positions[i + 1][j];
+      const c = positions[i + 1][j + 1];
+      svg += `<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="#888" stroke-width="1.4"></line>`;
+      svg += `<line x1="${a.x}" y1="${a.y}" x2="${c.x}" y2="${c.y}" stroke="#888" stroke-width="1.4"></line>`;
+    }
+  }
+
+  for (let i = 0; i <= n; i++) {
+    svg += `<text x="${marginX + i * stepX}" y="440" text-anchor="middle" font-size="14">T${i}</text>`;
+    for (let j = 0; j <= i; j++) {
+      const pos = positions[i][j];
+      const rate = lec8FormatPct(rateTree[i][j]);
+      const value = valueLevels[i] && valueLevels[i][j] !== undefined ? valueLevels[i][j].toFixed(2) : "";
+      svg += `<circle cx="${pos.x}" cy="${pos.y}" r="39" fill="#E8F1FA" stroke="black" stroke-width="1.6"></circle>`;
+      svg += `<text x="${pos.x}" y="${pos.y - 8}" text-anchor="middle" font-size="12">r=${rate}</text>`;
+      svg += `<text x="${pos.x}" y="${pos.y + 10}" text-anchor="middle" font-size="12">V=${value}</text>`;
+    }
+  }
+
+  svg += `<text x="20" y="25" font-size="14">Maturity fixed at 4 periods; p = 0.5; OAS = ${Number.isFinite(oas) ? (10000 * oas).toFixed(1) + " bp" : "not bracketed"}</text>`;
+  svg += `</svg>`;
+  return svg;
+}
+
+function lec8UpdateLatticeTool() {
+  const params = {
+    face: parseFloat(document.getElementById("lec8-face").value),
+    couponRate: parseFloat(document.getElementById("lec8-coupon-rate").value) / 100,
+    r0: parseFloat(document.getElementById("lec8-r0").value) / 100,
+    sigma: parseFloat(document.getElementById("lec8-sigma").value) / 100,
+    optionType: document.getElementById("lec8-option-type").value,
+    optionPrice: parseFloat(document.getElementById("lec8-option-price").value),
+    exerciseFrom: parseInt(document.getElementById("lec8-exercise-from").value, 10),
+    marketPrice: parseFloat(document.getElementById("lec8-market-price").value),
+    shock: parseFloat(document.getElementById("lec8-shock-bp").value) / 10000
+  };
+
+  const rateTree = lec8BuildTree(params.r0, params.sigma, 4, 0);
+  const base = lec8PriceTree(rateTree, params, 0);
+  const oas = lec8SolveOas(rateTree, params);
+
+  let duration = NaN;
+  let convexity = NaN;
+  let valueLevels = base.levels;
+
+  if (Number.isFinite(oas)) {
+    valueLevels = lec8PriceTree(rateTree, params, oas).levels;
+    const upTree = lec8BuildTree(params.r0, params.sigma, 4, params.shock);
+    const downTree = lec8BuildTree(params.r0, params.sigma, 4, -params.shock);
+    const p0 = lec8PriceTree(rateTree, params, oas).price;
+    const pUp = lec8PriceTree(upTree, params, oas).price;
+    const pDown = lec8PriceTree(downTree, params, oas).price;
+    duration = (pDown - pUp) / (2 * p0 * params.shock);
+    convexity = (pDown + pUp - 2 * p0) / (p0 * params.shock * params.shock);
+  }
+
+  const resultItems = [
+    ["Model price", base.price.toFixed(3)],
+    ["OAS", Number.isFinite(oas) ? (10000 * oas).toFixed(1) + " bp" : "not bracketed"],
+    ["Effective duration", Number.isFinite(duration) ? duration.toFixed(3) : "n/a"],
+    ["Effective convexity", Number.isFinite(convexity) ? convexity.toFixed(2) : "n/a"]
+  ];
+
+  document.getElementById("lec8-lattice-results").innerHTML = resultItems.map(item =>
+    `<div style="background: white; border: 1px solid #ddd; border-radius: 6px; padding: 0.65em;"><div style="font-size: 0.85em; color: #555;">${item[0]}</div><div style="font-size: 1.15em; font-weight: 700;">${item[1]}</div></div>`
+  ).join("");
+
+  document.getElementById("lec8-lattice-svg").innerHTML = lec8DrawSvg(rateTree, valueLevels, params, oas);
+}
+
+function lec8InitLatticeTool() {
+  const tool = document.getElementById("lec8-lattice-tool");
+  if (!tool || tool.dataset.initialized === "true") return;
+  tool.dataset.initialized = "true";
+
+  document.querySelectorAll("#lec8-lattice-tool input, #lec8-lattice-tool select").forEach(el => {
+    el.addEventListener("input", lec8UpdateLatticeTool);
+    el.addEventListener("change", lec8UpdateLatticeTool);
+  });
+  lec8UpdateLatticeTool();
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", lec8InitLatticeTool);
+} else {
+  lec8InitLatticeTool();
+}
+</script>
 ```
+:::
 
 Because the call feature limits upside when rates fall, the callable bond's price response is asymmetric. That is exactly what effective convexity is designed to capture.
 
@@ -1076,15 +1659,16 @@ Because the call feature limits upside when rates fall, the callable bond's pric
 ## Key Points {.unnumbered}
 
 - Embedded options make bond valuation state-dependent: we need future rate states, future bond values, and an exercise rule.
-- **Yield spread** is easy to compute but mixes credit, liquidity, curve, and option compensation into one number.
-- **Static spread** improves on nominal spread by discounting promised cash flows off the spot curve, but it still assumes the cash-flow schedule is fixed.
+- **Yield spread** is easy to compute but compresses many dated cash flows into one yield and mixes credit, liquidity, curve, and option compensation.
+- **Static spread** improves on nominal spread by discounting promised cash flows off the full spot curve, but it still assumes the cash-flow schedule is fixed.
 - A **callable bond** is worth less than an otherwise identical option-free bond because the investor is short the issuer's call option; a **putable bond** is worth more because the investor owns the put option.
 - Callable bonds have capped upside when rates fall, which can create negative convexity.
 - The **interest-rate lattice** is the core valuation tool because it models future short-rate uncertainty and allows exercise decisions at each node.
 - **Backward induction** starts from future payoffs and works back to today's price; callable bonds apply a min operator and putable bonds apply a max operator at exercise nodes.
-- The step-by-step lattice examples show that the call decision is state-dependent: the issuer calls only when the hold value exceeds the call price.
-- **OAS** is the spread that equates market price with model price after accounting for option effects, making it cleaner than nominal or static spread for option-embedded bonds.
-- **Effective duration** and **effective convexity** are repricing-based risk measures, so they can capture changing cash flows and changing exercise probabilities.
+- A model-based tree needs calibration knobs, usually one level parameter per time step, so it can fit the observed zero curve while volatility controls the spacing between states.
+- The step-by-step lattice examples show that exercise is state-dependent: the issuer calls when the hold value exceeds the call price, while the investor puts when the put price exceeds the hold value.
+- **OAS** is the spread that equates market price with model price after accounting for option exercise, making it cleaner than nominal or static spread for option-embedded bonds.
+- **Effective duration** and **effective convexity** reprice the bond after curve shocks, so they can capture changing cash flows and changing exercise probabilities.
 
 ---
 

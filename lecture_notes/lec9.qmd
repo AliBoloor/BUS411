@@ -1,0 +1,728 @@
+---
+title: "Lecture 9: Interest-Rate Futures Contracts"
+format:
+  html:
+    toc: true
+    toc-location: left
+    number-sections: true
+    number-depth: 2
+  pdf:
+    toc: true
+    number-sections: true
+    number-depth: 2
+jupyter: python3
+execute:
+  echo: false
+---
+
+## Learning Objectives {.unnumbered}
+
+After completing this lecture you should be able to:
+
+- Define a futures contract and explain the role of the exchange clearinghouse.
+- Distinguish long and short futures positions and explain how positions are liquidated.
+- Explain initial margin, maintenance margin, variation margin, and daily marking to market.
+- Compare futures contracts with forward contracts.
+- Describe the risk and return profile of long and short futures positions.
+- Explain the main features of Eurodollar, EURIBOR, Treasury bond, ultra Treasury bond, and Treasury note futures.
+- Define conversion factors, invoice price, delivery options, and the cheapest-to-deliver issue.
+- Derive the no-arbitrage theoretical futures price using cash-and-carry logic.
+- Explain why Treasury futures prices are affected by delivery options.
+- Use futures contracts to adjust duration, hedge bond positions, create synthetic securities, and shift asset allocation.
+- Calculate a hedge ratio and the number of Treasury futures contracts needed for a hedge.
+
+---
+
+## Mechanics OF Futures Trading
+
+A **futures contract** is an agreement between a buyer or seller and an organized exchange, through its clearinghouse, to buy or sell an underlying asset at a specified future date for a predetermined price. The predetermined price is the **futures price**. The future date is the **settlement date** or **delivery date**.
+
+Interest-rate futures are derivative contracts because their values are derived from interest rates or fixed-income securities. They allow portfolio managers to alter interest-rate exposure quickly, often without buying or selling the underlying cash bonds.
+
+Most financial futures settle in March, June, September, or December. The contract closest to settlement is called the **nearby futures contract**. Contracts with later settlement dates are farther out on the futures curve.
+
+::: {.callout-tip title="Core Intuition"}
+A futures contract separates price exposure from ownership of the underlying asset. A manager can add or remove interest-rate exposure through the futures market without immediately trading the cash bond portfolio.
+:::
+
+```{python}
+#| label: fig-futures-positions
+#| fig-cap: "A clearinghouse stands between the buyer and seller of a futures contract"
+import matplotlib.pyplot as plt
+from matplotlib.patches import FancyBboxPatch, FancyArrowPatch
+
+fig, ax = plt.subplots(figsize=(7, 2.4))
+ax.set_axis_off()
+
+items = [
+    ("Long\nfutures", 0.25, 0.85, "#E8F1FA"),
+    ("Clearinghouse", 2.75, 0.85, "#F6E8C3"),
+    ("Short\nfutures", 5.25, 0.85, "#E6F2E6"),
+]
+
+for text, x, y, color in items:
+    box = FancyBboxPatch(
+        (x, y), 1.25, 0.65,
+        boxstyle="round,pad=0.08",
+        linewidth=1.1,
+        edgecolor="black",
+        facecolor=color,
+    )
+    ax.add_patch(box)
+    ax.text(x + 0.625, y + 0.325, text, ha="center", va="center", fontsize=9)
+
+for start, end in [((1.55, 1.18), (2.68, 1.18)), ((4.08, 1.18), (5.18, 1.18))]:
+    ax.add_patch(FancyArrowPatch(start, end, arrowstyle="<->", mutation_scale=14, linewidth=1.4))
+
+ax.text(2.12, 0.55, "guarantees\nperformance", ha="center", fontsize=8)
+ax.text(4.65, 0.55, "guarantees\nperformance", ha="center", fontsize=8)
+ax.set_xlim(0, 6.8)
+ax.set_ylim(0.2, 2.0)
+plt.tight_layout()
+plt.show()
+```
+
+### Opening Position
+
+An investor who buys a futures contract is **long futures**. An investor who sells a futures contract is **short futures**.
+
+- A long futures position benefits when the futures price rises.
+- A short futures position benefits when the futures price falls.
+
+For bond futures, the economic intuition is tied to interest rates. Bond prices usually rise when interest rates fall, so a long Treasury futures position generally benefits from falling rates. A short Treasury futures position generally benefits from rising rates.
+
+### Liquidating a Position
+
+A futures position can be liquidated in two ways.
+
+First, the trader can enter an **offsetting trade** before settlement. A long position is closed by selling the same futures contract. A short position is closed by buying the same futures contract.
+
+Second, the trader can hold the position to settlement. Physical-delivery contracts require delivery or receipt of an acceptable underlying security. Cash-settlement contracts settle by a cash payment based on the final reference price or rate.
+
+Most financial futures positions are closed before delivery. The futures market is therefore mainly used for price exposure and hedging, not for routine physical delivery.
+
+### Role of the Clearinghouse
+
+The clearinghouse interposes itself between every buyer and seller. It becomes the buyer to every seller and the seller to every buyer. This structure has two important effects:
+
+- it reduces counterparty risk because the clearinghouse guarantees performance;
+- it makes offsetting trades simple because traders do not need to negotiate with the original counterparty.
+
+Without a clearinghouse, each party would have to worry about whether the other party could perform at settlement. With a clearinghouse, the trader's direct exposure is to the clearinghouse and its margining system.
+
+### Margin Requirements
+
+Futures contracts use margin to manage credit risk. The margin account is not a loan used to buy the underlying asset. It is performance collateral.
+
+The **initial margin** is the amount deposited when a position is opened. The **maintenance margin** is the minimum equity level allowed before additional funds are required. If losses reduce the margin account below the maintenance level, the trader must deposit **variation margin** to restore the account.
+
+Futures positions are **marked to market** daily. Gains are credited and losses are debited based on the daily settlement price.
+
+::: {.callout-note title="Margin Versus Securities Margin"}
+In a stock or bond margin account, margin often means borrowing part of the purchase price. In a futures account, margin is mainly good-faith collateral. The full notional value of the contract is not paid upfront.
+:::
+
+---
+
+## Futures Versus Forward cOntracts
+
+A **forward contract** is also an agreement for future delivery at a specified price. The key differences are institutional.
+
+| Feature | Futures contract | Forward contract |
+|---|---|---|
+| Trading venue | Organized exchange | Over-the-counter |
+| Terms | Standardized | Negotiated |
+| Counterparty risk | Reduced by clearinghouse | Direct counterparty exposure |
+| Marking to market | Daily | Depends on contract terms |
+| Liquidity | Often active secondary market | Often limited secondary market |
+| Settlement intent | Usually offset before delivery | Often intended for delivery |
+
+The clearinghouse is the central distinction. Futures contracts are standardized and supported by daily margining. Forward contracts are customized and expose each party to the possibility that the counterparty fails to perform.
+
+---
+
+## Risk And Return Characteristics OF Futures cOntracts
+
+The payoff of a futures contract is symmetric between the long and short positions. If the futures price rises after the trade:
+
+- the long position gains;
+- the short position loses.
+
+If the futures price falls:
+
+- the long position loses;
+- the short position gains.
+
+For a contract entered at futures price $F_0$ and closed at futures price $F_1$, the approximate payoff per unit of underlying is:
+
+$$
+\left(F_1-F_0\right)
+$$
+
+for the long position, and
+
+$$
+-\left(F_1-F_0\right)
+$$
+
+for the short position.
+
+```{python}
+#| label: fig-futures-payoff
+#| fig-cap: "Long and short futures positions have opposite payoffs"
+import numpy as np
+import matplotlib.pyplot as plt
+
+f0 = 100
+f1 = np.linspace(80, 120, 81)
+long_payoff = f1 - f0
+short_payoff = -long_payoff
+
+plt.figure(figsize=(7, 3.5))
+plt.plot(f1, long_payoff, label="Long futures", linewidth=2)
+plt.plot(f1, short_payoff, label="Short futures", linewidth=2)
+plt.axhline(0, color="black", linewidth=0.8)
+plt.axvline(f0, color="gray", linestyle="--", linewidth=1)
+plt.xlabel("Futures price when position is closed")
+plt.ylabel("Payoff per unit")
+plt.title("Futures payoff profiles")
+plt.grid(True, alpha=0.3)
+plt.legend()
+plt.show()
+```
+
+### Leveraging Aspect of Futures
+
+Futures create large notional exposure with a relatively small initial margin deposit. This creates leverage.
+
+For example, if the underlying exposure is $100,000 and the initial margin is $5,000, a trader controls $100,000 of exposure with $5,000 of posted collateral. A small percentage move in the underlying can therefore produce a large percentage gain or loss relative to margin.
+
+Leverage is useful for hedging because it allows large exposures to be managed efficiently. The same leverage also makes futures risky when used for speculation.
+
+---
+
+## Interest-Rate Futures cOntracts
+
+Interest-rate futures include contracts based on short-term reference rates and contracts based on Treasury securities. The major categories are:
+
+- short-term interest-rate futures, such as Eurodollar and EURIBOR futures;
+- Treasury note futures;
+- Treasury bond futures;
+- ultra Treasury bond futures.
+
+Each contract has detailed specifications: deliverable grades, quotation convention, tick size, contract months, last trading day, last delivery day, and settlement method.
+
+### Eurodollar Futures
+
+A **Eurodollar time deposit** is a U.S. dollar-denominated deposit issued outside the United States. Traditional Eurodollar futures were based on 3-month LIBOR on a notional principal of $1 million.
+
+The contract is quoted as an index:
+
+$$
+\text{Eurodollar futures price} = 100 - \text{annualized 3-month LIBOR}
+$$
+
+If the futures price is 94.52, the implied 3-month LIBOR is:
+
+$$
+100 - 94.52 = 5.48\%.
+$$
+
+A one-tick change is 0.01 in the index price, equal to 1 basis point in the implied rate. For a $1 million notional and a 90-day quarter:
+
+$$
+1{,}000{,}000 \times 0.0001 \times \frac{90}{360} = 25.
+$$
+
+So one tick is worth $25. Because the underlying is an interest rate rather than a deliverable asset, the contract is cash-settled.
+
+::: {.callout-note title="Hedging Borrowing Costs"}
+A borrower worried that short-term rates will rise can short short-term interest-rate futures. If rates rise, the futures index falls, and the short futures position gains. That gain can offset higher borrowing costs.
+:::
+
+### euribOR Futures
+
+**EURIBOR futures** are based on the European Interbank Offered Rate for euro-denominated deposits. Like Eurodollar futures, they are quoted as:
+
+$$
+\text{EURIBOR futures price} = 100 - \text{annualized 3-month EURIBOR}.
+$$
+
+The notional principal is EUR 1 million, and the contract is cash-settled. A quoted price of 94.00 implies a 3-month EURIBOR rate of 6.00 percent.
+
+The minimum tick is commonly 0.005 in price terms, equal to one-half basis point. The value of a full basis point is EUR 25 for a EUR 1 million notional over a 90-day interest period; therefore one 0.005 tick is EUR 12.50.
+
+### Treasury Futures
+
+Treasury futures are among the most important bond derivatives. They are classified by the maturity range of the deliverable Treasury securities.
+
+Unlike short-term rate futures, Treasury futures are generally physical-delivery contracts. The short position can choose from a set of eligible Treasury securities. Because the deliverable set contains multiple bonds, delivery rules are central to pricing.
+
+#### Treasury Bond Futures
+
+The underlying instrument for the Treasury bond futures contract is $100,000 par value of a hypothetical 20-year 6 percent coupon Treasury bond. Prices are quoted as a percent of par in 32nds.
+
+A quote of 97-16 means:
+
+$$
+97 + \frac{16}{32} = 97.50.
+$$
+
+For a $100,000 contract, this corresponds to:
+
+$$
+0.9750 \times 100{,}000 = 97{,}500.
+$$
+
+The minimum price fluctuation is 1/32 of 1 percent of par:
+
+$$
+\frac{1}{32}\% \times 100{,}000 = 31.25.
+$$
+
+Because the hypothetical 6 percent bond may not exist, the exchange defines a set of acceptable deliverable Treasury bonds. The short chooses which eligible bond to deliver.
+
+To make delivery comparable across bonds with different coupons and maturities, the exchange assigns each deliverable bond a **conversion factor**. The invoice price paid by the long is:
+
+$$
+\text{Invoice price}
+= \text{contract size} \times \text{futures settlement price} \times \text{conversion factor}
++ \text{accrued interest}.
+$$
+
+For example, if the futures settlement price is 94-08, then the decimal price is 94.25 percent of par. With a conversion factor of 1.20:
+
+$$
+100{,}000 \times 0.9425 \times 1.20 = 113{,}100,
+$$
+
+before accrued interest.
+
+The **cheapest-to-deliver (CTD)** issue is the eligible bond that is most economical for the short to deliver. Market participants often identify it by computing the **implied repo rate** for each eligible issue. The bond with the highest implied repo rate is the CTD issue.
+
+Treasury futures give the short three important delivery options:
+
+- **Quality or swap option:** choice of which acceptable Treasury issue to deliver.
+- **Timing option:** choice of when during the delivery month to deliver.
+- **Wild card option:** ability to give delivery notice after the futures settlement price has been fixed for the day.
+
+These options belong to the short position and reduce the value of the futures contract to the long.
+
+#### Ultra Treasury Bond Futures
+
+The **ultra Treasury bond futures** contract is designed for longer-maturity interest-rate exposure. Its deliverable bonds must have at least 25 years to maturity.
+
+This separates very long-end exposure from the regular Treasury bond futures contract. The ultra contract is therefore more useful for managing portfolios with long duration or liabilities that are sensitive to long-term rates.
+
+#### Treasury Note Futures
+
+Treasury note futures are modeled after Treasury bond futures but have shorter deliverable maturity ranges. The main contracts are:
+
+- 10-year Treasury note futures;
+- 5-year Treasury note futures;
+- 2-year Treasury note futures.
+
+The 10-year Treasury note futures contract is based on $100,000 par value of a hypothetical 10-year 6 percent Treasury note. Eligible deliverables generally have remaining maturities between 6.5 and 10 years from the first day of the delivery month.
+
+The 5-year contract uses $100,000 par value of eligible Treasury notes with remaining maturity in the 5-year sector. The 2-year contract uses $200,000 par value of eligible Treasury notes with remaining maturity in the 2-year sector.
+
+---
+
+## Pricing And Arbitrage In The Interest-Rate Futures Market
+
+Futures pricing is based on the **law of one price**: two strategies that create the same future cash flows should have the same current value. If they do not, arbitrage trades should push prices back toward fair value.
+
+For bond futures, the basic arbitrage logic compares:
+
+- buying the cash bond and financing it until delivery;
+- taking the futures position that delivers or receives the bond at settlement.
+
+### Pricing of Futures Contracts
+
+Suppose a bond sells for 100, pays a 12 percent annual coupon, and the futures contract settles in three months. The financing rate is 8 percent per year.
+
+If the futures price were 107, an arbitrageur could:
+
+1. sell the futures contract at 107;
+2. buy the bond for 100;
+3. borrow 100 for three months at 8 percent.
+
+At settlement, the arbitrageur receives 107 plus 3 of accrued coupon interest, for total proceeds of 110. The loan repayment is 100 plus 2 of interest, for total cost of 102. The arbitrage profit is 8.
+
+This is a **cash-and-carry trade**: buy the cash bond, finance it, and sell the futures contract.
+
+If the futures price were too low, the opposite trade would be profitable:
+
+1. buy the futures contract;
+2. short the cash bond;
+3. invest the short-sale proceeds.
+
+This is a **reverse cash-and-carry trade**.
+
+### Theoretical Futures Price Based on Arbitrage Model
+
+Let:
+
+- $P$ = cash market price of the bond;
+- $F$ = futures price;
+- $r$ = financing rate;
+- $c$ = current yield, measured as annual coupon divided by cash price;
+- $t$ = time to delivery in years.
+
+For a cash-and-carry trade initiated on a coupon date:
+
+$$
+\text{Profit} = F + ctP - (P + rtP).
+$$
+
+No arbitrage requires profit to equal zero:
+
+$$
+0 = F + ctP - (P + rtP).
+$$
+
+Solving for the theoretical futures price:
+
+$$
+F = P[1+t(r-c)].
+$$
+
+The term $r-c$ is the **net financing cost**, often called the **cost of carry**.
+
+- If $c > r$, carry is positive and the futures price tends to be below the cash price.
+- If $c < r$, carry is negative and the futures price tends to be above the cash price.
+- If $c = r$, the theoretical futures price equals the cash price.
+
+```{python}
+#| label: fig-cost-of-carry
+#| fig-cap: "The theoretical futures price depends on financing cost minus coupon yield"
+import numpy as np
+import matplotlib.pyplot as plt
+
+P = 100
+t = 0.25
+c = 0.06
+r_values = np.linspace(0.01, 0.11, 101)
+F = P * (1 + t * (r_values - c))
+
+plt.figure(figsize=(7, 3.5))
+plt.plot(r_values * 100, F, linewidth=2)
+plt.axhline(P, color="black", linewidth=0.8)
+plt.axvline(c * 100, color="gray", linestyle="--", linewidth=1)
+plt.xlabel("Financing rate (%)")
+plt.ylabel("Theoretical futures price")
+plt.title("Cost of carry and theoretical futures price")
+plt.grid(True, alpha=0.3)
+plt.show()
+```
+
+### Closer Look at the Theoretical Futures Price
+
+The basic formula is useful, but it depends on simplifying assumptions. Actual futures prices can differ from the simple theoretical value because of margin cash flows, unequal borrowing and lending rates, transaction costs, uncertainty about the deliverable bond, and delivery options.
+
+#### Interim Cash Flows
+
+The simple arbitrage model ignores interim variation margin and coupon payments. A futures contract is marked to market daily, while a forward contract may not be.
+
+If rates rise, the short futures position gains as bond futures prices fall and can reinvest margin inflows at higher rates. If rates fall, the short futures position must fund margin outflows, but financing is available at lower rates. These margin flows help explain why futures and forwards are not always identical.
+
+Coupon payments also matter if they occur before delivery. Their reinvestment rate affects the true carry earned by holding the cash bond.
+
+#### Short-Term Interest Rate (Financing Rate)
+
+The simple model assumes the borrowing rate and lending rate are equal. In practice, the borrowing rate $r_B$ is often above the lending rate $r_L$.
+
+The upper no-arbitrage boundary is based on the borrowing rate:
+
+$$
+F_{\text{upper}} = P[1+t(r_B-c)].
+$$
+
+The lower no-arbitrage boundary is based on the lending rate:
+
+$$
+F_{\text{lower}} = P[1+t(r_L-c)].
+$$
+
+Transaction costs widen this no-arbitrage band further.
+
+#### Deliverable Bond Is Not Known
+
+Treasury futures allow the short to choose from several eligible deliverable securities. Because the actual deliverable is unknown in advance, the futures price tends to trade in relation to the cheapest-to-deliver issue.
+
+The quality option has value to the short position. Therefore, the theoretical futures price is reduced by the value of that option:
+
+$$
+F = P[1+t(r-c)] - \text{value of quality option}.
+$$
+
+#### Delivery Date Is Not Known
+
+The short also chooses when during the delivery month to deliver and may have a wild card option after the daily settlement price is fixed. These rights also benefit the short and reduce the futures price:
+
+$$
+F = P[1+t(r-c)] - \text{delivery options}.
+$$
+
+Here, delivery options include the quality option, timing option, and wild card option.
+
+#### Deliverable Is Not a Basket of Securities
+
+Some futures contracts are based on an index or basket. If the exact basket is difficult or costly to replicate, arbitrage is not riskless. A trader may construct a smaller tracking portfolio, but then the hedge contains **tracking error risk**.
+
+This matters because the no-arbitrage argument assumes that the cash instrument can be bought or sold exactly. If exact replication is impossible, the theoretical price becomes a guide rather than a strict arbitrage boundary.
+
+---
+
+## Bond Portfolio Management aPPLications
+
+Interest-rate futures can be used to control portfolio duration, hedge interest-rate exposure, enhance yield when futures are mispriced, and shift asset allocation efficiently.
+
+### Controlling the Duration of a Portfolio
+
+Buying interest-rate futures increases a bond portfolio's dollar duration. Selling interest-rate futures reduces dollar duration.
+
+If a manager expects rates to fall, the manager may increase duration. If a manager expects rates to rise, the manager may reduce duration.
+
+The target number of futures contracts is approximately:
+
+$$
+\text{Number of contracts}
+=
+\frac{
+\text{target portfolio dollar duration}
+-
+\text{current portfolio dollar duration}
+}{
+\text{dollar duration of one futures contract}
+}.
+$$
+
+A positive value means buy futures. A negative value means sell futures.
+
+::: {.callout-note title="Duration Adjustment Example"}
+Suppose a portfolio has market value $48,109,810, current duration 2.97, and target duration 3.68. The current dollar duration for a 100-basis-point rate change is:
+
+$$
+0.0297 \times 48{,}109{,}810 = 1{,}428{,}594.
+$$
+
+The target dollar duration is:
+
+$$
+0.0368 \times 48{,}109{,}810 = 1{,}770{,}110.
+$$
+
+The required increase is:
+
+$$
+1{,}770{,}110 - 1{,}428{,}594 = 341{,}516.
+$$
+
+If one 5-year Treasury note futures contract has dollar duration of $5,022, then:
+
+$$
+\frac{341{,}516}{5{,}022} \approx 68.
+$$
+
+The manager buys about 68 contracts.
+:::
+
+Duration matching alone does not eliminate all interest-rate risk. A portfolio and benchmark can have the same duration but different convexity or key rate duration exposures.
+
+### Hedging
+
+Hedging is a special case of duration management where the target duration is zero. A portfolio manager sells futures to reduce or neutralize interest-rate exposure.
+
+A **short hedge** protects against a decline in bond prices. It is used when the manager owns bonds and is worried rates may rise.
+
+A **long hedge** protects against an increase in bond prices. It is used when the manager expects future cash inflows and is worried rates may fall before the bonds can be purchased.
+
+The main risk in a hedge is **basis risk**, which is the risk that the relationship between the cash bond price and futures price changes unpredictably. Basis risk is especially important in **cross hedging**, where the bond being hedged is not identical to the deliverable bond underlying the futures contract.
+
+#### The Hedge Ratio
+
+The hedge ratio should match the dollar volatility of the bond position with the dollar volatility of the futures position:
+
+$$
+\text{Hedge ratio}
+=
+\frac{\text{volatility of bond to be hedged}}
+{\text{volatility of hedging instrument}}.
+$$
+
+For Treasury futures, the hedge ratio often uses the price value of a basis point (PVBP) and the conversion factor of the CTD issue:
+
+$$
+\text{Hedge ratio}
+=
+\frac{\text{PVBP of bond to be hedged}}
+{\text{PVBP of CTD issue}}
+\times
+\text{conversion factor of CTD issue}.
+$$
+
+The number of contracts to short is:
+
+$$
+\text{Number of contracts}
+=
+\text{hedge ratio}
+\times
+\frac{\text{par value to be hedged}}
+{\text{par value of futures contract}}.
+$$
+
+::: {.callout-note title="Hedge Ratio Example"}
+Suppose:
+
+- PVBP of the bond to be hedged = 0.1363;
+- PVBP of the CTD issue = 0.1207;
+- CTD conversion factor = 1.0246;
+- par value to hedge = $10,000,000;
+- futures contract par value = $100,000.
+
+Then:
+
+$$
+\text{Hedge ratio}
+=
+\frac{0.1363}{0.1207}
+\times 1.0246
+= 1.157.
+$$
+
+The number of contracts is:
+
+$$
+1.157 \times \frac{10{,}000{,}000}{100{,}000}
+= 115.7.
+$$
+
+Rounded, the manager shorts 116 futures contracts.
+:::
+
+#### Adjusting the Hedge Ratio for Yield Spread Changes
+
+The basic cross-hedge formula assumes the yield spread between the bond being hedged and the CTD issue remains constant. In practice, spreads move.
+
+One adjustment uses a **yield beta**, estimated from a regression:
+
+$$
+\Delta y_{\text{bond}}
+=
+a
++
+b \Delta y_{\text{CTD}}
++
+\varepsilon.
+$$
+
+The slope coefficient $b$ is the yield beta. The hedge ratio becomes:
+
+$$
+\text{Hedge ratio}
+=
+\frac{\text{PVBP of bond to be hedged}}
+{\text{PVBP of CTD issue}}
+\times
+\text{conversion factor}
+\times
+\text{yield beta}.
+$$
+
+If the unadjusted hedge ratio is 1.157 and the estimated yield beta is 0.90, the adjusted hedge ratio is:
+
+$$
+1.157 \times 0.90 = 1.041.
+$$
+
+For $10 million of bonds and a $100,000 futures contract size, the manager shorts about:
+
+$$
+1.041 \times 100 = 104.1,
+$$
+
+or roughly 104 contracts.
+
+A second method is the **pure volatility adjustment**:
+
+$$
+\text{Pure volatility adjustment}
+=
+\frac{
+\sigma(\Delta y_{\text{bond}})
+}{
+\sigma(\Delta y_{\text{CTD}})
+}.
+$$
+
+This method uses the ratio of historical yield-change standard deviations rather than a regression slope.
+
+### Creating Synthetic Securities for Yield Enhancement
+
+Futures and cash bonds can be combined to create synthetic positions.
+
+If an investor owns a cash bond and shorts a futures contract that requires delivery of that bond, the investor has effectively locked in the future sale price. The combined position behaves like a short-term riskless security:
+
+$$
+\text{Riskless short-term security}
+=
+\text{cash bond position}
+-
+\text{futures bond position}.
+$$
+
+Equivalently:
+
+$$
+\text{Cash bond position}
+=
+\text{riskless short-term security}
++
+\text{futures bond position}.
+$$
+
+These relationships are useful for yield enhancement. If the synthetic short-term security offers a higher yield than an actual Treasury bill of the same maturity, the manager can use the synthetic position to improve return. In efficient markets, such opportunities should be limited and short-lived.
+
+### Allocating Funds between Stocks and Bonds
+
+Futures can also change asset allocation without immediately trading the underlying cash portfolios.
+
+Suppose a pension sponsor wants to shift $200 million of exposure from equities to bonds. Instead of selling stocks and buying bonds immediately, the sponsor can:
+
+- sell stock index futures to reduce equity exposure;
+- buy interest-rate futures to increase bond exposure.
+
+This approach can reduce transaction costs, lower market impact, and give managers time to adjust cash holdings gradually.
+
+For the bond allocation, the approximate number of interest-rate futures contracts is:
+
+$$
+\text{Number of contracts}
+=
+\frac{
+\text{dollar duration for target bond allocation}
+-
+\text{dollar duration for current bond allocation}
+}{
+\text{dollar duration of one futures contract}
+}.
+$$
+
+---
+
+## Key Points {.unnumbered}
+
+- A futures contract is an exchange-traded agreement to buy or sell an underlying asset at a future date at a predetermined futures price.
+- The clearinghouse reduces counterparty risk and allows positions to be offset efficiently.
+- Futures margin is performance collateral, not a loan used to buy the underlying asset.
+- Futures contracts are standardized and exchange-traded; forward contracts are customized over-the-counter agreements.
+- Long futures positions benefit from rising futures prices; short futures positions benefit from falling futures prices.
+- Eurodollar and EURIBOR futures are short-term rate futures quoted as 100 minus the annualized reference rate.
+- Treasury futures are physical-delivery contracts with eligible deliverable securities, conversion factors, invoice prices, and delivery options.
+- The cheapest-to-deliver issue is the deliverable bond that is most economical for the short to deliver.
+- The simple no-arbitrage futures price is $F=P[1+t(r-c)]$.
+- Delivery options granted to the short reduce the theoretical value of Treasury futures to the long.
+- Buying futures increases portfolio dollar duration; selling futures reduces portfolio dollar duration.
+- Hedge ratios should be based on relative dollar volatility, usually measured with PVBP and adjusted for conversion factors and yield beta when needed.

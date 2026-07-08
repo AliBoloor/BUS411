@@ -24,7 +24,8 @@ After completing this lecture you should be able to:
 - Explain initial margin, maintenance margin, variation margin, and daily marking to market.
 - Compare futures contracts with forward contracts.
 - Describe the risk and return profile of long and short futures positions.
-- Explain the main features of Eurodollar, EURIBOR, Treasury bond, ultra Treasury bond, and Treasury note futures.
+- Explain the historical role of Eurodollar futures and why SOFR futures are now the main USD short-term-rate futures.
+- Describe the basic features of SOFR futures, Fed Funds futures, Treasury bond futures, ultra Treasury bond futures, and Treasury note futures.
 - Define conversion factors, invoice price, delivery options, and the cheapest-to-deliver issue.
 - Derive the no-arbitrage theoretical futures price using cash-and-carry logic.
 - Explain why Treasury futures prices are affected by delivery options.
@@ -33,7 +34,7 @@ After completing this lecture you should be able to:
 
 ---
 
-## Mechanics OF Futures Trading
+## Mechanics of Futures Trading
 
 A **futures contract** is an agreement between a buyer or seller and an organized exchange, through its clearinghouse, to buy or sell an underlying asset at a specified future date for a predetermined price. The predetermined price is the **futures price**. The future date is the **settlement date** or **delivery date**.
 
@@ -91,6 +92,30 @@ An investor who buys a futures contract is **long futures**. An investor who sel
 
 For bond futures, the economic intuition is tied to interest rates. Bond prices usually rise when interest rates fall, so a long Treasury futures position generally benefits from falling rates. A short Treasury futures position generally benefits from rising rates.
 
+### Notional Value and How the Contract Works
+
+The **notional value** of a futures contract is the amount of underlying exposure controlled by one contract. It is not the amount of cash paid upfront. It is the scale used to translate a price change into a dollar gain or loss.
+
+For example, a Treasury futures contract with $100,000 par value gives price exposure to $100,000 of Treasury securities. A short-rate futures contract may be quoted as an index, but its tick value is still tied to a notional interest-rate exposure. In a Three-Month SOFR futures contract, a 1-basis-point move is worth about $25 because the contract is economically linked to a three-month interest period on $1 million:
+
+$$
+1{,}000{,}000 \times 0.0001 \times \frac{90}{360}=25.
+$$
+
+This is why futures are leveraged instruments. A trader does not post $1 million to trade one SOFR futures contract. The trader posts margin, but daily gains and losses are calculated from the notional exposure.
+
+The daily workflow is:
+
+1. A trader opens a long or short futures position.
+2. The exchange sets a daily settlement price.
+3. The position is marked to market using the change in settlement price.
+4. Gains are credited to the margin account and losses are debited.
+5. If the margin account falls below the maintenance margin, the trader must post variation margin.
+
+::: {.callout-tip title="Notional Value Is Exposure, Not Cost"}
+Do not confuse notional value with the amount invested. Futures require margin, not full payment for the underlying exposure. The notional value tells us how sensitive the position is to price or rate changes.
+:::
+
 ### Liquidating a Position
 
 A futures position can be liquidated in two ways.
@@ -122,9 +147,52 @@ Futures positions are **marked to market** daily. Gains are credited and losses 
 In a stock or bond margin account, margin often means borrowing part of the purchase price. In a futures account, margin is mainly good-faith collateral. The full notional value of the contract is not paid upfront.
 :::
 
+::: {.callout-note title="Example 1: Daily Marking to Market"}
+Suppose a trader buys one Treasury futures contract at 100-00. The contract size is $100,000, and one full point is worth $1,000. The daily settlement prices are:
+
+| Day | Settlement price | Daily price change | Cash flow to long |
+|---:|---:|---:|---:|
+| 0 | 100-00 | -- | -- |
+| 1 | 100-12 | +12/32 | +$375.00 |
+| 2 | 99-28 | -16/32 | -$500.00 |
+| 3 | 100-08 | +12/32 | +$375.00 |
+
+The cumulative mark-to-market cash flow is:
+
+$$
+375 - 500 + 375 = 250.
+$$
+
+The long has gained $250 because the contract rose from 100-00 to 100-08. Daily settlement changes the timing of cash flows, but the total gain over the period still reflects the change in futures price.
+:::
+
+```{python}
+#| label: fig-margin-account
+#| fig-cap: "Daily mark-to-market cash flows for a long futures position"
+import numpy as np
+import matplotlib.pyplot as plt
+
+days = np.array([0, 1, 2, 3])
+settle_32nds = np.array([100 * 32, 100 * 32 + 12, 99 * 32 + 28, 100 * 32 + 8])
+settle_decimal = settle_32nds / 32
+daily_cash_flow = np.diff(settle_decimal) * 1000
+cumulative_cash_flow = np.r_[0, daily_cash_flow.cumsum()]
+
+fig, ax = plt.subplots(figsize=(7, 3.6))
+ax.bar(days, cumulative_cash_flow, color="#4C78A8", edgecolor="black")
+ax.axhline(0, color="black", linewidth=0.8)
+ax.set_xticks(days)
+ax.set_xlabel("Day")
+ax.set_ylabel("Cumulative cash flow to long ($)")
+ax.set_title("Daily settlement makes gains and losses cash flows")
+ax.grid(axis="y", alpha=0.3)
+plt.tight_layout()
+plt.show()
+```
+
 ---
 
-## Futures Versus Forward cOntracts
+## Futures Versus Forward Contracts
 
 A **forward contract** is also an agreement for future delivery at a specified price. The key differences are institutional.
 
@@ -141,7 +209,7 @@ The clearinghouse is the central distinction. Futures contracts are standardized
 
 ---
 
-## Risk And Return Characteristics OF Futures cOntracts
+## Risk and Return Characteristics of Futures Contracts
 
 The payoff of a futures contract is symmetric between the long and short positions. If the futures price rises after the trade:
 
@@ -201,20 +269,20 @@ Leverage is useful for hedging because it allows large exposures to be managed e
 
 ---
 
-## Interest-Rate Futures cOntracts
+## Interest-Rate Futures Contracts
 
 Interest-rate futures include contracts based on short-term reference rates and contracts based on Treasury securities. The major categories are:
 
-- short-term interest-rate futures, such as Eurodollar and EURIBOR futures;
+- short-term interest-rate futures, such as SOFR and Fed Funds futures;
 - Treasury note futures;
 - Treasury bond futures;
 - ultra Treasury bond futures.
 
 Each contract has detailed specifications: deliverable grades, quotation convention, tick size, contract months, last trading day, last delivery day, and settlement method.
 
-### Eurodollar Futures
+### Eurodollar Futures and the LIBOR Transition
 
-A **Eurodollar time deposit** is a U.S. dollar-denominated deposit issued outside the United States. Traditional Eurodollar futures were based on 3-month LIBOR on a notional principal of $1 million.
+A **Eurodollar time deposit** is a U.S. dollar-denominated deposit issued outside the United States. Traditional Eurodollar futures were based on 3-month U.S. dollar LIBOR on a notional principal of $1 million.
 
 The contract is quoted as an index:
 
@@ -236,27 +304,179 @@ $$
 
 So one tick is worth $25. Because the underlying is an interest rate rather than a deliverable asset, the contract is cash-settled.
 
+::: {.callout-warning title="Market Practice Update: Eurodollar Futures Are Historical"}
+Eurodollar futures are important for understanding the history of short-term interest-rate futures, but they are no longer the main live USD short-rate futures contract. The reason is the end of LIBOR. U.S. dollar LIBOR publication ceased for new market use, and the market moved to SOFR-based contracts.
+
+For current USD short-term-rate hedging, students should think first about **SOFR futures** and **Fed Funds futures**, not Eurodollar futures. Eurodollar examples remain useful because the index-price convention, tick-value logic, and long/short rate exposure carry over directly to modern short-rate futures.
+:::
+
 ::: {.callout-note title="Hedging Borrowing Costs"}
 A borrower worried that short-term rates will rise can short short-term interest-rate futures. If rates rise, the futures index falls, and the short futures position gains. That gain can offset higher borrowing costs.
 :::
 
-### euribOR Futures
+::: {.callout-note title="Example 2: Eurodollar Futures Gain or Loss"}
+Suppose a trader sells one Eurodollar futures contract at 94.52. The implied 3-month LIBOR is 5.48 percent. At settlement, the contract settles at 94.00, so the final implied rate is 6.00 percent.
 
-**EURIBOR futures** are based on the European Interbank Offered Rate for euro-denominated deposits. Like Eurodollar futures, they are quoted as:
+The short sold at 94.52 and effectively buys back at 94.00:
 
 $$
-\text{EURIBOR futures price} = 100 - \text{annualized 3-month EURIBOR}.
+94.52 - 94.00 = 0.52.
 $$
 
-The notional principal is EUR 1 million, and the contract is cash-settled. A quoted price of 94.00 implies a 3-month EURIBOR rate of 6.00 percent.
+Because 0.52 equals 52 ticks and each tick is $25:
 
-The minimum tick is commonly 0.005 in price terms, equal to one-half basis point. The value of a full basis point is EUR 25 for a EUR 1 million notional over a 90-day interest period; therefore one 0.005 tick is EUR 12.50.
+$$
+52 \times 25 = 1{,}300.
+$$
+
+The short gains $1,300. This is why a borrower worried about rising short-term rates can short an index-quoted short-rate futures contract.
+:::
+
+```{python}
+#| label: fig-short-rate-futures
+#| fig-cap: "Short-term rate futures prices move inversely with the implied reference rate"
+import numpy as np
+import matplotlib.pyplot as plt
+
+rates = np.linspace(3.0, 7.0, 81)
+prices = 100 - rates
+
+plt.figure(figsize=(7, 3.4))
+plt.plot(rates, prices, linewidth=2, color="#4C78A8")
+plt.scatter([5.48, 6.00], [94.52, 94.00], color="#F58518", zorder=3)
+plt.annotate("Sell at 94.52\nrate = 5.48%", xy=(5.48, 94.52), xytext=(3.35, 95.0),
+             arrowprops={"arrowstyle": "->", "linewidth": 1})
+plt.annotate("Settle at 94.00\nrate = 6.00%", xy=(6.00, 94.00), xytext=(6.2, 93.4),
+             arrowprops={"arrowstyle": "->", "linewidth": 1})
+plt.xlabel("Implied 3-month reference rate (%)")
+plt.ylabel("Futures price")
+plt.title("Price = 100 - reference rate")
+plt.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.show()
+```
+
+### SOFR Futures
+
+**SOFR** is the Secured Overnight Financing Rate. It measures the cost of overnight borrowing collateralized by U.S. Treasury securities. Modern U.S. dollar short-rate futures primarily reference SOFR rather than LIBOR.
+
+CME lists both One-Month SOFR futures and Three-Month SOFR futures. Both are cash-settled and use the same index-price idea:
+
+$$
+\text{SOFR futures price} = 100 - \text{implied SOFR rate}.
+$$
+
+- **One-Month SOFR futures** are based on the arithmetic average of daily SOFR values during the contract delivery month.
+- **Three-Month SOFR futures** are based on business-day compounded SOFR during the contract reference quarter.
+
+CME's Three-Month SOFR contract unit is:
+
+$$
+2{,}500 \times \text{contract-grade IMM Index}.
+$$
+
+The economic notional is tied to a three-month interest period on $1 million:
+
+$$
+1{,}000{,}000 \times 0.0001 \times \frac{90}{360}=25.
+$$
+
+Thus, a 1-basis-point change in the implied rate corresponds to about $25 per contract. Since the price is $100 - \text{rate}$, a higher SOFR futures price means a lower implied SOFR rate.
+
+::: {.callout-note title="Example 3: SOFR Futures Daily Price Change"}
+Suppose a trader buys one Three-Month SOFR futures contract at 95.20. The implied compounded SOFR rate is:
+
+$$
+100 - 95.20 = 4.80\%.
+$$
+
+At the end of the day, the settlement price rises to 95.24. The implied rate has fallen to:
+
+$$
+100 - 95.24 = 4.76\%.
+$$
+
+The price increased by 0.04, or 4 basis points. With a $25 value per basis point:
+
+$$
+4 \times 25 = 100.
+$$
+
+The long futures position receives $100 through daily mark-to-market.
+:::
+
+### Fed Funds Futures
+
+**Fed Funds futures** reference the effective federal funds rate, the unsecured overnight rate at which depository institutions lend reserve balances to each other. These contracts are heavily used to infer market expectations for Federal Reserve policy.
+
+The 30-Day Fed Funds futures price is also an index:
+
+$$
+\text{Fed Funds futures price}
+=
+100 - \text{average effective federal funds rate for the contract month}.
+$$
+
+If the contract price is 95.625, the market-implied average effective federal funds rate for that month is:
+
+$$
+100 - 95.625 = 4.375\%.
+$$
+
+The key distinction from SOFR is the underlying rate:
+
+- SOFR is secured by Treasury collateral.
+- Fed Funds is an unsecured overnight bank funding rate.
+- SOFR futures are commonly used for broad short-rate and derivatives hedging.
+- Fed Funds futures are especially useful for expressing views on FOMC policy decisions.
+
+```{python}
+#| label: fig-short-rate-futures-comparison
+#| fig-cap: "Short-rate futures prices are quoted as 100 minus the implied short rate"
+import numpy as np
+import matplotlib.pyplot as plt
+
+implied_rates = np.linspace(3.0, 6.0, 61)
+futures_prices = 100 - implied_rates
+
+plt.figure(figsize=(7, 3.4))
+plt.plot(implied_rates, futures_prices, linewidth=2, color="#4C78A8")
+plt.scatter([4.80, 4.375], [95.20, 95.625], color=["#F58518", "#72B7B2"], zorder=3)
+plt.text(4.83, 95.08, "SOFR example", fontsize=8)
+plt.text(4.03, 95.72, "Fed Funds example", fontsize=8)
+plt.xlabel("Implied short rate (%)")
+plt.ylabel("Futures price")
+plt.title("Index price moves inversely with the implied rate")
+plt.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.show()
+```
 
 ### Treasury Futures
 
 Treasury futures are among the most important bond derivatives. They are classified by the maturity range of the deliverable Treasury securities.
 
 Unlike short-term rate futures, Treasury futures are generally physical-delivery contracts. The short position can choose from a set of eligible Treasury securities. Because the deliverable set contains multiple bonds, delivery rules are central to pricing.
+
+::: {.callout-note title="Reminder: Bond Price Quotes"}
+Treasury bond and note futures use bond-style price quotes. A quote such as 97-16 means:
+
+$$
+97 + \frac{16}{32} = 97.50.
+$$
+
+This is **97.50 percent of par**, not $97.50. For a $100,000 contract, 97-16 corresponds to:
+
+$$
+0.9750 \times 100{,}000 = 97{,}500.
+$$
+
+One 32nd on a $100,000 Treasury futures contract is:
+
+$$
+\frac{1}{32}\% \times 100{,}000 = 31.25.
+$$
+:::
 
 #### Treasury Bond Futures
 
@@ -300,6 +520,55 @@ before accrued interest.
 
 The **cheapest-to-deliver (CTD)** issue is the eligible bond that is most economical for the short to deliver. Market participants often identify it by computing the **implied repo rate** for each eligible issue. The bond with the highest implied repo rate is the CTD issue.
 
+The CTD issue can also be introduced through delivery cost. Ignoring financing and accrued interest for the moment, the net delivery cost is:
+
+$$
+\text{Net delivery cost}
+=
+\text{cash price of bond}
+-
+(\text{futures price} \times \text{conversion factor}).
+$$
+
+The lower the net delivery cost, the more attractive the bond is for delivery.
+
+::: {.callout-note title="Example 4: Identifying the Cheapest-to-Deliver Bond"}
+Assume the futures settlement price is 94.00. Three deliverable bonds have the following prices and conversion factors:
+
+| Bond | Cash price | Conversion factor | Invoice amount before accrued interest | Net delivery cost |
+|---|---:|---:|---:|---:|
+| A | 103.20 | 1.0800 | 101.52 | 1.68 |
+| B | 98.40 | 1.0300 | 96.82 | 1.58 |
+| C | 91.10 | 0.9550 | 89.77 | 1.33 |
+
+Bond C is cheapest to deliver because it has the lowest net delivery cost. In practice, traders use a full implied repo calculation that includes accrued interest, financing, and delivery timing, but the intuition is the same: the short delivers the bond that is most favorable to deliver.
+:::
+
+```{python}
+#| label: fig-ctd-cost
+#| fig-cap: "The cheapest-to-deliver issue has the lowest delivery cost"
+import numpy as np
+import matplotlib.pyplot as plt
+
+bonds = np.array(["A", "B", "C"])
+cash_prices = np.array([103.20, 98.40, 91.10])
+conversion_factors = np.array([1.0800, 1.0300, 0.9550])
+futures_price = 94.00
+invoice_before_ai = futures_price * conversion_factors
+net_delivery_cost = cash_prices - invoice_before_ai
+
+plt.figure(figsize=(7, 3.5))
+bars = plt.bar(bonds, net_delivery_cost, color=["#72B7B2", "#72B7B2", "#F58518"], edgecolor="black")
+for bar, value in zip(bars, net_delivery_cost):
+    plt.text(bar.get_x() + bar.get_width() / 2, value + 0.03, f"{value:.2f}", ha="center", fontsize=9)
+plt.ylabel("Net delivery cost")
+plt.xlabel("Deliverable bond")
+plt.title("Lower delivery cost is better for the short")
+plt.grid(axis="y", alpha=0.3)
+plt.tight_layout()
+plt.show()
+```
+
 Treasury futures give the short three important delivery options:
 
 - **Quality or swap option:** choice of which acceptable Treasury issue to deliver.
@@ -328,7 +597,7 @@ The 5-year contract uses $100,000 par value of eligible Treasury notes with rema
 
 ---
 
-## Pricing And Arbitrage In The Interest-Rate Futures Market
+## Pricing and Arbitrage in the Interest-Rate Futures Market
 
 Futures pricing is based on the **law of one price**: two strategies that create the same future cash flows should have the same current value. If they do not, arbitrage trades should push prices back toward fair value.
 
@@ -358,6 +627,43 @@ If the futures price were too low, the opposite trade would be profitable:
 3. invest the short-sale proceeds.
 
 This is a **reverse cash-and-carry trade**.
+
+::: {.callout-note title="Example 5: When the Futures Price Is Too High"}
+Use the same bond:
+
+- cash price = 100;
+- annual coupon rate = 12 percent;
+- financing rate = 8 percent;
+- time to delivery = 0.25 years.
+
+If the futures price is 107, the cash-and-carry trade has no initial net investment because the bond purchase is financed by borrowing. At delivery:
+
+| Cash flow item | Amount |
+|---|---:|
+| Futures delivery price | 107 |
+| Accrued coupon interest | 3 |
+| Total proceeds | 110 |
+| Loan principal repayment | -100 |
+| Loan interest | -2 |
+| Arbitrage profit | 8 |
+
+The high futures price creates a profit for buying the cash bond and selling the futures.
+:::
+
+::: {.callout-note title="Example 6: When the Futures Price Is Too Low"}
+If the futures price is 92, the reverse cash-and-carry trade is profitable. The trader shorts the bond, invests the proceeds, and buys the futures. At delivery:
+
+| Cash flow item | Amount |
+|---|---:|
+| Investment principal received | 100 |
+| Investment interest | 2 |
+| Total proceeds | 102 |
+| Futures delivery price | -92 |
+| Accrued coupon interest paid | -3 |
+| Arbitrage profit | 7 |
+
+The low futures price creates a profit for buying the futures and synthetically selling the cash bond.
+:::
 
 ### Theoretical Futures Price Based on Arbitrage Model
 
@@ -393,6 +699,14 @@ The term $r-c$ is the **net financing cost**, often called the **cost of carry**
 - If $c < r$, carry is negative and the futures price tends to be above the cash price.
 - If $c = r$, the theoretical futures price equals the cash price.
 
+For the example above:
+
+$$
+F = 100[1 + 0.25(0.08 - 0.12)] = 99.
+$$
+
+At 99, neither the cash-and-carry nor the reverse cash-and-carry trade produces an arbitrage profit.
+
 ```{python}
 #| label: fig-cost-of-carry
 #| fig-cap: "The theoretical futures price depends on financing cost minus coupon yield"
@@ -413,6 +727,31 @@ plt.xlabel("Financing rate (%)")
 plt.ylabel("Theoretical futures price")
 plt.title("Cost of carry and theoretical futures price")
 plt.grid(True, alpha=0.3)
+plt.show()
+```
+
+```{python}
+#| label: fig-arbitrage-profit
+#| fig-cap: "Arbitrage pressure pushes the futures price toward the no-arbitrage value"
+import numpy as np
+import matplotlib.pyplot as plt
+
+futures_prices = np.linspace(90, 108, 181)
+cash_and_carry_profit = futures_prices + 3 - 102
+reverse_profit = 102 - (futures_prices + 3)
+
+plt.figure(figsize=(7, 3.6))
+plt.plot(futures_prices, cash_and_carry_profit, label="Cash-and-carry profit", linewidth=2)
+plt.plot(futures_prices, reverse_profit, label="Reverse cash-and-carry profit", linewidth=2)
+plt.axhline(0, color="black", linewidth=0.8)
+plt.axvline(99, color="gray", linestyle="--", linewidth=1)
+plt.text(99.2, 5.8, "No-arbitrage\nprice = 99", fontsize=8)
+plt.xlabel("Futures price")
+plt.ylabel("Profit")
+plt.title("Only one futures price eliminates both arbitrage trades")
+plt.grid(True, alpha=0.3)
+plt.legend()
+plt.tight_layout()
 plt.show()
 ```
 
@@ -446,6 +785,61 @@ $$
 
 Transaction costs widen this no-arbitrage band further.
 
+::: {.callout-note title="Example 7: No-Arbitrage Band with Different Borrowing and Lending Rates"}
+Suppose:
+
+- cash price $P=100$;
+- coupon yield $c=12\%$;
+- time to delivery $t=0.25$;
+- borrowing rate $r_B=8\%$;
+- lending rate $r_L=6\%$.
+
+Then:
+
+$$
+F_{\text{upper}}
+=100[1+0.25(0.08-0.12)]
+=99.00,
+$$
+
+and
+
+$$
+F_{\text{lower}}
+=100[1+0.25(0.06-0.12)]
+=98.50.
+$$
+
+In this simplified setting, a futures price between 98.50 and 99.00 would not support a clean arbitrage after accounting for the borrowing-lending spread.
+:::
+
+```{python}
+#| label: fig-no-arbitrage-band
+#| fig-cap: "Different borrowing and lending rates create a no-arbitrage band"
+import matplotlib.pyplot as plt
+
+lower = 98.50
+upper = 99.00
+prices = [98.0, lower, upper, 99.5]
+
+fig, ax = plt.subplots(figsize=(7, 1.9))
+ax.hlines(0, prices[0], prices[-1], color="black", linewidth=1)
+ax.axvspan(lower, upper, color="#E6F2E6", alpha=0.9, label="No-arbitrage band")
+ax.scatter([lower, upper], [0, 0], color="#4C78A8", zorder=3)
+ax.text(lower, 0.08, "98.50\nlower", ha="center", fontsize=8)
+ax.text(upper, 0.08, "99.00\nupper", ha="center", fontsize=8)
+ax.text(98.18, -0.12, "Reverse cash-and-carry\npressure", ha="center", fontsize=8)
+ax.text(99.32, -0.12, "Cash-and-carry\npressure", ha="center", fontsize=8)
+ax.set_xlim(prices[0], prices[-1])
+ax.set_ylim(-0.25, 0.25)
+ax.set_yticks([])
+ax.set_xlabel("Futures price")
+ax.set_title("Arbitrage is cleanest outside the band")
+ax.spines[["left", "right", "top"]].set_visible(False)
+plt.tight_layout()
+plt.show()
+```
+
 #### Deliverable Bond Is Not Known
 
 Treasury futures allow the short to choose from several eligible deliverable securities. Because the actual deliverable is unknown in advance, the futures price tends to trade in relation to the cheapest-to-deliver issue.
@@ -474,7 +868,7 @@ This matters because the no-arbitrage argument assumes that the cash instrument 
 
 ---
 
-## Bond Portfolio Management aPPLications
+## Bond Portfolio Management Applications
 
 Interest-rate futures can be used to control portfolio duration, hedge interest-rate exposure, enhance yield when futures are mispriced, and shift asset allocation efficiently.
 
@@ -528,6 +922,27 @@ $$
 The manager buys about 68 contracts.
 :::
 
+```{python}
+#| label: fig-duration-adjustment
+#| fig-cap: "Buying futures adds the dollar duration needed to reach the target"
+import matplotlib.pyplot as plt
+
+current_dd = 1_428_594
+target_dd = 1_770_110
+futures_dd = target_dd - current_dd
+
+plt.figure(figsize=(7, 3.4))
+plt.bar(["Current\nportfolio", "Futures\nposition", "Target\nportfolio"], [current_dd, futures_dd, target_dd],
+        color=["#4C78A8", "#F58518", "#72B7B2"], edgecolor="black")
+plt.ylabel("Dollar duration for 100 bp move ($)")
+plt.title("Duration adjustment with futures")
+plt.grid(axis="y", alpha=0.3)
+for i, value in enumerate([current_dd, futures_dd, target_dd]):
+    plt.text(i, value + 25_000, f"${value:,.0f}", ha="center", fontsize=8)
+plt.tight_layout()
+plt.show()
+```
+
 Duration matching alone does not eliminate all interest-rate risk. A portfolio and benchmark can have the same duration but different convexity or key rate duration exposures.
 
 ### Hedging
@@ -539,6 +954,10 @@ A **short hedge** protects against a decline in bond prices. It is used when the
 A **long hedge** protects against an increase in bond prices. It is used when the manager expects future cash inflows and is worried rates may fall before the bonds can be purchased.
 
 The main risk in a hedge is **basis risk**, which is the risk that the relationship between the cash bond price and futures price changes unpredictably. Basis risk is especially important in **cross hedging**, where the bond being hedged is not identical to the deliverable bond underlying the futures contract.
+
+::: {.callout-tip title="Hedging Intuition"}
+A hedge does not try to make the futures position profitable by itself. It tries to make the combined cash bond plus futures position less sensitive to the risk being hedged.
+:::
 
 #### The Hedge Ratio
 
@@ -601,6 +1020,34 @@ $$
 
 Rounded, the manager shorts 116 futures contracts.
 :::
+
+```{python}
+#| label: fig-hedged-vs-unhedged
+#| fig-cap: "A short futures hedge reduces the sensitivity of sale proceeds to interest-rate moves"
+import numpy as np
+import matplotlib.pyplot as plt
+
+rate_move_bp = np.linspace(-100, 100, 81)
+initial_value = 10_000_000
+bond_dollar_duration_100bp = 1_363_000
+hedge_effectiveness = 0.96
+
+unhedged_value = initial_value - bond_dollar_duration_100bp * (rate_move_bp / 100)
+futures_gain = hedge_effectiveness * bond_dollar_duration_100bp * (rate_move_bp / 100)
+hedged_value = unhedged_value + futures_gain
+
+plt.figure(figsize=(7, 3.6))
+plt.plot(rate_move_bp, unhedged_value / 1_000_000, label="Unhedged bond value", linewidth=2)
+plt.plot(rate_move_bp, hedged_value / 1_000_000, label="Hedged value", linewidth=2)
+plt.axvline(0, color="gray", linestyle="--", linewidth=1)
+plt.xlabel("Interest-rate change (bp)")
+plt.ylabel("Value ($ millions)")
+plt.title("Short futures hedge offsets most rate-driven price change")
+plt.grid(True, alpha=0.3)
+plt.legend()
+plt.tight_layout()
+plt.show()
+```
 
 #### Adjusting the Hedge Ratio for Yield Spread Changes
 
@@ -685,6 +1132,30 @@ $$
 
 These relationships are useful for yield enhancement. If the synthetic short-term security offers a higher yield than an actual Treasury bill of the same maturity, the manager can use the synthetic position to improve return. In efficient markets, such opportunities should be limited and short-lived.
 
+::: {.callout-note title="Example 8: Synthetic Short-Term Security"}
+Suppose an investor buys a bond for 100 and simultaneously sells a futures contract that will deliver the bond in three months at 99. The bond earns 3 of coupon interest over the three months.
+
+The future cash received is:
+
+$$
+99 + 3 = 102.
+$$
+
+The investor paid 100 today and locked in 102 in three months, so the three-month return is:
+
+$$
+\frac{102-100}{100}=2\%.
+$$
+
+Annualized on a simple-interest basis:
+
+$$
+2\% \times 4 = 8\%.
+$$
+
+The cash bond plus short futures position has synthetically created a three-month riskless position yielding 8 percent, ignoring margin reinvestment, transaction costs, and delivery-option effects.
+:::
+
 ### Allocating Funds between Stocks and Bonds
 
 Futures can also change asset allocation without immediately trading the underlying cash portfolios.
@@ -710,6 +1181,48 @@ $$
 }.
 $$
 
+::: {.callout-note title="Example 9: Shifting Bond Allocation with Futures"}
+Suppose a pension plan wants to increase bond exposure by $200 million. The target bond allocation has duration 5.0, and one Treasury futures contract has dollar duration of $5,000 for a 100-basis-point move.
+
+The added target dollar duration is:
+
+$$
+0.05 \times 200{,}000{,}000 = 10{,}000{,}000.
+$$
+
+The required number of contracts is:
+
+$$
+\frac{10{,}000{,}000}{5{,}000}=2{,}000.
+$$
+
+The plan would buy about 2,000 interest-rate futures contracts to add the desired bond-market exposure, then gradually replace the futures exposure with cash bonds if desired.
+:::
+
+```{python}
+#| label: fig-allocation-shift
+#| fig-cap: "Futures can temporarily shift asset allocation without immediate cash-market trading"
+import matplotlib.pyplot as plt
+
+before = [500, 500]
+target = [300, 700]
+labels = ["Equities", "Bonds"]
+colors = ["#4C78A8", "#F58518"]
+
+fig, axes = plt.subplots(1, 2, figsize=(7, 3.2), sharey=True)
+for ax, values, title in zip(axes, [before, target], ["Current allocation", "Target exposure"]):
+    ax.bar(labels, values, color=colors, edgecolor="black")
+    ax.set_title(title)
+    ax.set_ylim(0, 800)
+    ax.grid(axis="y", alpha=0.3)
+    for i, value in enumerate(values):
+        ax.text(i, value + 18, f"${value}m", ha="center", fontsize=9)
+
+axes[0].set_ylabel("Exposure ($ millions)")
+plt.tight_layout()
+plt.show()
+```
+
 ---
 
 ## Key Points {.unnumbered}
@@ -719,7 +1232,8 @@ $$
 - Futures margin is performance collateral, not a loan used to buy the underlying asset.
 - Futures contracts are standardized and exchange-traded; forward contracts are customized over-the-counter agreements.
 - Long futures positions benefit from rising futures prices; short futures positions benefit from falling futures prices.
-- Eurodollar and EURIBOR futures are short-term rate futures quoted as 100 minus the annualized reference rate.
+- Eurodollar futures are now mainly historical because LIBOR has ended; SOFR futures and Fed Funds futures are the relevant USD short-rate futures.
+- SOFR and Fed Funds futures are quoted as 100 minus the relevant short-term reference rate.
 - Treasury futures are physical-delivery contracts with eligible deliverable securities, conversion factors, invoice prices, and delivery options.
 - The cheapest-to-deliver issue is the deliverable bond that is most economical for the short to deliver.
 - The simple no-arbitrage futures price is $F=P[1+t(r-c)]$.

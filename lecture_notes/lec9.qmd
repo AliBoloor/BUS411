@@ -221,7 +221,7 @@ If the futures price falls:
 - the long position loses;
 - the short position gains.
 
-For a contract entered at futures price $F_0$ and closed at futures price $F_1$, the approximate payoff per unit of underlying is:
+For a contract entered at futures price $F_0$ and closed at futures price $F_1$, the payoff per unit of underlying is:
 
 $$
 \left(F_1-F_0\right)
@@ -375,13 +375,35 @@ $$
 2{,}500 \times \text{contract-grade IMM Index}.
 $$
 
+The **contract-grade IMM Index** is the final SOFR futures index for the contract. Like the quoted futures price, it is expressed as an index near 100:
+
+$$
+\text{contract-grade IMM Index}
+=
+100 - \text{contract-grade three-month SOFR rate}.
+$$
+
+Multiplying the index by 2,500 converts the index level into the dollar value used for settlement. For example, if the final index is 95.00, the contract's final settlement value is:
+
+$$
+2{,}500 \times 95.00 = 237{,}500.
+$$
+
+A one-index-point change is therefore worth $2,500. Because one index point equals 100 basis points, one basis point is worth:
+
+$$
+\frac{2{,}500}{100}=25.
+$$
+
 The economic notional is tied to a three-month interest period on $1 million:
 
 $$
 1{,}000{,}000 \times 0.0001 \times \frac{90}{360}=25.
 $$
 
-Thus, a 1-basis-point change in the implied rate corresponds to about $25 per contract. Since the price is $100 - \text{rate}$, a higher SOFR futures price means a lower implied SOFR rate.
+This gives the same result from the interest-rate side. A basis point is $0.0001$, and a three-month contract uses the money-market year fraction $90/360=0.25$. The dollar interest change on $1 million for a one-basis-point move over one quarter is therefore $25.
+
+Thus, a 1-basis-point change in the implied rate corresponds to about $25 per contract. Since the price is $100 - \text{rate}$, a higher SOFR futures price means a lower implied SOFR rate. The sign matters: if the quoted futures price rises by 1 basis point, the implied rate falls by 1 basis point and a long position gains about $25; if the quoted futures price falls by 1 basis point, the long loses about $25.
 
 ::: {.callout-note title="Example 3: SOFR Futures Daily Price Change"}
 Suppose a trader buys one Three-Month SOFR futures contract at 95.20. The implied compounded SOFR rate is:
@@ -429,28 +451,6 @@ The key distinction from SOFR is the underlying rate:
 - Fed Funds is an unsecured overnight bank funding rate.
 - SOFR futures are commonly used for broad short-rate and derivatives hedging.
 - Fed Funds futures are especially useful for expressing views on FOMC policy decisions.
-
-```{python}
-#| label: fig-short-rate-futures-comparison
-#| fig-cap: "Short-rate futures prices are quoted as 100 minus the implied short rate"
-import numpy as np
-import matplotlib.pyplot as plt
-
-implied_rates = np.linspace(3.0, 6.0, 61)
-futures_prices = 100 - implied_rates
-
-plt.figure(figsize=(7, 3.4))
-plt.plot(implied_rates, futures_prices, linewidth=2, color="#4C78A8")
-plt.scatter([4.80, 4.375], [95.20, 95.625], color=["#F58518", "#72B7B2"], zorder=3)
-plt.text(4.83, 95.08, "SOFR example", fontsize=8)
-plt.text(4.03, 95.72, "Fed Funds example", fontsize=8)
-plt.xlabel("Implied short rate (%)")
-plt.ylabel("Futures price")
-plt.title("Index price moves inversely with the implied rate")
-plt.grid(True, alpha=0.3)
-plt.tight_layout()
-plt.show()
-```
 
 ### Treasury Futures
 
@@ -520,6 +520,20 @@ before accrued interest.
 
 The **cheapest-to-deliver (CTD)** issue is the eligible bond that is most economical for the short to deliver. Market participants often identify it by computing the **implied repo rate** for each eligible issue. The bond with the highest implied repo rate is the CTD issue.
 
+A **repo rate** is the interest rate on a repurchase agreement. In a repo, a trader sells a security today and agrees to buy it back later at a higher price. Economically, this is a collateralized loan: the security is the collateral, and the difference between the sale price and repurchase price is the interest cost.
+
+The **implied repo rate** applies the same idea to a futures delivery strategy. It asks: if a trader buys an eligible bond today, finances it, and later delivers it into the futures contract, what financing rate would make the trade break even? In simplified form:
+
+$$
+\text{implied repo rate}
+\approx
+\frac{\text{invoice price} - \text{cash price of bond}}{\text{cash price of bond}}
+\times
+\frac{360}{\text{days to delivery}}.
+$$
+
+A higher implied repo rate means the delivery strategy earns a better financing return, so that bond is more attractive for the short to deliver.
+
 The CTD issue can also be introduced through delivery cost. Ignoring financing and accrued interest for the moment, the net delivery cost is:
 
 $$
@@ -544,7 +558,7 @@ Assume the futures settlement price is 94.00. Three deliverable bonds have the f
 Bond C is cheapest to deliver because it has the lowest net delivery cost. In practice, traders use a full implied repo calculation that includes accrued interest, financing, and delivery timing, but the intuition is the same: the short delivers the bond that is most favorable to deliver.
 :::
 
-```{python}
+<!-- ```{python}
 #| label: fig-ctd-cost
 #| fig-cap: "The cheapest-to-deliver issue has the lowest delivery cost"
 import numpy as np
@@ -567,7 +581,7 @@ plt.title("Lower delivery cost is better for the short")
 plt.grid(axis="y", alpha=0.3)
 plt.tight_layout()
 plt.show()
-```
+``` -->
 
 Treasury futures give the short three important delivery options:
 
@@ -608,25 +622,21 @@ For bond futures, the basic arbitrage logic compares:
 
 ### Pricing of Futures Contracts
 
-Suppose a bond sells for 100, pays a 12 percent annual coupon, and the futures contract settles in three months. The financing rate is 8 percent per year.
+If the futures price is too high relative to the cash bond and financing cost, an arbitrageur can use a **cash-and-carry trade**:
 
-If the futures price were 107, an arbitrageur could:
+1. buy the cash bond;
+2. finance the bond purchase by borrowing;
+3. sell the futures contract.
 
-1. sell the futures contract at 107;
-2. buy the bond for 100;
-3. borrow 100 for three months at 8 percent.
+This trade locks in the high futures delivery price while carrying the bond until settlement.
 
-At settlement, the arbitrageur receives 107 plus 3 of accrued coupon interest, for total proceeds of 110. The loan repayment is 100 plus 2 of interest, for total cost of 102. The arbitrage profit is 8.
-
-This is a **cash-and-carry trade**: buy the cash bond, finance it, and sell the futures contract.
-
-If the futures price were too low, the opposite trade would be profitable:
+If the futures price is too low relative to the cash bond and financing cost, an arbitrageur can use a **reverse cash-and-carry trade**:
 
 1. buy the futures contract;
 2. short the cash bond;
 3. invest the short-sale proceeds.
 
-This is a **reverse cash-and-carry trade**.
+This trade locks in the low futures purchase price while synthetically carrying a short cash-bond position until settlement.
 
 ::: {.callout-note title="Example 5: When the Futures Price Is Too High"}
 Use the same bond:
@@ -636,31 +646,49 @@ Use the same bond:
 - financing rate = 8 percent;
 - time to delivery = 0.25 years.
 
-If the futures price is 107, the cash-and-carry trade has no initial net investment because the bond purchase is financed by borrowing. At delivery:
+If the futures price is 107, the futures contract is too expensive relative to the cash bond. The arbitrageur can buy the bond for 100, finance the purchase by borrowing 100, and sell the futures contract at 107.
 
-| Cash flow item | Amount |
-|---|---:|
-| Futures delivery price | 107 |
-| Accrued coupon interest | 3 |
-| Total proceeds | 110 |
-| Loan principal repayment | -100 |
-| Loan interest | -2 |
-| Arbitrage profit | 8 |
+The trade has no initial net investment because the bond purchase is fully financed. Over the three-month holding period, the bond earns accrued coupon interest of:
 
-The high futures price creates a profit for buying the cash bond and selling the futures.
+$$
+100 \times 0.12 \times 0.25 = 3.
+$$
+
+The borrowing cost is:
+
+$$
+100 \times 0.08 \times 0.25 = 2.
+$$
+
+At delivery, the arbitrageur receives 107 from the futures delivery and 3 of accrued coupon interest, for total proceeds of 110. The loan repayment is 100 of principal plus 2 of interest, for total cost of 102. The arbitrage profit is:
+
+$$
+110 - 102 = 8.
+$$
+
+The high futures price creates a profit for buying the cash bond, financing it, and selling the futures.
 :::
 
 ::: {.callout-note title="Example 6: When the Futures Price Is Too Low"}
-If the futures price is 92, the reverse cash-and-carry trade is profitable. The trader shorts the bond, invests the proceeds, and buys the futures. At delivery:
+If the futures price is 92, the futures contract is too cheap relative to the cash bond. The arbitrageur can short the bond, invest the short-sale proceeds, and buy the futures contract at 92.
 
-| Cash flow item | Amount |
-|---|---:|
-| Investment principal received | 100 |
-| Investment interest | 2 |
-| Total proceeds | 102 |
-| Futures delivery price | -92 |
-| Accrued coupon interest paid | -3 |
-| Arbitrage profit | 7 |
+The short sale generates 100 of cash, which is invested for three months at 8 percent. The investment earns:
+
+$$
+100 \times 0.08 \times 0.25 = 2.
+$$
+
+At delivery, the investment is worth 102. The arbitrageur uses the long futures position to buy the bond for 92 and must also pay 3 of accrued coupon interest to close the short bond position. The total cost of acquiring and delivering the bond is therefore:
+
+$$
+92 + 3 = 95.
+$$
+
+The arbitrage profit is:
+
+$$
+102 - 95 = 7.
+$$
 
 The low futures price creates a profit for buying the futures and synthetically selling the cash bond.
 :::
@@ -707,28 +735,7 @@ $$
 
 At 99, neither the cash-and-carry nor the reverse cash-and-carry trade produces an arbitrage profit.
 
-```{python}
-#| label: fig-cost-of-carry
-#| fig-cap: "The theoretical futures price depends on financing cost minus coupon yield"
-import numpy as np
-import matplotlib.pyplot as plt
 
-P = 100
-t = 0.25
-c = 0.06
-r_values = np.linspace(0.01, 0.11, 101)
-F = P * (1 + t * (r_values - c))
-
-plt.figure(figsize=(7, 3.5))
-plt.plot(r_values * 100, F, linewidth=2)
-plt.axhline(P, color="black", linewidth=0.8)
-plt.axvline(c * 100, color="gray", linestyle="--", linewidth=1)
-plt.xlabel("Financing rate (%)")
-plt.ylabel("Theoretical futures price")
-plt.title("Cost of carry and theoretical futures price")
-plt.grid(True, alpha=0.3)
-plt.show()
-```
 
 ```{python}
 #| label: fig-arbitrage-profit
@@ -860,11 +867,6 @@ $$
 
 Here, delivery options include the quality option, timing option, and wild card option.
 
-#### Deliverable Is Not a Basket of Securities
-
-Some futures contracts are based on an index or basket. If the exact basket is difficult or costly to replicate, arbitrage is not riskless. A trader may construct a smaller tracking portfolio, but then the hedge contains **tracking error risk**.
-
-This matters because the no-arbitrage argument assumes that the cash instrument can be bought or sold exactly. If exact replication is impossible, the theoretical price becomes a guide rather than a strict arbitrage boundary.
 
 ---
 
@@ -944,6 +946,120 @@ plt.show()
 ```
 
 Duration matching alone does not eliminate all interest-rate risk. A portfolio and benchmark can have the same duration but different convexity or key rate duration exposures.
+
+::: {.callout-note title="How Do We Measure the Interest-Rate Sensitivity of a Treasury Futures Contract?"}
+A Treasury futures contract does **not** have coupon payments or principal repayment. Therefore, unlike a bond, it does not have a true Macaulay duration or modified duration. When practitioners refer to the "duration" of a Treasury futures contract, they usually mean its **interest-rate sensitivity**.
+
+In practice, that sensitivity is measured with **DV01**, the Dollar Value of One Basis Point. Portfolio managers generally work directly with futures DV01 rather than trying to compute a standalone futures duration.
+
+First, identify the **cheapest-to-deliver (CTD)** bond. Several Treasury securities are eligible for delivery into a Treasury futures contract. The short seller chooses the bond that minimizes the cost of delivery. Because the futures contract usually behaves like the CTD bond, the futures contract's interest-rate sensitivity is derived from the CTD bond.
+
+Second, compute the CTD bond's DV01:
+
+$$
+DV01_{CTD}
+=
+D_{mod,CTD}
+\times
+P_{CTD}
+\times
+0.0001.
+$$
+
+Here, $D_{mod,CTD}$ is the modified duration of the CTD bond, $P_{CTD}$ is the market value of the CTD bond corresponding to the contract's deliverable face amount, and $0.0001$ represents a one-basis-point change in yield. Although bond prices decrease when yields increase, DV01 is quoted as a positive risk measure.
+
+Third, convert the CTD DV01 into the futures DV01. The invoice price received by the short is approximately:
+
+$$
+\text{Invoice price}
+=
+F \times CF + AI,
+$$
+
+where $F$ is the futures price, $CF$ is the conversion factor, and $AI$ is accrued interest. Ignoring accrued interest and delivery-option details:
+
+$$
+P_{CTD}
+\approx
+F \times CF.
+$$
+
+Therefore:
+
+$$
+DV01_{futures}
+\approx
+\frac{DV01_{CTD}}{CF}.
+$$
+
+The intuition is scaling. Because the futures price is scaled by the conversion factor, its dollar sensitivity is also scaled. A smaller conversion factor means that a given movement in the CTD bond corresponds to a larger movement in the futures price.
+
+For example, suppose the CTD bond has modified duration 7.2, a clean price of 102.40, a deliverable face amount of $100,000, and a conversion factor of 0.9350. The CTD market value is:
+
+$$
+P_{CTD}
+=
+1.0240 \times 100{,}000
+=
+\$102{,}400.
+$$
+
+The CTD DV01 is:
+
+$$
+DV01_{CTD}
+=
+7.2 \times 102{,}400 \times 0.0001
+=
+\$73.73.
+$$
+
+The futures DV01 is:
+
+$$
+DV01_{futures}
+\approx
+\frac{73.73}{0.9350}
+=
+\$78.85.
+$$
+
+These numbers are illustrative only. The interpretation is that one Treasury futures contract gains approximately $78.85 when yields fall by one basis point and loses approximately $78.85 when yields rise by one basis point.
+
+For hedging, traders usually match DV01 directly. Suppose a bond portfolio has:
+
+$$
+DV01_{portfolio}
+=
+\$22{,}500.
+$$
+
+Suppose one Treasury futures contract has:
+
+$$
+DV01_{futures}
+=
+\$75.
+$$
+
+Then the number of futures contracts is:
+
+$$
+N
+=
+\frac{DV01_{portfolio}}{DV01_{futures}}
+=
+\frac{22{,}500}{75}
+=
+300.
+$$
+
+A long bond portfolio generally shorts Treasury futures to hedge against rising interest rates. A short bond portfolio generally buys Treasury futures to hedge against falling interest rates. Partial hedges can be obtained by multiplying the number of contracts by the desired hedge ratio.
+
+The calculated futures DV01 is still an approximation. It may change when the CTD bond changes, the yield curve moves non-parallel, delivery options become more or less valuable, convexity becomes important, or accrued interest and financing effects change.
+
+**Takeaway:** Treasury futures do not have a true bond duration. Their practical interest-rate sensitivity is measured using the DV01 of the cheapest-to-deliver bond, adjusted by the conversion factor. Duration hedging is therefore performed by matching portfolio DV01 with futures DV01.
+:::
 
 ### Hedging
 
@@ -1049,7 +1165,7 @@ plt.tight_layout()
 plt.show()
 ```
 
-#### Adjusting the Hedge Ratio for Yield Spread Changes
+#### Adjusting the Hedge Ratio for Yield Spread Changes (optional)
 
 The basic cross-hedge formula assumes the yield spread between the bond being hedged and the CTD issue remains constant. In practice, spreads move.
 
@@ -1106,7 +1222,7 @@ $$
 
 This method uses the ratio of historical yield-change standard deviations rather than a regression slope.
 
-### Creating Synthetic Securities for Yield Enhancement
+### Creating Synthetic Securities for Yield Enhancement (optional)
 
 Futures and cash bonds can be combined to create synthetic positions.
 
@@ -1156,7 +1272,7 @@ $$
 The cash bond plus short futures position has synthetically created a three-month riskless position yielding 8 percent, ignoring margin reinvestment, transaction costs, and delivery-option effects.
 :::
 
-### Allocating Funds between Stocks and Bonds
+### Allocating Funds between Stocks and Bonds (optional)
 
 Futures can also change asset allocation without immediately trading the underlying cash portfolios.
 

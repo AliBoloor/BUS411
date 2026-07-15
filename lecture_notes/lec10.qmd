@@ -273,7 +273,7 @@ $$
 -\text{DTS}\times \frac{\Delta s}{s}.
 $$
 
-::: {.callout-tip title="Why DTS Is Intuitive"}
+::: {.callout-tip title="DTS Is Intuition"}
 Spread duration asks: "What happens if every bond's spread moves by the same number of basis points?"
 
 DTS asks: "What happens if every bond's spread moves by the same percentage of its starting spread?"
@@ -397,7 +397,101 @@ $$
 
 where $D$ is modified duration, $\Delta y$ is the Treasury yield change, $s$ is the starting spread, and $\Delta s/s$ is the relative spread change.
 
-Dividing by $\Delta y$ shows why empirical duration can differ from analytical duration:
+The first term,
+
+$$
+-D\Delta y,
+$$
+
+is the usual Treasury-rate duration effect. If Treasury yields rise, the bond price falls.
+
+The second term,
+
+$$
+-D s \frac{\Delta s}{s},
+$$
+
+is the credit spread effect written in DTS form. Since $\text{DTS}=Ds$, the spread-price effect can also be written as:
+
+$$
+-\text{DTS}\times \frac{\Delta s}{s}.
+$$
+
+So the two-factor approximation says that a corporate bond's price changes because of both Treasury-rate changes and credit-spread changes.
+
+To connect this to empirical duration, divide both sides by $\Delta y$:
+
+$$
+\frac{1}{P}\frac{\Delta P}{\Delta y}
+\approx
+-D
+-
+Ds
+\frac{\Delta s/s}{\Delta y}.
+$$
+
+Now factor out $-D$:
+
+$$
+\frac{1}{P}\frac{\Delta P}{\Delta y}
+\approx
+-D
+\left[
+1
++
+s
+\frac{\Delta s/s}{\Delta y}
+\right].
+$$
+
+The key object is:
+
+$$
+\frac{\Delta s/s}{\Delta y}.
+$$
+
+This measures how relative credit spread changes tend to move when Treasury yields change. Since that relationship is not known analytically, we estimate it empirically. The regression-style approximation is:
+
+$$
+\frac{\Delta s/s}{\Delta y}
+\approx
+\rho_{y,s}\frac{\sigma_s}{\sigma_y}.
+$$
+
+This comes from the slope coefficient in a regression of relative spread changes on Treasury yield changes:
+
+$$
+\beta
+=
+\frac{\operatorname{cov}(\Delta y,\Delta s/s)}
+{\operatorname{var}(\Delta y)}.
+$$
+
+Using
+
+$$
+\operatorname{cov}(\Delta y,\Delta s/s)
+=
+\rho_{y,s}\sigma_y\sigma_s
+$$
+
+and
+
+$$
+\operatorname{var}(\Delta y)=\sigma_y^2,
+$$
+
+we get:
+
+$$
+\beta
+=
+\frac{\rho_{y,s}\sigma_y\sigma_s}{\sigma_y^2}
+=
+\rho_{y,s}\frac{\sigma_s}{\sigma_y}.
+$$
+
+Substituting this empirical relationship into the duration expression gives:
 
 $$
 \frac{1}{P}\frac{\Delta P}{\Delta y}
@@ -414,7 +508,11 @@ where:
 - $\sigma_s$ is the volatility of relative spread changes;
 - $\sigma_y$ is the volatility of Treasury yield changes.
 
-The bracketed term is a duration adjustment. If Treasury yields rise when spreads tighten, then $\rho_{y,s}$ is negative. The spread tightening offsets part of the Treasury-rate price loss, so empirical duration is lower than analytical duration.
+The bracketed term is the duration adjustment.
+
+If Treasury yields rise when credit spreads tighten, then $\rho_{y,s}$ is negative. The bracketed term is less than 1, so empirical duration is lower than analytical duration. Intuitively, the Treasury-rate loss is partly offset by a gain from spread tightening.
+
+If Treasury yields rise when credit spreads widen, then $\rho_{y,s}$ is positive. The bracketed term is greater than 1, so empirical duration is higher than analytical duration. In that case, the Treasury-rate loss and spread-widening loss reinforce each other.
 
 ::: {.callout-note title="Example 5: Why Empirical Duration Can Be Lower"}
 Suppose a bond has analytical duration 6 and spread 3%. A 50 bps rise in Treasury yields would mechanically imply:

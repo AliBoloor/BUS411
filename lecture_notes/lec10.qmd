@@ -1,0 +1,983 @@
+---
+title: "Lecture 10: Credit Spread Exposure and Credit Risk Modeling"
+format:
+  html:
+    toc: true
+    toc-location: left
+    number-sections: true
+    number-depth: 2
+  pdf:
+    toc: true
+    number-sections: true
+    number-depth: 2
+jupyter: python3
+execute:
+  echo: false
+---
+
+## Learning Objectives {.unnumbered}
+
+After completing this lecture you should be able to:
+
+- Measure changes in credit spreads using absolute changes and relative changes.
+- Explain why relative spread changes often describe corporate spread behavior better than absolute spread changes.
+- Define spread duration and use it to estimate the price effect of spread changes.
+- Define duration times spread (DTS) and explain why it is useful for measuring credit spread exposure.
+- Explain why analytical duration can overstate the true Treasury-rate exposure of lower-rated corporate bonds.
+- Define empirical duration and describe how it is estimated.
+- Explain the theoretical difference between analytical duration and empirical duration.
+- Use duration multipliers to adjust corporate bond duration estimates.
+- Explain why credit risk is harder to model than interest-rate risk.
+- Compare credit ratings with credit risk models.
+- Describe structural models, including the Black-Scholes-Merton model and its main extensions.
+- Explain default correlation and why copulas are used in portfolio credit risk.
+- Describe reduced-form models, including the Poisson process, Jarrow-Turnbull model, and Duffie-Singleton model.
+- Compare the advantages and disadvantages of structural and reduced-form models.
+- Interpret empirical evidence on credit ratings, structural models, and reduced-form models.
+- Apply credit risk modeling to relative value analysis.
+- Explain the motivation for incomplete-information models.
+
+---
+
+## Big Picture: Two Credit Questions
+
+Credit-risky bonds expose investors to two related but different questions:
+
+1. **Spread exposure:** If the market demands more or less compensation for credit risk, how much will the bond price move?
+2. **Default exposure:** What is the probability of default, what is the expected recovery, and how do defaults interact across a portfolio?
+
+The first question is about mark-to-market risk. A corporate bond can lose value even if it never defaults because its credit spread widens. The second question is about credit events and losses. Both matter for portfolio construction.
+
+For a plain corporate bond, a simple yield decomposition is:
+
+$$
+y_{\text{corp}} \approx y_{\text{Treasury}} + s,
+$$
+
+where $s$ is the credit spread. A price change can then come from a change in Treasury yields, a change in credit spreads, or both.
+
+::: {.callout-tip title="Core Intuition"}
+Treasury duration tells us how much the bond reacts to risk-free rates. Spread duration and DTS tell us how much the bond reacts to the market's compensation for credit risk. Credit risk models go one level deeper and ask where that compensation should come from.
+:::
+
+```{python}
+#| label: fig-credit-risk-map
+#| fig-cap: "Corporate bond risk combines Treasury-rate exposure, spread exposure, and default exposure"
+import matplotlib.pyplot as plt
+from matplotlib.patches import FancyBboxPatch, FancyArrowPatch
+
+fig, ax = plt.subplots(figsize=(7.2, 3.0))
+ax.set_axis_off()
+
+boxes = [
+    ("Corporate\nbond price", 2.7, 1.65, "#E8F1FA"),
+    ("Treasury\nrates", 0.35, 0.55, "#F6E8C3"),
+    ("Credit\nspreads", 2.7, 0.55, "#E6F2E6"),
+    ("Default and\nrecovery risk", 5.05, 0.55, "#F8D7DA"),
+]
+
+for text, x, y, color in boxes:
+    box = FancyBboxPatch(
+        (x, y), 1.45, 0.72,
+        boxstyle="round,pad=0.08",
+        linewidth=1.1,
+        edgecolor="black",
+        facecolor=color,
+    )
+    ax.add_patch(box)
+    ax.text(x + 0.725, y + 0.36, text, ha="center", va="center", fontsize=8.7)
+
+for start, end in [((1.8, 0.92), (2.8, 1.68)), ((3.45, 1.27), (3.45, 1.65)), ((5.1, 0.92), (4.05, 1.68))]:
+    ax.add_patch(FancyArrowPatch(start, end, arrowstyle="-|>", mutation_scale=14, linewidth=1.3))
+
+ax.text(0.2, 0.16, "Duration", fontsize=8.5, color="#444444")
+ax.text(2.48, 0.16, "Spread duration, DTS", fontsize=8.5, color="#444444")
+ax.text(4.72, 0.16, "Credit risk models", fontsize=8.5, color="#444444")
+ax.set_xlim(0, 6.8)
+ax.set_ylim(0, 2.65)
+plt.tight_layout()
+plt.show()
+```
+
+---
+
+## Measuring Changes in Credit Spreads
+
+The **credit spread** of a risky bond is the difference between the yield on the risky bond and the yield on a comparable Treasury security:
+
+$$
+s_i = y_i - y_{\text{Treasury}}.
+$$
+
+There are two common ways to measure a spread change.
+
+The **absolute spread change** is:
+
+$$
+\Delta s_i.
+$$
+
+The **relative spread change** is:
+
+$$
+\frac{\Delta s_i}{s_i}.
+$$
+
+The difference matters because a 25-basis-point widening does not mean the same thing for every bond.
+
+::: {.callout-note title="Example 1: Absolute Versus Relative Spread Changes"}
+Suppose Bond A has a spread of 50 bps and Bond B has a spread of 500 bps.
+
+If both spreads widen by 25 bps, the absolute change is the same:
+
+$$
+\Delta s_A = \Delta s_B = 25 \text{ bps}.
+$$
+
+But the relative changes are very different:
+
+$$
+\frac{25}{50}=50\%,
+\qquad
+\frac{25}{500}=5\%.
+$$
+
+For Bond A, the market has increased required credit compensation by half. For Bond B, the same 25 bps is a much smaller proportional shock.
+:::
+
+If credit spread changes tend to be proportional to the starting spread level, then high-spread bonds should usually experience larger basis-point moves than tight-spread bonds. Empirical evidence supports this proportional view for corporate bonds. That is why relative spread changes are central to DTS.
+
+```{python}
+#| label: fig-absolute-relative-spreads
+#| fig-cap: "The same absolute spread move can be a very different relative spread shock"
+import numpy as np
+import matplotlib.pyplot as plt
+
+spreads_bps = np.array([50, 150, 300, 500])
+move_bps = 25
+relative_move = move_bps / spreads_bps
+
+fig, axes = plt.subplots(1, 2, figsize=(7.4, 3.2))
+axes[0].bar(spreads_bps.astype(str), np.repeat(move_bps, len(spreads_bps)), color="#4C78A8", edgecolor="black")
+axes[0].set_title("Absolute move")
+axes[0].set_ylabel("Basis points")
+axes[0].set_xlabel("Starting spread (bps)")
+axes[0].set_ylim(0, 32)
+
+axes[1].bar(spreads_bps.astype(str), relative_move * 100, color="#F58518", edgecolor="black")
+axes[1].set_title("Relative move")
+axes[1].set_ylabel("Percent of starting spread")
+axes[1].set_xlabel("Starting spread (bps)")
+axes[1].set_ylim(0, 60)
+
+for ax in axes:
+    ax.grid(axis="y", alpha=0.3)
+
+plt.tight_layout()
+plt.show()
+```
+
+---
+
+## Measuring Credit Spread Sensitivity
+
+### Spread Duration
+
+**Spread duration** measures the approximate percentage price change for a 100-basis-point parallel change in credit spreads, holding Treasury rates constant.
+
+The approximate spread duration is:
+
+$$
+D_{\text{spread}}
+=
+\frac{P_- - P_+}{2P_0\Delta s},
+$$
+
+where:
+
+- $P_0$ is the initial price;
+- $P_-$ is the price after the spread decreases by $\Delta s$;
+- $P_+$ is the price after the spread increases by $\Delta s$.
+
+For small spread moves:
+
+$$
+\frac{\Delta P_{\text{spread}}}{P}
+\approx
+-D_{\text{spread}}\Delta s.
+$$
+
+The negative sign reflects the usual price-spread relationship. If spreads widen, prices fall.
+
+::: {.callout-note title="Example 2: Spread Duration Price Impact"}
+Suppose a corporate bond has spread duration of 6.5. Its spread widens by 40 bps, or 0.0040.
+
+The approximate percentage price change is:
+
+$$
+\frac{\Delta P}{P}
+\approx
+-6.5(0.0040)
+=
+-0.026
+=
+-2.6\%.
+$$
+
+If the bond was priced at 98, the approximate price decline is:
+
+$$
+98 \times 2.6\% = 2.548
+$$
+
+points, so the new price is roughly 95.45.
+:::
+
+Spread duration is useful, but it implicitly uses absolute spread changes. That is a limitation if high-spread bonds tend to have larger basis-point spread moves.
+
+### Duration Times Spread (DTS)
+
+**Duration times spread (DTS)** is:
+
+$$
+\text{DTS} = D_{\text{spread}} \times s.
+$$
+
+If $s$ is expressed in decimal form, DTS is also a decimal. A bond with spread duration 4 and spread 90 bps has:
+
+$$
+\text{DTS} = 4 \times 0.0090 = 0.036 = 3.6\%.
+$$
+
+The logic comes from rewriting the spread-price relation. Start with:
+
+$$
+\frac{\Delta P_{\text{spread}}}{P}
+\approx
+-D_{\text{spread}}\Delta s.
+$$
+
+Multiply and divide by $s$:
+
+$$
+\frac{\Delta P_{\text{spread}}}{P}
+\approx
+-(D_{\text{spread}}s)\frac{\Delta s}{s}.
+$$
+
+The first term is DTS, and the second term is the relative spread change:
+
+$$
+\frac{\Delta P_{\text{spread}}}{P}
+\approx
+-\text{DTS}\times \frac{\Delta s}{s}.
+$$
+
+::: {.callout-tip title="Why DTS Is Intuitive"}
+Spread duration asks: "What happens if every bond's spread moves by the same number of basis points?"
+
+DTS asks: "What happens if every bond's spread moves by the same percentage of its starting spread?"
+
+The second question often fits corporate spread behavior better because distressed or high-yield bonds usually have wider and more volatile spreads.
+:::
+
+::: {.callout-note title="Example 3: DTS and Relative Spread Shocks"}
+Bond A has spread duration 7 and spread 100 bps:
+
+$$
+\text{DTS}_A = 7(0.0100)=7.0\%.
+$$
+
+Bond B has spread duration 3.5 and spread 400 bps:
+
+$$
+\text{DTS}_B = 3.5(0.0400)=14.0\%.
+$$
+
+If spreads widen by 20% relative to their starting levels, then:
+
+$$
+\frac{\Delta P_A}{P_A}\approx -7.0\%(20\%)=-1.4\%,
+$$
+
+$$
+\frac{\Delta P_B}{P_B}\approx -14.0\%(20\%)=-2.8\%.
+$$
+
+Bond B has shorter spread duration but more credit spread exposure because its spread is much wider.
+:::
+
+For a portfolio, **contribution to DTS** is:
+
+$$
+\text{Contribution to DTS}_i
+= w_i D_{\text{spread},i}s_i.
+$$
+
+This identifies where credit spread risk actually sits in the portfolio.
+
+::: {.callout-note title="Example 4: Portfolio DTS"}
+Suppose a portfolio has three sectors.
+
+| Sector | Weight | Spread duration | Spread | DTS | Contribution to DTS |
+|---|---:|---:|---:|---:|---:|
+| A-rated industrials | 50% | 6.0 | 1.20% | 7.20% | 3.60% |
+| BBB financials | 30% | 5.0 | 2.00% | 10.00% | 3.00% |
+| High yield | 20% | 3.0 | 5.00% | 15.00% | 3.00% |
+
+The high-yield allocation is only 20% of market value, but it contributes as much DTS as the 30% BBB allocation. Market weight alone understates its credit spread risk.
+:::
+
+```{python}
+#| label: fig-portfolio-dts
+#| fig-cap: "Market value weights can hide where credit spread risk is concentrated"
+import numpy as np
+import matplotlib.pyplot as plt
+
+sectors = ["A industrials", "BBB financials", "High yield"]
+weights = np.array([0.50, 0.30, 0.20])
+dts = np.array([0.072, 0.10, 0.15])
+contrib = weights * dts
+
+x = np.arange(len(sectors))
+width = 0.36
+
+fig, ax = plt.subplots(figsize=(7.2, 3.5))
+ax.bar(x - width / 2, weights * 100, width, label="Market weight", color="#4C78A8", edgecolor="black")
+ax.bar(x + width / 2, contrib * 100, width, label="Contribution to DTS", color="#F58518", edgecolor="black")
+ax.set_xticks(x)
+ax.set_xticklabels(sectors)
+ax.set_ylabel("Percent")
+ax.set_title("Portfolio weights versus contribution to DTS")
+ax.grid(axis="y", alpha=0.3)
+ax.legend()
+plt.tight_layout()
+plt.show()
+```
+
+---
+
+## Empirical Duration for Corporate Bonds
+
+Corporate bonds are exposed to:
+
+- Treasury-rate risk;
+- credit spread risk;
+- equity-like risk, especially for lower-rated issuers.
+
+For investment-grade bonds, Treasury-rate risk is often dominant. For high-yield bonds, spread and equity-like credit risk can dominate. This is why lower-rated high-yield bonds are often described as **equity-like**.
+
+### Analytical Duration Versus Empirical Duration
+
+**Analytical duration** is computed from the bond's promised cash flows, price, yield, and maturity. It answers a mechanical repricing question: how would the price change if the discount yield changed while the cash flows remained promised?
+
+**Empirical duration** is estimated from observed market behavior, commonly with a regression:
+
+$$
+\frac{\Delta P_t}{P_t}
+=
+\alpha - D_{\text{emp}}\Delta y_t + \epsilon_t.
+$$
+
+The estimated slope gives an empirical measure of how the bond actually moved when Treasury yields changed.
+
+::: {.callout-tip title="Core Intuition"}
+Analytical duration treats the bond like a promised-cash-flow instrument. Empirical duration recognizes that corporate bond spreads may move at the same time Treasury yields move. For risky bonds, the spread response can offset or amplify the Treasury-rate effect.
+:::
+
+### Theoretical Difference Between Analytical Duration and Empirical Duration
+
+A simple two-factor approximation is:
+
+$$
+\frac{\Delta P}{P}
+\approx
+-D\Delta y - D s \frac{\Delta s}{s},
+$$
+
+where $D$ is modified duration, $\Delta y$ is the Treasury yield change, $s$ is the starting spread, and $\Delta s/s$ is the relative spread change.
+
+Dividing by $\Delta y$ shows why empirical duration can differ from analytical duration:
+
+$$
+\frac{1}{P}\frac{\Delta P}{\Delta y}
+\approx
+-D
+\left[
+1 + s\rho_{y,s}\frac{\sigma_s}{\sigma_y}
+\right],
+$$
+
+where:
+
+- $\rho_{y,s}$ is the correlation between Treasury yield changes and relative spread changes;
+- $\sigma_s$ is the volatility of relative spread changes;
+- $\sigma_y$ is the volatility of Treasury yield changes.
+
+The bracketed term is a duration adjustment. If Treasury yields rise when spreads tighten, then $\rho_{y,s}$ is negative. The spread tightening offsets part of the Treasury-rate price loss, so empirical duration is lower than analytical duration.
+
+::: {.callout-note title="Example 5: Why Empirical Duration Can Be Lower"}
+Suppose a bond has analytical duration 6 and spread 3%. A 50 bps rise in Treasury yields would mechanically imply:
+
+$$
+\frac{\Delta P}{P}\approx -6(0.0050)=-3.0\%.
+$$
+
+But suppose the stronger economic environment also causes the bond's spread to tighten by 30 bps:
+
+$$
+\frac{\Delta P_{\text{spread}}}{P}\approx -6(-0.0030)=+1.8\%.
+$$
+
+The combined price change is:
+
+$$
+-3.0\% + 1.8\% = -1.2\%.
+$$
+
+Relative to the 50 bps Treasury move, the observed duration is:
+
+$$
+\frac{1.2\%}{0.50\%}=2.4,
+$$
+
+not 6. The bond did not become short maturity. Its credit spread moved in the opposite direction and offset much of the rate effect.
+:::
+
+### Duration Multipliers
+
+A **duration multiplier** adjusts analytical duration to approximate true Treasury-rate sensitivity:
+
+$$
+D_{\text{emp}} \approx M D_{\text{analytical}}.
+$$
+
+Empirical work often models the multiplier as a function of rating and spread:
+
+$$
+M = a + bs.
+$$
+
+Lower-rated and wider-spread bonds tend to have lower multipliers. In stressed or high-yield cases, the multiplier can be near zero or even negative if spread tightening during rate increases more than offsets the Treasury-rate price effect.
+
+::: {.callout-note title="Example 6: Using a Duration Multiplier"}
+Suppose a B-rated bond has analytical duration 5.0. A manager estimates a duration multiplier of 0.25.
+
+The adjusted duration is:
+
+$$
+D_{\text{adjusted}} = 0.25(5.0)=1.25.
+$$
+
+For a 100 bps Treasury yield increase, the analytical duration predicts about a 5% loss. The adjusted duration predicts about a 1.25% loss, before considering any additional idiosyncratic credit movement.
+:::
+
+The implication for portfolio management is important. If a manager uses analytical duration for high-yield bonds without adjustment, the portfolio's reported rate exposure may be too high. Hedging based on that duration can create an unintended rate bet.
+
+::: {.callout-note title="Example 7: Portfolio Duration Misstatement"}
+A portfolio manager targets duration of 5.5 and allocates 15% to high-yield bonds with analytical duration 5.0. The remaining 85% has duration 5.8.
+
+Using analytical duration:
+
+$$
+0.85(5.8)+0.15(5.0)=5.68.
+$$
+
+This appears above the 5.5 target.
+
+If the high-yield duration multiplier is 0.25, true high-yield duration is:
+
+$$
+0.25(5.0)=1.25.
+$$
+
+The true portfolio duration is:
+
+$$
+0.85(5.8)+0.15(1.25)=5.12.
+$$
+
+The portfolio is actually below the target. A hedge based on analytical duration would move the portfolio in the wrong direction.
+:::
+
+```{python}
+#| label: fig-duration-multipliers
+#| fig-cap: "Duration multipliers typically decline as credit quality weakens"
+import matplotlib.pyplot as plt
+
+ratings = ["Aaa/Aa", "A", "Baa", "Ba", "B", "Caa"]
+multipliers = [0.88, 0.85, 0.80, 0.22, -0.03, -0.15]
+colors = ["#4C78A8" if m >= 0 else "#E45756" for m in multipliers]
+
+fig, ax = plt.subplots(figsize=(7.2, 3.4))
+ax.bar(ratings, multipliers, color=colors, edgecolor="black")
+ax.axhline(0, color="black", linewidth=0.8)
+ax.set_ylabel("Duration multiplier")
+ax.set_title("Illustrative empirical Treasury hedge ratios by rating")
+ax.grid(axis="y", alpha=0.3)
+plt.tight_layout()
+plt.show()
+```
+
+---
+
+## Difficulties in Credit Risk Modeling
+
+Credit risk is harder to model than interest-rate risk for several reasons.
+
+First, default is a rare event. Treasury yields are observed every trading day. Defaults, especially for investment-grade issuers, occur infrequently. This means there is less data for estimating default probabilities and recoveries.
+
+Second, issuers are heterogeneous. Companies differ by industry, leverage, size, asset quality, management, accounting choices, legal jurisdiction, and financing structure. Two firms with the same rating may have different risk profiles.
+
+Third, defaults have many causes. A default may be driven by poor management, excess leverage, fraud, commodity prices, litigation, recession, high interest rates, or a liquidity shock. A model that works well in one default cycle may not work as well in another.
+
+Fourth, recovery is uncertain. Even after default, the final loss depends on bankruptcy law, collateral, seniority, restructuring negotiations, and market conditions.
+
+::: {.callout-tip title="Modeling Implication"}
+Interest-rate modeling is usually about a liquid, frequently observed market variable. Credit modeling is about a rare event whose probability depends on balance sheets, market prices, legal rules, and macroeconomic states.
+:::
+
+---
+
+## Overview of Credit Risk Modeling
+
+Credit risk models are used for three related tasks:
+
+1. Estimating default probabilities.
+2. Pricing credit-risky bonds and credit derivatives.
+3. Measuring portfolio credit risk.
+
+A default probability is the likelihood that a borrower defaults over a specified horizon. Models may produce a one-year default probability, a five-year default probability, or an entire term structure of default probabilities.
+
+Pricing requires more than default probability. A model also needs:
+
+- recovery assumptions;
+- a risk-free term structure;
+- compensation for systematic credit risk, liquidity risk, and uncertainty about default timing.
+
+Portfolio credit risk requires a dependence model. A portfolio of 100 bonds is not just 100 independent default probabilities. If defaults cluster in recessions, portfolio loss risk can be much larger than an independence assumption would imply.
+
+::: {.callout-note title="Example 8: Expected Loss Is Only a Starting Point"}
+Suppose a one-year bond has:
+
+- probability of default $PD=2\%$;
+- loss given default $LGD=60\%$.
+
+The expected credit loss is:
+
+$$
+EL = PD \times LGD = 2\% \times 60\% = 1.2\%.
+$$
+
+If the risk-free yield is 4%, a naive expected-loss spread might be about 120 bps. But market spreads also include risk premiums, liquidity premiums, taxes, and compensation for uncertainty. A 120 bps expected loss does not mean the fair market spread must equal 120 bps.
+:::
+
+---
+
+## Credit Ratings versus Credit Risk Models
+
+Credit ratings summarize an agency's opinion of credit quality. They are useful, but they are not the same as model-implied default probabilities.
+
+| Feature | Credit ratings | Credit risk models |
+|---|---|---|
+| Scale | Discrete grades | Continuous probabilities |
+| Update frequency | Infrequent | Can update daily or intraday |
+| Horizon | Often broad short-term or long-term view | Can produce maturity-specific default probabilities |
+| Inputs | Fundamental review and agency judgment | Market data, accounting data, macro variables, model assumptions |
+| Strength | Stable, widely understood benchmark | Timely, granular, useful for pricing and risk |
+| Weakness | Slow-moving and coarse | Model risk and calibration risk |
+
+Ratings still matter because many investors, mandates, indexes, and regulations use them. Models matter because market risk can change faster than ratings.
+
+::: {.callout-tip title="Practical View"}
+Ratings are labels. Models are measurement systems. A good credit process usually compares both rather than treating either one as sufficient.
+:::
+
+---
+
+## Structural Models
+
+Structural models explain default using the firm's balance sheet. The central idea is simple:
+
+> Default occurs when the value of the firm's assets is too low relative to its debt obligations.
+
+In these models, default is **endogenous**. It comes from the modeled value of the firm, leverage, volatility, and a default threshold.
+
+### Fundamentals of the Black-Scholes-Merton Model
+
+The Black-Scholes-Merton (BSM) framework views corporate debt and equity through option-pricing logic.
+
+Assume:
+
+- the firm has assets worth $A(t)$;
+- it has one zero-coupon debt issue with face value $K$ due at time $T$;
+- equity holders decide at maturity whether to repay debt or default.
+
+At maturity:
+
+$$
+E(T)=\max[A(T)-K,0].
+$$
+
+Equity is a call option on the firm's assets with strike price $K$.
+
+Debt value at maturity can be written as:
+
+$$
+B(T)=A(T)-\max[A(T)-K,0].
+$$
+
+It can also be written as:
+
+$$
+B(T)=K-\max[K-A(T),0].
+$$
+
+This says risky debt is equivalent to a risk-free bond minus a put option on the firm's assets. The put represents default risk.
+
+::: {.callout-note title="Example 9: BSM Payoffs at Maturity"}
+Suppose debt face value is $K=100$.
+
+| Asset value at maturity | Equity payoff | Debt payoff |
+|---:|---:|---:|
+| 140 | 40 | 100 |
+| 100 | 0 | 100 |
+| 70 | 0 | 70 |
+
+When assets exceed debt, equity holders repay bondholders and keep the residual. When assets are below debt, equity holders default and hand the firm to bondholders.
+:::
+
+```{python}
+#| label: fig-bsm-payoffs
+#| fig-cap: "In the BSM model, equity is a call option and risky debt is capped at face value"
+import numpy as np
+import matplotlib.pyplot as plt
+
+A = np.linspace(0, 180, 300)
+K = 100
+equity = np.maximum(A - K, 0)
+debt = np.minimum(A, K)
+
+fig, ax = plt.subplots(figsize=(7.2, 3.6))
+ax.plot(A, equity, label="Equity payoff", linewidth=2.0, color="#4C78A8")
+ax.plot(A, debt, label="Debt payoff", linewidth=2.0, color="#F58518")
+ax.axvline(K, color="black", linestyle="--", linewidth=1.0)
+ax.text(K + 3, 8, "Debt face value K", fontsize=8.5)
+ax.set_xlabel("Firm asset value at maturity")
+ax.set_ylabel("Payoff")
+ax.set_title("Black-Scholes-Merton payoff intuition")
+ax.grid(alpha=0.3)
+ax.legend()
+plt.tight_layout()
+plt.show()
+```
+
+The model implies:
+
+- higher leverage increases default probability;
+- higher asset volatility increases default probability;
+- more time to maturity changes the option value of equity and default-risky debt;
+- credit spreads are linked to equity prices and asset volatility.
+
+### Extensions of the Black-Scholes-Merton Model
+
+The basic BSM model is intentionally simple. Its assumptions are often unrealistic, so extensions relax them.
+
+**Compound option models** allow multiple debt maturities. Default at later dates is contingent on survival at earlier dates.
+
+**First-passage time models** allow default before maturity. Default occurs when firm asset value crosses a default barrier:
+
+$$
+A(t) \le H(t),
+$$
+
+where $H(t)$ is the default threshold.
+
+**Stochastic interest-rate extensions** allow the risk-free rate to vary over time instead of being constant.
+
+These extensions make the model more realistic but also harder to calibrate and compute.
+
+### Advantages and Disadvantages of Structural Models
+
+Structural models have clear economic intuition. They link credit risk to leverage, asset value, and asset volatility. They can help analysts understand how new borrowing, equity issuance, or asset volatility changes affect default risk.
+
+They also have practical weaknesses:
+
+- firm asset value is not directly observable;
+- asset volatility must be inferred;
+- complex capital structures are difficult to model;
+- default barriers are hard to estimate;
+- calibration can be slow and unstable;
+- the basic model can understate short-term default risk because default occurs only at debt maturity.
+
+::: {.callout-tip title="Structural Model Tradeoff"}
+Structural models explain why default happens, but that explanation requires inputs that are often unobservable. The model is economically rich but operationally demanding.
+:::
+
+---
+
+## Estimating Portfolio Credit Risk: Default Correlation and Copulas
+
+A credit portfolio needs more than individual default probabilities. It needs a model of default dependence.
+
+If all defaults were independent, diversification would be powerful. In reality, defaults cluster because issuers share macroeconomic, industry, funding, and market-liquidity risks.
+
+The usual correlation measure is not always enough. Correlation captures one kind of linear dependence, but credit losses are often asymmetric and concentrated in the tails. A supplier may be highly exposed to automaker defaults, while automaker defaults may be almost unaffected by that supplier.
+
+A **copula** combines:
+
+- each issuer's marginal default distribution;
+- a dependence structure across issuers.
+
+The goal is to model joint default behavior, especially in stress scenarios.
+
+::: {.callout-note title="Example 10: Why Dependence Matters"}
+Consider a portfolio with 100 equal-sized bonds. Each issuer has one-year default probability of 2%, and loss given default is 60%.
+
+Expected defaults are:
+
+$$
+100 \times 2\% = 2.
+$$
+
+Expected loss is:
+
+$$
+2 \times 60\% \times 1\% = 1.2\%
+$$
+
+of portfolio value.
+
+But expected loss does not describe tail loss. If defaults are independent, 10 defaults is unlikely. If defaults are strongly linked to a recession factor, 10 or more defaults becomes much more plausible. Portfolio credit risk is mainly about this clustering.
+:::
+
+---
+
+## Reduced-Form Models
+
+Reduced-form models treat default as an exogenous event. They do not model the firm's assets and debt structure in detail. Instead, they model the timing of default directly.
+
+The key inputs are:
+
+- default time;
+- recovery process;
+- risk-free interest-rate process.
+
+In reduced-form models, default is usually modeled with an intensity or hazard rate. This makes them attractive for pricing because they can be calibrated to observed bond or credit derivative prices.
+
+### Poisson Process
+
+A Poisson process counts events over time. Let $N_t$ be the number of events from time 0 to time $t$.
+
+For a small interval $dt$:
+
+$$
+\Pr(N_{t+dt}-N_t = 1) = \lambda dt,
+$$
+
+$$
+\Pr(N_{t+dt}-N_t = 0) = 1-\lambda dt.
+$$
+
+In credit modeling, the event is default and $\lambda$ is the **default intensity**. It is the conditional default probability per unit of time, given survival so far.
+
+If $\lambda$ is constant, the survival probability to time $T$ is:
+
+$$
+\Pr(\tau > T) = e^{-\lambda T},
+$$
+
+and the cumulative default probability is:
+
+$$
+\Pr(\tau \le T)=1-e^{-\lambda T}.
+$$
+
+::: {.callout-note title="Example 11: Default Intensity"}
+Suppose the annual default intensity is 2%, so $\lambda=0.02$.
+
+The five-year survival probability is:
+
+$$
+e^{-0.02(5)}=e^{-0.10}=90.48\%.
+$$
+
+The five-year default probability is:
+
+$$
+1-90.48\%=9.52\%.
+$$
+
+The result is not exactly $2\%\times 5=10\%$ because survival probabilities compound continuously.
+:::
+
+```{python}
+#| label: fig-poisson-survival
+#| fig-cap: "Higher default intensity lowers survival probability more quickly"
+import numpy as np
+import matplotlib.pyplot as plt
+
+t = np.linspace(0, 10, 200)
+intensities = [0.01, 0.02, 0.05]
+
+fig, ax = plt.subplots(figsize=(7.2, 3.5))
+for lam in intensities:
+    ax.plot(t, np.exp(-lam * t), linewidth=2.0, label=f"lambda = {lam:.0%}")
+
+ax.set_xlabel("Years")
+ax.set_ylabel("Survival probability")
+ax.set_title("Poisson default intensity and survival")
+ax.grid(alpha=0.3)
+ax.legend()
+plt.tight_layout()
+plt.show()
+```
+
+### The Jarrow-Turnbull Model
+
+The Jarrow-Turnbull model is a reduced-form model of default and recovery. A simple version assumes recovery is paid at maturity. That assumption improves tractability because it reduces the dependence between recovery timing and bond price.
+
+Extensions allow rating migration. Instead of only survival and default states, the issuer can migrate among rating states such as A, BBB, BB, and default. Rating transition matrices then become part of the model.
+
+The model is useful for thinking about credit migration risk, but the recovery-at-maturity assumption is unrealistic for many defaulted bonds.
+
+### The Duffie-Singleton Model
+
+The Duffie-Singleton model allows recovery to occur at default time and models recovery as a fraction of the pre-default market value. This is often called **fractional recovery of market value**.
+
+The intuition is practical. As credit quality worsens, the bond price usually falls before default. If default then occurs, recovery is modeled as a fraction of the value just before default. This avoids some unrealistic outcomes where recovery can exceed the pre-default bond price.
+
+### Advantages and Disadvantages of Reduced-Form Models
+
+Reduced-form models are attractive because they can be calibrated quickly to market prices. Traders can infer a default probability curve and credit spread curve from risky zero-coupon bonds, corporate bonds, or credit derivatives.
+
+The main weakness is that default is treated as a surprise event generated by the model rather than as the result of an explicit balance-sheet process. This makes the model less explanatory.
+
+| Issue | Structural models | Reduced-form models |
+|---|---|---|
+| Default driver | Firm value relative to debt | Exogenous default intensity |
+| Main strength | Economic explanation | Market calibration and pricing |
+| Main weakness | Hard inputs and calibration | Less economic explanation |
+| Common use | Credit analysis, capital structure insight | Trading, pricing, credit derivatives |
+
+::: {.callout-tip title="Reduced-Form Model Tradeoff"}
+Reduced-form models are often easier to fit to market prices, but they explain less about why the issuer defaults. They are strong pricing tools and weaker economic stories.
+:::
+
+---
+
+## Empirical Evidence: Credit Ratings, Structural Models, and Reduced-Form Models
+
+Empirical studies generally support three practical conclusions.
+
+First, credit ratings contain useful information, but they are coarse and slow-moving. They do not fully capture default probability.
+
+Second, structural models capture important economic drivers of distress, especially leverage, market value, and volatility. However, simple implementations may not forecast default as well as reduced-form approaches that use richer public information.
+
+Third, reduced-form models often perform well in prediction and pricing because they can incorporate timely market and accounting information. Their performance depends heavily on specification, calibration, and the data used.
+
+The implication is not that one model is always best. Credit risk is multidimensional. Ratings, structural variables, market spreads, equity prices, balance-sheet data, and macro variables can each contain different information.
+
+---
+
+## An Application of Credit Risk Modeling
+
+One practical use of credit risk modeling is relative value analysis. The question is:
+
+> How much spread compensation does this bond offer per unit of default risk?
+
+A simple metric is:
+
+$$
+\text{Spread-to-default-probability ratio}
+=
+\frac{\text{Credit spread}}{\text{Maturity-matched default probability}}.
+$$
+
+Higher ratios indicate more spread compensation per unit of modeled default probability, all else equal.
+
+::: {.callout-note title="Example 12: Spread Compensation per Unit of Default Risk"}
+Consider two bonds from similar issuers.
+
+| Bond | Credit spread | Five-year default probability | Spread / default probability |
+|---|---:|---:|---:|
+| Bond A | 120 bps | 2.0% | 60 |
+| Bond B | 180 bps | 6.0% | 30 |
+
+Bond B has a wider spread, but Bond A offers more spread per unit of modeled default probability.
+
+This does not automatically make Bond A better. Liquidity, recovery, covenants, seniority, tax treatment, and model error still matter.
+:::
+
+The value of this approach is discipline. It prevents the analyst from treating a wide spread as attractive without asking whether the spread is wide enough for the credit risk.
+
+```{python}
+#| label: fig-spread-pd-ratio
+#| fig-cap: "A wider spread is not always better after adjusting for modeled default risk"
+import numpy as np
+import matplotlib.pyplot as plt
+
+bonds = ["Bond A", "Bond B", "Bond C", "Bond D"]
+spreads = np.array([120, 180, 90, 250])
+pd = np.array([0.020, 0.060, 0.015, 0.100])
+ratio = spreads / (pd * 100)
+
+fig, ax = plt.subplots(figsize=(7.0, 3.5))
+bars = ax.bar(bonds, ratio, color="#54A24B", edgecolor="black")
+ax.set_ylabel("Spread / default probability")
+ax.set_title("Relative value screen")
+ax.grid(axis="y", alpha=0.3)
+
+for bar, value in zip(bars, ratio):
+    ax.text(bar.get_x() + bar.get_width() / 2, value + 1, f"{value:.0f}", ha="center", fontsize=8.5)
+
+plt.tight_layout()
+plt.show()
+```
+
+---
+
+## Incomplete-Information Models
+
+Structural and reduced-form models often assume investors observe the relevant information correctly. In practice, investors have incomplete information.
+
+Financial statements may not fully reveal:
+
+- off-balance-sheet obligations;
+- derivatives exposures;
+- pension liabilities;
+- lease obligations;
+- asset quality problems;
+- fraud or aggressive accounting;
+- the true default barrier.
+
+Incomplete-information models recognize that investors may not know the firm's true economic condition. These models combine structural intuition with reduced-form features. For example, a first-passage model may assume there is a default barrier, but investors do not know its exact level.
+
+::: {.callout-tip title="Why This Matters"}
+The firm can be closer to distress than the market realizes. Incomplete-information models try to account for the gap between reported information and economic reality.
+:::
+
+---
+
+## Key Points {.unnumbered}
+
+- Credit-risky bonds should be analyzed using both Treasury-rate exposure and credit spread exposure.
+- Spread changes can be measured as absolute basis-point changes or relative percentage changes.
+- Empirical evidence supports relative spread changes as a useful description of corporate spread behavior.
+- Spread duration measures price sensitivity to a parallel spread shift.
+- DTS equals spread duration times spread and often gives a better measure of credit spread exposure than spread duration alone.
+- Contribution to portfolio DTS helps identify where credit spread risk is concentrated.
+- Analytical duration can overstate the true Treasury-rate sensitivity of lower-rated corporate bonds.
+- Empirical duration is estimated from observed bond price changes and Treasury yield changes.
+- Duration multipliers adjust analytical duration to reflect empirical Treasury-rate sensitivity.
+- Credit risk is difficult to model because defaults are rare, issuers are heterogeneous, recovery is uncertain, and defaults cluster in stress periods.
+- Credit ratings are useful but discrete, slow-moving, and not maturity-specific default probability models.
+- Structural models explain default through firm value, leverage, volatility, and a default threshold.
+- In the BSM model, equity is a call option on firm assets and risky debt is a risk-free bond minus a default put.
+- Structural models are economically intuitive but hard to calibrate.
+- Reduced-form models treat default as an exogenous intensity process and are often easier to calibrate to market prices.
+- The Poisson process provides the basic default-arrival logic for many reduced-form models.
+- Jarrow-Turnbull and Duffie-Singleton models differ mainly in recovery timing and recovery specification.
+- Portfolio credit risk requires modeling default dependence, not just individual default probabilities.
+- Copulas combine marginal default distributions with a dependence structure.
+- Incomplete-information models account for the fact that investors may not know the issuer's true economic condition or default barrier.

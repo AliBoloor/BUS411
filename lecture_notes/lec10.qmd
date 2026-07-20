@@ -282,29 +282,49 @@ The second question often fits corporate spread behavior better because distress
 :::
 
 ::: {.callout-note title="Example 3: DTS and Relative Spread Shocks"}
-Bond A has spread duration 7 and spread 100 bps:
+Bond A has spread duration 7 and spread 100 bps, or 0.0100:
 
 $$
-\text{DTS}_A = 7(0.0100)=7.0\%.
+\text{DTS}_A = 7(0.0100)=0.0700.
 $$
 
-Bond B has spread duration 3.5 and spread 400 bps:
+Bond B has spread duration 3.5 and spread 400 bps, or 0.0400:
 
 $$
-\text{DTS}_B = 3.5(0.0400)=14.0\%.
+\text{DTS}_B = 3.5(0.0400)=0.1400.
 $$
 
 If spreads widen by 20% relative to their starting levels, then:
 
 $$
-\frac{\Delta P_A}{P_A}\approx -7.0\%(20\%)=-1.4\%,
+\frac{\Delta s}{s}=0.20.
 $$
 
+For Bond A:
+
 $$
-\frac{\Delta P_B}{P_B}\approx -14.0\%(20\%)=-2.8\%.
+\frac{\Delta P_A}{P_A}
+\approx
+-0.0700(0.20)
+=
+-0.0140.
 $$
 
-Bond B has shorter spread duration but more credit spread exposure because its spread is much wider.
+So Bond A loses approximately 1.40%.
+
+For Bond B:
+
+$$
+\frac{\Delta P_B}{P_B}
+\approx
+-0.1400(0.20)
+=
+-0.0280.
+$$
+
+So Bond B loses approximately 2.80%.
+
+Bond B has shorter spread duration, but it has more credit spread risk because its starting spread is much wider.
 :::
 
 For a portfolio, **contribution to DTS** is:
@@ -359,13 +379,30 @@ plt.show()
 
 ## Empirical Duration for Corporate Bonds
 
-Corporate bonds are exposed to:
+Corporate bond price performance is driven by more than one risk factor. The main exposures are:
 
 - Treasury-rate risk;
 - credit spread risk;
 - equity-like risk, especially for lower-rated issuers.
 
-For investment-grade bonds, Treasury-rate risk is often dominant. For high-yield bonds, spread and equity-like credit risk can dominate. This is why lower-rated high-yield bonds are often described as **equity-like**.
+The relative importance of these risks depends on credit quality. For high-quality investment-grade bonds, the promised cash flows are more likely to be paid, so Treasury-rate risk is often the dominant driver of day-to-day price changes. If the 10-year Treasury yield rises, the price of a long-maturity A-rated corporate bond will usually fall in a way that looks similar to a Treasury bond with comparable duration.
+
+For high-yield bonds, the story is different. The lower the issuer's credit quality, the more investors focus on default probability, recovery value, refinancing risk, and the issuer's business outlook. These risks are closer to equity risk than to pure interest-rate risk. This is why lower-rated high-yield bonds are often described as **equity-like**.
+
+This distinction matters because the standard modified duration formula treats the bond as if its price response is mainly a discount-rate effect. That can be misleading for high-yield bonds. A high-yield bond may have an analytical duration of 5, but if its spread tightens when Treasury yields rise, or if its price is mainly driven by default and recovery expectations, its observed Treasury-rate sensitivity may be much lower.
+
+Portfolio managers usually deal with this problem in one of two ways:
+
+- use a rule of thumb to reduce analytical duration for lower-rated bonds;
+- estimate **empirical duration** from historical price changes and Treasury yield changes.
+
+For example, a manager might reduce a high-yield bond's analytical duration by 75%. If the analytical duration is 5, the adjusted duration would be:
+
+$$
+5 \times 0.25 = 1.25.
+$$
+
+That adjustment is crude, but the intuition is right: lower-rated bonds often behave less like Treasuries and more like credit-risk assets.
 
 ### Analytical Duration Versus Empirical Duration
 
@@ -380,6 +417,43 @@ $$
 $$
 
 The estimated slope gives an empirical measure of how the bond actually moved when Treasury yields changed.
+
+For an investment-grade bond, the regression line is usually steeper because price changes are more sensitive to Treasury yield changes. For a high-yield bond, the regression line is often flatter because spread and equity-like credit effects absorb more of the price movement.
+
+```{python}
+#| label: fig-empirical-duration-regression
+#| fig-cap: "Stylized empirical duration regressions: investment-grade bonds usually have steeper Treasury-rate sensitivity than high-yield bonds"
+import numpy as np
+import matplotlib.pyplot as plt
+
+rng = np.random.default_rng(411)
+dy_bps = np.linspace(-40, 40, 41)
+dy_decimal = dy_bps / 10000
+
+duration_ig = 6.0
+duration_hy = 1.8
+
+ig_returns = -duration_ig * dy_decimal + rng.normal(0, 0.0015, size=dy_decimal.size)
+hy_returns = -duration_hy * dy_decimal + rng.normal(0, 0.0040, size=dy_decimal.size)
+
+ig_fit = np.polyfit(dy_bps, ig_returns * 100, 1)
+hy_fit = np.polyfit(dy_bps, hy_returns * 100, 1)
+
+fig, ax = plt.subplots(figsize=(7.2, 3.8))
+ax.scatter(dy_bps, ig_returns * 100, color="#4C78A8", alpha=0.75, label="Investment grade")
+ax.scatter(dy_bps, hy_returns * 100, color="#F58518", alpha=0.75, label="High yield")
+ax.plot(dy_bps, np.polyval(ig_fit, dy_bps), color="#4C78A8", linewidth=2.0)
+ax.plot(dy_bps, np.polyval(hy_fit, dy_bps), color="#F58518", linewidth=2.0)
+ax.axhline(0, color="black", linewidth=0.8)
+ax.axvline(0, color="black", linewidth=0.8)
+ax.set_xlabel("Change in Treasury yield (bps)")
+ax.set_ylabel("Corporate bond return (%)")
+ax.set_title("Empirical duration is the negative of the regression slope")
+ax.grid(alpha=0.3)
+ax.legend()
+plt.tight_layout()
+plt.show()
+```
 
 ::: {.callout-tip title="Core Intuition"}
 Analytical duration treats the bond like a promised-cash-flow instrument. Empirical duration recognizes that corporate bond spreads may move at the same time Treasury yields move. For risky bonds, the spread response can offset or amplify the Treasury-rate effect.
@@ -514,7 +588,63 @@ If Treasury yields rise when credit spreads tighten, then $\rho_{y,s}$ is negati
 
 If Treasury yields rise when credit spreads widen, then $\rho_{y,s}$ is positive. The bracketed term is greater than 1, so empirical duration is higher than analytical duration. In that case, the Treasury-rate loss and spread-widening loss reinforce each other.
 
-::: {.callout-note title="Example 5: Why Empirical Duration Can Be Lower"}
+::: {.callout-note title="Example 5: Analytical Duration versus Empirical Duration"}
+Suppose a corporate bond has:
+
+- analytical duration $D=6.0$;
+- starting credit spread $s=3.00\%=0.0300$;
+- correlation between Treasury yield changes and relative spread changes $\rho_{y,s}=-0.50$;
+- volatility of relative spread changes $\sigma_s=2.00\%=0.0200$;
+- volatility of Treasury yield changes $\sigma_y=0.20\%=0.0020$.
+
+The duration adjustment is:
+
+$$
+1 + s\rho_{y,s}\frac{\sigma_s}{\sigma_y}
+=
+1 + (0.0300)(-0.50)\frac{0.0200}{0.0020}.
+$$
+
+Since
+
+$$
+\frac{0.0200}{0.0020}=10,
+$$
+
+the adjustment becomes:
+
+$$
+1 + (0.0300)(-0.50)(10)
+=
+1 - 0.1500
+=
+0.8500.
+$$
+
+So the empirical duration estimate is:
+
+$$
+D_{\text{emp}}
+=
+6.0(0.8500)
+=
+5.10.
+$$
+
+If Treasury yields rise by 50 bps, or 0.0050, the predicted relative price change is:
+
+$$
+\frac{\Delta P}{P}
+\approx
+-5.10(0.0050)
+=
+-0.0255.
+$$
+
+So the bond price is expected to decline by about 2.55%, not the 3.00% decline implied by the analytical duration alone.
+:::
+
+::: {.callout-note title="Example 6: Why Empirical Duration Can Be Lower"}
 Suppose a bond has analytical duration 6 and spread 3%. A 50 bps rise in Treasury yields would mechanically imply:
 
 $$
@@ -558,7 +688,39 @@ $$
 
 Lower-rated and wider-spread bonds tend to have lower multipliers. In stressed or high-yield cases, the multiplier can be near zero or even negative if spread tightening during rate increases more than offsets the Treasury-rate price effect.
 
-::: {.callout-note title="Example 6: Using a Duration Multiplier"}
+::: {.callout-tip title="Estimating Duration Multipliers"}
+Duration multipliers are usually estimated in two steps.
+
+First, estimate empirical duration from bond price changes and Treasury yield changes:
+
+$$
+\frac{\Delta P_t}{P_t}
+=
+\alpha
+-
+D_{\text{emp}}\Delta y_t
++
+\epsilon_t.
+$$
+
+Then compare empirical duration with analytical duration:
+
+$$
+M_i
+=
+\frac{D_{\text{emp},i}}{D_{\text{analytical},i}}.
+$$
+
+After estimating $M_i$ for many bonds or rating/spread groups, researchers often regress the multiplier on a constant and the bond's spread:
+
+$$
+M_i = a + bs_i + u_i.
+$$
+
+The intercept $a$ is the baseline multiplier for that rating group. The slope $b$ shows how the multiplier changes as spreads widen. Usually $b<0$, meaning wider-spread bonds tend to have lower Treasury-rate sensitivity.
+:::
+
+::: {.callout-note title="Example 7: Using a Duration Multiplier"}
 Suppose a B-rated bond has analytical duration 5.0. A manager estimates a duration multiplier of 0.25.
 
 The adjusted duration is:
@@ -572,7 +734,7 @@ For a 100 bps Treasury yield increase, the analytical duration predicts about a 
 
 The implication for portfolio management is important. If a manager uses analytical duration for high-yield bonds without adjustment, the portfolio's reported rate exposure may be too high. Hedging based on that duration can create an unintended rate bet.
 
-::: {.callout-note title="Example 7: Portfolio Duration Misstatement"}
+::: {.callout-note title="Example 8: Portfolio Duration Misstatement"}
 A portfolio manager targets duration of 5.5 and allocates 15% to high-yield bonds with analytical duration 5.0. The remaining 85% has duration 5.8.
 
 Using analytical duration:
@@ -655,7 +817,7 @@ Pricing requires more than default probability. A model also needs:
 
 Portfolio credit risk requires a dependence model. A portfolio of 100 bonds is not just 100 independent default probabilities. If defaults cluster in recessions, portfolio loss risk can be much larger than an independence assumption would imply.
 
-::: {.callout-note title="Example 8: Expected Loss Is Only a Starting Point"}
+::: {.callout-note title="Example 9: Expected Loss Is Only a Starting Point"}
 Suppose a one-year bond has:
 
 - probability of default $PD=2\%$;
@@ -711,6 +873,65 @@ Assume:
 - it has one zero-coupon debt issue with face value $K$ due at time $T$;
 - equity holders decide at maturity whether to repay debt or default.
 
+The key default rule is:
+
+$$
+\text{default at } T \quad \text{if} \quad A(T)<K.
+$$
+
+If assets are worth more than the promised debt payment, equity holders repay the debt and keep the residual firm value. If assets are worth less than the promised debt payment, equity holders walk away. Bondholders receive the firm assets, which are worth less than the promised amount.
+
+This gives the model a direct default-probability interpretation:
+
+$$
+PD = \Pr[A(T)<K].
+$$
+
+The model assumes asset value follows a stochastic process, commonly a lognormal process. Therefore, default risk comes from the probability that the future asset-value distribution ends below the debt threshold $K$.
+
+```{python}
+#| label: fig-bsm-asset-paths
+#| fig-cap: "In the basic BSM model, default occurs at maturity if asset value ends below the debt threshold"
+import numpy as np
+import matplotlib.pyplot as plt
+
+rng = np.random.default_rng(4110)
+n_paths = 12
+n_steps = 120
+T = 1.0
+dt = T / n_steps
+A0 = 110
+K = 100
+mu = 0.04
+sigma = 0.28
+
+time = np.linspace(0, T, n_steps + 1)
+paths = np.empty((n_paths, n_steps + 1))
+paths[:, 0] = A0
+
+for t in range(1, n_steps + 1):
+    shocks = rng.normal(size=n_paths)
+    paths[:, t] = paths[:, t - 1] * np.exp((mu - 0.5 * sigma**2) * dt + sigma * np.sqrt(dt) * shocks)
+
+defaulted = paths[:, -1] < K
+
+fig, ax = plt.subplots(figsize=(7.2, 3.8))
+for path, is_default in zip(paths, defaulted):
+    color = "#E45756" if is_default else "#4C78A8"
+    alpha = 0.9 if is_default else 0.55
+    ax.plot(time, path, color=color, alpha=alpha, linewidth=1.5)
+
+ax.axhline(K, color="black", linestyle="--", linewidth=1.2, label="Debt threshold K")
+ax.scatter(np.repeat(T, defaulted.sum()), paths[defaulted, -1], color="#E45756", edgecolor="black", zorder=4, label="Default at T")
+ax.set_xlabel("Time")
+ax.set_ylabel("Firm asset value")
+ax.set_title("Default depends on where asset value ends relative to debt")
+ax.grid(alpha=0.3)
+ax.legend(loc="upper left")
+plt.tight_layout()
+plt.show()
+```
+
 At maturity:
 
 $$
@@ -733,7 +954,7 @@ $$
 
 This says risky debt is equivalent to a risk-free bond minus a put option on the firm's assets. The put represents default risk.
 
-::: {.callout-note title="Example 9: BSM Payoffs at Maturity"}
+::: {.callout-note title="Example 10: BSM Payoffs at Maturity"}
 Suppose debt face value is $K=100$.
 
 | Asset value at maturity | Equity payoff | Debt payoff |
@@ -770,30 +991,19 @@ plt.tight_layout()
 plt.show()
 ```
 
-The model implies:
+The model's main implications follow from the default condition $A(T)<K$:
 
-- higher leverage increases default probability;
-- higher asset volatility increases default probability;
-- more time to maturity changes the option value of equity and default-risky debt;
-- credit spreads are linked to equity prices and asset volatility.
+- **Higher leverage increases default probability.** If the firm has more debt relative to assets, then $K$ is high relative to $A(0)$. The firm starts closer to the default threshold, so it takes a smaller decline in asset value for $A(T)$ to fall below $K$.
 
-### Extensions of the Black-Scholes-Merton Model
+- **Higher asset volatility increases default probability.** Volatility widens the distribution of possible future asset values. Even if $A(0)>K$, more volatility puts more probability mass in the left tail below $K$. This is why a riskier business or more volatile asset base usually implies wider credit spreads.
 
-The basic BSM model is intentionally simple. Its assumptions are often unrealistic, so extensions relax them.
+- **More time to maturity changes the option value of both equity and debt.** More time gives asset value more opportunity to move. That can make the equity call option more valuable, but it also gives bondholders more exposure to adverse asset-value outcomes. The effect on default probability and spreads depends on leverage, volatility, expected asset growth, and recovery assumptions.
 
-**Compound option models** allow multiple debt maturities. Default at later dates is contingent on survival at earlier dates.
+- **Credit spreads are linked to equity prices and asset volatility.** Equity and debt are claims on the same firm assets. If the stock price falls, the inferred firm value is usually lower, so the firm is closer to default. If equity volatility rises, inferred asset volatility is usually higher, so the left-tail probability of default rises. Both effects tend to widen credit spreads.
 
-**First-passage time models** allow default before maturity. Default occurs when firm asset value crosses a default barrier:
-
-$$
-A(t) \le H(t),
-$$
-
-where $H(t)$ is the default threshold.
-
-**Stochastic interest-rate extensions** allow the risk-free rate to vary over time instead of being constant.
-
-These extensions make the model more realistic but also harder to calibrate and compute.
+::: {.callout-tip title="Structural Model Intuition"}
+The BSM model does not treat default as an unexplained event. It links default risk to the firm's capital structure: asset value, debt face value, asset volatility, and time to maturity.
+:::
 
 ### Advantages and Disadvantages of Structural Models
 
@@ -829,7 +1039,11 @@ A **copula** combines:
 
 The goal is to model joint default behavior, especially in stress scenarios.
 
-::: {.callout-note title="Example 10: Why Dependence Matters"}
+::: {.callout-tip title="Copula Intuition"}
+A copula is a way to join separate default probability models into one portfolio model. The marginal distributions say how likely each issuer is to default on its own; the copula says how likely those defaults are to happen together.
+:::
+
+::: {.callout-note title="Example 11: Why Dependence Matters"}
 Consider a portfolio with 100 equal-sized bonds. Each issuer has one-year default probability of 2%, and loss given default is 60%.
 
 Expected defaults are:
@@ -865,7 +1079,7 @@ In reduced-form models, default is usually modeled with an intensity or hazard r
 
 ### Poisson Process
 
-A Poisson process counts events over time. Let $N_t$ be the number of events from time 0 to time $t$.
+A Poisson process counts events over time. Let $N_t$ be the number of events from time $0$ to time $t$.
 
 For a small interval $dt$:
 
@@ -877,7 +1091,7 @@ $$
 \Pr(N_{t+dt}-N_t = 0) = 1-\lambda dt.
 $$
 
-In credit modeling, the event is default and $\lambda$ is the **default intensity**. It is the conditional default probability per unit of time, given survival so far.
+In credit modeling, the event is default and $\lambda$ is the **default intensity**. It is the conditional default probability per unit of time, given survival so far. We use $\tau$ to denote the **random default time**, meaning the time at which the issuer defaults.
 
 If $\lambda$ is constant, the survival probability to time $T$ is:
 
@@ -891,7 +1105,7 @@ $$
 \Pr(\tau \le T)=1-e^{-\lambda T}.
 $$
 
-::: {.callout-note title="Example 11: Default Intensity"}
+::: {.callout-note title="Example 12: Default Intensity"}
 Suppose the annual default intensity is 2%, so $\lambda=0.02$.
 
 The five-year survival probability is:
@@ -994,7 +1208,7 @@ $$
 
 Higher ratios indicate more spread compensation per unit of modeled default probability, all else equal.
 
-::: {.callout-note title="Example 12: Spread Compensation per Unit of Default Risk"}
+::: {.callout-note title="Example 13: Spread Compensation per Unit of Default Risk"}
 Consider two bonds from similar issuers.
 
 | Bond | Credit spread | Five-year default probability | Spread / default probability |

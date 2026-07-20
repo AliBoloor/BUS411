@@ -412,7 +412,6 @@ window.Quarto = {
   <li><a href="#structural-models" id="toc-structural-models" class="nav-link" data-scroll-target="#structural-models"><span class="header-section-number">8</span> Structural Models</a>
   <ul class="collapse">
   <li><a href="#fundamentals-of-the-black-scholes-merton-model" id="toc-fundamentals-of-the-black-scholes-merton-model" class="nav-link" data-scroll-target="#fundamentals-of-the-black-scholes-merton-model">Fundamentals of the Black-Scholes-Merton Model</a></li>
-  <li><a href="#extensions-of-the-black-scholes-merton-model" id="toc-extensions-of-the-black-scholes-merton-model" class="nav-link" data-scroll-target="#extensions-of-the-black-scholes-merton-model">Extensions of the Black-Scholes-Merton Model</a></li>
   <li><a href="#advantages-and-disadvantages-of-structural-models" id="toc-advantages-and-disadvantages-of-structural-models" class="nav-link" data-scroll-target="#advantages-and-disadvantages-of-structural-models">Advantages and Disadvantages of Structural Models</a></li>
   </ul></li>
   <li><a href="#estimating-portfolio-credit-risk-default-correlation-and-copulas" id="toc-estimating-portfolio-credit-risk-default-correlation-and-copulas" class="nav-link" data-scroll-target="#estimating-portfolio-credit-risk-default-correlation-and-copulas"><span class="header-section-number">9</span> Estimating Portfolio Credit Risk: Default Correlation and Copulas</a></li>
@@ -662,13 +661,13 @@ D_{\text{spread}}
 \approx
 -\text{DTS}\times \frac{\Delta s}{s}.
 \]</span></p>
-<div class="callout callout-style-default callout-tip callout-titled" title="Why DTS Is Intuitive">
+<div class="callout callout-style-default callout-tip callout-titled" title="DTS Is Intuition">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Tip</span>Why DTS Is Intuitive
+<span class="screen-reader-only">Tip</span>DTS Is Intuition
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -687,22 +686,37 @@ D_{\text{spread}}
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Bond A has spread duration 7 and spread 100 bps:</p>
+<p>Bond A has spread duration 7 and spread 100 bps, or 0.0100:</p>
 <p><span class="math display">\[
-\text{DTS}_A = 7(0.0100)=7.0\%.
+\text{DTS}_A = 7(0.0100)=0.0700.
 \]</span></p>
-<p>Bond B has spread duration 3.5 and spread 400 bps:</p>
+<p>Bond B has spread duration 3.5 and spread 400 bps, or 0.0400:</p>
 <p><span class="math display">\[
-\text{DTS}_B = 3.5(0.0400)=14.0\%.
+\text{DTS}_B = 3.5(0.0400)=0.1400.
 \]</span></p>
 <p>If spreads widen by 20% relative to their starting levels, then:</p>
 <p><span class="math display">\[
-\frac{\Delta P_A}{P_A}\approx -7.0\%(20\%)=-1.4\%,
+\frac{\Delta s}{s}=0.20.
 \]</span></p>
+<p>For Bond A:</p>
 <p><span class="math display">\[
-\frac{\Delta P_B}{P_B}\approx -14.0\%(20\%)=-2.8\%.
+\frac{\Delta P_A}{P_A}
+\approx
+-0.0700(0.20)
+=
+-0.0140.
 \]</span></p>
-<p>Bond B has shorter spread duration but more credit spread exposure because its spread is much wider.</p>
+<p>So Bond A loses approximately 1.40%.</p>
+<p>For Bond B:</p>
+<p><span class="math display">\[
+\frac{\Delta P_B}{P_B}
+\approx
+-0.1400(0.20)
+=
+-0.0280.
+\]</span></p>
+<p>So Bond B loses approximately 2.80%.</p>
+<p>Bond B has shorter spread duration, but it has more credit spread risk because its starting spread is much wider.</p>
 </div>
 </div>
 <p>For a portfolio, <strong>contribution to DTS</strong> is:</p>
@@ -790,13 +804,25 @@ Figure&nbsp;3: Market value weights can hide where credit spread risk is concent
 </section>
 <section id="empirical-duration-for-corporate-bonds" class="level2" data-number="4">
 <h2 data-number="4" class="anchored" data-anchor-id="empirical-duration-for-corporate-bonds"><span class="header-section-number">4</span> Empirical Duration for Corporate Bonds</h2>
-<p>Corporate bonds are exposed to:</p>
+<p>Corporate bond price performance is driven by more than one risk factor. The main exposures are:</p>
 <ul>
 <li>Treasury-rate risk;</li>
 <li>credit spread risk;</li>
 <li>equity-like risk, especially for lower-rated issuers.</li>
 </ul>
-<p>For investment-grade bonds, Treasury-rate risk is often dominant. For high-yield bonds, spread and equity-like credit risk can dominate. This is why lower-rated high-yield bonds are often described as <strong>equity-like</strong>.</p>
+<p>The relative importance of these risks depends on credit quality. For high-quality investment-grade bonds, the promised cash flows are more likely to be paid, so Treasury-rate risk is often the dominant driver of day-to-day price changes. If the 10-year Treasury yield rises, the price of a long-maturity A-rated corporate bond will usually fall in a way that looks similar to a Treasury bond with comparable duration.</p>
+<p>For high-yield bonds, the story is different. The lower the issuer’s credit quality, the more investors focus on default probability, recovery value, refinancing risk, and the issuer’s business outlook. These risks are closer to equity risk than to pure interest-rate risk. This is why lower-rated high-yield bonds are often described as <strong>equity-like</strong>.</p>
+<p>This distinction matters because the standard modified duration formula treats the bond as if its price response is mainly a discount-rate effect. That can be misleading for high-yield bonds. A high-yield bond may have an analytical duration of 5, but if its spread tightens when Treasury yields rise, or if its price is mainly driven by default and recovery expectations, its observed Treasury-rate sensitivity may be much lower.</p>
+<p>Portfolio managers usually deal with this problem in one of two ways:</p>
+<ul>
+<li>use a rule of thumb to reduce analytical duration for lower-rated bonds;</li>
+<li>estimate <strong>empirical duration</strong> from historical price changes and Treasury yield changes.</li>
+</ul>
+<p>For example, a manager might reduce a high-yield bond’s analytical duration by 75%. If the analytical duration is 5, the adjusted duration would be:</p>
+<p><span class="math display">\[
+5 \times 0.25 = 1.25.
+\]</span></p>
+<p>That adjustment is crude, but the intuition is right: lower-rated bonds often behave less like Treasuries and more like credit-risk assets.</p>
 <section id="analytical-duration-versus-empirical-duration" class="level3">
 <h3 class="anchored" data-anchor-id="analytical-duration-versus-empirical-duration">Analytical Duration Versus Empirical Duration</h3>
 <p><strong>Analytical duration</strong> is computed from the bond’s promised cash flows, price, yield, and maturity. It answers a mechanical repricing question: how would the price change if the discount yield changed while the cash flows remained promised?</p>
@@ -807,6 +833,21 @@ Figure&nbsp;3: Market value weights can hide where credit spread risk is concent
 \alpha - D_{\text{emp}}\Delta y_t + \epsilon_t.
 \]</span></p>
 <p>The estimated slope gives an empirical measure of how the bond actually moved when Treasury yields changed.</p>
+<p>For an investment-grade bond, the regression line is usually steeper because price changes are more sensitive to Treasury yield changes. For a high-yield bond, the regression line is often flatter because spread and equity-like credit effects absorb more of the price movement.</p>
+<div id="cell-fig-empirical-duration-regression" class="cell" data-execution_count="4">
+<div class="cell-output cell-output-display">
+<div id="fig-empirical-duration-regression" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-empirical-duration-regression-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lec10_files/figure-html/fig-empirical-duration-regression-output-1.png" width="681" height="353" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-empirical-duration-regression-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: Stylized empirical duration regressions: investment-grade bonds usually have steeper Treasury-rate sensitivity than high-yield bonds
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
 <div class="callout callout-style-default callout-tip callout-titled" title="Core Intuition">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -830,7 +871,77 @@ Figure&nbsp;3: Market value weights can hide where credit spread risk is concent
 -D\Delta y - D s \frac{\Delta s}{s},
 \]</span></p>
 <p>where <span class="math inline">\(D\)</span> is modified duration, <span class="math inline">\(\Delta y\)</span> is the Treasury yield change, <span class="math inline">\(s\)</span> is the starting spread, and <span class="math inline">\(\Delta s/s\)</span> is the relative spread change.</p>
-<p>Dividing by <span class="math inline">\(\Delta y\)</span> shows why empirical duration can differ from analytical duration:</p>
+<p>The first term,</p>
+<p><span class="math display">\[
+-D\Delta y,
+\]</span></p>
+<p>is the usual Treasury-rate duration effect. If Treasury yields rise, the bond price falls.</p>
+<p>The second term,</p>
+<p><span class="math display">\[
+-D s \frac{\Delta s}{s},
+\]</span></p>
+<p>is the credit spread effect written in DTS form. Since <span class="math inline">\(\text{DTS}=Ds\)</span>, the spread-price effect can also be written as:</p>
+<p><span class="math display">\[
+-\text{DTS}\times \frac{\Delta s}{s}.
+\]</span></p>
+<p>So the two-factor approximation says that a corporate bond’s price changes because of both Treasury-rate changes and credit-spread changes.</p>
+<p>To connect this to empirical duration, divide both sides by <span class="math inline">\(\Delta y\)</span>:</p>
+<p><span class="math display">\[
+\frac{1}{P}\frac{\Delta P}{\Delta y}
+\approx
+-D
+-
+Ds
+\frac{\Delta s/s}{\Delta y}.
+\]</span></p>
+<p>Now factor out <span class="math inline">\(-D\)</span>:</p>
+<p><span class="math display">\[
+\frac{1}{P}\frac{\Delta P}{\Delta y}
+\approx
+-D
+\left[
+1
++
+s
+\frac{\Delta s/s}{\Delta y}
+\right].
+\]</span></p>
+<p>The key object is:</p>
+<p><span class="math display">\[
+\frac{\Delta s/s}{\Delta y}.
+\]</span></p>
+<p>This measures how relative credit spread changes tend to move when Treasury yields change. Since that relationship is not known analytically, we estimate it empirically. The regression-style approximation is:</p>
+<p><span class="math display">\[
+\frac{\Delta s/s}{\Delta y}
+\approx
+\rho_{y,s}\frac{\sigma_s}{\sigma_y}.
+\]</span></p>
+<p>This comes from the slope coefficient in a regression of relative spread changes on Treasury yield changes:</p>
+<p><span class="math display">\[
+\beta
+=
+\frac{\operatorname{cov}(\Delta y,\Delta s/s)}
+{\operatorname{var}(\Delta y)}.
+\]</span></p>
+<p>Using</p>
+<p><span class="math display">\[
+\operatorname{cov}(\Delta y,\Delta s/s)
+=
+\rho_{y,s}\sigma_y\sigma_s
+\]</span></p>
+<p>and</p>
+<p><span class="math display">\[
+\operatorname{var}(\Delta y)=\sigma_y^2,
+\]</span></p>
+<p>we get:</p>
+<p><span class="math display">\[
+\beta
+=
+\frac{\rho_{y,s}\sigma_y\sigma_s}{\sigma_y^2}
+=
+\rho_{y,s}\frac{\sigma_s}{\sigma_y}.
+\]</span></p>
+<p>Substituting this empirical relationship into the duration expression gives:</p>
 <p><span class="math display">\[
 \frac{1}{P}\frac{\Delta P}{\Delta y}
 \approx
@@ -845,14 +956,71 @@ Figure&nbsp;3: Market value weights can hide where credit spread risk is concent
 <li><span class="math inline">\(\sigma_s\)</span> is the volatility of relative spread changes;</li>
 <li><span class="math inline">\(\sigma_y\)</span> is the volatility of Treasury yield changes.</li>
 </ul>
-<p>The bracketed term is a duration adjustment. If Treasury yields rise when spreads tighten, then <span class="math inline">\(\rho_{y,s}\)</span> is negative. The spread tightening offsets part of the Treasury-rate price loss, so empirical duration is lower than analytical duration.</p>
-<div class="callout callout-style-default callout-note callout-titled" title="Example 5: Why Empirical Duration Can Be Lower">
+<p>The bracketed term is the duration adjustment.</p>
+<p>If Treasury yields rise when credit spreads tighten, then <span class="math inline">\(\rho_{y,s}\)</span> is negative. The bracketed term is less than 1, so empirical duration is lower than analytical duration. Intuitively, the Treasury-rate loss is partly offset by a gain from spread tightening.</p>
+<p>If Treasury yields rise when credit spreads widen, then <span class="math inline">\(\rho_{y,s}\)</span> is positive. The bracketed term is greater than 1, so empirical duration is higher than analytical duration. In that case, the Treasury-rate loss and spread-widening loss reinforce each other.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Example 5: Analytical Duration versus Empirical Duration">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Example 5: Why Empirical Duration Can Be Lower
+<span class="screen-reader-only">Note</span>Example 5: Analytical Duration versus Empirical Duration
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Suppose a corporate bond has:</p>
+<ul>
+<li>analytical duration <span class="math inline">\(D=6.0\)</span>;</li>
+<li>starting credit spread <span class="math inline">\(s=3.00\%=0.0300\)</span>;</li>
+<li>correlation between Treasury yield changes and relative spread changes <span class="math inline">\(\rho_{y,s}=-0.50\)</span>;</li>
+<li>volatility of relative spread changes <span class="math inline">\(\sigma_s=2.00\%=0.0200\)</span>;</li>
+<li>volatility of Treasury yield changes <span class="math inline">\(\sigma_y=0.20\%=0.0020\)</span>.</li>
+</ul>
+<p>The duration adjustment is:</p>
+<p><span class="math display">\[
+1 + s\rho_{y,s}\frac{\sigma_s}{\sigma_y}
+=
+1 + (0.0300)(-0.50)\frac{0.0200}{0.0020}.
+\]</span></p>
+<p>Since</p>
+<p><span class="math display">\[
+\frac{0.0200}{0.0020}=10,
+\]</span></p>
+<p>the adjustment becomes:</p>
+<p><span class="math display">\[
+1 + (0.0300)(-0.50)(10)
+=
+1 - 0.1500
+=
+0.8500.
+\]</span></p>
+<p>So the empirical duration estimate is:</p>
+<p><span class="math display">\[
+D_{\text{emp}}
+=
+6.0(0.8500)
+=
+5.10.
+\]</span></p>
+<p>If Treasury yields rise by 50 bps, or 0.0050, the predicted relative price change is:</p>
+<p><span class="math display">\[
+\frac{\Delta P}{P}
+\approx
+-5.10(0.0050)
+=
+-0.0255.
+\]</span></p>
+<p>So the bond price is expected to decline by about 2.55%, not the 3.00% decline implied by the analytical duration alone.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Example 6: Why Empirical Duration Can Be Lower">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Example 6: Why Empirical Duration Can Be Lower
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -887,13 +1055,47 @@ D_{\text{emp}} \approx M D_{\text{analytical}}.
 M = a + bs.
 \]</span></p>
 <p>Lower-rated and wider-spread bonds tend to have lower multipliers. In stressed or high-yield cases, the multiplier can be near zero or even negative if spread tightening during rate increases more than offsets the Treasury-rate price effect.</p>
-<div class="callout callout-style-default callout-note callout-titled" title="Example 6: Using a Duration Multiplier">
+<div class="callout callout-style-default callout-tip callout-titled" title="Estimating Duration Multipliers">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Example 6: Using a Duration Multiplier
+<span class="screen-reader-only">Tip</span>Estimating Duration Multipliers
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Duration multipliers are usually estimated in two steps.</p>
+<p>First, estimate empirical duration from bond price changes and Treasury yield changes:</p>
+<p><span class="math display">\[
+\frac{\Delta P_t}{P_t}
+=
+\alpha
+-
+D_{\text{emp}}\Delta y_t
++
+\epsilon_t.
+\]</span></p>
+<p>Then compare empirical duration with analytical duration:</p>
+<p><span class="math display">\[
+M_i
+=
+\frac{D_{\text{emp},i}}{D_{\text{analytical},i}}.
+\]</span></p>
+<p>After estimating <span class="math inline">\(M_i\)</span> for many bonds or rating/spread groups, researchers often regress the multiplier on a constant and the bond’s spread:</p>
+<p><span class="math display">\[
+M_i = a + bs_i + u_i.
+\]</span></p>
+<p>The intercept <span class="math inline">\(a\)</span> is the baseline multiplier for that rating group. The slope <span class="math inline">\(b\)</span> shows how the multiplier changes as spreads widen. Usually <span class="math inline">\(b&lt;0\)</span>, meaning wider-spread bonds tend to have lower Treasury-rate sensitivity.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Example 7: Using a Duration Multiplier">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Example 7: Using a Duration Multiplier
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -906,13 +1108,13 @@ D_{\text{adjusted}} = 0.25(5.0)=1.25.
 </div>
 </div>
 <p>The implication for portfolio management is important. If a manager uses analytical duration for high-yield bonds without adjustment, the portfolio’s reported rate exposure may be too high. Hedging based on that duration can create an unintended rate bet.</p>
-<div class="callout callout-style-default callout-note callout-titled" title="Example 7: Portfolio Duration Misstatement">
+<div class="callout callout-style-default callout-note callout-titled" title="Example 8: Portfolio Duration Misstatement">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Example 7: Portfolio Duration Misstatement
+<span class="screen-reader-only">Note</span>Example 8: Portfolio Duration Misstatement
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -933,7 +1135,7 @@ D_{\text{adjusted}} = 0.25(5.0)=1.25.
 <p>The portfolio is actually below the target. A hedge based on analytical duration would move the portfolio in the wrong direction.</p>
 </div>
 </div>
-<div id="cell-fig-duration-multipliers" class="cell" data-execution_count="4">
+<div id="cell-fig-duration-multipliers" class="cell" data-execution_count="5">
 <div class="cell-output cell-output-display">
 <div id="fig-duration-multipliers" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
@@ -941,7 +1143,7 @@ D_{\text{adjusted}} = 0.25(5.0)=1.25.
 <img src="lec10_files/figure-html/fig-duration-multipliers-output-1.png" width="681" height="316" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-duration-multipliers-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;4: Duration multipliers typically decline as credit quality weakens
+Figure&nbsp;5: Duration multipliers typically decline as credit quality weakens
 </figcaption>
 </figure>
 </div>
@@ -988,13 +1190,13 @@ Figure&nbsp;4: Duration multipliers typically decline as credit quality weakens
 <li>compensation for systematic credit risk, liquidity risk, and uncertainty about default timing.</li>
 </ul>
 <p>Portfolio credit risk requires a dependence model. A portfolio of 100 bonds is not just 100 independent default probabilities. If defaults cluster in recessions, portfolio loss risk can be much larger than an independence assumption would imply.</p>
-<div class="callout callout-style-default callout-note callout-titled" title="Example 8: Expected Loss Is Only a Starting Point">
+<div class="callout callout-style-default callout-note callout-titled" title="Example 9: Expected Loss Is Only a Starting Point">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Example 8: Expected Loss Is Only a Starting Point
+<span class="screen-reader-only">Note</span>Example 9: Expected Loss Is Only a Starting Point
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -1093,6 +1295,30 @@ EL = PD \times LGD = 2\% \times 60\% = 1.2\%.
 <li>it has one zero-coupon debt issue with face value <span class="math inline">\(K\)</span> due at time <span class="math inline">\(T\)</span>;</li>
 <li>equity holders decide at maturity whether to repay debt or default.</li>
 </ul>
+<p>The key default rule is:</p>
+<p><span class="math display">\[
+\text{default at } T \quad \text{if} \quad A(T)&lt;K.
+\]</span></p>
+<p>If assets are worth more than the promised debt payment, equity holders repay the debt and keep the residual firm value. If assets are worth less than the promised debt payment, equity holders walk away. Bondholders receive the firm assets, which are worth less than the promised amount.</p>
+<p>This gives the model a direct default-probability interpretation:</p>
+<p><span class="math display">\[
+PD = \Pr[A(T)&lt;K].
+\]</span></p>
+<p>The model assumes asset value follows a stochastic process, commonly a lognormal process. Therefore, default risk comes from the probability that the future asset-value distribution ends below the debt threshold <span class="math inline">\(K\)</span>.</p>
+<div id="cell-fig-bsm-asset-paths" class="cell" data-execution_count="6">
+<div class="cell-output cell-output-display">
+<div id="fig-bsm-asset-paths" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-bsm-asset-paths-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lec10_files/figure-html/fig-bsm-asset-paths-output-1.png" width="681" height="353" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bsm-asset-paths-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6: In the basic BSM model, default occurs at maturity if asset value ends below the debt threshold
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
 <p>At maturity:</p>
 <p><span class="math display">\[
 E(T)=\max[A(T)-K,0].
@@ -1107,13 +1333,13 @@ B(T)=A(T)-\max[A(T)-K,0].
 B(T)=K-\max[K-A(T),0].
 \]</span></p>
 <p>This says risky debt is equivalent to a risk-free bond minus a put option on the firm’s assets. The put represents default risk.</p>
-<div class="callout callout-style-default callout-note callout-titled" title="Example 9: BSM Payoffs at Maturity">
+<div class="callout callout-style-default callout-note callout-titled" title="Example 10: BSM Payoffs at Maturity">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Example 9: BSM Payoffs at Maturity
+<span class="screen-reader-only">Note</span>Example 10: BSM Payoffs at Maturity
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -1147,7 +1373,7 @@ B(T)=K-\max[K-A(T),0].
 <p>When assets exceed debt, equity holders repay bondholders and keep the residual. When assets are below debt, equity holders default and hand the firm to bondholders.</p>
 </div>
 </div>
-<div id="cell-fig-bsm-payoffs" class="cell" data-execution_count="5">
+<div id="cell-fig-bsm-payoffs" class="cell" data-execution_count="7">
 <div class="cell-output cell-output-display">
 <div id="fig-bsm-payoffs" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
@@ -1155,31 +1381,32 @@ B(T)=K-\max[K-A(T),0].
 <img src="lec10_files/figure-html/fig-bsm-payoffs-output-1.png" width="681" height="334" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bsm-payoffs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;5: In the BSM model, equity is a call option and risky debt is capped at face value
+Figure&nbsp;7: In the BSM model, equity is a call option and risky debt is capped at face value
 </figcaption>
 </figure>
 </div>
 </div>
 </div>
-<p>The model implies:</p>
+<p>The model’s main implications follow from the default condition <span class="math inline">\(A(T)&lt;K\)</span>:</p>
 <ul>
-<li>higher leverage increases default probability;</li>
-<li>higher asset volatility increases default probability;</li>
-<li>more time to maturity changes the option value of equity and default-risky debt;</li>
-<li>credit spreads are linked to equity prices and asset volatility.</li>
+<li><p><strong>Higher leverage increases default probability.</strong> If the firm has more debt relative to assets, then <span class="math inline">\(K\)</span> is high relative to <span class="math inline">\(A(0)\)</span>. The firm starts closer to the default threshold, so it takes a smaller decline in asset value for <span class="math inline">\(A(T)\)</span> to fall below <span class="math inline">\(K\)</span>.</p></li>
+<li><p><strong>Higher asset volatility increases default probability.</strong> Volatility widens the distribution of possible future asset values. Even if <span class="math inline">\(A(0)&gt;K\)</span>, more volatility puts more probability mass in the left tail below <span class="math inline">\(K\)</span>. This is why a riskier business or more volatile asset base usually implies wider credit spreads.</p></li>
+<li><p><strong>More time to maturity changes the option value of both equity and debt.</strong> More time gives asset value more opportunity to move. That can make the equity call option more valuable, but it also gives bondholders more exposure to adverse asset-value outcomes. The effect on default probability and spreads depends on leverage, volatility, expected asset growth, and recovery assumptions.</p></li>
+<li><p><strong>Credit spreads are linked to equity prices and asset volatility.</strong> Equity and debt are claims on the same firm assets. If the stock price falls, the inferred firm value is usually lower, so the firm is closer to default. If equity volatility rises, inferred asset volatility is usually higher, so the left-tail probability of default rises. Both effects tend to widen credit spreads.</p></li>
 </ul>
-</section>
-<section id="extensions-of-the-black-scholes-merton-model" class="level3">
-<h3 class="anchored" data-anchor-id="extensions-of-the-black-scholes-merton-model">Extensions of the Black-Scholes-Merton Model</h3>
-<p>The basic BSM model is intentionally simple. Its assumptions are often unrealistic, so extensions relax them.</p>
-<p><strong>Compound option models</strong> allow multiple debt maturities. Default at later dates is contingent on survival at earlier dates.</p>
-<p><strong>First-passage time models</strong> allow default before maturity. Default occurs when firm asset value crosses a default barrier:</p>
-<p><span class="math display">\[
-A(t) \le H(t),
-\]</span></p>
-<p>where <span class="math inline">\(H(t)\)</span> is the default threshold.</p>
-<p><strong>Stochastic interest-rate extensions</strong> allow the risk-free rate to vary over time instead of being constant.</p>
-<p>These extensions make the model more realistic but also harder to calibrate and compute.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Structural Model Intuition">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Structural Model Intuition
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The BSM model does not treat default as an unexplained event. It links default risk to the firm’s capital structure: asset value, debt face value, asset volatility, and time to maturity.</p>
+</div>
+</div>
 </section>
 <section id="advantages-and-disadvantages-of-structural-models" class="level3">
 <h3 class="anchored" data-anchor-id="advantages-and-disadvantages-of-structural-models">Advantages and Disadvantages of Structural Models</h3>
@@ -1220,13 +1447,26 @@ A(t) \le H(t),
 <li>a dependence structure across issuers.</li>
 </ul>
 <p>The goal is to model joint default behavior, especially in stress scenarios.</p>
-<div class="callout callout-style-default callout-note callout-titled" title="Example 10: Why Dependence Matters">
+<div class="callout callout-style-default callout-tip callout-titled" title="Copula Intuition">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Example 10: Why Dependence Matters
+<span class="screen-reader-only">Tip</span>Copula Intuition
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A copula is a way to join separate default probability models into one portfolio model. The marginal distributions say how likely each issuer is to default on its own; the copula says how likely those defaults are to happen together.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Example 11: Why Dependence Matters">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Example 11: Why Dependence Matters
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -1257,7 +1497,7 @@ A(t) \le H(t),
 <p>In reduced-form models, default is usually modeled with an intensity or hazard rate. This makes them attractive for pricing because they can be calibrated to observed bond or credit derivative prices.</p>
 <section id="poisson-process" class="level3">
 <h3 class="anchored" data-anchor-id="poisson-process">Poisson Process</h3>
-<p>A Poisson process counts events over time. Let <span class="math inline">\(N_t\)</span> be the number of events from time 0 to time <span class="math inline">\(t\)</span>.</p>
+<p>A Poisson process counts events over time. Let <span class="math inline">\(N_t\)</span> be the number of events from time <span class="math inline">\(0\)</span> to time <span class="math inline">\(t\)</span>.</p>
 <p>For a small interval <span class="math inline">\(dt\)</span>:</p>
 <p><span class="math display">\[
 \Pr(N_{t+dt}-N_t = 1) = \lambda dt,
@@ -1265,7 +1505,7 @@ A(t) \le H(t),
 <p><span class="math display">\[
 \Pr(N_{t+dt}-N_t = 0) = 1-\lambda dt.
 \]</span></p>
-<p>In credit modeling, the event is default and <span class="math inline">\(\lambda\)</span> is the <strong>default intensity</strong>. It is the conditional default probability per unit of time, given survival so far.</p>
+<p>In credit modeling, the event is default and <span class="math inline">\(\lambda\)</span> is the <strong>default intensity</strong>. It is the conditional default probability per unit of time, given survival so far. We use <span class="math inline">\(\tau\)</span> to denote the <strong>random default time</strong>, meaning the time at which the issuer defaults.</p>
 <p>If <span class="math inline">\(\lambda\)</span> is constant, the survival probability to time <span class="math inline">\(T\)</span> is:</p>
 <p><span class="math display">\[
 \Pr(\tau &gt; T) = e^{-\lambda T},
@@ -1274,13 +1514,13 @@ A(t) \le H(t),
 <p><span class="math display">\[
 \Pr(\tau \le T)=1-e^{-\lambda T}.
 \]</span></p>
-<div class="callout callout-style-default callout-note callout-titled" title="Example 11: Default Intensity">
+<div class="callout callout-style-default callout-note callout-titled" title="Example 12: Default Intensity">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Example 11: Default Intensity
+<span class="screen-reader-only">Note</span>Example 12: Default Intensity
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -1296,7 +1536,7 @@ e^{-0.02(5)}=e^{-0.10}=90.48\%.
 <p>The result is not exactly <span class="math inline">\(2\%\times 5=10\%\)</span> because survival probabilities compound continuously.</p>
 </div>
 </div>
-<div id="cell-fig-poisson-survival" class="cell" data-execution_count="6">
+<div id="cell-fig-poisson-survival" class="cell" data-execution_count="8">
 <div class="cell-output cell-output-display">
 <div id="fig-poisson-survival" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
@@ -1304,7 +1544,7 @@ e^{-0.02(5)}=e^{-0.10}=90.48\%.
 <img src="lec10_files/figure-html/fig-poisson-survival-output-1.png" width="681" height="324" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-poisson-survival-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;6: Higher default intensity lowers survival probability more quickly
+Figure&nbsp;8: Higher default intensity lowers survival probability more quickly
 </figcaption>
 </figure>
 </div>
@@ -1400,13 +1640,13 @@ Figure&nbsp;6: Higher default intensity lowers survival probability more quickly
 \frac{\text{Credit spread}}{\text{Maturity-matched default probability}}.
 \]</span></p>
 <p>Higher ratios indicate more spread compensation per unit of modeled default probability, all else equal.</p>
-<div class="callout callout-style-default callout-note callout-titled" title="Example 12: Spread Compensation per Unit of Default Risk">
+<div class="callout callout-style-default callout-note callout-titled" title="Example 13: Spread Compensation per Unit of Default Risk">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Example 12: Spread Compensation per Unit of Default Risk
+<span class="screen-reader-only">Note</span>Example 13: Spread Compensation per Unit of Default Risk
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -1446,7 +1686,7 @@ Figure&nbsp;6: Higher default intensity lowers survival probability more quickly
 </div>
 </div>
 <p>The value of this approach is discipline. It prevents the analyst from treating a wide spread as attractive without asking whether the spread is wide enough for the credit risk.</p>
-<div id="cell-fig-spread-pd-ratio" class="cell" data-execution_count="7">
+<div id="cell-fig-spread-pd-ratio" class="cell" data-execution_count="9">
 <div class="cell-output cell-output-display">
 <div id="fig-spread-pd-ratio" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
@@ -1454,7 +1694,7 @@ Figure&nbsp;6: Higher default intensity lowers survival probability more quickly
 <img src="lec10_files/figure-html/fig-spread-pd-ratio-output-1.png" width="661" height="325" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-spread-pd-ratio-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;7: A wider spread is not always better after adjusting for modeled default risk
+Figure&nbsp;9: A wider spread is not always better after adjusting for modeled default risk
 </figcaption>
 </figure>
 </div>

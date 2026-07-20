@@ -418,13 +418,15 @@ window.Quarto = {
   <li><a href="#reduced-form-models" id="toc-reduced-form-models" class="nav-link" data-scroll-target="#reduced-form-models"><span class="header-section-number">10</span> Reduced-Form Models</a>
   <ul class="collapse">
   <li><a href="#poisson-process" id="toc-poisson-process" class="nav-link" data-scroll-target="#poisson-process">Poisson Process</a></li>
-  <li><a href="#the-jarrow-turnbull-model" id="toc-the-jarrow-turnbull-model" class="nav-link" data-scroll-target="#the-jarrow-turnbull-model">The Jarrow-Turnbull Model</a></li>
-  <li><a href="#the-duffie-singleton-model" id="toc-the-duffie-singleton-model" class="nav-link" data-scroll-target="#the-duffie-singleton-model">The Duffie-Singleton Model</a></li>
   <li><a href="#advantages-and-disadvantages-of-reduced-form-models" id="toc-advantages-and-disadvantages-of-reduced-form-models" class="nav-link" data-scroll-target="#advantages-and-disadvantages-of-reduced-form-models">Advantages and Disadvantages of Reduced-Form Models</a></li>
   </ul></li>
   <li><a href="#empirical-evidence-credit-ratings-structural-models-and-reduced-form-models" id="toc-empirical-evidence-credit-ratings-structural-models-and-reduced-form-models" class="nav-link" data-scroll-target="#empirical-evidence-credit-ratings-structural-models-and-reduced-form-models"><span class="header-section-number">11</span> Empirical Evidence: Credit Ratings, Structural Models, and Reduced-Form Models</a></li>
   <li><a href="#an-application-of-credit-risk-modeling" id="toc-an-application-of-credit-risk-modeling" class="nav-link" data-scroll-target="#an-application-of-credit-risk-modeling"><span class="header-section-number">12</span> An Application of Credit Risk Modeling</a></li>
-  <li><a href="#incomplete-information-models" id="toc-incomplete-information-models" class="nav-link" data-scroll-target="#incomplete-information-models"><span class="header-section-number">13</span> Incomplete-Information Models</a></li>
+  <li><a href="#using-credit-risk-models-in-practice" id="toc-using-credit-risk-models-in-practice" class="nav-link" data-scroll-target="#using-credit-risk-models-in-practice"><span class="header-section-number">13</span> Using Credit Risk Models in Practice</a>
+  <ul class="collapse">
+  <li><a href="#factor-driven-hazard-rates" id="toc-factor-driven-hazard-rates" class="nav-link" data-scroll-target="#factor-driven-hazard-rates">Factor-Driven Hazard Rates</a></li>
+  <li><a href="#physical-versus-risk-neutral-default-probabilities" id="toc-physical-versus-risk-neutral-default-probabilities" class="nav-link" data-scroll-target="#physical-versus-risk-neutral-default-probabilities">Physical versus Risk-Neutral Default Probabilities</a></li>
+  </ul></li>
   <li><a href="#key-points" id="toc-key-points" class="nav-link" data-scroll-target="#key-points">Key Points</a></li>
   </ul>
 <div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="lec10.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></nav>
@@ -1550,17 +1552,19 @@ Figure&nbsp;8: Higher default intensity lowers survival probability more quickly
 </div>
 </div>
 </div>
-</section>
-<section id="the-jarrow-turnbull-model" class="level3">
-<h3 class="anchored" data-anchor-id="the-jarrow-turnbull-model">The Jarrow-Turnbull Model</h3>
-<p>The Jarrow-Turnbull model is a reduced-form model of default and recovery. A simple version assumes recovery is paid at maturity. That assumption improves tractability because it reduces the dependence between recovery timing and bond price.</p>
-<p>Extensions allow rating migration. Instead of only survival and default states, the issuer can migrate among rating states such as A, BBB, BB, and default. Rating transition matrices then become part of the model.</p>
-<p>The model is useful for thinking about credit migration risk, but the recovery-at-maturity assumption is unrealistic for many defaulted bonds.</p>
-</section>
-<section id="the-duffie-singleton-model" class="level3">
-<h3 class="anchored" data-anchor-id="the-duffie-singleton-model">The Duffie-Singleton Model</h3>
-<p>The Duffie-Singleton model allows recovery to occur at default time and models recovery as a fraction of the pre-default market value. This is often called <strong>fractional recovery of market value</strong>.</p>
-<p>The intuition is practical. As credit quality worsens, the bond price usually falls before default. If default then occurs, recovery is modeled as a fraction of the value just before default. This avoids some unrealistic outcomes where recovery can exceed the pre-default bond price.</p>
+<!-- ### The Jarrow-Turnbull Model
+
+The Jarrow-Turnbull model is a reduced-form model of default and recovery. A simple version assumes recovery is paid at maturity. That assumption improves tractability because it reduces the dependence between recovery timing and bond price.
+
+Extensions allow rating migration. Instead of only survival and default states, the issuer can migrate among rating states such as A, BBB, BB, and default. Rating transition matrices then become part of the model.
+
+The model is useful for thinking about credit migration risk, but the recovery-at-maturity assumption is unrealistic for many defaulted bonds.
+
+### The Duffie-Singleton Model
+
+The Duffie-Singleton model allows recovery to occur at default time and models recovery as a fraction of the pre-default market value. This is often called **fractional recovery of market value**.
+
+The intuition is practical. As credit quality worsens, the bond price usually falls before default. If default then occurs, recovery is modeled as a fraction of the value just before default. This avoids some unrealistic outcomes where recovery can exceed the pre-default bond price. -->
 </section>
 <section id="advantages-and-disadvantages-of-reduced-form-models" class="level3">
 <h3 class="anchored" data-anchor-id="advantages-and-disadvantages-of-reduced-form-models">Advantages and Disadvantages of Reduced-Form Models</h3>
@@ -1701,35 +1705,129 @@ Figure&nbsp;9: A wider spread is not always better after adjusting for modeled d
 </div>
 </div>
 <hr>
+<!-- ## Incomplete-Information Models
+
+Structural and reduced-form models often assume investors observe the relevant information correctly. In practice, investors have incomplete information.
+
+Financial statements may not fully reveal:
+
+- off-balance-sheet obligations;
+- derivatives exposures;
+- pension liabilities;
+- lease obligations;
+- asset quality problems;
+- fraud or aggressive accounting;
+- the true default barrier.
+
+Incomplete-information models recognize that investors may not know the firm's true economic condition. These models combine structural intuition with reduced-form features. For example, a first-passage model may assume there is a default barrier, but investors do not know its exact level.
+
+::: {.callout-tip title="Why This Matters"}
+The firm can be closer to distress than the market realizes. Incomplete-information models try to account for the gap between reported information and economic reality.
+::: -->
+<hr>
 </section>
-<section id="incomplete-information-models" class="level2" data-number="13">
-<h2 data-number="13" class="anchored" data-anchor-id="incomplete-information-models"><span class="header-section-number">13</span> Incomplete-Information Models</h2>
-<p>Structural and reduced-form models often assume investors observe the relevant information correctly. In practice, investors have incomplete information.</p>
-<p>Financial statements may not fully reveal:</p>
-<ul>
-<li>off-balance-sheet obligations;</li>
-<li>derivatives exposures;</li>
-<li>pension liabilities;</li>
-<li>lease obligations;</li>
-<li>asset quality problems;</li>
-<li>fraud or aggressive accounting;</li>
-<li>the true default barrier.</li>
-</ul>
-<p>Incomplete-information models recognize that investors may not know the firm’s true economic condition. These models combine structural intuition with reduced-form features. For example, a first-passage model may assume there is a default barrier, but investors do not know its exact level.</p>
-<div class="callout callout-style-default callout-tip callout-titled" title="Why This Matters">
+<section id="using-credit-risk-models-in-practice" class="level2" data-number="13">
+<h2 data-number="13" class="anchored" data-anchor-id="using-credit-risk-models-in-practice"><span class="header-section-number">13</span> Using Credit Risk Models in Practice</h2>
+<p>In practice, reduced-form credit models are often used as <strong>pricing models</strong>. The analyst chooses a default intensity, or hazard rate, so that the model matches observed market prices. Once calibrated, the same model can price other bonds, loans, credit default swaps, and structured credit positions.</p>
+<p>The basic workflow is:</p>
+<ol type="1">
+<li>Observe market prices or spreads for traded credit instruments.</li>
+<li>Assume a recovery rate or recovery process.</li>
+<li>Calibrate a term structure of hazard rates <span class="math inline">\(\lambda(t)\)</span> so model prices match market prices.</li>
+<li>Use the calibrated hazard rates to price less liquid bonds or credit derivatives.</li>
+</ol>
+<p>For a simple risky zero-coupon bond with recovery ignored, the risky discount factor can be written approximately as:</p>
+<p><span class="math display">\[
+P_{\text{risky}}(0,T)
+\approx
+\exp\left[-\int_0^T (r(t)+\lambda(t))dt\right].
+\]</span></p>
+<p>The hazard rate acts like an additional discount rate for default risk. Higher observed credit spreads usually imply higher calibrated hazard rates.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Calibration Intuition">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Tip</span>Why This Matters
+<span class="screen-reader-only">Tip</span>Calibration Intuition
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>The firm can be closer to distress than the market realizes. Incomplete-information models try to account for the gap between reported information and economic reality.</p>
+<p>In pricing, the hazard rate is not guessed from historical defaults alone. It is usually chosen so the model reproduces observed bond prices or CDS spreads. The calibrated hazard rate is therefore a market-implied, risk-neutral object.</p>
 </div>
 </div>
+<section id="factor-driven-hazard-rates" class="level3">
+<h3 class="anchored" data-anchor-id="factor-driven-hazard-rates">Factor-Driven Hazard Rates</h3>
+<p>Hazard rates do not need to be constant. They can depend on issuer, market, and macro variables. Let <span class="math inline">\(X_t\)</span> denote a vector of external risk factors, such as leverage, equity volatility, credit spreads, rating, unemployment, or sector conditions.</p>
+<p>A general intensity model is:</p>
+<p><span class="math display">\[
+\lambda(t \mid X_t) = g(\beta_0+\beta^\top X_t),
+\]</span></p>
+<p>where <span class="math inline">\(g(\cdot)\)</span> is a <strong>link function</strong> that maps the linear score into a valid hazard rate.</p>
+<p>The link function matters because a hazard rate must be nonnegative. A purely linear specification,</p>
+<p><span class="math display">\[
+\lambda(t \mid X_t)=\beta_0+\beta^\top X_t,
+\]</span></p>
+<p>is easy to interpret, but it can produce negative intensities, which are not economically meaningful. For this reason, models often use a positive link function such as:</p>
+<p><span class="math display">\[
+\lambda(t \mid X_t)=\exp(\beta_0+\beta^\top X_t).
+\]</span></p>
+<p>Other positive links, such as softplus functions, can also be used.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Is a Linear Factor Model Arbitrage-Free?">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Is a Linear Factor Model Arbitrage-Free?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A factor-driven intensity model can be arbitrage-free if it is specified under the risk-neutral measure, keeps <span class="math inline">\(\lambda(t)\ge 0\)</span>, and prices securities by discounted expected cash flows with default and recovery handled consistently.</p>
+<p>A naive linear hazard model is not automatically arbitrage-free because it can generate negative default intensities or prices inconsistent with traded instruments. Reduced-form models are useful because they provide a pricing framework where default intensities, recovery assumptions, and discounting can be calibrated consistently to market prices.</p>
+</div>
+</div>
+</section>
+<section id="physical-versus-risk-neutral-default-probabilities" class="level3">
+<h3 class="anchored" data-anchor-id="physical-versus-risk-neutral-default-probabilities">Physical versus Risk-Neutral Default Probabilities</h3>
+<p>There are two different default probabilities in practice.</p>
+<p>A <strong>physical default probability</strong> estimates the real-world likelihood of default. It is used for forecasting, expected loss, credit limits, loan underwriting, stress testing, and capital planning.</p>
+<p>A <strong>risk-neutral default probability</strong> is implied by market prices. It is used for pricing bonds and credit derivatives.</p>
+<p>They differ because market spreads include more than expected default loss. Investors require compensation for systematic credit risk, liquidity risk, uncertainty about recovery, and the fact that defaults tend to occur in bad economic states.</p>
+<p>Physical default probabilities are estimated from real-world default experience and issuer information. Common inputs include:</p>
+<ul>
+<li>historical default and rating transition data;</li>
+<li>balance-sheet ratios such as leverage, profitability, liquidity, and interest coverage;</li>
+<li>market variables such as equity returns, equity volatility, bond spreads, and CDS spreads;</li>
+<li>macro variables such as unemployment, rates, GDP growth, inflation, and credit conditions;</li>
+<li>sector variables such as commodity prices, industry leverage, and refinancing conditions.</li>
+</ul>
+<p>Common statistical tools include logistic regression, survival models, transition matrices, and panel models. These models ask: given what we know about the issuer and the economy, how likely is default over the next year, three years, or five years?</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Example 14: Physical versus Risk-Neutral PD">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Example 14: Physical versus Risk-Neutral PD
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Suppose a historical default model estimates a one-year physical default probability of 1.0%. With 40% recovery, expected loss is:</p>
+<p><span class="math display">\[
+1.0\% \times (1-40\%) = 0.60\%.
+\]</span></p>
+<p>But the market spread may be 150 bps, not 60 bps. The difference reflects risk premiums, liquidity, recovery uncertainty, taxes, and supply-demand conditions.</p>
+<p>A model calibrated to the 150 bps spread may imply a higher risk-neutral default probability than the physical default probability.</p>
+</div>
+</div>
+<p>The practical rule is:</p>
+<ul>
+<li>use <strong>physical PDs</strong> when asking, “How likely is default?”</li>
+<li>use <strong>risk-neutral PDs</strong> when asking, “What price or spread is consistent with the market?”</li>
+</ul>
 <hr>
+</section>
 </section>
 <section id="key-points" class="level2 unnumbered">
 <h2 class="unnumbered anchored" data-anchor-id="key-points">Key Points</h2>

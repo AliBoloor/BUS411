@@ -1090,6 +1090,20 @@ M_i
 M_i = a + bs_i + u_i.
 \]</span></p>
 <p>The intercept <span class="math inline">\(a\)</span> is the baseline multiplier for that rating group. The slope <span class="math inline">\(b\)</span> shows how the multiplier changes as spreads widen. Usually <span class="math inline">\(b&lt;0\)</span>, meaning wider-spread bonds tend to have lower Treasury-rate sensitivity.</p>
+<div id="cell-fig-estimating-duration-multiplier" class="cell" data-execution_count="5">
+<div class="cell-output cell-output-display">
+<div id="fig-estimating-duration-multiplier" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-estimating-duration-multiplier-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lec10_files/figure-html/fig-estimating-duration-multiplier-output-1.png" width="1138" height="375" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-estimating-duration-multiplier-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5: Estimating duration multipliers across many bonds
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
 </div>
 </div>
 <div class="callout callout-style-default callout-note callout-titled" title="Example 7: Using a Duration Multiplier">
@@ -1102,12 +1116,34 @@ M_i = a + bs_i + u_i.
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Suppose a B-rated bond has analytical duration 5.0. A manager estimates a duration multiplier of 0.25.</p>
-<p>The adjusted duration is:</p>
+<p>Suppose a portfolio manager holds $10 million of a B-rated bond. The bond has analytical duration of 5.0, but the estimated duration multiplier for bonds with its rating and spread is 0.25. The manager wants to estimate the bond’s response to a 75 bps increase in Treasury yields.</p>
+<p>First, adjust the analytical duration:</p>
 <p><span class="math display">\[
 D_{\text{adjusted}} = 0.25(5.0)=1.25.
 \]</span></p>
-<p>For a 100 bps Treasury yield increase, the analytical duration predicts about a 5% loss. The adjusted duration predicts about a 1.25% loss, before considering any additional idiosyncratic credit movement.</p>
+<p>Using analytical duration alone, the estimated price change would be:</p>
+<p><span class="math display">\[
+\frac{\Delta P}{P}
+\approx
+-5.0(0.0075)
+=-3.75\%.
+\]</span></p>
+<p>This implies a dollar loss of:</p>
+<p><span class="math display">\[
+10{,}000{,}000(0.0375)=\$375{,}000.
+\]</span></p>
+<p>Using the duration multiplier, the estimated Treasury-rate effect is instead:</p>
+<p><span class="math display">\[
+\frac{\Delta P}{P}
+\approx
+-1.25(0.0075)
+=-0.9375\%.
+\]</span></p>
+<p>The corresponding dollar loss is:</p>
+<p><span class="math display">\[
+10{,}000{,}000(0.009375)=\$93{,}750.
+\]</span></p>
+<p>The multiplier reduces the estimated Treasury-rate exposure from $375,000 to $93,750. The difference reflects the historical tendency of the bond’s spread movement to offset part of its analytical rate sensitivity. This is the adjusted exposure the manager would use when sizing a Treasury hedge, before allowing for additional idiosyncratic credit movement.</p>
 </div>
 </div>
 <p>The implication for portfolio management is important. If a manager uses analytical duration for high-yield bonds without adjustment, the portfolio’s reported rate exposure may be too high. Hedging based on that duration can create an unintended rate bet.</p>
@@ -1138,7 +1174,7 @@ D_{\text{adjusted}} = 0.25(5.0)=1.25.
 <p>The portfolio is actually below the target. A hedge based on analytical duration would move the portfolio in the wrong direction.</p>
 </div>
 </div>
-<div id="cell-fig-duration-multipliers" class="cell" data-execution_count="5">
+<div id="cell-fig-duration-multipliers" class="cell" data-execution_count="6">
 <div class="cell-output cell-output-display">
 <div id="fig-duration-multipliers" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
@@ -1146,7 +1182,7 @@ D_{\text{adjusted}} = 0.25(5.0)=1.25.
 <img src="lec10_files/figure-html/fig-duration-multipliers-output-1.png" width="681" height="316" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-duration-multipliers-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;5: Duration multipliers typically decline as credit quality weakens
+Figure&nbsp;6: Duration multipliers typically decline as credit quality weakens
 </figcaption>
 </figure>
 </div>
@@ -1308,7 +1344,7 @@ EL = PD \times LGD = 2\% \times 60\% = 1.2\%.
 PD = \Pr[A(T)&lt;K].
 \]</span></p>
 <p>The model assumes asset value follows a stochastic process, commonly a lognormal process. Therefore, default risk comes from the probability that the future asset-value distribution ends below the debt threshold <span class="math inline">\(K\)</span>.</p>
-<div id="cell-fig-bsm-asset-paths" class="cell" data-execution_count="6">
+<div id="cell-fig-bsm-asset-paths" class="cell" data-execution_count="7">
 <div class="cell-output cell-output-display">
 <div id="fig-bsm-asset-paths" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
@@ -1316,7 +1352,7 @@ PD = \Pr[A(T)&lt;K].
 <img src="lec10_files/figure-html/fig-bsm-asset-paths-output-1.png" width="681" height="353" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bsm-asset-paths-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;6: In the basic BSM model, default occurs at maturity if asset value ends below the debt threshold
+Figure&nbsp;7: In the basic BSM model, default occurs at maturity if asset value ends below the debt threshold
 </figcaption>
 </figure>
 </div>
@@ -1376,7 +1412,7 @@ B(T)=K-\max[K-A(T),0].
 <p>When assets exceed debt, equity holders repay bondholders and keep the residual. When assets are below debt, equity holders default and hand the firm to bondholders.</p>
 </div>
 </div>
-<div id="cell-fig-bsm-payoffs" class="cell" data-execution_count="7">
+<div id="cell-fig-bsm-payoffs" class="cell" data-execution_count="8">
 <div class="cell-output cell-output-display">
 <div id="fig-bsm-payoffs" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
@@ -1384,7 +1420,7 @@ B(T)=K-\max[K-A(T),0].
 <img src="lec10_files/figure-html/fig-bsm-payoffs-output-1.png" width="681" height="334" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bsm-payoffs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;7: In the BSM model, equity is a call option and risky debt is capped at face value
+Figure&nbsp;8: In the BSM model, equity is a call option and risky debt is capped at face value
 </figcaption>
 </figure>
 </div>
@@ -1469,7 +1505,7 @@ Figure&nbsp;7: In the BSM model, equity is a call option and risky debt is cappe
 \Pr(\tau \le T)=1-e^{-\lambda T}.
 \]</span></p>
 <p>The intensity controls both the center and the shape of the event-count distribution. Over one unit of time, <span class="math inline">\(N_1\sim\operatorname{Poisson}(\lambda)\)</span>, so both its mean and variance equal <span class="math inline">\(\lambda\)</span>. At low intensity, most probability is concentrated near zero and the distribution is strongly right-skewed. As intensity rises, the distribution shifts to the right, spreads out, and becomes more symmetric.</p>
-<div id="cell-fig-poisson-distributions" class="cell" data-execution_count="8">
+<div id="cell-fig-poisson-distributions" class="cell" data-execution_count="9">
 <div class="cell-output cell-output-display">
 <div id="fig-poisson-distributions" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
@@ -1477,14 +1513,14 @@ Figure&nbsp;7: In the BSM model, equity is a call option and risky debt is cappe
 <img src="lec10_files/figure-html/fig-poisson-distributions-output-1.png" width="681" height="491" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-poisson-distributions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;8: Poisson event-count distributions at different intensity rates; each dashed line marks the mean
+Figure&nbsp;9: Poisson event-count distributions at different intensity rates; each dashed line marks the mean
 </figcaption>
 </figure>
 </div>
 </div>
 </div>
 <p>A simulated path shows the same idea dynamically. Higher intensity produces more arrivals per unit of time, so the cumulative count tends to grow faster. The paths are random, however, so their short-run slopes are uneven and need not be ordered at every instant.</p>
-<div id="cell-fig-poisson-process-simulations" class="cell" data-execution_count="9">
+<div id="cell-fig-poisson-process-simulations" class="cell" data-execution_count="10">
 <div class="cell-output cell-output-display">
 <div id="fig-poisson-process-simulations" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
@@ -1492,7 +1528,7 @@ Figure&nbsp;8: Poisson event-count distributions at different intensity rates; e
 <img src="lec10_files/figure-html/fig-poisson-process-simulations-output-1.png" width="678" height="353" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-poisson-process-simulations-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;9: Simulated Poisson-process paths at different intensity rates; higher intensity produces faster average count growth
+Figure&nbsp;10: Simulated Poisson-process paths at different intensity rates; higher intensity produces faster average count growth
 </figcaption>
 </figure>
 </div>
@@ -1520,7 +1556,7 @@ e^{-0.02(5)}=e^{-0.10}=90.48\%.
 <p>The result is not exactly <span class="math inline">\(2\%\times 5=10\%\)</span> because survival probabilities compound continuously.</p>
 </div>
 </div>
-<div id="cell-fig-poisson-survival" class="cell" data-execution_count="10">
+<div id="cell-fig-poisson-survival" class="cell" data-execution_count="11">
 <div class="cell-output cell-output-display">
 <div id="fig-poisson-survival" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
@@ -1528,7 +1564,7 @@ e^{-0.02(5)}=e^{-0.10}=90.48\%.
 <img src="lec10_files/figure-html/fig-poisson-survival-output-1.png" width="681" height="324" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-poisson-survival-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;10: Higher default intensity lowers survival probability more quickly
+Figure&nbsp;11: Higher default intensity lowers survival probability more quickly
 </figcaption>
 </figure>
 </div>
@@ -1721,7 +1757,7 @@ The intuition is practical. As credit quality worsens, the bond price usually fa
 </div>
 </div>
 <p>The value of this approach is discipline. It prevents the analyst from treating a wide spread as attractive without asking whether the spread is wide enough for the credit risk.</p>
-<div id="cell-fig-spread-pd-ratio" class="cell" data-execution_count="11">
+<div id="cell-fig-spread-pd-ratio" class="cell" data-execution_count="12">
 <div class="cell-output cell-output-display">
 <div id="fig-spread-pd-ratio" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
@@ -1729,13 +1765,12 @@ The intuition is practical. As credit quality worsens, the bond price usually fa
 <img src="lec10_files/figure-html/fig-spread-pd-ratio-output-1.png" width="661" height="325" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-spread-pd-ratio-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;11: A wider spread is not always better after adjusting for modeled default risk
+Figure&nbsp;12: A wider spread is not always better after adjusting for modeled default risk
 </figcaption>
 </figure>
 </div>
 </div>
 </div>
-<hr>
 <!-- ## Incomplete-Information Models
 
 Structural and reduced-form models often assume investors observe the relevant information correctly. In practice, investors have incomplete information.

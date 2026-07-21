@@ -718,18 +718,226 @@ M_i = a + bs_i + u_i.
 $$
 
 The intercept $a$ is the baseline multiplier for that rating group. The slope $b$ shows how the multiplier changes as spreads widen. Usually $b<0$, meaning wider-spread bonds tend to have lower Treasury-rate sensitivity.
+
+```{python}
+#| label: fig-estimating-duration-multiplier
+#| fig-cap: "Estimating duration multipliers across many bonds"
+import numpy as np
+import matplotlib.pyplot as plt
+
+rng = np.random.default_rng(411)
+ink = "#17324D"
+blue = "#2F78B7"
+gold = "#D79B28"
+grey = "#68727D"
+grid = "#D9DEE3"
+
+fig, axes = plt.subplots(1, 3, figsize=(11.8, 3.7))
+
+# Create a cross-section of illustrative bonds.
+number_of_bonds = 18
+spreads = np.linspace(55, 560, number_of_bonds) + rng.normal(
+    0, 12, number_of_bonds
+)
+analytical_durations = rng.uniform(4.2, 7.0, number_of_bonds)
+multipliers = np.clip(
+    0.98 - 0.00165 * spreads + rng.normal(0, 0.045, number_of_bonds),
+    0.02,
+    0.95,
+)
+empirical_durations = analytical_durations * multipliers
+
+# Step 1: repeat the time-series regression for every bond.
+yield_changes = np.linspace(-0.0075, 0.0075, 18)
+sample_bonds = [1, 8, 15]
+sample_styles = [
+    ("#9CC3E2", "Bond A"),
+    (blue, "Bond B"),
+    (ink, "Bond C"),
+]
+
+for bond_index, (color, label) in zip(sample_bonds, sample_styles):
+    bond_returns = (
+        -empirical_durations[bond_index] * yield_changes
+        + rng.normal(0, 0.0015, yield_changes.size)
+    )
+    axes[0].scatter(
+        yield_changes * 100,
+        bond_returns * 100,
+        s=15,
+        facecolor="white",
+        edgecolor=color,
+        linewidth=0.7,
+        alpha=0.8,
+    )
+    axes[0].plot(
+        yield_changes * 100,
+        -empirical_durations[bond_index] * yield_changes * 100,
+        color=color,
+        linewidth=2,
+        label=label + rf": $D_{{emp}}={empirical_durations[bond_index]:.1f}$",
+    )
+
+axes[0].axhline(0, color=grey, linewidth=0.7)
+axes[0].axvline(0, color=grey, linewidth=0.7)
+axes[0].set_title("1  Estimate each bond separately", loc="left", fontweight="bold")
+axes[0].set_xlabel("Treasury yield change (%)")
+axes[0].set_ylabel("Bond return (%)")
+axes[0].legend(frameon=False, fontsize=8, loc="lower left")
+axes[0].text(
+    0.04,
+    0.96,
+    "Repeat the time-series regression\n" + r"for every bond $i$",
+    va="top",
+    transform=axes[0].transAxes,
+    color=ink,
+    fontsize=9,
+    bbox=dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor=grid),
+)
+
+# Step 2: calculate one multiplier for every bond.
+spread_order = np.argsort(spreads)
+bond_positions = np.arange(1, number_of_bonds + 1)
+ordered_multipliers = multipliers[spread_order]
+axes[1].vlines(
+    bond_positions,
+    0,
+    ordered_multipliers,
+    color="#B8D4EA",
+    linewidth=2,
+)
+axes[1].scatter(
+    bond_positions,
+    ordered_multipliers,
+    s=32,
+    facecolor=blue,
+    edgecolor=ink,
+    linewidth=0.6,
+)
+axes[1].set_ylim(0, 1.05)
+axes[1].set_xlim(0.2, number_of_bonds + 0.8)
+axes[1].set_xticks([1, 6, 12, 18])
+axes[1].set_xlabel("Bonds, ordered by spread")
+axes[1].set_ylabel(r"Bond-level multiplier $M_i$")
+axes[1].set_title("2  Compute one multiplier per bond", loc="left", fontweight="bold")
+axes[1].text(
+    0.5,
+    0.91,
+    r"$M_i=D_{emp,i}/D_{analytical,i}$",
+    ha="center",
+    transform=axes[1].transAxes,
+    fontsize=11,
+    color=ink,
+    bbox=dict(boxstyle="round,pad=0.35", facecolor="#FFF7E5", edgecolor=gold),
+)
+axes[1].annotate(
+    "18 separate ratios",
+    xy=(14, ordered_multipliers[13]),
+    xytext=(10, 0.28),
+    arrowprops=dict(arrowstyle="->", color=grey),
+    fontsize=9,
+    color=ink,
+)
+
+# Step 3: regress all bond-level multipliers on spread.
+axes[2].scatter(
+    spreads,
+    multipliers,
+    s=38,
+    facecolor="#FFF7E5",
+    edgecolor=gold,
+    linewidth=1,
+)
+spread_slope, spread_intercept = np.polyfit(spreads, multipliers, 1)
+spread_range = np.array([35, 585])
+axes[2].plot(
+    spread_range,
+    spread_intercept + spread_slope * spread_range,
+    color=gold,
+    linewidth=2.4,
+    label=r"$M_i=a+bs_i+u_i$",
+)
+axes[2].axhline(0, color=grey, linewidth=0.8, linestyle="--")
+axes[2].set_ylim(-0.08, 1.05)
+axes[2].set_xlabel(r"Credit spread $s_i$ (bps)")
+axes[2].set_ylabel(r"Bond-level multiplier $M_i$")
+axes[2].set_title("3  Regress all multipliers on spread", loc="left", fontweight="bold")
+axes[2].legend(frameon=False, fontsize=10, loc="upper right")
+axes[2].text(
+    0.05,
+    0.08,
+    "Each point is one bond",
+    transform=axes[2].transAxes,
+    color=ink,
+    fontsize=9.5,
+    bbox=dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor=grid),
+)
+
+for ax in axes:
+    ax.grid(axis="y", color=grid, linewidth=0.7, alpha=0.8)
+    ax.set_axisbelow(True)
+    ax.spines[["top", "right"]].set_visible(False)
+    ax.tick_params(labelsize=8.5)
+
+fig.suptitle(
+    "Estimating duration multipliers across many bonds",
+    fontsize=13,
+    fontweight="bold",
+    color=ink,
+)
+fig.text(
+    0.5,
+    -0.015,
+    "Illustrative data: time-series estimation within each bond, followed by a cross-sectional spread regression.",
+    ha="center",
+    fontsize=8.7,
+    color=grey,
+)
+plt.tight_layout(w_pad=2.0)
+plt.show()
+```
 :::
 
 ::: {.callout-note title="Example 7: Using a Duration Multiplier"}
-Suppose a B-rated bond has analytical duration 5.0. A manager estimates a duration multiplier of 0.25.
+Suppose a portfolio manager holds \$10 million of a B-rated bond. The bond has analytical duration of 5.0, but the estimated duration multiplier for bonds with its rating and spread is 0.25. The manager wants to estimate the bond's response to a 75 bps increase in Treasury yields.
 
-The adjusted duration is:
+First, adjust the analytical duration:
 
 $$
 D_{\text{adjusted}} = 0.25(5.0)=1.25.
 $$
 
-For a 100 bps Treasury yield increase, the analytical duration predicts about a 5% loss. The adjusted duration predicts about a 1.25% loss, before considering any additional idiosyncratic credit movement.
+Using analytical duration alone, the estimated price change would be:
+
+$$
+\frac{\Delta P}{P}
+\approx
+-5.0(0.0075)
+=-3.75\%.
+$$
+
+This implies a dollar loss of:
+
+$$
+10{,}000{,}000(0.0375)=\$375{,}000.
+$$
+
+Using the duration multiplier, the estimated Treasury-rate effect is instead:
+
+$$
+\frac{\Delta P}{P}
+\approx
+-1.25(0.0075)
+=-0.9375\%.
+$$
+
+The corresponding dollar loss is:
+
+$$
+10{,}000{,}000(0.009375)=\$93{,}750.
+$$
+
+The multiplier reduces the estimated Treasury-rate exposure from \$375,000 to \$93,750. The difference reflects the historical tendency of the bond's spread movement to offset part of its analytical rate sensitivity. This is the adjusted exposure the manager would use when sizing a Treasury hedge, before allowing for additional idiosyncratic credit movement.
 :::
 
 The implication for portfolio management is important. If a manager uses analytical duration for high-yield bonds without adjustment, the portfolio's reported rate exposure may be too high. Hedging based on that duration can create an unintended rate bet.
@@ -1322,8 +1530,6 @@ for bar, value in zip(bars, ratio):
 plt.tight_layout()
 plt.show()
 ```
-
----
 
 <!-- ## Incomplete-Information Models
 

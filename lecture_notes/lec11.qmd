@@ -1,0 +1,1456 @@
+---
+title: "Lecture 11: Interest-Rate Options"
+format:
+  html:
+    toc: true
+    toc-location: left
+    number-sections: true
+    number-depth: 2
+  pdf:
+    toc: true
+    number-sections: true
+    number-depth: 2
+jupyter: python3
+execute:
+  echo: false
+---
+
+## Learning Objectives {.unnumbered}
+
+After completing this lecture you should be able to:
+
+- Define call and put options and identify the rights and obligations of buyers and sellers.
+- Distinguish options from futures contracts in terms of obligation, upfront premium, and payoff symmetry.
+- Describe exchange-traded options on Treasury and short-term interest-rate futures.
+- Explain exercise, assignment, premium payment, and margin requirements for futures options.
+- Calculate intrinsic value, time value, break-even prices, and profit for long and short calls and puts.
+- Use put-call parity to identify equivalent positions and detect arbitrage inconsistencies.
+- Explain how the underlying price, strike, time, interest rate, coupon, and volatility affect option value.
+- Price a European option on a zero-coupon bond using a Black-Scholes-style model.
+- Price an option with an arbitrage-free binomial tree.
+- Define implied volatility and recover it numerically from an observed option price.
+- Value European options on bond futures using Black's model.
+- Design a protective-put hedge for a long-term bond portfolio using puts on Treasury futures.
+- Explain the income and risk trade-off in covered call writing with futures options.
+
+---
+
+## The Big Picture: Insurance on Interest-Rate Exposure
+
+An **option** gives its buyer the right, but not the obligation, to buy or sell an
+underlying instrument at a specified price. The buyer pays a premium for that
+choice. The seller receives the premium and accepts the corresponding obligation.
+
+Interest-rate options transfer the risk of movements in bond prices, futures prices,
+or interest rates. They are useful because fixed-income investors often want an
+**asymmetric** payoff:
+
+- protection if rates rise and bond prices fall;
+- participation if rates fall and bond prices rise; or
+- premium income in exchange for giving up some favorable outcomes.
+
+::: {.callout-tip title="Core Intuition"}
+A futures contract locks in an outcome. An option buys a choice. The option premium
+is the price of keeping the favorable side while limiting or transferring the
+unfavorable side.
+:::
+
+```{python}
+#| label: fig-option-insurance-map
+#| fig-cap: "An interest-rate option reshapes an underlying fixed-income exposure"
+import matplotlib.pyplot as plt
+from matplotlib.patches import FancyBboxPatch, FancyArrowPatch
+
+fig, ax = plt.subplots(figsize=(7.4, 3.0))
+ax.set_axis_off()
+
+items = [
+    ("Interest-rate\nexposure", 0.2, 1.05, "#E8F1FA"),
+    ("Option\ncontract", 2.65, 1.05, "#F6E8C3"),
+    ("Desired payoff", 5.1, 1.05, "#E6F2E6"),
+]
+
+for text, x, y, color in items:
+    box = FancyBboxPatch(
+        (x, y), 1.35, 0.78,
+        boxstyle="round,pad=0.08",
+        linewidth=1.1,
+        edgecolor="black",
+        facecolor=color,
+    )
+    ax.add_patch(box)
+    ax.text(x + 0.675, y + 0.39, text, ha="center", va="center", fontsize=9)
+
+for start, end in [((1.6, 1.44), (2.58, 1.44)), ((4.05, 1.44), (5.03, 1.44))]:
+    ax.add_patch(FancyArrowPatch(start, end, arrowstyle="-|>", mutation_scale=15, linewidth=1.4))
+
+ax.text(0.88, 0.52, "Bond, yield, or\nfutures-price risk", ha="center", fontsize=8.5)
+ax.text(3.33, 0.52, "Pay premium; choose\nwhether to exercise", ha="center", fontsize=8.5)
+ax.text(5.78, 0.52, "Protection, upside,\nor premium income", ha="center", fontsize=8.5)
+ax.set_xlim(0, 6.7)
+ax.set_ylim(0.2, 2.35)
+plt.tight_layout()
+plt.show()
+```
+
+---
+
+## Option Definition
+
+A **call option** gives the buyer the right to buy the underlying instrument at the
+**strike price** $K$. A **put option** gives the buyer the right to sell the
+underlying at $K$. The final date on which the right exists is the **expiration
+date**.
+
+There are always two sides:
+
+| Position | Right or obligation | Market view | Maximum loss at expiration |
+|---|---|---|---|
+| Long call | Right to buy | Underlying price will rise | Premium paid |
+| Short call | Obligation to sell if assigned | Underlying will not rise much | Potentially very large |
+| Long put | Right to sell | Underlying price will fall | Premium paid |
+| Short put | Obligation to buy if assigned | Underlying will not fall much | Large if underlying collapses |
+
+The buyer is **long the option** and pays the premium. The writer is **short the
+option** and receives the premium.
+
+For an option on a Treasury futures contract, the underlying is the futures
+contract—not the cash Treasury security. Exercising a call creates a long futures
+position at the strike; exercising a put creates a short futures position at the
+strike.
+
+### Exercise Style
+
+- An **American-style** option may be exercised on any eligible trading day through expiration.
+- A **European-style** option may be exercised only at expiration.
+
+The names describe exercise rules, not geography. Contract specifications determine
+the style. CME notes that Treasury and SOFR futures options are notable
+American-style products.
+
+---
+
+## Options Versus Futures Contracts
+
+An option and a futures contract can both change interest-rate exposure, but they
+create fundamentally different payoff shapes.
+
+| Feature | Futures contract | Option contract |
+|---|---|---|
+| Economic commitment | Both sides are obligated | Buyer has a right; writer has an obligation |
+| Upfront price | Normally no purchase price; margin is posted | Buyer pays premium under traditional premium style |
+| Payoff | Symmetric | Asymmetric |
+| Long's downside | Falls one-for-one with futures price | Long option loss is limited to premium |
+| Time value | No option time value | Premium normally includes time value |
+| Main use | Lock in or linearly change exposure | Protect, retain upside, or sell contingent exposure |
+
+Suppose a 10-year Treasury futures contract is at 110. A long futures position gains
+one point if the price rises to 111 and loses one point if it falls to 109. A call
+with strike 110 gains intrinsic value above 110, but the buyer can walk away if the
+futures price falls below 110. That flexibility is why the call costs a premium.
+
+```{python}
+#| label: fig-option-versus-futures
+#| fig-cap: "A futures payoff is symmetric; a call payoff is one-sided"
+import numpy as np
+import matplotlib.pyplot as plt
+
+terminal_futures = np.linspace(102, 118, 321)
+futures_entry = 110
+call_strike = 110
+
+long_futures_payoff = terminal_futures - futures_entry
+long_call_payoff = np.maximum(terminal_futures - call_strike, 0)
+
+fig, ax = plt.subplots(figsize=(7.4, 4.2))
+ax.plot(terminal_futures, long_futures_payoff, color="#4C78A8", linewidth=2.2,
+        label="Long futures payoff")
+ax.plot(terminal_futures, long_call_payoff, color="#F58518", linewidth=2.2,
+        linestyle="--", label="Long call payoff before premium")
+ax.axhline(0, color="black", linewidth=0.9)
+ax.axvline(call_strike, color="gray", linewidth=1, linestyle=":")
+ax.set(xlabel="Futures price at expiration", ylabel="Payoff in price points",
+       title="Futures and call payoffs at expiration")
+ax.legend()
+ax.grid(alpha=0.3)
+plt.show()
+```
+
+::: {.callout-note title="Example 1: Locking Versus Insuring"}
+A portfolio manager fears that Treasury prices will fall over the next three months.
+
+- Selling futures locks in a linear short exposure. If prices fall, the futures gain;
+  if prices rise, the futures lose.
+- Buying puts costs a premium. If prices fall below the strike, the puts protect the
+  portfolio; if prices rise, the manager can let the puts expire and retain most of
+  the portfolio's gain.
+
+The futures hedge is cheaper upfront but removes both downside and upside. The put
+hedge preserves upside but charges an insurance premium.
+:::
+
+---
+
+## Types of Interest-Rate Options
+
+Interest-rate options can be classified by their underlying instrument.
+
+### Options on Cash Bonds
+
+The holder has the right to buy or sell a bond at a stated strike. The bond's coupon
+payments, maturity, yield, duration, and price volatility all affect the option.
+Over-the-counter bond options can be customized, but they introduce counterparty,
+liquidity, and documentation considerations.
+
+### Options on Interest Rates
+
+Caps, floors, and swaptions are common over-the-counter instruments.
+
+- An **interest-rate cap** protects a borrower against rates rising above a strike.
+- An **interest-rate floor** protects an investor against rates falling below a strike.
+- A **swaption** is an option to enter an interest-rate swap.
+
+These instruments are often quoted using implied volatility rather than a dollar
+premium alone.
+
+### Exchange-Traded Futures Options
+
+An **option on futures** gives the right to enter a specified futures contract at the
+strike price. Major U.S. interest-rate families include:
+
+- options on 2-year, 3-year, 5-year, 10-year, Ultra 10-year, Treasury bond, and Ultra
+  Treasury bond futures;
+- options on Three-Month SOFR futures, including standard, weekly, and mid-curve
+  expirations; and
+- options on other listed short-rate futures where available.
+
+Exchange trading brings standardized terms, transparent prices, centralized
+clearing, and the ability to close a position with an offsetting trade.
+
+### Mechanics of Trading Futures Options
+
+The important contract terms are:
+
+- the underlying futures contract;
+- call or put;
+- strike price;
+- expiration month or date;
+- exercise style;
+- contract unit and price quotation; and
+- premium and margin convention.
+
+An order such as “buy one September 10-year Treasury futures 110 call” identifies a
+right to become long the specified September futures at 110, subject to the listed
+option's exact expiration and exercise rules.
+
+#### Exercising a Futures Option
+
+When a futures call is exercised:
+
+- the call holder receives a **long futures** position at the strike;
+- the assigned call writer receives a **short futures** position at the strike.
+
+When a futures put is exercised:
+
+- the put holder receives a **short futures** position at the strike;
+- the assigned put writer receives a **long futures** position at the strike.
+
+The new futures positions are then subject to ordinary futures marking to market.
+Assignment to writers is handled through the clearing process. Traders often close
+an in-the-money option by selling it rather than exercising early because selling
+can preserve remaining time value.
+
+::: {.callout-note title="Example 2: Exercising a Treasury Futures Call"}
+A trader owns one 110 call on a 10-year Treasury futures contract. The futures price
+is 112 at exercise.
+
+Exercise creates a long futures position at 110. Its immediate economic value is:
+
+$$
+(112-110)\times \$1{,}000 = \$2{,}000,
+$$
+
+because one full price point on a $100,000 Treasury futures contract is $1,000. If
+the call premium was 0-48, or 48/64 of a point, the premium cost was:
+
+$$
+\frac{48}{64}\times \$1{,}000=\$750.
+$$
+
+Ignoring fees and the timing of cash flows, the net profit is $2,000-$750=$1,250.
+:::
+
+#### Margin Requirements
+
+Margin treatment depends on the exchange and contract convention.
+
+- Under **premium-paid-upfront** or equity-style treatment, a long option buyer pays
+  the premium. Because the long cannot lose more than the premium, the buyer normally
+  does not post the same performance margin as an uncovered writer.
+- An option writer has potentially large obligations and must post performance bond
+  margin. Portfolio offsets and risk are reflected through the clearing margin system.
+- Under **futures-style margining**, the premium is not fully exchanged at initiation;
+  option value changes generate settlement variation, and the premium is settled when
+  the position is closed, exercised, or expires.
+
+Do not memorize a dollar margin amount. Exchanges and brokers update requirements as
+market volatility and portfolio risk change.
+
+#### Reasons for the Popularity of Futures Options
+
+Futures options are popular because they combine:
+
+- **asymmetric protection**—the buyer's loss is limited to the premium;
+- **liquidity** in benchmark rate contracts;
+- **capital efficiency** through clearing and portfolio margin offsets;
+- **price transparency** from competitive exchange trading;
+- **flexibility** across strikes and expirations; and
+- **easy implementation** for portfolios already hedged with futures and DV01.
+
+#### Specifications for Actively Traded Futures Options
+
+The following table is a teaching summary, not a substitute for the current exchange
+rulebook.
+
+| Option family | Underlying futures | Typical underlying unit | Quotation intuition | Exercise |
+|---|---|---:|---|---|
+| Treasury note options | 2Y, 3Y, 5Y, 10Y, Ultra 10Y | $100,000 face | Points and fractions of a point | American style |
+| Treasury bond options | T-Bond and Ultra T-Bond | $100,000 face | Points and fractions of a point | American style |
+| Three-Month SOFR options | One specified SR3 futures contract | $1,000,000 reference notional | Index points; 1 bp in futures is $25 | American style |
+
+Standard quarterly, serial, weekly, and mid-curve listings allow managers to target
+specific event dates or horizons. Product codes, strike intervals, trading hours,
+and expiration rules differ by family and can change. Always verify the live contract
+specification before trading.
+
+---
+
+## Intrinsic Value and Time Value
+
+The option premium has two parts:
+
+$$
+\text{Option premium}=\text{intrinsic value}+\text{time value}.
+$$
+
+### Intrinsic Value of an Option
+
+Intrinsic value answers: **If the option expired now, how much would exercise be
+worth?** It can never be negative because the holder is not required to exercise.
+
+#### Call Options
+
+For an underlying price $S$ and strike $K$, call intrinsic value is:
+
+$$
+\max(S-K,0).
+$$
+
+- $S>K$: the call is **in the money**.
+- $S=K$: the call is **at the money**.
+- $S<K$: the call is **out of the money**.
+
+#### Put Options
+
+Put intrinsic value is:
+
+$$
+\max(K-S,0).
+$$
+
+- $S<K$: the put is in the money.
+- $S=K$: the put is at the money.
+- $S>K$: the put is out of the money.
+
+### Time Value of an Option
+
+**Time value** is the premium above intrinsic value:
+
+$$
+\text{Time value}=\text{premium}-\text{intrinsic value}.
+$$
+
+Time value reflects the possibility that the underlying will move favorably before
+expiration. It is usually greatest near the strike because uncertainty about whether
+the option will finish in the money matters most there. Time value tends toward zero
+as expiration approaches.
+
+```{python}
+#| label: fig-intrinsic-time-value
+#| fig-cap: "Call value equals intrinsic value plus time value"
+import math
+import numpy as np
+import matplotlib.pyplot as plt
+
+def normal_cdf(x):
+    """Standard normal cumulative distribution for scalars or arrays."""
+    x = np.asarray(x, dtype=float)
+    return 0.5 * (1.0 + np.vectorize(math.erf)(x / np.sqrt(2.0)))
+
+def black_futures_call(futures_price, strike, time, rate, volatility):
+    """European call on futures under Black's model, in price points."""
+    futures_price = np.asarray(futures_price, dtype=float)
+    vol_time = volatility * np.sqrt(time)
+    d1 = (np.log(futures_price / strike) + 0.5 * volatility**2 * time) / vol_time
+    d2 = d1 - vol_time
+    return np.exp(-rate * time) * (
+        futures_price * normal_cdf(d1) - strike * normal_cdf(d2)
+    )
+
+futures_prices = np.linspace(100, 120, 300)
+strike = 110
+# Set the discount rate to zero in this teaching picture so the plotted European
+# value and the immediate-exercise intrinsic value share the same value basis.
+# Later sections restore positive discounting in the full Black futures model.
+call_value = black_futures_call(futures_prices, strike, 0.5, 0.00, 0.08)
+intrinsic_value = np.maximum(futures_prices - strike, 0)
+time_value = call_value - intrinsic_value
+
+fig, ax = plt.subplots(figsize=(7.5, 4.4))
+ax.plot(futures_prices, call_value, color="#4C78A8", linewidth=2.2, label="Call value")
+ax.plot(futures_prices, intrinsic_value, color="black", linestyle="--", label="Intrinsic value")
+ax.fill_between(futures_prices, intrinsic_value, call_value,
+                where=call_value >= intrinsic_value, color="#F6C85F", alpha=0.45,
+                label="Time value")
+ax.axvline(strike, color="gray", linestyle=":")
+ax.set(xlabel="Current futures price", ylabel="Option value (points)",
+       title="Intrinsic value and time value of a call")
+ax.legend()
+ax.grid(alpha=0.3)
+plt.show()
+```
+
+::: {.callout-note title="Example 3: Decomposing a Premium"}
+A Treasury futures call has strike 110. The futures price is 112 and the option
+premium is 2.75 points.
+
+$$
+\text{Intrinsic value}=\max(112-110,0)=2.00.
+$$
+
+$$
+\text{Time value}=2.75-2.00=0.75.
+$$
+
+On a $100,000 contract, the $2.75 premium equals $2,750. Of this amount, $2,000 is
+intrinsic value and $750 is time value.
+:::
+
+---
+
+## Profit and Loss for Simple Naked Option Strategies
+
+The **payoff** ignores the initial premium. **Profit** includes it. Let $c$ be the
+call premium, $p$ the put premium, and $S_T$ the underlying price at expiration.
+
+### Long Call Strategy
+
+$$
+\Pi_{\text{long call}}=\max(S_T-K,0)-c.
+$$
+
+- Maximum loss: $c$.
+- Break-even price: $K+c$.
+- Maximum profit: theoretically unlimited for an ordinary asset price.
+
+A long call is useful when the investor expects bond or futures prices to rise,
+which usually corresponds to a decline in yields.
+
+### Short Call Strategy
+
+$$
+\Pi_{\text{short call}}=c-\max(S_T-K,0).
+$$
+
+- Maximum profit: $c$.
+- Break-even price: $K+c$.
+- Maximum loss: potentially very large.
+
+An uncovered or **naked short call** earns a limited premium in exchange for taking
+large upside price risk.
+
+### Long Put Strategy
+
+$$
+\Pi_{\text{long put}}=\max(K-S_T,0)-p.
+$$
+
+- Maximum loss: $p$.
+- Break-even price: $K-p$.
+- Maximum profit: approximately $K-p$ if the underlying price could fall to zero.
+
+A long Treasury futures put gains when futures prices fall, which usually happens
+when yields rise.
+
+### Short Put Strategy
+
+$$
+\Pi_{\text{short put}}=p-\max(K-S_T,0).
+$$
+
+- Maximum profit: $p$.
+- Break-even price: $K-p$.
+- Maximum loss: large if the underlying falls sharply.
+
+```{python}
+#| label: fig-four-option-profits
+#| fig-cap: "Profit at expiration for the four basic option positions"
+terminal_price = np.linspace(90, 130, 401)
+strike = 110
+call_premium = 3.0
+put_premium = 2.5
+
+profits = {
+    "Long call": np.maximum(terminal_price - strike, 0) - call_premium,
+    "Short call": call_premium - np.maximum(terminal_price - strike, 0),
+    "Long put": np.maximum(strike - terminal_price, 0) - put_premium,
+    "Short put": put_premium - np.maximum(strike - terminal_price, 0),
+}
+
+fig, axes = plt.subplots(2, 2, figsize=(8.2, 6.2), sharex=True, sharey=True)
+colors = ["#4C78A8", "#F58518", "#54A24B", "#E45756"]
+
+for ax, (name, profit), color in zip(axes.flat, profits.items(), colors):
+    ax.plot(terminal_price, profit, color=color, linewidth=2.2)
+    ax.axhline(0, color="black", linewidth=0.8)
+    ax.axvline(strike, color="gray", linestyle=":", linewidth=1)
+    ax.fill_between(terminal_price, 0, profit, where=profit >= 0, color=color, alpha=0.18)
+    ax.fill_between(terminal_price, 0, profit, where=profit < 0, color="gray", alpha=0.15)
+    ax.set_title(name)
+    ax.grid(alpha=0.25)
+
+axes[1, 0].set_xlabel("Underlying price at expiration")
+axes[1, 1].set_xlabel("Underlying price at expiration")
+axes[0, 0].set_ylabel("Profit (points)")
+axes[1, 0].set_ylabel("Profit (points)")
+plt.tight_layout()
+plt.show()
+```
+
+::: {.callout-warning title="Naked Option Writing"}
+Receiving a premium is not the same as earning a safe return. A naked writer has a
+small, known maximum gain and a potentially much larger loss. Margin requirements
+help protect the clearing system; they do not eliminate the writer's market risk.
+:::
+
+::: {.callout-note title="Example 4: Long Put Profit"}
+A manager buys a 110 put for 1.50 points.
+
+| Futures price at expiration | Put payoff | Profit after premium |
+|---:|---:|---:|
+| 114 | 0.00 | -1.50 |
+| 110 | 0.00 | -1.50 |
+| 108.5 | 1.50 | 0.00 |
+| 105 | 5.00 | 3.50 |
+
+The break-even futures price is $110-1.50=108.50$.
+:::
+
+---
+
+## Put-Call Parity and Equivalent Positions
+
+Put-call parity is a no-arbitrage relationship. For European options on a
+non-coupon-paying asset:
+
+$$
+C-P=S_0-Ke^{-rT}.
+$$
+
+Equivalently:
+
+$$
+C+Ke^{-rT}=P+S_0.
+$$
+
+The left side is a **fiduciary call**: a call plus enough risk-free investment to pay
+the strike. The right side is a **protective put**: the asset plus a put. At
+expiration, both are worth $\max(S_T,K)$, so they must have the same price today.
+
+For a coupon bond, subtract the present value of coupons paid before option
+expiration:
+
+$$
+C-P=(B_0-I)-Ke^{-rT},
+$$
+
+where $I$ is the present value of interim coupons.
+
+For European options on futures with premium paid upfront, Black's model implies:
+
+$$
+c-p=e^{-rT}(F_0-K).
+$$
+
+### Equivalent Positions
+
+Rearranging parity creates useful synthetic positions:
+
+| Desired position | Equivalent position |
+|---|---|
+| Long call | Long put + long underlying - risk-free bond paying $K$ |
+| Long put | Long call - long underlying + risk-free bond paying $K$ |
+| Long underlying | Long call - long put + risk-free bond paying $K$ |
+| Protective put | Fiduciary call |
+
+```{python}
+#| label: fig-put-call-parity
+#| fig-cap: "A protective put and a fiduciary call have the same expiration value"
+terminal_asset = np.linspace(70, 130, 301)
+strike = 100
+
+protective_put = terminal_asset + np.maximum(strike - terminal_asset, 0)
+fiduciary_call = np.maximum(terminal_asset - strike, 0) + strike
+
+fig, ax = plt.subplots(figsize=(7.4, 4.2))
+ax.plot(terminal_asset, protective_put, color="#4C78A8", linewidth=3,
+        label="Asset + put")
+ax.plot(terminal_asset, fiduciary_call, color="#F58518", linewidth=1.8,
+        linestyle="--", label="Call + strike cash")
+ax.axvline(strike, color="gray", linestyle=":")
+ax.set(xlabel="Asset price at expiration", ylabel="Position value at expiration",
+       title="Equivalent positions from put-call parity")
+ax.legend()
+ax.grid(alpha=0.3)
+plt.show()
+```
+
+::: {.callout-note title="Example 5: Parity and Arbitrage"}
+Suppose $S_0=98$, $K=100$, $T=0.5$, $r=4\%$, and a European call costs $3.80.
+Parity says the put should cost:
+
+$$
+P=C-S_0+Ke^{-rT}
+=3.80-98+100e^{-0.04(0.5)}
+=3.82\text{ approximately}.
+$$
+
+If an otherwise identical put traded at $4.50$, the protective-put side would be too
+expensive relative to the fiduciary-call side. An arbitrageur would sell the expensive
+package and buy the cheap package, subject to transaction costs and shorting ability.
+:::
+
+---
+
+## What Determines an Option Price?
+
+An option's value is shaped by six main inputs. The direction below describes a call
+option unless noted otherwise.
+
+### Current Price of the Underlying Instrument
+
+A higher current bond or futures price makes a call more valuable and a put less
+valuable. The call gives the right to buy at a fixed strike, so the right becomes
+more attractive as the market price rises.
+
+### Strike Price
+
+A higher strike makes a call less valuable and a put more valuable. Buying at a
+higher fixed price is less attractive; selling at a higher fixed price is more
+attractive.
+
+### Time to Expiration
+
+More time usually increases American call and put values because it provides more
+opportunities for a favorable move. For European options, the effect can be more
+subtle because discounting and coupon timing also matter.
+
+### Short-Term Risk-Free Rate
+
+For an ordinary call, a higher risk-free rate lowers the present value of paying the
+strike and tends to increase call value. It tends to reduce put value. For bond
+options, rate changes can simultaneously change the underlying bond price, so one
+must distinguish the pricing input effect from the market movement of the bond.
+
+### Coupon Rate on the Bond
+
+Coupons paid before expiration reduce the value left in the bond on the exercise
+date. Holding everything else constant, larger interim coupons tend to reduce call
+value and increase put value. A simple model handles this by subtracting the present
+value of interim coupons from the current bond price.
+
+### Expected Volatility of Yields or Prices
+
+More volatility increases both call and put values. The buyer keeps favorable
+outcomes but can decline unfavorable exercise. The option writer bears the other
+side. This convexity makes dispersion valuable even if the expected underlying price
+does not change.
+
+For fixed-income options, be precise about what volatility means:
+
+- **price volatility** measures percentage changes in the underlying price;
+- **yield volatility** measures changes in yield, often in basis points; and
+- **normal** versus **lognormal** volatility conventions produce different quote units.
+
+Duration provides a first-order bridge:
+
+$$
+\frac{\Delta P}{P}\approx-D_{\text{mod}}\Delta y.
+$$
+
+Longer-duration bonds translate a given yield shock into a larger price shock and
+therefore tend to have more valuable options, all else equal.
+
+```{python}
+#| label: fig-option-input-sensitivities
+#| fig-cap: "Call value rises with the underlying price, time, and volatility, but falls with the strike"
+base_future = 110
+base_strike = 110
+base_time = 0.5
+base_rate = 0.04
+base_vol = 0.08
+
+fig, axes = plt.subplots(2, 2, figsize=(8.4, 6.3))
+
+underlying_grid = np.linspace(100, 120, 100)
+axes[0, 0].plot(underlying_grid,
+                black_futures_call(underlying_grid, base_strike, base_time, base_rate, base_vol),
+                color="#4C78A8")
+axes[0, 0].set(title="Current futures price", xlabel="$F_0$", ylabel="Call value")
+
+strike_grid = np.linspace(100, 120, 100)
+axes[0, 1].plot(strike_grid,
+                [black_futures_call(base_future, k, base_time, base_rate, base_vol) for k in strike_grid],
+                color="#F58518")
+axes[0, 1].set(title="Strike price", xlabel="$K$", ylabel="Call value")
+
+time_grid = np.linspace(0.03, 2.0, 100)
+axes[1, 0].plot(time_grid,
+                [black_futures_call(base_future, base_strike, t, base_rate, base_vol) for t in time_grid],
+                color="#54A24B")
+axes[1, 0].set(title="Time to expiration", xlabel="$T$ (years)", ylabel="Call value")
+
+vol_grid = np.linspace(0.01, 0.20, 100)
+axes[1, 1].plot(100 * vol_grid,
+                [black_futures_call(base_future, base_strike, base_time, base_rate, v) for v in vol_grid],
+                color="#B279A2")
+axes[1, 1].set(title="Price volatility", xlabel="$\sigma$ (%)", ylabel="Call value")
+
+for ax in axes.flat:
+    ax.grid(alpha=0.3)
+
+plt.tight_layout()
+plt.show()
+```
+
+### Moneyness, Time, and Volatility Together
+
+Time and volatility matter most near the strike. A deep in-the-money call behaves
+more like the underlying; a deep out-of-the-money call has little chance of exercise.
+Near the strike, modest changes in uncertainty can change the exercise probability
+substantially.
+
+```{python}
+#| label: fig-call-value-volatility
+#| fig-cap: "Volatility adds the most visible value near the strike"
+price_grid = np.linspace(95, 125, 250)
+fig, ax = plt.subplots(figsize=(7.5, 4.3))
+
+for volatility, color, style in [(0.04, "#9ECAE1", "-"),
+                                  (0.08, "#4C78A8", "--"),
+                                  (0.16, "#F58518", "-.")]:
+    ax.plot(price_grid,
+            black_futures_call(price_grid, 110, 0.5, 0.04, volatility),
+            color=color, linestyle=style, linewidth=2,
+            label=f"Volatility = {100 * volatility:.0f}%")
+
+ax.plot(price_grid, np.maximum(price_grid - 110, 0), color="black", linewidth=1.2,
+        label="Intrinsic value")
+ax.set(xlabel="Current futures price", ylabel="Call value (points)",
+       title="Call value across price and volatility")
+ax.legend()
+ax.grid(alpha=0.3)
+plt.show()
+```
+
+---
+
+## Models for Pricing Options
+
+Every option model formalizes the same logic:
+
+1. describe possible future values of the underlying;
+2. determine the option payoff in each state;
+3. use no-arbitrage probabilities or a replicating portfolio; and
+4. discount the expected payoff at the appropriate risk-free rate.
+
+Different models are useful for different underlyings and assumptions.
+
+## Models for Valuing Options on Bonds
+
+Bond options are challenging because bond prices depend on interest rates, coupons,
+and maturity. Volatility is not naturally constant across time or maturity, and
+interest rates themselves can be negative.
+
+### Black-Scholes Option Pricing Model
+
+For a non-dividend-paying asset, the Black-Scholes European call price is:
+
+$$
+C=S_0N(d_1)-Ke^{-rT}N(d_2),
+$$
+
+where
+
+$$
+d_1=\frac{\ln(S_0/K)+(r+\sigma^2/2)T}{\sigma\sqrt{T}},
+\qquad
+d_2=d_1-\sigma\sqrt{T}.
+$$
+
+The put price is:
+
+$$
+P=Ke^{-rT}N(-d_2)-S_0N(-d_1).
+$$
+
+For a coupon bond, replace $S_0$ with $S_0-I$, where $I$ is the present value of
+coupons paid before option expiration.
+
+The model assumes a lognormal underlying price, constant volatility, constant
+risk-free rate, frictionless trading, and continuous hedging. These assumptions are
+approximations for bonds. Modern rate-option desks generally use models designed for
+rates and term structures, but Black-Scholes remains valuable for intuition.
+
+### Computing a Call on a Zero-Coupon Bond
+
+A zero-coupon bond pays no interim coupon, so the calculation is especially clean.
+
+::: {.callout-note title="Example 6: Call on a Zero-Coupon Bond"}
+Consider a European call on a zero-coupon bond with:
+
+- bond price $S_0=92$;
+- strike $K=90$;
+- option maturity $T=0.5$ years;
+- continuously compounded risk-free rate $r=4\%$; and
+- annualized bond-price volatility $\sigma=10\%$.
+
+The following code calculates the call and put and verifies put-call parity.
+:::
+
+```{python}
+#| label: zero-coupon-bond-option
+def black_scholes_option(spot, strike, time, rate, volatility, option_type="call"):
+    """Price a European call or put using the Black-Scholes formula."""
+    vol_time = volatility * np.sqrt(time)
+    d1 = (np.log(spot / strike) + (rate + 0.5 * volatility**2) * time) / vol_time
+    d2 = d1 - vol_time
+
+    if option_type == "call":
+        return float(spot * normal_cdf(d1) - strike * np.exp(-rate * time) * normal_cdf(d2))
+    if option_type == "put":
+        return float(strike * np.exp(-rate * time) * normal_cdf(-d2) - spot * normal_cdf(-d1))
+    raise ValueError("option_type must be 'call' or 'put'")
+
+bond_price = 92.0
+strike = 90.0
+time = 0.5
+rate = 0.04
+volatility = 0.10
+
+call_price = black_scholes_option(bond_price, strike, time, rate, volatility, "call")
+put_price = black_scholes_option(bond_price, strike, time, rate, volatility, "put")
+parity_left = call_price - put_price
+parity_right = bond_price - strike * np.exp(-rate * time)
+
+print(f"Call price: {call_price:.4f}")
+print(f"Put price:  {put_price:.4f}")
+print(f"C - P:      {parity_left:.6f}")
+print(f"S - PV(K):  {parity_right:.6f}")
+```
+
+The option price is not the discounted expected payoff under the bond's actual
+expected return. No-arbitrage valuation uses a risk-neutral distribution, so the
+asset's expected return is replaced by the risk-free rate.
+
+### Coupon-Bond Adjustment
+
+Suppose the bond in Example 6 pays a coupon of 2.00 before the option expires and its
+present value is 1.96. The adjusted underlying price is:
+
+$$
+S_0-I=92.00-1.96=90.04.
+$$
+
+All else equal, this lowers the call value because the call holder does not receive
+the coupon paid before exercise.
+
+```{python}
+#| label: coupon-effect-example
+coupon_pv = 1.96
+call_without_coupon = black_scholes_option(92.0, 90.0, 0.5, 0.04, 0.10, "call")
+call_after_coupon_adjustment = black_scholes_option(92.0 - coupon_pv, 90.0, 0.5, 0.04, 0.10, "call")
+
+print(f"Call ignoring interim coupon: ${call_without_coupon:.4f}")
+print(f"Call after coupon adjustment: ${call_after_coupon_adjustment:.4f}")
+print(f"Reduction in call value:       ${call_without_coupon - call_after_coupon_adjustment:.4f}")
+```
+
+### Arbitrage-Free Binomial Model
+
+The binomial model divides time into steps. At each step, the underlying moves up by
+a factor $u$ or down by a factor $d$. Under the risk-neutral probability:
+
+$$
+q=\frac{e^{r\Delta t}-d}{u-d}.
+$$
+
+At expiration, calculate option payoffs. Then work backward:
+
+$$
+V_t=e^{-r\Delta t}\left[qV_{t+\Delta t}^{u}+(1-q)V_{t+\Delta t}^{d}\right].
+$$
+
+For an American option, compare continuation value with immediate exercise value at
+every node and take the larger amount.
+
+```{python}
+#| label: binomial-option-example
+def binomial_option_price(spot, strike, time, rate, volatility,
+                          steps, option_type="call", american=False):
+    """Price a call or put in a Cox-Ross-Rubinstein binomial tree."""
+    dt = time / steps
+    up = np.exp(volatility * np.sqrt(dt))
+    down = 1.0 / up
+    probability_up = (np.exp(rate * dt) - down) / (up - down)
+
+    if not 0 < probability_up < 1:
+        raise ValueError("Tree parameters do not produce a valid probability.")
+
+    up_moves = np.arange(steps + 1)
+    terminal_prices = spot * up**up_moves * down**(steps - up_moves)
+
+    if option_type == "call":
+        option_values = np.maximum(terminal_prices - strike, 0.0)
+    elif option_type == "put":
+        option_values = np.maximum(strike - terminal_prices, 0.0)
+    else:
+        raise ValueError("option_type must be 'call' or 'put'")
+
+    # Step backward from expiration to today.
+    for step in range(steps - 1, -1, -1):
+        option_values = np.exp(-rate * dt) * (
+            probability_up * option_values[1:] +
+            (1.0 - probability_up) * option_values[:-1]
+        )
+
+        if american:
+            node_up_moves = np.arange(step + 1)
+            node_prices = spot * up**node_up_moves * down**(step - node_up_moves)
+            if option_type == "call":
+                exercise_values = np.maximum(node_prices - strike, 0.0)
+            else:
+                exercise_values = np.maximum(strike - node_prices, 0.0)
+            option_values = np.maximum(option_values, exercise_values)
+
+    return float(option_values[0])
+
+
+binomial_call = binomial_option_price(92, 90, 0.5, 0.04, 0.10, 100, "call")
+closed_form_call = black_scholes_option(92, 90, 0.5, 0.04, 0.10, "call")
+
+print(f"100-step binomial call: {binomial_call:.6f}")
+print(f"Black-Scholes call:     {closed_form_call:.6f}")
+print(f"Difference:             {binomial_call - closed_form_call:.6f}")
+```
+
+```{python}
+#| label: fig-binomial-convergence
+#| fig-cap: "The binomial value converges toward the closed-form European option value"
+step_counts = np.arange(5, 201)
+tree_values = np.array([
+    binomial_option_price(92, 90, 0.5, 0.04, 0.10, int(n), "call")
+    for n in step_counts
+])
+
+fig, ax = plt.subplots(figsize=(7.5, 4.2))
+ax.plot(step_counts, tree_values, color="#4C78A8", linewidth=1.5, label="Binomial value")
+ax.axhline(closed_form_call, color="#F58518", linestyle="--", linewidth=2,
+           label="Black-Scholes value")
+ax.set(xlabel="Number of time steps", ylabel="Call value",
+       title="Binomial-tree convergence")
+ax.legend()
+ax.grid(alpha=0.3)
+plt.show()
+```
+
+The small saw-tooth pattern is normal. Whether the strike lies near an up or down
+node changes with the number of steps. The oscillation narrows as the tree becomes
+finer.
+
+### Implied Volatility
+
+The **implied volatility** is the volatility that makes a model price equal the
+observed market price. It reverses the usual pricing question:
+
+$$
+\text{market price}=\text{model price}(\sigma_{\text{implied}}).
+$$
+
+Implied volatility is not necessarily a forecast of realized volatility. It also
+reflects risk premiums, supply and demand, model assumptions, and market liquidity.
+
+```{python}
+#| label: implied-volatility-example
+def implied_volatility_bisection(market_price, spot, strike, time, rate,
+                                 option_type="call", tolerance=1e-8):
+    """Recover Black-Scholes implied volatility with a robust bisection search."""
+    low_vol = 1e-6
+    high_vol = 3.0
+
+    for _ in range(200):
+        middle_vol = 0.5 * (low_vol + high_vol)
+        model_price = black_scholes_option(
+            spot, strike, time, rate, middle_vol, option_type
+        )
+
+        if abs(model_price - market_price) < tolerance:
+            return middle_vol
+        if model_price < market_price:
+            low_vol = middle_vol
+        else:
+            high_vol = middle_vol
+
+    return 0.5 * (low_vol + high_vol)
+
+
+observed_call_price = 4.25
+implied_vol = implied_volatility_bisection(
+    observed_call_price, 92, 90, 0.5, 0.04, "call"
+)
+
+print(f"Observed call price: ${observed_call_price:.2f}")
+print(f"Implied volatility:  {100 * implied_vol:.3f}%")
+print(f"Repriced call:        ${black_scholes_option(92, 90, 0.5, 0.04, implied_vol, 'call'):.6f}")
+```
+
+Across strikes, implied volatilities often form a **smile** or **skew** rather than a
+flat line. This is evidence that one constant lognormal volatility does not fully
+describe market prices.
+
+```{python}
+#| label: fig-implied-volatility-smile
+#| fig-cap: "A stylized implied-volatility smile across option strikes"
+strikes = np.arange(80, 105, 2.5)
+stylized_implied_vol = 0.09 + 0.00012 * (strikes - 92.5)**2
+
+fig, ax = plt.subplots(figsize=(7.3, 4.1))
+ax.plot(strikes, 100 * stylized_implied_vol, "o-", color="#4C78A8")
+ax.axvline(92.5, color="gray", linestyle=":", label="Near at-the-money")
+ax.set(xlabel="Strike price", ylabel="Implied volatility (%)",
+       title="Stylized bond-option volatility smile")
+ax.legend()
+ax.grid(alpha=0.3)
+plt.show()
+```
+
+---
+
+## Models for Valuing Options on Bond Futures
+
+Black's futures-option model is widely used as a benchmark for European options on
+futures. The call and put prices are:
+
+$$
+c=e^{-rT}[F_0N(d_1)-KN(d_2)],
+$$
+
+$$
+p=e^{-rT}[KN(-d_2)-F_0N(-d_1)],
+$$
+
+with
+
+$$
+d_1=\frac{\ln(F_0/K)+\frac{1}{2}\sigma^2T}{\sigma\sqrt{T}},
+\qquad d_2=d_1-\sigma\sqrt{T}.
+$$
+
+The futures price replaces the spot price. There is no separate cost-of-carry term in
+$d_1$ because the futures price already reflects carry under the model.
+
+::: {.callout-note title="Example 7: Option on 10-Year Treasury Futures"}
+Suppose:
+
+- current futures price $F_0=111$;
+- strike $K=110$;
+- time to expiration $T=0.25$ years;
+- risk-free rate $r=4.5\%$; and
+- futures-price volatility $\sigma=8\%$.
+
+The following calculation gives the call and put in futures price points and then
+converts them to dollars for a $100,000 contract.
+:::
+
+```{python}
+#| label: black-futures-example
+def black_futures_option(futures_price, strike, time, rate, volatility,
+                         option_type="call"):
+    """Price a European futures call or put with Black's model."""
+    vol_time = volatility * np.sqrt(time)
+    d1 = (np.log(futures_price / strike) + 0.5 * volatility**2 * time) / vol_time
+    d2 = d1 - vol_time
+    discount = np.exp(-rate * time)
+
+    if option_type == "call":
+        return float(discount * (
+            futures_price * normal_cdf(d1) - strike * normal_cdf(d2)
+        ))
+    if option_type == "put":
+        return float(discount * (
+            strike * normal_cdf(-d2) - futures_price * normal_cdf(-d1)
+        ))
+    raise ValueError("option_type must be 'call' or 'put'")
+
+
+futures_price = 111.0
+strike = 110.0
+time = 0.25
+rate = 0.045
+volatility = 0.08
+
+futures_call = black_futures_option(futures_price, strike, time, rate, volatility, "call")
+futures_put = black_futures_option(futures_price, strike, time, rate, volatility, "put")
+
+print(f"Call premium: {futures_call:.4f} points = ${1_000 * futures_call:,.2f}")
+print(f"Put premium:  {futures_put:.4f} points = ${1_000 * futures_put:,.2f}")
+print(f"Parity LHS:   {futures_call - futures_put:.6f}")
+print(f"Parity RHS:   {np.exp(-rate * time) * (futures_price - strike):.6f}")
+```
+
+### Model Limitations for Interest-Rate Options
+
+Black's model is easy to quote and invert, but its lognormal futures-price
+assumption is not a complete term-structure model. It does not explain how all
+maturities move together. For path-dependent instruments or portfolios with many
+cash-flow dates, no-arbitrage short-rate or market models—such as Hull-White—can
+generate internally consistent future yield curves.
+
+The model must match the question:
+
+- Black/Black-Scholes: transparent benchmark and implied-volatility quoting;
+- binomial tree: early exercise and discrete decisions;
+- short-rate or term-structure model: future curves, path dependence, and complex
+  fixed-income cash flows.
+
+---
+
+## Hedge Strategies
+
+Options allow managers to change the *shape* of portfolio outcomes rather than only
+the slope of price exposure.
+
+## Hedging Long-Term Bonds with Puts on Futures
+
+A long-duration bond portfolio loses value when yields rise. A Treasury futures put
+gains when the futures price falls. The first step is to match interest-rate
+sensitivity using DV01:
+
+$$
+N_{\text{puts}}
+\approx
+\frac{\text{Portfolio DV01}}{\text{Futures DV01 per contract}}.
+$$
+
+If the bond portfolio and futures respond differently to rates, include a yield beta
+or key-rate adjustment. The put delta is less than one in absolute value, so a
+delta-based hedge may require:
+
+$$
+N_{\text{puts}}
+\approx
+\frac{\text{Portfolio DV01}}
+{|\Delta_{\text{put}}|\times\text{Futures DV01}}.
+$$
+
+This delta changes as prices, time, and volatility change. The hedge is therefore
+dynamic and imperfect.
+
+::: {.callout-note title="Example 8: Protective Puts on Treasury Futures"}
+A manager owns $10 million of long-term bonds with modified duration 8.0. The
+portfolio DV01 is approximately:
+
+$$
+10{,}000{,}000\times8.0\times0.0001=\$8{,}000.
+$$
+
+Suppose one Treasury futures contract has DV01 of $80. A full futures-equivalent
+hedge is:
+
+$$
+N=\frac{8{,}000}{80}=100\text{ contracts}.
+$$
+
+Buying 100 puts with strike 110 and premium 1.25 points costs:
+
+$$
+100\times1.25\times\$1{,}000=\$125{,}000.
+$$
+:::
+
+The next example compares an unhedged bond portfolio with a protective-put strategy.
+It uses a simple duration mapping: each one-point futures decline is associated with
+a $100,000 portfolio loss across the 100-contract hedge scale. This keeps the focus
+on payoff shape rather than basis details.
+
+```{python}
+#| label: protective-put-scenarios
+initial_portfolio = 10_000_000
+initial_futures = 110.0
+put_strike = 110.0
+put_premium = 1.25
+contracts = 100
+dollars_per_point = 1_000
+
+scenario_futures = np.array([104, 107, 110, 113, 116], dtype=float)
+
+# Approximate bond change using the matched futures-price exposure.
+unhedged_change = contracts * dollars_per_point * (scenario_futures - initial_futures)
+put_payoff = contracts * dollars_per_point * np.maximum(put_strike - scenario_futures, 0)
+premium_cost = contracts * dollars_per_point * put_premium
+
+hedge_table = __import__("pandas").DataFrame({
+    "futures_at_expiration": scenario_futures,
+    "unhedged_bond_change": unhedged_change,
+    "put_payoff": put_payoff,
+    "net_change_with_put": unhedged_change + put_payoff - premium_cost,
+})
+display(hedge_table.style.format({
+    "futures_at_expiration": "{:.1f}",
+    "unhedged_bond_change": "${:,.0f}",
+    "put_payoff": "${:,.0f}",
+    "net_change_with_put": "${:,.0f}",
+}))
+```
+
+```{python}
+#| label: fig-protective-put-hedge
+#| fig-cap: "Protective puts establish a floor while preserving gains above the strike"
+futures_scenarios = np.linspace(102, 118, 321)
+bond_change = contracts * dollars_per_point * (futures_scenarios - initial_futures)
+protective_put_change = (
+    bond_change
+    + contracts * dollars_per_point * np.maximum(put_strike - futures_scenarios, 0)
+    - premium_cost
+)
+
+fig, ax = plt.subplots(figsize=(7.6, 4.4))
+ax.plot(futures_scenarios, bond_change / 1_000, color="#4C78A8", linewidth=2,
+        label="Unhedged bond portfolio")
+ax.plot(futures_scenarios, protective_put_change / 1_000, color="#F58518",
+        linewidth=2.2, linestyle="--", label="Bond portfolio + puts")
+ax.axhline(0, color="black", linewidth=0.8)
+ax.axvline(put_strike, color="gray", linestyle=":")
+ax.set(xlabel="Treasury futures price at expiration",
+       ylabel="Change after hedge premium ($ thousands)",
+       title="Long-bond protective-put hedge")
+ax.legend()
+ax.grid(alpha=0.3)
+plt.show()
+```
+
+The protection is not free. If rates fall and bond prices rise, the puts expire
+worthless and the portfolio return is reduced by the premium. If rates rise enough,
+the put payoff offsets further mapped losses below the strike.
+
+### Practical Hedge Risks
+
+- **Basis risk:** the portfolio and futures contract may respond differently.
+- **Curve risk:** one futures contract cannot hedge every maturity point.
+- **Delta drift:** option sensitivity changes through time and across price states.
+- **Volatility risk:** the put can change value even without a rate move.
+- **Expiration mismatch:** the hedge may expire before the portfolio risk ends.
+- **Liquidity and transaction costs:** rolling and rebalancing are not free.
+
+---
+
+## Covered Call Writing with Futures Options
+
+A **covered call** combines a long underlying exposure with a short call. For a bond
+manager, a practical version is a long bond portfolio plus short calls on Treasury
+futures whose DV01 approximately matches the portfolio.
+
+The manager receives option premium and gives up gains beyond the call strike. The
+strategy is attractive when the manager expects rates and prices to remain in a
+range, but it is not downside insurance.
+
+At expiration, the simplified mapped profit is:
+
+$$
+\Pi_{\text{covered call}}
+=(F_T-F_0)+c-\max(F_T-K,0).
+$$
+
+Below the strike, the call expires worthless and the premium cushions losses only by
+a fixed amount. Above the strike, the short call offsets further gains.
+
+::: {.callout-note title="Example 9: Covered Call Income"}
+A manager has futures-equivalent long exposure to 100 contracts. The current futures
+price is 110. The manager sells 100 calls with strike 113 for 1.00 point.
+
+Premium income is:
+
+$$
+100\times1.00\times\$1{,}000=\$100{,}000.
+$$
+
+If futures finish at 110, the calls expire worthless and the manager keeps the
+premium. If futures finish at 118, the bond exposure gains, but the calls lose five
+points above the strike; gains are effectively capped near the strike plus premium.
+If futures fall sharply, the $100,000 premium offsets only the first part of the
+portfolio loss.
+:::
+
+```{python}
+#| label: covered-call-scenarios
+call_strike = 113.0
+call_premium = 1.0
+
+covered_scenarios = np.array([104, 107, 110, 113, 116, 119], dtype=float)
+long_exposure_change = contracts * dollars_per_point * (covered_scenarios - initial_futures)
+short_call_profit = contracts * dollars_per_point * (
+    call_premium - np.maximum(covered_scenarios - call_strike, 0)
+)
+
+covered_call_table = __import__("pandas").DataFrame({
+    "futures_at_expiration": covered_scenarios,
+    "long_bond_mapped_change": long_exposure_change,
+    "short_call_profit": short_call_profit,
+    "covered_call_net_change": long_exposure_change + short_call_profit,
+})
+display(covered_call_table.style.format({
+    "futures_at_expiration": "{:.1f}",
+    "long_bond_mapped_change": "${:,.0f}",
+    "short_call_profit": "${:,.0f}",
+    "covered_call_net_change": "${:,.0f}",
+}))
+```
+
+```{python}
+#| label: fig-covered-call
+#| fig-cap: "Covered call writing adds premium income but caps gains above the strike"
+long_change = contracts * dollars_per_point * (futures_scenarios - initial_futures)
+covered_change = long_change + contracts * dollars_per_point * (
+    call_premium - np.maximum(futures_scenarios - call_strike, 0)
+)
+
+fig, ax = plt.subplots(figsize=(7.6, 4.4))
+ax.plot(futures_scenarios, long_change / 1_000, color="#4C78A8", linewidth=2,
+        label="Long bond exposure")
+ax.plot(futures_scenarios, covered_change / 1_000, color="#54A24B",
+        linewidth=2.2, linestyle="--", label="Long bonds + short calls")
+ax.axhline(0, color="black", linewidth=0.8)
+ax.axvline(call_strike, color="gray", linestyle=":")
+ax.set(xlabel="Treasury futures price at expiration",
+       ylabel="Change including premium ($ thousands)",
+       title="Covered call writing on mapped bond exposure")
+ax.legend()
+ax.grid(alpha=0.3)
+plt.show()
+```
+
+### Protective Put Versus Covered Call
+
+| Strategy | Premium cash flow | Downside | Upside | Typical objective |
+|---|---:|---|---|---|
+| Long bond + long put | Pay premium | Floored below strike, subject to basis risk | Retained | Insurance |
+| Long bond + short call | Receive premium | Only slightly cushioned | Capped above strike | Income enhancement |
+
+The protective put buys convexity. The covered call sells convexity. Neither is
+automatically superior; the correct choice depends on the manager's objective,
+constraints, valuation view, and tolerance for tail outcomes.
+
+---
+
+## A Complete Decision Framework
+
+Before using an interest-rate option, ask five questions:
+
+1. **What is the underlying risk?** A parallel rate move, a curve point, volatility,
+   or an event date?
+2. **What payoff shape is desired?** Lock, floor, cap, or premium income?
+3. **Which contract best matches the risk?** Cash-bond option, futures option, cap,
+   floor, or swaption?
+4. **How many contracts are needed?** Use DV01, key-rate duration, beta, and option
+   delta rather than notional value alone.
+5. **What can break the hedge?** Basis, volatility, time decay, exercise, liquidity,
+   margin, and model risk.
+
+```{python}
+#| label: fig-option-decision-tree
+#| fig-cap: "Choose the instrument from the desired payoff rather than from a market forecast alone"
+from matplotlib.patches import FancyBboxPatch, FancyArrowPatch
+
+fig, ax = plt.subplots(figsize=(8.2, 4.0))
+ax.set_axis_off()
+
+nodes = [
+    ("Fixed-income\nrisk", 3.15, 3.0, "#E8F1FA"),
+    ("Lock exposure", 0.25, 1.65, "#F3F4F6"),
+    ("Protect downside", 2.25, 1.65, "#F6E8C3"),
+    ("Cap upside risk", 4.25, 1.65, "#F6E8C3"),
+    ("Earn premium", 6.25, 1.65, "#E6F2E6"),
+    ("Futures", 0.25, 0.35, "#F3F4F6"),
+    ("Buy put", 2.25, 0.35, "#F6E8C3"),
+    ("Buy call", 4.25, 0.35, "#F6E8C3"),
+    ("Write option", 6.25, 0.35, "#E6F2E6"),
+]
+
+for text, x, y, color in nodes:
+    box = FancyBboxPatch((x, y), 1.35, 0.65, boxstyle="round,pad=0.06",
+                         linewidth=1.0, edgecolor="black", facecolor=color)
+    ax.add_patch(box)
+    ax.text(x + 0.675, y + 0.325, text, ha="center", va="center", fontsize=8.5)
+
+for x in [0.925, 2.925, 4.925, 6.925]:
+    ax.add_patch(FancyArrowPatch((3.825, 3.0), (x, 2.33), arrowstyle="-|>",
+                                 mutation_scale=12, linewidth=1.0))
+    ax.add_patch(FancyArrowPatch((x, 1.65), (x, 1.03), arrowstyle="-|>",
+                                 mutation_scale=12, linewidth=1.0))
+
+ax.set_xlim(0, 7.9)
+ax.set_ylim(0, 3.9)
+plt.tight_layout()
+plt.show()
+```
+
+---
+
+## Key Points {.unnumbered}
+
+- An option buyer has a right; an option writer has a contingent obligation.
+- Calls benefit from higher underlying prices, while puts benefit from lower
+  underlying prices.
+- Futures create symmetric linear exposure; options create asymmetric exposure in
+  exchange for a premium.
+- Exercising a futures call creates a long futures position at the strike; exercising
+  a futures put creates a short futures position at the strike.
+- Treasury and SOFR futures options are important exchange-traded interest-rate
+  options with standardized clearing and American-style exercise.
+- Intrinsic value is the value of immediate exercise. Time value is the premium above
+  intrinsic value.
+- Long-option losses are limited to premium. Naked short-option profits are limited
+  to premium while losses can be much larger.
+- Put-call parity links calls, puts, the underlying, and the present value of the
+  strike through no-arbitrage.
+- Call value generally rises with the underlying price, time, and volatility and
+  falls with the strike and interim coupon value.
+- Black-Scholes provides a transparent benchmark for European bond options, but its
+  constant-volatility and lognormal assumptions are approximations.
+- A binomial model prices by backward induction and can incorporate early exercise.
+- Implied volatility is the model volatility consistent with an observed market
+  price; it is not automatically a forecast of realized volatility.
+- Black's model uses the futures price to value European options on bond futures.
+- Protective puts establish a floor while retaining upside, at the cost of premium.
+- Covered calls earn premium but cap gains and provide only limited downside cushion.
+- Effective hedges use DV01, delta, curve exposure, and basis relationships—not
+  notional value alone.
+
+---
+
+## Suggested Readings {.unnumbered}
+
+- Fabozzi, *Bond Markets: Analysis and Strategies*, chapters on interest-rate options.
+- [CME Group, Fundamentals of Options on Futures](https://www.cmegroup.com/education/whitepapers/fundamentals-of-options-on-futures).
+- [CME Group, Trading SOFR Options](https://www.cmegroup.com/education/articles-and-reports/trading-sofr-options).
+- [CME Group, Primer on Margining Styles for Options](https://www.cmegroup.com/education/articles-and-reports/a-primer-on-margining-styles-for-options).

@@ -1,0 +1,2160 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.27">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Lecture 11: Interest-Rate Options – BUS 411 — Fixed Income Security Analysis and Valuation</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-4d9afe2b8d18ee9fa5d0d57b5ed4214d.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-97afdd19a946a7800d02dd55b4e8b647.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-aeaf3e155c33cdd5728541c7b417a725.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-97afdd19a946a7800d02dd55b4e8b647.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar docked nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">BUS 411 — Fixed Income Security Analysis and Valuation</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link active" href="../lecture_notes/index.html" aria-current="page"> 
+<span class="menu-text">Lecture Notes</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../assignments/index.html"> 
+<span class="menu-text">Assignments</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../lecture_notes/lec11.html">Lecture 11: Interest-Rate Options</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lecture_notes/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture Notes</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lecture_notes/lec1.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 1: Introduction</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lecture_notes/lec2.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 2: Bond Pricing and Yield Measures</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lecture_notes/lec3.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 3: Bond Price Volatility, Duration, Convexity, and Bond Portfolio Strategies</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lecture_notes/lec4.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 4: Benchmark Spreads and the Term Structure of Interest Rates</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lecture_notes/lec5.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 5: Treasury and Corporate Debt Markets</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lecture_notes/lec6.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 6: Bond Portfolio Construction</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lecture_notes/lec7.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 7: Interest‑Rate Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lecture_notes/lec8.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 8: Valuation of Bonds with Embedded Options and Option-Adjusted Measures</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lecture_notes/lec9.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 9: Interest-Rate Futures Contracts</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lecture_notes/lec10.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 10: Credit Spread Exposure and Credit Risk Modeling</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lecture_notes/lec11.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Lecture 11: Interest-Rate Options</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+    <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#learning-objectives" id="toc-learning-objectives" class="nav-link active" data-scroll-target="#learning-objectives">Learning Objectives</a></li>
+  <li><a href="#the-big-picture-insurance-on-interest-rate-exposure" id="toc-the-big-picture-insurance-on-interest-rate-exposure" class="nav-link" data-scroll-target="#the-big-picture-insurance-on-interest-rate-exposure"><span class="header-section-number">1</span> The Big Picture: Insurance on Interest-Rate Exposure</a></li>
+  <li><a href="#option-definition" id="toc-option-definition" class="nav-link" data-scroll-target="#option-definition"><span class="header-section-number">2</span> Option Definition</a>
+  <ul class="collapse">
+  <li><a href="#exercise-style" id="toc-exercise-style" class="nav-link" data-scroll-target="#exercise-style">Exercise Style</a></li>
+  </ul></li>
+  <li><a href="#options-versus-futures-contracts" id="toc-options-versus-futures-contracts" class="nav-link" data-scroll-target="#options-versus-futures-contracts"><span class="header-section-number">3</span> Options Versus Futures Contracts</a></li>
+  <li><a href="#types-of-interest-rate-options" id="toc-types-of-interest-rate-options" class="nav-link" data-scroll-target="#types-of-interest-rate-options"><span class="header-section-number">4</span> Types of Interest-Rate Options</a>
+  <ul class="collapse">
+  <li><a href="#options-on-cash-bonds" id="toc-options-on-cash-bonds" class="nav-link" data-scroll-target="#options-on-cash-bonds">Options on Cash Bonds</a></li>
+  <li><a href="#options-on-interest-rates" id="toc-options-on-interest-rates" class="nav-link" data-scroll-target="#options-on-interest-rates">Options on Interest Rates</a></li>
+  <li><a href="#exchange-traded-futures-options" id="toc-exchange-traded-futures-options" class="nav-link" data-scroll-target="#exchange-traded-futures-options">Exchange-Traded Futures Options</a></li>
+  <li><a href="#mechanics-of-trading-futures-options" id="toc-mechanics-of-trading-futures-options" class="nav-link" data-scroll-target="#mechanics-of-trading-futures-options">Mechanics of Trading Futures Options</a></li>
+  </ul></li>
+  <li><a href="#intrinsic-value-and-time-value" id="toc-intrinsic-value-and-time-value" class="nav-link" data-scroll-target="#intrinsic-value-and-time-value"><span class="header-section-number">5</span> Intrinsic Value and Time Value</a>
+  <ul class="collapse">
+  <li><a href="#intrinsic-value-of-an-option" id="toc-intrinsic-value-of-an-option" class="nav-link" data-scroll-target="#intrinsic-value-of-an-option">Intrinsic Value of an Option</a></li>
+  <li><a href="#time-value-of-an-option" id="toc-time-value-of-an-option" class="nav-link" data-scroll-target="#time-value-of-an-option">Time Value of an Option</a></li>
+  </ul></li>
+  <li><a href="#profit-and-loss-for-simple-naked-option-strategies" id="toc-profit-and-loss-for-simple-naked-option-strategies" class="nav-link" data-scroll-target="#profit-and-loss-for-simple-naked-option-strategies"><span class="header-section-number">6</span> Profit and Loss for Simple Naked Option Strategies</a>
+  <ul class="collapse">
+  <li><a href="#long-call-strategy" id="toc-long-call-strategy" class="nav-link" data-scroll-target="#long-call-strategy">Long Call Strategy</a></li>
+  <li><a href="#short-call-strategy" id="toc-short-call-strategy" class="nav-link" data-scroll-target="#short-call-strategy">Short Call Strategy</a></li>
+  <li><a href="#long-put-strategy" id="toc-long-put-strategy" class="nav-link" data-scroll-target="#long-put-strategy">Long Put Strategy</a></li>
+  <li><a href="#short-put-strategy" id="toc-short-put-strategy" class="nav-link" data-scroll-target="#short-put-strategy">Short Put Strategy</a></li>
+  </ul></li>
+  <li><a href="#put-call-parity-and-equivalent-positions" id="toc-put-call-parity-and-equivalent-positions" class="nav-link" data-scroll-target="#put-call-parity-and-equivalent-positions"><span class="header-section-number">7</span> Put-Call Parity and Equivalent Positions</a>
+  <ul class="collapse">
+  <li><a href="#equivalent-positions" id="toc-equivalent-positions" class="nav-link" data-scroll-target="#equivalent-positions">Equivalent Positions</a></li>
+  </ul></li>
+  <li><a href="#what-determines-an-option-price" id="toc-what-determines-an-option-price" class="nav-link" data-scroll-target="#what-determines-an-option-price"><span class="header-section-number">8</span> What Determines an Option Price?</a>
+  <ul class="collapse">
+  <li><a href="#current-price-of-the-underlying-instrument" id="toc-current-price-of-the-underlying-instrument" class="nav-link" data-scroll-target="#current-price-of-the-underlying-instrument">Current Price of the Underlying Instrument</a></li>
+  <li><a href="#strike-price" id="toc-strike-price" class="nav-link" data-scroll-target="#strike-price">Strike Price</a></li>
+  <li><a href="#time-to-expiration" id="toc-time-to-expiration" class="nav-link" data-scroll-target="#time-to-expiration">Time to Expiration</a></li>
+  <li><a href="#short-term-risk-free-rate" id="toc-short-term-risk-free-rate" class="nav-link" data-scroll-target="#short-term-risk-free-rate">Short-Term Risk-Free Rate</a></li>
+  <li><a href="#coupon-rate-on-the-bond" id="toc-coupon-rate-on-the-bond" class="nav-link" data-scroll-target="#coupon-rate-on-the-bond">Coupon Rate on the Bond</a></li>
+  <li><a href="#expected-volatility-of-yields-or-prices" id="toc-expected-volatility-of-yields-or-prices" class="nav-link" data-scroll-target="#expected-volatility-of-yields-or-prices">Expected Volatility of Yields or Prices</a></li>
+  <li><a href="#moneyness-time-and-volatility-together" id="toc-moneyness-time-and-volatility-together" class="nav-link" data-scroll-target="#moneyness-time-and-volatility-together">Moneyness, Time, and Volatility Together</a></li>
+  </ul></li>
+  <li><a href="#models-for-pricing-options" id="toc-models-for-pricing-options" class="nav-link" data-scroll-target="#models-for-pricing-options"><span class="header-section-number">9</span> Models for Pricing Options</a></li>
+  <li><a href="#models-for-valuing-options-on-bonds" id="toc-models-for-valuing-options-on-bonds" class="nav-link" data-scroll-target="#models-for-valuing-options-on-bonds"><span class="header-section-number">10</span> Models for Valuing Options on Bonds</a>
+  <ul class="collapse">
+  <li><a href="#black-scholes-option-pricing-model" id="toc-black-scholes-option-pricing-model" class="nav-link" data-scroll-target="#black-scholes-option-pricing-model">Black-Scholes Option Pricing Model</a></li>
+  <li><a href="#computing-a-call-on-a-zero-coupon-bond" id="toc-computing-a-call-on-a-zero-coupon-bond" class="nav-link" data-scroll-target="#computing-a-call-on-a-zero-coupon-bond">Computing a Call on a Zero-Coupon Bond</a></li>
+  <li><a href="#coupon-bond-adjustment" id="toc-coupon-bond-adjustment" class="nav-link" data-scroll-target="#coupon-bond-adjustment">Coupon-Bond Adjustment</a></li>
+  <li><a href="#arbitrage-free-binomial-model" id="toc-arbitrage-free-binomial-model" class="nav-link" data-scroll-target="#arbitrage-free-binomial-model">Arbitrage-Free Binomial Model</a></li>
+  <li><a href="#implied-volatility" id="toc-implied-volatility" class="nav-link" data-scroll-target="#implied-volatility">Implied Volatility</a></li>
+  </ul></li>
+  <li><a href="#models-for-valuing-options-on-bond-futures" id="toc-models-for-valuing-options-on-bond-futures" class="nav-link" data-scroll-target="#models-for-valuing-options-on-bond-futures"><span class="header-section-number">11</span> Models for Valuing Options on Bond Futures</a>
+  <ul class="collapse">
+  <li><a href="#model-limitations-for-interest-rate-options" id="toc-model-limitations-for-interest-rate-options" class="nav-link" data-scroll-target="#model-limitations-for-interest-rate-options">Model Limitations for Interest-Rate Options</a></li>
+  </ul></li>
+  <li><a href="#hedge-strategies" id="toc-hedge-strategies" class="nav-link" data-scroll-target="#hedge-strategies"><span class="header-section-number">12</span> Hedge Strategies</a></li>
+  <li><a href="#hedging-long-term-bonds-with-puts-on-futures" id="toc-hedging-long-term-bonds-with-puts-on-futures" class="nav-link" data-scroll-target="#hedging-long-term-bonds-with-puts-on-futures"><span class="header-section-number">13</span> Hedging Long-Term Bonds with Puts on Futures</a>
+  <ul class="collapse">
+  <li><a href="#practical-hedge-risks" id="toc-practical-hedge-risks" class="nav-link" data-scroll-target="#practical-hedge-risks">Practical Hedge Risks</a></li>
+  </ul></li>
+  <li><a href="#covered-call-writing-with-futures-options" id="toc-covered-call-writing-with-futures-options" class="nav-link" data-scroll-target="#covered-call-writing-with-futures-options"><span class="header-section-number">14</span> Covered Call Writing with Futures Options</a>
+  <ul class="collapse">
+  <li><a href="#protective-put-versus-covered-call" id="toc-protective-put-versus-covered-call" class="nav-link" data-scroll-target="#protective-put-versus-covered-call">Protective Put Versus Covered Call</a></li>
+  </ul></li>
+  <li><a href="#a-complete-decision-framework" id="toc-a-complete-decision-framework" class="nav-link" data-scroll-target="#a-complete-decision-framework"><span class="header-section-number">15</span> A Complete Decision Framework</a></li>
+  <li><a href="#key-points" id="toc-key-points" class="nav-link" data-scroll-target="#key-points">Key Points</a></li>
+  <li><a href="#suggested-readings" id="toc-suggested-readings" class="nav-link" data-scroll-target="#suggested-readings">Suggested Readings</a></li>
+  </ul>
+<div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="lec11.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></nav>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Lecture 11: Interest-Rate Options</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="learning-objectives" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="learning-objectives">Learning Objectives</h2>
+<p>After completing this lecture you should be able to:</p>
+<ul>
+<li>Define call and put options and identify the rights and obligations of buyers and sellers.</li>
+<li>Distinguish options from futures contracts in terms of obligation, upfront premium, and payoff symmetry.</li>
+<li>Describe exchange-traded options on Treasury and short-term interest-rate futures.</li>
+<li>Explain exercise, assignment, premium payment, and margin requirements for futures options.</li>
+<li>Calculate intrinsic value, time value, break-even prices, and profit for long and short calls and puts.</li>
+<li>Use put-call parity to identify equivalent positions and detect arbitrage inconsistencies.</li>
+<li>Explain how the underlying price, strike, time, interest rate, coupon, and volatility affect option value.</li>
+<li>Price a European option on a zero-coupon bond using a Black-Scholes-style model.</li>
+<li>Price an option with an arbitrage-free binomial tree.</li>
+<li>Define implied volatility and recover it numerically from an observed option price.</li>
+<li>Value European options on bond futures using Black’s model.</li>
+<li>Design a protective-put hedge for a long-term bond portfolio using puts on Treasury futures.</li>
+<li>Explain the income and risk trade-off in covered call writing with futures options.</li>
+</ul>
+<hr>
+</section>
+<section id="the-big-picture-insurance-on-interest-rate-exposure" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="the-big-picture-insurance-on-interest-rate-exposure"><span class="header-section-number">1</span> The Big Picture: Insurance on Interest-Rate Exposure</h2>
+<p>An <strong>option</strong> gives its buyer the right, but not the obligation, to buy or sell an underlying instrument at a specified price. The buyer pays a premium for that choice. The seller receives the premium and accepts the corresponding obligation.</p>
+<p>Interest-rate options transfer the risk of movements in bond prices, futures prices, or interest rates. They are useful because fixed-income investors often want an <strong>asymmetric</strong> payoff:</p>
+<ul>
+<li>protection if rates rise and bond prices fall;</li>
+<li>participation if rates fall and bond prices rise; or</li>
+<li>premium income in exchange for giving up some favorable outcomes.</li>
+</ul>
+<div class="callout callout-style-default callout-tip callout-titled" title="Core Intuition">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Core Intuition
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A futures contract locks in an outcome. An option buys a choice. The option premium is the price of keeping the favorable side while limiting or transferring the unfavorable side.</p>
+</div>
+</div>
+<div id="cell-fig-option-insurance-map" class="cell" data-execution_count="1">
+<div class="cell-output cell-output-display">
+<div id="fig-option-insurance-map" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-option-insurance-map-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lec11_files/figure-html/fig-option-insurance-map-output-1.png" width="701" height="278" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-option-insurance-map-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: An interest-rate option reshapes an underlying fixed-income exposure
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<hr>
+</section>
+<section id="option-definition" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="option-definition"><span class="header-section-number">2</span> Option Definition</h2>
+<p>A <strong>call option</strong> gives the buyer the right to buy the underlying instrument at the <strong>strike price</strong> <span class="math inline">\(K\)</span>. A <strong>put option</strong> gives the buyer the right to sell the underlying at <span class="math inline">\(K\)</span>. The final date on which the right exists is the <strong>expiration date</strong>.</p>
+<p>There are always two sides:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Position</th>
+<th>Right or obligation</th>
+<th>Market view</th>
+<th>Maximum loss at expiration</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Long call</td>
+<td>Right to buy</td>
+<td>Underlying price will rise</td>
+<td>Premium paid</td>
+</tr>
+<tr class="even">
+<td>Short call</td>
+<td>Obligation to sell if assigned</td>
+<td>Underlying will not rise much</td>
+<td>Potentially very large</td>
+</tr>
+<tr class="odd">
+<td>Long put</td>
+<td>Right to sell</td>
+<td>Underlying price will fall</td>
+<td>Premium paid</td>
+</tr>
+<tr class="even">
+<td>Short put</td>
+<td>Obligation to buy if assigned</td>
+<td>Underlying will not fall much</td>
+<td>Large if underlying collapses</td>
+</tr>
+</tbody>
+</table>
+<p>The buyer is <strong>long the option</strong> and pays the premium. The writer is <strong>short the option</strong> and receives the premium.</p>
+<p>For an option on a Treasury futures contract, the underlying is the futures contract—not the cash Treasury security. Exercising a call creates a long futures position at the strike; exercising a put creates a short futures position at the strike.</p>
+<section id="exercise-style" class="level3">
+<h3 class="anchored" data-anchor-id="exercise-style">Exercise Style</h3>
+<ul>
+<li>An <strong>American-style</strong> option may be exercised on any eligible trading day through expiration.</li>
+<li>A <strong>European-style</strong> option may be exercised only at expiration.</li>
+</ul>
+<p>The names describe exercise rules, not geography. Contract specifications determine the style. CME notes that Treasury and SOFR futures options are notable American-style products.</p>
+<hr>
+</section>
+</section>
+<section id="options-versus-futures-contracts" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="options-versus-futures-contracts"><span class="header-section-number">3</span> Options Versus Futures Contracts</h2>
+<p>An option and a futures contract can both change interest-rate exposure, but they create fundamentally different payoff shapes.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Feature</th>
+<th>Futures contract</th>
+<th>Option contract</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Economic commitment</td>
+<td>Both sides are obligated</td>
+<td>Buyer has a right; writer has an obligation</td>
+</tr>
+<tr class="even">
+<td>Upfront price</td>
+<td>Normally no purchase price; margin is posted</td>
+<td>Buyer pays premium under traditional premium style</td>
+</tr>
+<tr class="odd">
+<td>Payoff</td>
+<td>Symmetric</td>
+<td>Asymmetric</td>
+</tr>
+<tr class="even">
+<td>Long’s downside</td>
+<td>Falls one-for-one with futures price</td>
+<td>Long option loss is limited to premium</td>
+</tr>
+<tr class="odd">
+<td>Time value</td>
+<td>No option time value</td>
+<td>Premium normally includes time value</td>
+</tr>
+<tr class="even">
+<td>Main use</td>
+<td>Lock in or linearly change exposure</td>
+<td>Protect, retain upside, or sell contingent exposure</td>
+</tr>
+</tbody>
+</table>
+<p>Suppose a 10-year Treasury futures contract is at 110. A long futures position gains one point if the price rises to 111 and loses one point if it falls to 109. A call with strike 110 gains intrinsic value above 110, but the buyer can walk away if the futures price falls below 110. That flexibility is why the call costs a premium.</p>
+<div id="cell-fig-option-versus-futures" class="cell" data-execution_count="2">
+<div class="cell-output cell-output-display">
+<div id="fig-option-versus-futures" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-option-versus-futures-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lec11_files/figure-html/fig-option-versus-futures-output-1.png" width="617" height="390" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-option-versus-futures-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: A futures payoff is symmetric; a call payoff is one-sided
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Example 1: Locking Versus Insuring">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Example 1: Locking Versus Insuring
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A portfolio manager fears that Treasury prices will fall over the next three months.</p>
+<ul>
+<li>Selling futures locks in a linear short exposure. If prices fall, the futures gain; if prices rise, the futures lose.</li>
+<li>Buying puts costs a premium. If prices fall below the strike, the puts protect the portfolio; if prices rise, the manager can let the puts expire and retain most of the portfolio’s gain.</li>
+</ul>
+<p>The futures hedge is cheaper upfront but removes both downside and upside. The put hedge preserves upside but charges an insurance premium.</p>
+</div>
+</div>
+<hr>
+</section>
+<section id="types-of-interest-rate-options" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="types-of-interest-rate-options"><span class="header-section-number">4</span> Types of Interest-Rate Options</h2>
+<p>Interest-rate options can be classified by their underlying instrument.</p>
+<section id="options-on-cash-bonds" class="level3">
+<h3 class="anchored" data-anchor-id="options-on-cash-bonds">Options on Cash Bonds</h3>
+<p>The holder has the right to buy or sell a bond at a stated strike. The bond’s coupon payments, maturity, yield, duration, and price volatility all affect the option. Over-the-counter bond options can be customized, but they introduce counterparty, liquidity, and documentation considerations.</p>
+</section>
+<section id="options-on-interest-rates" class="level3">
+<h3 class="anchored" data-anchor-id="options-on-interest-rates">Options on Interest Rates</h3>
+<p>Caps, floors, and swaptions are common over-the-counter instruments.</p>
+<ul>
+<li>An <strong>interest-rate cap</strong> protects a borrower against rates rising above a strike.</li>
+<li>An <strong>interest-rate floor</strong> protects an investor against rates falling below a strike.</li>
+<li>A <strong>swaption</strong> is an option to enter an interest-rate swap.</li>
+</ul>
+<p>These instruments are often quoted using implied volatility rather than a dollar premium alone.</p>
+</section>
+<section id="exchange-traded-futures-options" class="level3">
+<h3 class="anchored" data-anchor-id="exchange-traded-futures-options">Exchange-Traded Futures Options</h3>
+<p>An <strong>option on futures</strong> gives the right to enter a specified futures contract at the strike price. Major U.S. interest-rate families include:</p>
+<ul>
+<li>options on 2-year, 3-year, 5-year, 10-year, Ultra 10-year, Treasury bond, and Ultra Treasury bond futures;</li>
+<li>options on Three-Month SOFR futures, including standard, weekly, and mid-curve expirations; and</li>
+<li>options on other listed short-rate futures where available.</li>
+</ul>
+<p>Exchange trading brings standardized terms, transparent prices, centralized clearing, and the ability to close a position with an offsetting trade.</p>
+</section>
+<section id="mechanics-of-trading-futures-options" class="level3">
+<h3 class="anchored" data-anchor-id="mechanics-of-trading-futures-options">Mechanics of Trading Futures Options</h3>
+<p>The important contract terms are:</p>
+<ul>
+<li>the underlying futures contract;</li>
+<li>call or put;</li>
+<li>strike price;</li>
+<li>expiration month or date;</li>
+<li>exercise style;</li>
+<li>contract unit and price quotation; and</li>
+<li>premium and margin convention.</li>
+</ul>
+<p>An order such as “buy one September 10-year Treasury futures 110 call” identifies a right to become long the specified September futures at 110, subject to the listed option’s exact expiration and exercise rules.</p>
+<section id="exercising-a-futures-option" class="level4">
+<h4 class="anchored" data-anchor-id="exercising-a-futures-option">Exercising a Futures Option</h4>
+<p>When a futures call is exercised:</p>
+<ul>
+<li>the call holder receives a <strong>long futures</strong> position at the strike;</li>
+<li>the assigned call writer receives a <strong>short futures</strong> position at the strike.</li>
+</ul>
+<p>When a futures put is exercised:</p>
+<ul>
+<li>the put holder receives a <strong>short futures</strong> position at the strike;</li>
+<li>the assigned put writer receives a <strong>long futures</strong> position at the strike.</li>
+</ul>
+<p>The new futures positions are then subject to ordinary futures marking to market. Assignment to writers is handled through the clearing process. Traders often close an in-the-money option by selling it rather than exercising early because selling can preserve remaining time value.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Example 2: Exercising a Treasury Futures Call">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Example 2: Exercising a Treasury Futures Call
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A trader owns one 110 call on a 10-year Treasury futures contract. The futures price is 112 at exercise.</p>
+<p>Exercise creates a long futures position at 110. Its immediate economic value is:</p>
+<p><span class="math display">\[
+(112-110)\times \$1{,}000 = \$2{,}000,
+\]</span></p>
+<p>because one full price point on a $100,000 Treasury futures contract is $1,000. If the call premium was 0-48, or 48/64 of a point, the premium cost was:</p>
+<p><span class="math display">\[
+\frac{48}{64}\times \$1{,}000=\$750.
+\]</span></p>
+<p>Ignoring fees and the timing of cash flows, the net profit is $2,000-$750=$1,250.</p>
+</div>
+</div>
+</section>
+<section id="margin-requirements" class="level4">
+<h4 class="anchored" data-anchor-id="margin-requirements">Margin Requirements</h4>
+<p>Margin treatment depends on the exchange and contract convention.</p>
+<ul>
+<li>Under <strong>premium-paid-upfront</strong> or equity-style treatment, a long option buyer pays the premium. Because the long cannot lose more than the premium, the buyer normally does not post the same performance margin as an uncovered writer.</li>
+<li>An option writer has potentially large obligations and must post performance bond margin. Portfolio offsets and risk are reflected through the clearing margin system.</li>
+<li>Under <strong>futures-style margining</strong>, the premium is not fully exchanged at initiation; option value changes generate settlement variation, and the premium is settled when the position is closed, exercised, or expires.</li>
+</ul>
+<p>Do not memorize a dollar margin amount. Exchanges and brokers update requirements as market volatility and portfolio risk change.</p>
+</section>
+<section id="reasons-for-the-popularity-of-futures-options" class="level4">
+<h4 class="anchored" data-anchor-id="reasons-for-the-popularity-of-futures-options">Reasons for the Popularity of Futures Options</h4>
+<p>Futures options are popular because they combine:</p>
+<ul>
+<li><strong>asymmetric protection</strong>—the buyer’s loss is limited to the premium;</li>
+<li><strong>liquidity</strong> in benchmark rate contracts;</li>
+<li><strong>capital efficiency</strong> through clearing and portfolio margin offsets;</li>
+<li><strong>price transparency</strong> from competitive exchange trading;</li>
+<li><strong>flexibility</strong> across strikes and expirations; and</li>
+<li><strong>easy implementation</strong> for portfolios already hedged with futures and DV01.</li>
+</ul>
+</section>
+<section id="specifications-for-actively-traded-futures-options" class="level4">
+<h4 class="anchored" data-anchor-id="specifications-for-actively-traded-futures-options">Specifications for Actively Traded Futures Options</h4>
+<p>The following table is a teaching summary, not a substitute for the current exchange rulebook.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 18%">
+<col style="width: 18%">
+<col style="width: 25%">
+<col style="width: 18%">
+<col style="width: 18%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Option family</th>
+<th>Underlying futures</th>
+<th style="text-align: right;">Typical underlying unit</th>
+<th>Quotation intuition</th>
+<th>Exercise</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Treasury note options</td>
+<td>2Y, 3Y, 5Y, 10Y, Ultra 10Y</td>
+<td style="text-align: right;">$100,000 face</td>
+<td>Points and fractions of a point</td>
+<td>American style</td>
+</tr>
+<tr class="even">
+<td>Treasury bond options</td>
+<td>T-Bond and Ultra T-Bond</td>
+<td style="text-align: right;">$100,000 face</td>
+<td>Points and fractions of a point</td>
+<td>American style</td>
+</tr>
+<tr class="odd">
+<td>Three-Month SOFR options</td>
+<td>One specified SR3 futures contract</td>
+<td style="text-align: right;">$1,000,000 reference notional</td>
+<td>Index points; 1 bp in futures is $25</td>
+<td>American style</td>
+</tr>
+</tbody>
+</table>
+<p>Standard quarterly, serial, weekly, and mid-curve listings allow managers to target specific event dates or horizons. Product codes, strike intervals, trading hours, and expiration rules differ by family and can change. Always verify the live contract specification before trading.</p>
+<hr>
+</section>
+</section>
+</section>
+<section id="intrinsic-value-and-time-value" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="intrinsic-value-and-time-value"><span class="header-section-number">5</span> Intrinsic Value and Time Value</h2>
+<p>The option premium has two parts:</p>
+<p><span class="math display">\[
+\text{Option premium}=\text{intrinsic value}+\text{time value}.
+\]</span></p>
+<section id="intrinsic-value-of-an-option" class="level3">
+<h3 class="anchored" data-anchor-id="intrinsic-value-of-an-option">Intrinsic Value of an Option</h3>
+<p>Intrinsic value answers: <strong>If the option expired now, how much would exercise be worth?</strong> It can never be negative because the holder is not required to exercise.</p>
+<section id="call-options" class="level4">
+<h4 class="anchored" data-anchor-id="call-options">Call Options</h4>
+<p>For an underlying price <span class="math inline">\(S\)</span> and strike <span class="math inline">\(K\)</span>, call intrinsic value is:</p>
+<p><span class="math display">\[
+\max(S-K,0).
+\]</span></p>
+<ul>
+<li><span class="math inline">\(S&gt;K\)</span>: the call is <strong>in the money</strong>.</li>
+<li><span class="math inline">\(S=K\)</span>: the call is <strong>at the money</strong>.</li>
+<li><span class="math inline">\(S&lt;K\)</span>: the call is <strong>out of the money</strong>.</li>
+</ul>
+</section>
+<section id="put-options" class="level4">
+<h4 class="anchored" data-anchor-id="put-options">Put Options</h4>
+<p>Put intrinsic value is:</p>
+<p><span class="math display">\[
+\max(K-S,0).
+\]</span></p>
+<ul>
+<li><span class="math inline">\(S&lt;K\)</span>: the put is in the money.</li>
+<li><span class="math inline">\(S=K\)</span>: the put is at the money.</li>
+<li><span class="math inline">\(S&gt;K\)</span>: the put is out of the money.</li>
+</ul>
+</section>
+</section>
+<section id="time-value-of-an-option" class="level3">
+<h3 class="anchored" data-anchor-id="time-value-of-an-option">Time Value of an Option</h3>
+<p><strong>Time value</strong> is the premium above intrinsic value:</p>
+<p><span class="math display">\[
+\text{Time value}=\text{premium}-\text{intrinsic value}.
+\]</span></p>
+<p>Time value reflects the possibility that the underlying will move favorably before expiration. It is usually greatest near the strike because uncertainty about whether the option will finish in the money matters most there. Time value tends toward zero as expiration approaches.</p>
+<div id="cell-fig-intrinsic-time-value" class="cell" data-execution_count="3">
+<div class="cell-output cell-output-display">
+<div id="fig-intrinsic-time-value" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-intrinsic-time-value-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lec11_files/figure-html/fig-intrinsic-time-value-output-1.png" width="622" height="405" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-intrinsic-time-value-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: Call value equals intrinsic value plus time value
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Example 3: Decomposing a Premium">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Example 3: Decomposing a Premium
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A Treasury futures call has strike 110. The futures price is 112 and the option premium is 2.75 points.</p>
+<p><span class="math display">\[
+\text{Intrinsic value}=\max(112-110,0)=2.00.
+\]</span></p>
+<p><span class="math display">\[
+\text{Time value}=2.75-2.00=0.75.
+\]</span></p>
+<p>On a $100,000 contract, the $2.75 premium equals $2,750. Of this amount, $2,000 is intrinsic value and $750 is time value.</p>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="profit-and-loss-for-simple-naked-option-strategies" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="profit-and-loss-for-simple-naked-option-strategies"><span class="header-section-number">6</span> Profit and Loss for Simple Naked Option Strategies</h2>
+<p>The <strong>payoff</strong> ignores the initial premium. <strong>Profit</strong> includes it. Let <span class="math inline">\(c\)</span> be the call premium, <span class="math inline">\(p\)</span> the put premium, and <span class="math inline">\(S_T\)</span> the underlying price at expiration.</p>
+<section id="long-call-strategy" class="level3">
+<h3 class="anchored" data-anchor-id="long-call-strategy">Long Call Strategy</h3>
+<p><span class="math display">\[
+\Pi_{\text{long call}}=\max(S_T-K,0)-c.
+\]</span></p>
+<ul>
+<li>Maximum loss: <span class="math inline">\(c\)</span>.</li>
+<li>Break-even price: <span class="math inline">\(K+c\)</span>.</li>
+<li>Maximum profit: theoretically unlimited for an ordinary asset price.</li>
+</ul>
+<p>A long call is useful when the investor expects bond or futures prices to rise, which usually corresponds to a decline in yields.</p>
+</section>
+<section id="short-call-strategy" class="level3">
+<h3 class="anchored" data-anchor-id="short-call-strategy">Short Call Strategy</h3>
+<p><span class="math display">\[
+\Pi_{\text{short call}}=c-\max(S_T-K,0).
+\]</span></p>
+<ul>
+<li>Maximum profit: <span class="math inline">\(c\)</span>.</li>
+<li>Break-even price: <span class="math inline">\(K+c\)</span>.</li>
+<li>Maximum loss: potentially very large.</li>
+</ul>
+<p>An uncovered or <strong>naked short call</strong> earns a limited premium in exchange for taking large upside price risk.</p>
+</section>
+<section id="long-put-strategy" class="level3">
+<h3 class="anchored" data-anchor-id="long-put-strategy">Long Put Strategy</h3>
+<p><span class="math display">\[
+\Pi_{\text{long put}}=\max(K-S_T,0)-p.
+\]</span></p>
+<ul>
+<li>Maximum loss: <span class="math inline">\(p\)</span>.</li>
+<li>Break-even price: <span class="math inline">\(K-p\)</span>.</li>
+<li>Maximum profit: approximately <span class="math inline">\(K-p\)</span> if the underlying price could fall to zero.</li>
+</ul>
+<p>A long Treasury futures put gains when futures prices fall, which usually happens when yields rise.</p>
+</section>
+<section id="short-put-strategy" class="level3">
+<h3 class="anchored" data-anchor-id="short-put-strategy">Short Put Strategy</h3>
+<p><span class="math display">\[
+\Pi_{\text{short put}}=p-\max(K-S_T,0).
+\]</span></p>
+<ul>
+<li>Maximum profit: <span class="math inline">\(p\)</span>.</li>
+<li>Break-even price: <span class="math inline">\(K-p\)</span>.</li>
+<li>Maximum loss: large if the underlying falls sharply.</li>
+</ul>
+<div id="cell-fig-four-option-profits" class="cell" data-execution_count="4">
+<div class="cell-output cell-output-display">
+<div id="fig-four-option-profits" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-four-option-profits-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lec11_files/figure-html/fig-four-option-profits-output-1.png" width="777" height="584" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-four-option-profits-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: Profit at expiration for the four basic option positions
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled" title="Naked Option Writing">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Naked Option Writing
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Receiving a premium is not the same as earning a safe return. A naked writer has a small, known maximum gain and a potentially much larger loss. Margin requirements help protect the clearing system; they do not eliminate the writer’s market risk.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Example 4: Long Put Profit">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Example 4: Long Put Profit
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A manager buys a 110 put for 1.50 points.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: right;">Futures price at expiration</th>
+<th style="text-align: right;">Put payoff</th>
+<th style="text-align: right;">Profit after premium</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">114</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">-1.50</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">110</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">-1.50</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">108.5</td>
+<td style="text-align: right;">1.50</td>
+<td style="text-align: right;">0.00</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">105</td>
+<td style="text-align: right;">5.00</td>
+<td style="text-align: right;">3.50</td>
+</tr>
+</tbody>
+</table>
+<p>The break-even futures price is <span class="math inline">\(110-1.50=108.50\)</span>.</p>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="put-call-parity-and-equivalent-positions" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="put-call-parity-and-equivalent-positions"><span class="header-section-number">7</span> Put-Call Parity and Equivalent Positions</h2>
+<p>Put-call parity is a no-arbitrage relationship. For European options on a non-coupon-paying asset:</p>
+<p><span class="math display">\[
+C-P=S_0-Ke^{-rT}.
+\]</span></p>
+<p>Equivalently:</p>
+<p><span class="math display">\[
+C+Ke^{-rT}=P+S_0.
+\]</span></p>
+<p>The left side is a <strong>fiduciary call</strong>: a call plus enough risk-free investment to pay the strike. The right side is a <strong>protective put</strong>: the asset plus a put. At expiration, both are worth <span class="math inline">\(\max(S_T,K)\)</span>, so they must have the same price today.</p>
+<p>For a coupon bond, subtract the present value of coupons paid before option expiration:</p>
+<p><span class="math display">\[
+C-P=(B_0-I)-Ke^{-rT},
+\]</span></p>
+<p>where <span class="math inline">\(I\)</span> is the present value of interim coupons.</p>
+<p>For European options on futures with premium paid upfront, Black’s model implies:</p>
+<p><span class="math display">\[
+c-p=e^{-rT}(F_0-K).
+\]</span></p>
+<section id="equivalent-positions" class="level3">
+<h3 class="anchored" data-anchor-id="equivalent-positions">Equivalent Positions</h3>
+<p>Rearranging parity creates useful synthetic positions:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Desired position</th>
+<th>Equivalent position</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Long call</td>
+<td>Long put + long underlying - risk-free bond paying <span class="math inline">\(K\)</span></td>
+</tr>
+<tr class="even">
+<td>Long put</td>
+<td>Long call - long underlying + risk-free bond paying <span class="math inline">\(K\)</span></td>
+</tr>
+<tr class="odd">
+<td>Long underlying</td>
+<td>Long call - long put + risk-free bond paying <span class="math inline">\(K\)</span></td>
+</tr>
+<tr class="even">
+<td>Protective put</td>
+<td>Fiduciary call</td>
+</tr>
+</tbody>
+</table>
+<div id="cell-fig-put-call-parity" class="cell" data-execution_count="5">
+<div class="cell-output cell-output-display">
+<div id="fig-put-call-parity" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-put-call-parity-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lec11_files/figure-html/fig-put-call-parity-output-1.png" width="623" height="390" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-put-call-parity-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5: A protective put and a fiduciary call have the same expiration value
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Example 5: Parity and Arbitrage">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Example 5: Parity and Arbitrage
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Suppose <span class="math inline">\(S_0=98\)</span>, <span class="math inline">\(K=100\)</span>, <span class="math inline">\(T=0.5\)</span>, <span class="math inline">\(r=4\%\)</span>, and a European call costs $3.80. Parity says the put should cost:</p>
+<p><span class="math display">\[
+P=C-S_0+Ke^{-rT}
+=3.80-98+100e^{-0.04(0.5)}
+=3.82\text{ approximately}.
+\]</span></p>
+<p>If an otherwise identical put traded at <span class="math inline">\(4.50\)</span>, the protective-put side would be too expensive relative to the fiduciary-call side. An arbitrageur would sell the expensive package and buy the cheap package, subject to transaction costs and shorting ability.</p>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="what-determines-an-option-price" class="level2" data-number="8">
+<h2 data-number="8" class="anchored" data-anchor-id="what-determines-an-option-price"><span class="header-section-number">8</span> What Determines an Option Price?</h2>
+<p>An option’s value is shaped by six main inputs. The direction below describes a call option unless noted otherwise.</p>
+<section id="current-price-of-the-underlying-instrument" class="level3">
+<h3 class="anchored" data-anchor-id="current-price-of-the-underlying-instrument">Current Price of the Underlying Instrument</h3>
+<p>A higher current bond or futures price makes a call more valuable and a put less valuable. The call gives the right to buy at a fixed strike, so the right becomes more attractive as the market price rises.</p>
+</section>
+<section id="strike-price" class="level3">
+<h3 class="anchored" data-anchor-id="strike-price">Strike Price</h3>
+<p>A higher strike makes a call less valuable and a put more valuable. Buying at a higher fixed price is less attractive; selling at a higher fixed price is more attractive.</p>
+</section>
+<section id="time-to-expiration" class="level3">
+<h3 class="anchored" data-anchor-id="time-to-expiration">Time to Expiration</h3>
+<p>More time usually increases American call and put values because it provides more opportunities for a favorable move. For European options, the effect can be more subtle because discounting and coupon timing also matter.</p>
+</section>
+<section id="short-term-risk-free-rate" class="level3">
+<h3 class="anchored" data-anchor-id="short-term-risk-free-rate">Short-Term Risk-Free Rate</h3>
+<p>For an ordinary call, a higher risk-free rate lowers the present value of paying the strike and tends to increase call value. It tends to reduce put value. For bond options, rate changes can simultaneously change the underlying bond price, so one must distinguish the pricing input effect from the market movement of the bond.</p>
+</section>
+<section id="coupon-rate-on-the-bond" class="level3">
+<h3 class="anchored" data-anchor-id="coupon-rate-on-the-bond">Coupon Rate on the Bond</h3>
+<p>Coupons paid before expiration reduce the value left in the bond on the exercise date. Holding everything else constant, larger interim coupons tend to reduce call value and increase put value. A simple model handles this by subtracting the present value of interim coupons from the current bond price.</p>
+</section>
+<section id="expected-volatility-of-yields-or-prices" class="level3">
+<h3 class="anchored" data-anchor-id="expected-volatility-of-yields-or-prices">Expected Volatility of Yields or Prices</h3>
+<p>More volatility increases both call and put values. The buyer keeps favorable outcomes but can decline unfavorable exercise. The option writer bears the other side. This convexity makes dispersion valuable even if the expected underlying price does not change.</p>
+<p>For fixed-income options, be precise about what volatility means:</p>
+<ul>
+<li><strong>price volatility</strong> measures percentage changes in the underlying price;</li>
+<li><strong>yield volatility</strong> measures changes in yield, often in basis points; and</li>
+<li><strong>normal</strong> versus <strong>lognormal</strong> volatility conventions produce different quote units.</li>
+</ul>
+<p>Duration provides a first-order bridge:</p>
+<p><span class="math display">\[
+\frac{\Delta P}{P}\approx-D_{\text{mod}}\Delta y.
+\]</span></p>
+<p>Longer-duration bonds translate a given yield shock into a larger price shock and therefore tend to have more valuable options, all else equal.</p>
+<div id="cell-fig-option-input-sensitivities" class="cell" data-execution_count="6">
+<div class="cell-output cell-output-display">
+<div id="fig-option-input-sensitivities" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-option-input-sensitivities-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lec11_files/figure-html/fig-option-input-sensitivities-output-1.png" width="796" height="591" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-option-input-sensitivities-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6: Call value rises with the underlying price, time, and volatility, but falls with the strike
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="moneyness-time-and-volatility-together" class="level3">
+<h3 class="anchored" data-anchor-id="moneyness-time-and-volatility-together">Moneyness, Time, and Volatility Together</h3>
+<p>Time and volatility matter most near the strike. A deep in-the-money call behaves more like the underlying; a deep out-of-the-money call has little chance of exercise. Near the strike, modest changes in uncertainty can change the exercise probability substantially.</p>
+<div id="cell-fig-call-value-volatility" class="cell" data-execution_count="7">
+<div class="cell-output cell-output-display">
+<div id="fig-call-value-volatility" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-call-value-volatility-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lec11_files/figure-html/fig-call-value-volatility-output-1.png" width="622" height="398" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-call-value-volatility-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7: Volatility adds the most visible value near the strike
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="models-for-pricing-options" class="level2" data-number="9">
+<h2 data-number="9" class="anchored" data-anchor-id="models-for-pricing-options"><span class="header-section-number">9</span> Models for Pricing Options</h2>
+<p>Every option model formalizes the same logic:</p>
+<ol type="1">
+<li>describe possible future values of the underlying;</li>
+<li>determine the option payoff in each state;</li>
+<li>use no-arbitrage probabilities or a replicating portfolio; and</li>
+<li>discount the expected payoff at the appropriate risk-free rate.</li>
+</ol>
+<p>Different models are useful for different underlyings and assumptions.</p>
+</section>
+<section id="models-for-valuing-options-on-bonds" class="level2" data-number="10">
+<h2 data-number="10" class="anchored" data-anchor-id="models-for-valuing-options-on-bonds"><span class="header-section-number">10</span> Models for Valuing Options on Bonds</h2>
+<p>Bond options are challenging because bond prices depend on interest rates, coupons, and maturity. Volatility is not naturally constant across time or maturity, and interest rates themselves can be negative.</p>
+<section id="black-scholes-option-pricing-model" class="level3">
+<h3 class="anchored" data-anchor-id="black-scholes-option-pricing-model">Black-Scholes Option Pricing Model</h3>
+<p>For a non-dividend-paying asset, the Black-Scholes European call price is:</p>
+<p><span class="math display">\[
+C=S_0N(d_1)-Ke^{-rT}N(d_2),
+\]</span></p>
+<p>where</p>
+<p><span class="math display">\[
+d_1=\frac{\ln(S_0/K)+(r+\sigma^2/2)T}{\sigma\sqrt{T}},
+\qquad
+d_2=d_1-\sigma\sqrt{T}.
+\]</span></p>
+<p>The put price is:</p>
+<p><span class="math display">\[
+P=Ke^{-rT}N(-d_2)-S_0N(-d_1).
+\]</span></p>
+<p>For a coupon bond, replace <span class="math inline">\(S_0\)</span> with <span class="math inline">\(S_0-I\)</span>, where <span class="math inline">\(I\)</span> is the present value of coupons paid before option expiration.</p>
+<p>The model assumes a lognormal underlying price, constant volatility, constant risk-free rate, frictionless trading, and continuous hedging. These assumptions are approximations for bonds. Modern rate-option desks generally use models designed for rates and term structures, but Black-Scholes remains valuable for intuition.</p>
+</section>
+<section id="computing-a-call-on-a-zero-coupon-bond" class="level3">
+<h3 class="anchored" data-anchor-id="computing-a-call-on-a-zero-coupon-bond">Computing a Call on a Zero-Coupon Bond</h3>
+<p>A zero-coupon bond pays no interim coupon, so the calculation is especially clean.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Example 6: Call on a Zero-Coupon Bond">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Example 6: Call on a Zero-Coupon Bond
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Consider a European call on a zero-coupon bond with:</p>
+<ul>
+<li>bond price <span class="math inline">\(S_0=92\)</span>;</li>
+<li>strike <span class="math inline">\(K=90\)</span>;</li>
+<li>option maturity <span class="math inline">\(T=0.5\)</span> years;</li>
+<li>continuously compounded risk-free rate <span class="math inline">\(r=4\%\)</span>; and</li>
+<li>annualized bond-price volatility <span class="math inline">\(\sigma=10\%\)</span>.</li>
+</ul>
+<p>The following code calculates the call and put and verifies put-call parity.</p>
+</div>
+</div>
+<div id="zero-coupon-bond-option" class="cell" data-execution_count="8">
+<div class="cell-output cell-output-stdout">
+<pre><code>Call price: 4.8673
+Put price:  1.0852
+C - P:      3.782119
+S - PV(K):  3.782119</code></pre>
+</div>
+</div>
+<p>The option price is not the discounted expected payoff under the bond’s actual expected return. No-arbitrage valuation uses a risk-neutral distribution, so the asset’s expected return is replaced by the risk-free rate.</p>
+</section>
+<section id="coupon-bond-adjustment" class="level3">
+<h3 class="anchored" data-anchor-id="coupon-bond-adjustment">Coupon-Bond Adjustment</h3>
+<p>Suppose the bond in Example 6 pays a coupon of 2.00 before the option expires and its present value is 1.96. The adjusted underlying price is:</p>
+<p><span class="math display">\[
+S_0-I=92.00-1.96=90.04.
+\]</span></p>
+<p>All else equal, this lowers the call value because the call holder does not receive the coupon paid before exercise.</p>
+<div id="coupon-effect-example" class="cell" data-execution_count="9">
+<div class="cell-output cell-output-stdout">
+<pre><code>Call ignoring interim coupon: $4.8673
+Call after coupon adjustment: $3.5291
+Reduction in call value:       $1.3382</code></pre>
+</div>
+</div>
+</section>
+<section id="arbitrage-free-binomial-model" class="level3">
+<h3 class="anchored" data-anchor-id="arbitrage-free-binomial-model">Arbitrage-Free Binomial Model</h3>
+<p>The binomial model divides time into steps. At each step, the underlying moves up by a factor <span class="math inline">\(u\)</span> or down by a factor <span class="math inline">\(d\)</span>. Under the risk-neutral probability:</p>
+<p><span class="math display">\[
+q=\frac{e^{r\Delta t}-d}{u-d}.
+\]</span></p>
+<p>At expiration, calculate option payoffs. Then work backward:</p>
+<p><span class="math display">\[
+V_t=e^{-r\Delta t}\left[qV_{t+\Delta t}^{u}+(1-q)V_{t+\Delta t}^{d}\right].
+\]</span></p>
+<p>For an American option, compare continuation value with immediate exercise value at every node and take the larger amount.</p>
+<div id="binomial-option-example" class="cell" data-execution_count="10">
+<div class="cell-output cell-output-stdout">
+<pre><code>100-step binomial call: 4.872304
+Black-Scholes call:     4.867344
+Difference:             0.004960</code></pre>
+</div>
+</div>
+<div id="cell-fig-binomial-convergence" class="cell" data-execution_count="11">
+<div class="cell-output cell-output-display">
+<div id="fig-binomial-convergence" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-binomial-convergence-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lec11_files/figure-html/fig-binomial-convergence-output-1.png" width="635" height="390" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-binomial-convergence-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;8: The binomial value converges toward the closed-form European option value
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The small saw-tooth pattern is normal. Whether the strike lies near an up or down node changes with the number of steps. The oscillation narrows as the tree becomes finer.</p>
+</section>
+<section id="implied-volatility" class="level3">
+<h3 class="anchored" data-anchor-id="implied-volatility">Implied Volatility</h3>
+<p>The <strong>implied volatility</strong> is the volatility that makes a model price equal the observed market price. It reverses the usual pricing question:</p>
+<p><span class="math display">\[
+\text{market price}=\text{model price}(\sigma_{\text{implied}}).
+\]</span></p>
+<p>Implied volatility is not necessarily a forecast of realized volatility. It also reflects risk premiums, supply and demand, model assumptions, and market liquidity.</p>
+<div id="implied-volatility-example" class="cell" data-execution_count="12">
+<div class="cell-output cell-output-stdout">
+<pre><code>Observed call price: $4.25
+Implied volatility:  6.863%
+Repriced call:        $4.250000</code></pre>
+</div>
+</div>
+<p>Across strikes, implied volatilities often form a <strong>smile</strong> or <strong>skew</strong> rather than a flat line. This is evidence that one constant lognormal volatility does not fully describe market prices.</p>
+<div id="cell-fig-implied-volatility-smile" class="cell" data-execution_count="13">
+<div class="cell-output cell-output-display">
+<div id="fig-implied-volatility-smile" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-implied-volatility-smile-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lec11_files/figure-html/fig-implied-volatility-smile-output-1.png" width="628" height="383" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-implied-volatility-smile-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;9: A stylized implied-volatility smile across option strikes
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="models-for-valuing-options-on-bond-futures" class="level2" data-number="11">
+<h2 data-number="11" class="anchored" data-anchor-id="models-for-valuing-options-on-bond-futures"><span class="header-section-number">11</span> Models for Valuing Options on Bond Futures</h2>
+<p>Black’s futures-option model is widely used as a benchmark for European options on futures. The call and put prices are:</p>
+<p><span class="math display">\[
+c=e^{-rT}[F_0N(d_1)-KN(d_2)],
+\]</span></p>
+<p><span class="math display">\[
+p=e^{-rT}[KN(-d_2)-F_0N(-d_1)],
+\]</span></p>
+<p>with</p>
+<p><span class="math display">\[
+d_1=\frac{\ln(F_0/K)+\frac{1}{2}\sigma^2T}{\sigma\sqrt{T}},
+\qquad d_2=d_1-\sigma\sqrt{T}.
+\]</span></p>
+<p>The futures price replaces the spot price. There is no separate cost-of-carry term in <span class="math inline">\(d_1\)</span> because the futures price already reflects carry under the model.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Example 7: Option on 10-Year Treasury Futures">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Example 7: Option on 10-Year Treasury Futures
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Suppose:</p>
+<ul>
+<li>current futures price <span class="math inline">\(F_0=111\)</span>;</li>
+<li>strike <span class="math inline">\(K=110\)</span>;</li>
+<li>time to expiration <span class="math inline">\(T=0.25\)</span> years;</li>
+<li>risk-free rate <span class="math inline">\(r=4.5\%\)</span>; and</li>
+<li>futures-price volatility <span class="math inline">\(\sigma=8\%\)</span>.</li>
+</ul>
+<p>The following calculation gives the call and put in futures price points and then converts them to dollars for a $100,000 contract.</p>
+</div>
+</div>
+<div id="black-futures-example" class="cell" data-execution_count="14">
+<div class="cell-output cell-output-stdout">
+<pre><code>Call premium: 2.2823 points = $2,282.32
+Put premium:  1.2935 points = $1,293.50
+Parity LHS:   0.988813
+Parity RHS:   0.988813</code></pre>
+</div>
+</div>
+<section id="model-limitations-for-interest-rate-options" class="level3">
+<h3 class="anchored" data-anchor-id="model-limitations-for-interest-rate-options">Model Limitations for Interest-Rate Options</h3>
+<p>Black’s model is easy to quote and invert, but its lognormal futures-price assumption is not a complete term-structure model. It does not explain how all maturities move together. For path-dependent instruments or portfolios with many cash-flow dates, no-arbitrage short-rate or market models—such as Hull-White—can generate internally consistent future yield curves.</p>
+<p>The model must match the question:</p>
+<ul>
+<li>Black/Black-Scholes: transparent benchmark and implied-volatility quoting;</li>
+<li>binomial tree: early exercise and discrete decisions;</li>
+<li>short-rate or term-structure model: future curves, path dependence, and complex fixed-income cash flows.</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="hedge-strategies" class="level2" data-number="12">
+<h2 data-number="12" class="anchored" data-anchor-id="hedge-strategies"><span class="header-section-number">12</span> Hedge Strategies</h2>
+<p>Options allow managers to change the <em>shape</em> of portfolio outcomes rather than only the slope of price exposure.</p>
+</section>
+<section id="hedging-long-term-bonds-with-puts-on-futures" class="level2" data-number="13">
+<h2 data-number="13" class="anchored" data-anchor-id="hedging-long-term-bonds-with-puts-on-futures"><span class="header-section-number">13</span> Hedging Long-Term Bonds with Puts on Futures</h2>
+<p>A long-duration bond portfolio loses value when yields rise. A Treasury futures put gains when the futures price falls. The first step is to match interest-rate sensitivity using DV01:</p>
+<p><span class="math display">\[
+N_{\text{puts}}
+\approx
+\frac{\text{Portfolio DV01}}{\text{Futures DV01 per contract}}.
+\]</span></p>
+<p>If the bond portfolio and futures respond differently to rates, include a yield beta or key-rate adjustment. The put delta is less than one in absolute value, so a delta-based hedge may require:</p>
+<p><span class="math display">\[
+N_{\text{puts}}
+\approx
+\frac{\text{Portfolio DV01}}
+{|\Delta_{\text{put}}|\times\text{Futures DV01}}.
+\]</span></p>
+<p>This delta changes as prices, time, and volatility change. The hedge is therefore dynamic and imperfect.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Example 8: Protective Puts on Treasury Futures">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Example 8: Protective Puts on Treasury Futures
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A manager owns $10 million of long-term bonds with modified duration 8.0. The portfolio DV01 is approximately:</p>
+<p><span class="math display">\[
+10{,}000{,}000\times8.0\times0.0001=\$8{,}000.
+\]</span></p>
+<p>Suppose one Treasury futures contract has DV01 of $80. A full futures-equivalent hedge is:</p>
+<p><span class="math display">\[
+N=\frac{8{,}000}{80}=100\text{ contracts}.
+\]</span></p>
+<p>Buying 100 puts with strike 110 and premium 1.25 points costs:</p>
+<p><span class="math display">\[
+100\times1.25\times\$1{,}000=\$125{,}000.
+\]</span></p>
+</div>
+</div>
+<p>The next example compares an unhedged bond portfolio with a protective-put strategy. It uses a simple duration mapping: each one-point futures decline is associated with a $100,000 portfolio loss across the 100-contract hedge scale. This keeps the focus on payoff shape rather than basis details.</p>
+<div id="cell-protective-put-scenarios" class="cell" data-execution_count="15">
+<div id="protective-put-scenarios" class="cell-output cell-output-display">
+<style type="text/css">
+</style>
+
+<table id="T_f249f" class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th class="blank level0" data-quarto-table-cell-role="th">&nbsp;</th>
+<th id="T_f249f_level0_col0" class="col_heading level0 col0" data-quarto-table-cell-role="th">futures_at_expiration</th>
+<th id="T_f249f_level0_col1" class="col_heading level0 col1" data-quarto-table-cell-role="th">unhedged_bond_change</th>
+<th id="T_f249f_level0_col2" class="col_heading level0 col2" data-quarto-table-cell-role="th">put_payoff</th>
+<th id="T_f249f_level0_col3" class="col_heading level0 col3" data-quarto-table-cell-role="th">net_change_with_put</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th id="T_f249f_level0_row0" class="row_heading level0 row0" data-quarto-table-cell-role="th">0</th>
+<td id="T_f249f_row0_col0" class="data row0 col0">104.0</td>
+<td id="T_f249f_row0_col1" class="data row0 col1">$-600,000</td>
+<td id="T_f249f_row0_col2" class="data row0 col2">$600,000</td>
+<td id="T_f249f_row0_col3" class="data row0 col3">$-125,000</td>
+</tr>
+<tr class="even">
+<th id="T_f249f_level0_row1" class="row_heading level0 row1" data-quarto-table-cell-role="th">1</th>
+<td id="T_f249f_row1_col0" class="data row1 col0">107.0</td>
+<td id="T_f249f_row1_col1" class="data row1 col1">$-300,000</td>
+<td id="T_f249f_row1_col2" class="data row1 col2">$300,000</td>
+<td id="T_f249f_row1_col3" class="data row1 col3">$-125,000</td>
+</tr>
+<tr class="odd">
+<th id="T_f249f_level0_row2" class="row_heading level0 row2" data-quarto-table-cell-role="th">2</th>
+<td id="T_f249f_row2_col0" class="data row2 col0">110.0</td>
+<td id="T_f249f_row2_col1" class="data row2 col1">$0</td>
+<td id="T_f249f_row2_col2" class="data row2 col2">$0</td>
+<td id="T_f249f_row2_col3" class="data row2 col3">$-125,000</td>
+</tr>
+<tr class="even">
+<th id="T_f249f_level0_row3" class="row_heading level0 row3" data-quarto-table-cell-role="th">3</th>
+<td id="T_f249f_row3_col0" class="data row3 col0">113.0</td>
+<td id="T_f249f_row3_col1" class="data row3 col1">$300,000</td>
+<td id="T_f249f_row3_col2" class="data row3 col2">$0</td>
+<td id="T_f249f_row3_col3" class="data row3 col3">$175,000</td>
+</tr>
+<tr class="odd">
+<th id="T_f249f_level0_row4" class="row_heading level0 row4" data-quarto-table-cell-role="th">4</th>
+<td id="T_f249f_row4_col0" class="data row4 col0">116.0</td>
+<td id="T_f249f_row4_col1" class="data row4 col1">$600,000</td>
+<td id="T_f249f_row4_col2" class="data row4 col2">$0</td>
+<td id="T_f249f_row4_col3" class="data row4 col3">$475,000</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="cell-fig-protective-put-hedge" class="cell" data-execution_count="16">
+<div class="cell-output cell-output-display">
+<div id="fig-protective-put-hedge" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-protective-put-hedge-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lec11_files/figure-html/fig-protective-put-hedge-output-1.png" width="649" height="405" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-protective-put-hedge-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;10: Protective puts establish a floor while preserving gains above the strike
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The protection is not free. If rates fall and bond prices rise, the puts expire worthless and the portfolio return is reduced by the premium. If rates rise enough, the put payoff offsets further mapped losses below the strike.</p>
+<section id="practical-hedge-risks" class="level3">
+<h3 class="anchored" data-anchor-id="practical-hedge-risks">Practical Hedge Risks</h3>
+<ul>
+<li><strong>Basis risk:</strong> the portfolio and futures contract may respond differently.</li>
+<li><strong>Curve risk:</strong> one futures contract cannot hedge every maturity point.</li>
+<li><strong>Delta drift:</strong> option sensitivity changes through time and across price states.</li>
+<li><strong>Volatility risk:</strong> the put can change value even without a rate move.</li>
+<li><strong>Expiration mismatch:</strong> the hedge may expire before the portfolio risk ends.</li>
+<li><strong>Liquidity and transaction costs:</strong> rolling and rebalancing are not free.</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="covered-call-writing-with-futures-options" class="level2" data-number="14">
+<h2 data-number="14" class="anchored" data-anchor-id="covered-call-writing-with-futures-options"><span class="header-section-number">14</span> Covered Call Writing with Futures Options</h2>
+<p>A <strong>covered call</strong> combines a long underlying exposure with a short call. For a bond manager, a practical version is a long bond portfolio plus short calls on Treasury futures whose DV01 approximately matches the portfolio.</p>
+<p>The manager receives option premium and gives up gains beyond the call strike. The strategy is attractive when the manager expects rates and prices to remain in a range, but it is not downside insurance.</p>
+<p>At expiration, the simplified mapped profit is:</p>
+<p><span class="math display">\[
+\Pi_{\text{covered call}}
+=(F_T-F_0)+c-\max(F_T-K,0).
+\]</span></p>
+<p>Below the strike, the call expires worthless and the premium cushions losses only by a fixed amount. Above the strike, the short call offsets further gains.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Example 9: Covered Call Income">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Example 9: Covered Call Income
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A manager has futures-equivalent long exposure to 100 contracts. The current futures price is 110. The manager sells 100 calls with strike 113 for 1.00 point.</p>
+<p>Premium income is:</p>
+<p><span class="math display">\[
+100\times1.00\times\$1{,}000=\$100{,}000.
+\]</span></p>
+<p>If futures finish at 110, the calls expire worthless and the manager keeps the premium. If futures finish at 118, the bond exposure gains, but the calls lose five points above the strike; gains are effectively capped near the strike plus premium. If futures fall sharply, the $100,000 premium offsets only the first part of the portfolio loss.</p>
+</div>
+</div>
+<div id="cell-covered-call-scenarios" class="cell" data-execution_count="17">
+<div id="covered-call-scenarios" class="cell-output cell-output-display">
+<style type="text/css">
+</style>
+
+<table id="T_63691" class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th class="blank level0" data-quarto-table-cell-role="th">&nbsp;</th>
+<th id="T_63691_level0_col0" class="col_heading level0 col0" data-quarto-table-cell-role="th">futures_at_expiration</th>
+<th id="T_63691_level0_col1" class="col_heading level0 col1" data-quarto-table-cell-role="th">long_bond_mapped_change</th>
+<th id="T_63691_level0_col2" class="col_heading level0 col2" data-quarto-table-cell-role="th">short_call_profit</th>
+<th id="T_63691_level0_col3" class="col_heading level0 col3" data-quarto-table-cell-role="th">covered_call_net_change</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th id="T_63691_level0_row0" class="row_heading level0 row0" data-quarto-table-cell-role="th">0</th>
+<td id="T_63691_row0_col0" class="data row0 col0">104.0</td>
+<td id="T_63691_row0_col1" class="data row0 col1">$-600,000</td>
+<td id="T_63691_row0_col2" class="data row0 col2">$100,000</td>
+<td id="T_63691_row0_col3" class="data row0 col3">$-500,000</td>
+</tr>
+<tr class="even">
+<th id="T_63691_level0_row1" class="row_heading level0 row1" data-quarto-table-cell-role="th">1</th>
+<td id="T_63691_row1_col0" class="data row1 col0">107.0</td>
+<td id="T_63691_row1_col1" class="data row1 col1">$-300,000</td>
+<td id="T_63691_row1_col2" class="data row1 col2">$100,000</td>
+<td id="T_63691_row1_col3" class="data row1 col3">$-200,000</td>
+</tr>
+<tr class="odd">
+<th id="T_63691_level0_row2" class="row_heading level0 row2" data-quarto-table-cell-role="th">2</th>
+<td id="T_63691_row2_col0" class="data row2 col0">110.0</td>
+<td id="T_63691_row2_col1" class="data row2 col1">$0</td>
+<td id="T_63691_row2_col2" class="data row2 col2">$100,000</td>
+<td id="T_63691_row2_col3" class="data row2 col3">$100,000</td>
+</tr>
+<tr class="even">
+<th id="T_63691_level0_row3" class="row_heading level0 row3" data-quarto-table-cell-role="th">3</th>
+<td id="T_63691_row3_col0" class="data row3 col0">113.0</td>
+<td id="T_63691_row3_col1" class="data row3 col1">$300,000</td>
+<td id="T_63691_row3_col2" class="data row3 col2">$100,000</td>
+<td id="T_63691_row3_col3" class="data row3 col3">$400,000</td>
+</tr>
+<tr class="odd">
+<th id="T_63691_level0_row4" class="row_heading level0 row4" data-quarto-table-cell-role="th">4</th>
+<td id="T_63691_row4_col0" class="data row4 col0">116.0</td>
+<td id="T_63691_row4_col1" class="data row4 col1">$600,000</td>
+<td id="T_63691_row4_col2" class="data row4 col2">$-200,000</td>
+<td id="T_63691_row4_col3" class="data row4 col3">$400,000</td>
+</tr>
+<tr class="even">
+<th id="T_63691_level0_row5" class="row_heading level0 row5" data-quarto-table-cell-role="th">5</th>
+<td id="T_63691_row5_col0" class="data row5 col0">119.0</td>
+<td id="T_63691_row5_col1" class="data row5 col1">$900,000</td>
+<td id="T_63691_row5_col2" class="data row5 col2">$-500,000</td>
+<td id="T_63691_row5_col3" class="data row5 col3">$400,000</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="cell-fig-covered-call" class="cell" data-execution_count="18">
+<div class="cell-output cell-output-display">
+<div id="fig-covered-call" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-covered-call-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lec11_files/figure-html/fig-covered-call-output-1.png" width="649" height="405" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-covered-call-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;11: Covered call writing adds premium income but caps gains above the strike
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<section id="protective-put-versus-covered-call" class="level3">
+<h3 class="anchored" data-anchor-id="protective-put-versus-covered-call">Protective Put Versus Covered Call</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 18%">
+<col style="width: 25%">
+<col style="width: 18%">
+<col style="width: 18%">
+<col style="width: 18%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Strategy</th>
+<th style="text-align: right;">Premium cash flow</th>
+<th>Downside</th>
+<th>Upside</th>
+<th>Typical objective</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Long bond + long put</td>
+<td style="text-align: right;">Pay premium</td>
+<td>Floored below strike, subject to basis risk</td>
+<td>Retained</td>
+<td>Insurance</td>
+</tr>
+<tr class="even">
+<td>Long bond + short call</td>
+<td style="text-align: right;">Receive premium</td>
+<td>Only slightly cushioned</td>
+<td>Capped above strike</td>
+<td>Income enhancement</td>
+</tr>
+</tbody>
+</table>
+<p>The protective put buys convexity. The covered call sells convexity. Neither is automatically superior; the correct choice depends on the manager’s objective, constraints, valuation view, and tolerance for tail outcomes.</p>
+<hr>
+</section>
+</section>
+<section id="a-complete-decision-framework" class="level2" data-number="15">
+<h2 data-number="15" class="anchored" data-anchor-id="a-complete-decision-framework"><span class="header-section-number">15</span> A Complete Decision Framework</h2>
+<p>Before using an interest-rate option, ask five questions:</p>
+<ol type="1">
+<li><strong>What is the underlying risk?</strong> A parallel rate move, a curve point, volatility, or an event date?</li>
+<li><strong>What payoff shape is desired?</strong> Lock, floor, cap, or premium income?</li>
+<li><strong>Which contract best matches the risk?</strong> Cash-bond option, futures option, cap, floor, or swaption?</li>
+<li><strong>How many contracts are needed?</strong> Use DV01, key-rate duration, beta, and option delta rather than notional value alone.</li>
+<li><strong>What can break the hedge?</strong> Basis, volatility, time decay, exercise, liquidity, margin, and model risk.</li>
+</ol>
+<div id="cell-fig-option-decision-tree" class="cell" data-execution_count="19">
+<div class="cell-output cell-output-display">
+<div id="fig-option-decision-tree" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-option-decision-tree-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lec11_files/figure-html/fig-option-decision-tree-output-1.png" width="778" height="374" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-option-decision-tree-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;12: Choose the instrument from the desired payoff rather than from a market forecast alone
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<hr>
+</section>
+<section id="key-points" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="key-points">Key Points</h2>
+<ul>
+<li>An option buyer has a right; an option writer has a contingent obligation.</li>
+<li>Calls benefit from higher underlying prices, while puts benefit from lower underlying prices.</li>
+<li>Futures create symmetric linear exposure; options create asymmetric exposure in exchange for a premium.</li>
+<li>Exercising a futures call creates a long futures position at the strike; exercising a futures put creates a short futures position at the strike.</li>
+<li>Treasury and SOFR futures options are important exchange-traded interest-rate options with standardized clearing and American-style exercise.</li>
+<li>Intrinsic value is the value of immediate exercise. Time value is the premium above intrinsic value.</li>
+<li>Long-option losses are limited to premium. Naked short-option profits are limited to premium while losses can be much larger.</li>
+<li>Put-call parity links calls, puts, the underlying, and the present value of the strike through no-arbitrage.</li>
+<li>Call value generally rises with the underlying price, time, and volatility and falls with the strike and interim coupon value.</li>
+<li>Black-Scholes provides a transparent benchmark for European bond options, but its constant-volatility and lognormal assumptions are approximations.</li>
+<li>A binomial model prices by backward induction and can incorporate early exercise.</li>
+<li>Implied volatility is the model volatility consistent with an observed market price; it is not automatically a forecast of realized volatility.</li>
+<li>Black’s model uses the futures price to value European options on bond futures.</li>
+<li>Protective puts establish a floor while retaining upside, at the cost of premium.</li>
+<li>Covered calls earn premium but cap gains and provide only limited downside cushion.</li>
+<li>Effective hedges use DV01, delta, curve exposure, and basis relationships—not notional value alone.</li>
+</ul>
+<hr>
+</section>
+<section id="suggested-readings" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="suggested-readings">Suggested Readings</h2>
+<ul>
+<li>Fabozzi, <em>Bond Markets: Analysis and Strategies</em>, chapters on interest-rate options.</li>
+<li><a href="https://www.cmegroup.com/education/whitepapers/fundamentals-of-options-on-futures">CME Group, Fundamentals of Options on Futures</a>.</li>
+<li><a href="https://www.cmegroup.com/education/articles-and-reports/trading-sofr-options">CME Group, Trading SOFR Options</a>.</li>
+<li><a href="https://www.cmegroup.com/education/articles-and-reports/a-primer-on-margining-styles-for-options">CME Group, Primer on Margining Styles for Options</a>.</li>
+</ul>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/aliboloor\.github\.io\/BUS411\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

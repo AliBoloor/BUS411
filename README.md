@@ -1,70 +1,64 @@
 # BUS 411 — Fixed Income Security Analysis and Valuation
 
-**[View the course website →](https://aliboloor.github.io/BUS411/)**
+**[View the course website](https://aliboloor.github.io/BUS411/)**
 
-Course materials and lecture notes for **BUS 411: Fixed Income Security Analysis and Valuation**.
+Quarto sources and published materials for BUS 411. The course currently contains
+11 lectures covering bond valuation, fixed-income markets, portfolio construction,
+interest-rate models, embedded options, futures, credit risk, and interest-rate
+options. See [Topics.md](Topics.md) for the lecture-by-lecture map.
 
-## Overview
+## Repository layout
 
-This repository contains:
+- `lecture_notes/` — source notes for Lectures 1–11 and source appendices
+- `course_outline/` — syllabus source, stylesheet, and PDF header reference
+- `assignments/` — public question files; answer files and working data stay local
+- `problem_sets/` — retained workspace for problem sets
+- `demos/` — source demonstrations
+- `assets/` — shared data, images, figures, and PDFs
+- `labs/` and `slides/` — reserved course-material folders
+- `exams/` — local-only exams and solutions; ignored by Git
+- `docs/` — rendered public website served by GitHub Pages
 
-- **Lecture notes** (`.qmd` format) in `lecture_notes/`
-- Public assignment questions, plus local-only assignment drafts and exam materials
-- A **Quarto website** that builds into `docs/` for GitHub Pages
+## Public and local-only material
 
-## Prerequisites
+The repository intentionally publishes assignment questions but not assignment
+solutions. The entire `exams/` directory and all non-question files inside assignment
+folders are ignored. Before committing, verify this policy with:
 
-- [Quarto](https://quarto.org/docs/get-started/) (recommended: latest stable version)
+```bash
+git status --short --ignored
+git check-ignore -v exams/exam-2.qmd assignments/assignment2/assignment-2-answers.qmd
+```
 
-## Preview Locally
+Do not force-add ignored exams, solutions, answer keys, or private grading material.
 
-To preview the course website locally:
+## Requirements
+
+- Quarto
+- Python packages listed in `requirements.txt`
+- A LaTeX distribution such as TinyTeX or TeX Live for PDF output
+
+## Preview locally
 
 ```bash
 quarto preview
 ```
 
-This starts a local server; the site will open in your browser and auto-refresh on changes.
+## Render the public website
 
-## Render and Publish the Website
-
-The published site is rendered locally and committed to `docs/`. GitHub Pages serves that directory directly; GitHub Actions does not render the site.
-
-First, render the complete website HTML:
+The public site is rendered locally into `docs/` and committed. GitHub Pages serves
+the `docs/` directory from `main`.
 
 ```bash
 quarto render --to html
 ```
 
-Output is written to the `docs/` directory. For GitHub Pages, configure your repository to serve the site from the `docs/` folder (Settings → Pages → Source: Deploy from a branch → Branch: main, folder: /docs).
-
-Then render the public PDFs separately:
+Render public PDFs after the HTML build. The `--no-clean` flag is required so the
+PDF pass does not remove the HTML website from `docs/`:
 
 ```bash
-LC_ALL=C LANG=C quarto render course-outline.md --to pdf
-LC_ALL=C LANG=C quarto render lecture_notes/lec1.qmd --to pdf
-LC_ALL=C LANG=C quarto render lecture_notes/lec2.qmd --to pdf
-LC_ALL=C LANG=C quarto render lecture_notes/lec3.qmd --to pdf
-LC_ALL=C LANG=C quarto render lecture_notes/lec4.qmd --to pdf
-LC_ALL=C LANG=C quarto render lecture_notes/lec5.qmd --to pdf
-LC_ALL=C LANG=C quarto render lecture_notes/lec6.qmd --to pdf
-LC_ALL=C LANG=C quarto render lecture_notes/lec7.qmd --to pdf
-LC_ALL=C LANG=C quarto render lecture_notes/lec8.qmd --to pdf
-LC_ALL=C LANG=C quarto render lecture_notes/lec9.qmd --to pdf
-LC_ALL=C LANG=C quarto render lecture_notes/lec10.qmd --to pdf
-LC_ALL=C LANG=C quarto render assignments/assignment1/assignment-1-questions.qmd --to pdf
-LC_ALL=C LANG=C quarto render assignments/assignment2/assignment-2-questions.qmd --to pdf
+LC_ALL=C LANG=C quarto render --to pdf --no-clean
 ```
 
-PDF output requires a LaTeX distribution such as TinyTeX or full TeX Live. After checking the generated pages and PDFs, commit the source changes and the updated `docs/` output together, then push to `main`.
-
-## Structure
-
-- `lecture_notes/` — Lecture content (`.qmd` files)
-- `slides/` — Presentation slides
-- `assignments/` — Public assignment questions; drafts and data files are local-only
-- `problem_sets/` — Problem sets
-- `labs/` — Lab exercises
-- `exams/` — Local-only exam materials
-- `assets/` — Images, figures, PDFs, and data files
-- `docs/` — Rendered website output (for GitHub Pages)
+After rendering, inspect the changed HTML/PDF files, confirm ignored private material
+is absent from the staged changes, and commit source and `docs/` output together.

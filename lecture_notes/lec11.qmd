@@ -97,6 +97,76 @@ plt.show()
 
 ## Option Definition
 
+### The Translation Students Must Make
+
+Interest-rate options are easiest to understand if every problem is translated in
+three steps:
+
+$$
+\text{yield move}\longrightarrow\text{bond/futures price move}
+\longrightarrow\text{option payoff}.
+$$
+
+For an ordinary fixed-rate bond, yields and prices move in opposite directions.
+Therefore, a call on a Treasury bond or Treasury futures contract usually benefits
+from **falling yields**, while a put usually benefits from **rising yields**. The
+option is written on a *price*, even when the manager's concern is a *yield*.
+
+| Market view or risk | Expected price move | Option position that benefits |
+|---|---|---|
+| Yields will fall | Bond/futures price rises | Long call |
+| Yields will rise | Bond/futures price falls | Long put |
+| Protect against rising yields | Insure against a price decline | Buy put |
+| Protect against falling yields | Insure against a price increase | Buy call |
+
+The first-order price approximation makes the link quantitative:
+
+$$
+\Delta P\approx-P\,D_{\text{mod}}\,\Delta y.
+$$
+
+If a $10 million bond portfolio has modified duration 8, a 25 bp increase in yield
+produces an approximate loss of
+
+$$
+\Delta P\approx-\$10{,}000{,}000(8)(0.0025)=-\$200{,}000.
+$$
+
+This is the loss a hedge must address. Choosing a put gives the hedge an asymmetric
+shape; the number of contracts must still be based on risk sensitivity.
+
+```{python}
+#| label: fig-yield-price-option-chain
+#| fig-cap: "Translate a yield view into a price move before choosing a futures option"
+from matplotlib.patches import FancyBboxPatch, FancyArrowPatch
+
+fig, ax = plt.subplots(figsize=(8.2, 3.4))
+ax.set_axis_off()
+boxes = [
+    ("Yield shock", "Rates rise 25 bp", 0.1, "#E8F1FA"),
+    ("Price response", "Bond and Treasury\nfutures prices fall", 2.15, "#F6E8C3"),
+    ("Option response", "Put moves toward or\nfurther in the money", 4.2, "#FADBD8"),
+    ("Portfolio result", "Put payoff offsets part\nof the bond loss", 6.25, "#E6F2E6"),
+]
+for heading, detail, x, color in boxes:
+    box = FancyBboxPatch((x, 1.05), 1.65, 1.15, boxstyle="round,pad=0.08",
+                         linewidth=1.0, edgecolor="#333333", facecolor=color)
+    ax.add_patch(box)
+    ax.text(x + 0.825, 1.84, heading, ha="center", va="center",
+            fontsize=9, fontweight="bold")
+    ax.text(x + 0.825, 1.40, detail, ha="center", va="center", fontsize=8.2)
+for x in [1.8, 3.85, 5.9]:
+    ax.add_patch(FancyArrowPatch((x, 1.62), (x + 0.3, 1.62), arrowstyle="-|>",
+                                 mutation_scale=14, linewidth=1.3))
+ax.text(4.0, 0.48,
+        "Always identify the quoted underlying: cash bond, futures price, or rate.",
+        ha="center", fontsize=8.5, color="#444444")
+ax.set_xlim(0, 8.05)
+ax.set_ylim(0.2, 2.65)
+plt.tight_layout()
+plt.show()
+```
+
 A **call option** gives the buyer the right to buy the underlying instrument at the
 **strike price** $K$. A **put option** gives the buyer the right to sell the
 underlying at $K$. The final date on which the right exists is the **expiration
@@ -259,6 +329,37 @@ The new futures positions are then subject to ordinary futures marking to market
 Assignment to writers is handled through the clearing process. Traders often close
 an in-the-money option by selling it rather than exercising early because selling
 can preserve remaining time value.
+
+#### Follow One Trade from Purchase to Expiration
+
+Suppose a manager buys one December 10-year Treasury futures 110 put for 0-40. In
+the common option quotation, 0-40 means 40/64 of one price point:
+
+$$
+\text{premium}=\frac{40}{64}\times\$1{,}000=\$625.
+$$
+
+The strike is 110, not $110. It is an index price equal to 110% of the contract's
+$100,000 face unit. The table follows the position to expiration.
+
+| December futures at expiration | Put status | Exercise payoff | Profit after $625 premium | What happens |
+|---:|---|---:|---:|---|
+| 114 | Out of the money | $0 | -$625 | Let the put expire |
+| 110 | At the money | $0 | -$625 | No economic reason to exercise |
+| 109-24 (=109.375) | In the money by 40/64 | $625 | $0 | Break-even before fees |
+| 107 | In the money by 3 points | $3,000 | $2,375 | Exercise or sell the valuable put |
+
+If exercised at a futures price of 107, the holder receives a short futures
+position at 110. That short has an immediate economic gain of three points. Selling
+the option before expiration may be simpler; at expiration, exercise followed by an
+offsetting futures trade produces the same intrinsic value, apart from fees and
+execution differences.
+
+::: {.callout-tip title="Reading Treasury Option Quotes"}
+One point is $1,000 per $100,000 face-value contract. One 1/64 is $15.625. Thus a
+premium of 1-16 equals $1,250: one point ($1,000) plus 16/64 ($250). Keep **price
+points**, **dollars**, and **yield basis points** separate; they are not interchangeable.
+:::
 
 ::: {.callout-note title="Example 2: Exercising a Treasury Futures Call"}
 A trader owns one 110 call on a 10-year Treasury futures contract. The futures price
@@ -825,46 +926,84 @@ Consider a European call on a zero-coupon bond with:
 - continuously compounded risk-free rate $r=4\%$; and
 - annualized bond-price volatility $\sigma=10\%$.
 
-The following code calculates the call and put and verifies put-call parity.
-:::
+We will calculate the call and put and then verify put-call parity.
 
-```{python}
-#| label: zero-coupon-bond-option
-def black_scholes_option(spot, strike, time, rate, volatility, option_type="call"):
-    """Price a European call or put using the Black-Scholes formula."""
-    vol_time = volatility * np.sqrt(time)
-    d1 = (np.log(spot / strike) + (rate + 0.5 * volatility**2) * time) / vol_time
-    d2 = d1 - vol_time
+**Step 1: Calculate $d_1$ and $d_2$.**
 
-    if option_type == "call":
-        return float(spot * normal_cdf(d1) - strike * np.exp(-rate * time) * normal_cdf(d2))
-    if option_type == "put":
-        return float(strike * np.exp(-rate * time) * normal_cdf(-d2) - spot * normal_cdf(-d1))
-    raise ValueError("option_type must be 'call' or 'put'")
+$$
+d_1=
+\frac{\ln(92/90)+[0.04+(0.10)^2/2](0.5)}{0.10\sqrt{0.5}}
+=0.6290,
+$$
 
-bond_price = 92.0
-strike = 90.0
-time = 0.5
-rate = 0.04
-volatility = 0.10
+$$
+d_2=0.6290-0.10\sqrt{0.5}=0.5583.
+$$
 
-call_price = black_scholes_option(bond_price, strike, time, rate, volatility, "call")
-put_price = black_scholes_option(bond_price, strike, time, rate, volatility, "put")
-parity_left = call_price - put_price
-parity_right = bond_price - strike * np.exp(-rate * time)
+From the standard normal distribution,
 
-print(f"Call price: {call_price:.4f}")
-print(f"Put price:  {put_price:.4f}")
-print(f"C - P:      {parity_left:.6f}")
-print(f"S - PV(K):  {parity_right:.6f}")
-```
+$$
+N(d_1)=N(0.6290)=0.7353,
+\qquad
+N(d_2)=N(0.5583)=0.7117.
+$$
+
+**Step 2: Calculate the call value.**
+
+$$
+\begin{aligned}
+C
+&=S_0N(d_1)-Ke^{-rT}N(d_2)\\
+&=92(0.7353)-90e^{-0.04(0.5)}(0.7117)\\
+&=\boxed{4.8673}.
+\end{aligned}
+$$
+
+The call is worth 4.8673 price units today. Its value exceeds its current intrinsic
+value of $\max(92-90,0)=2$ because it also contains time value.
+
+**Step 3: Calculate the put value.** Since
+$N(-d)=1-N(d)$,
+
+$$
+N(-d_1)=0.2647,
+\qquad
+N(-d_2)=0.2883.
+$$
+
+Therefore,
+
+$$
+\begin{aligned}
+P
+&=Ke^{-rT}N(-d_2)-S_0N(-d_1)\\
+&=90e^{-0.04(0.5)}(0.2883)-92(0.2647)\\
+&=\boxed{1.0852}.
+\end{aligned}
+$$
+
+**Step 4: Verify put-call parity.**
+
+$$
+C-P=4.8673-1.0852=3.7821,
+$$
+
+while
+
+$$
+S_0-Ke^{-rT}=92-90e^{-0.04(0.5)}=3.7821.
+$$
+
+The two sides agree, as required by no arbitrage.
 
 The option price is not the discounted expected payoff under the bond's actual
 expected return. No-arbitrage valuation uses a risk-neutral distribution, so the
 asset's expected return is replaced by the risk-free rate.
+:::
 
 ### Coupon-Bond Adjustment
 
+::: {.callout-note title="Extension to Example 6: Coupon-Bond Adjustment"}
 Suppose the bond in Example 6 pays a coupon of 2.00 before the option expires and its
 present value is 1.96. The adjusted underlying price is:
 
@@ -875,25 +1014,125 @@ $$
 All else equal, this lowers the call value because the call holder does not receive
 the coupon paid before exercise.
 
-```{python}
-#| label: coupon-effect-example
-coupon_pv = 1.96
-call_without_coupon = black_scholes_option(92.0, 90.0, 0.5, 0.04, 0.10, "call")
-call_after_coupon_adjustment = black_scholes_option(92.0 - coupon_pv, 90.0, 0.5, 0.04, 0.10, "call")
+Using the adjusted price in the same formula,
 
-print(f"Call ignoring interim coupon: ${call_without_coupon:.4f}")
-print(f"Call after coupon adjustment: ${call_after_coupon_adjustment:.4f}")
-print(f"Reduction in call value:       ${call_without_coupon - call_after_coupon_adjustment:.4f}")
-```
+$$
+d_1=
+\frac{\ln(90.04/90)+[0.04+(0.10)^2/2](0.5)}{0.10\sqrt{0.5}}
+=0.3245,
+$$
+
+$$
+d_2=0.3245-0.10\sqrt{0.5}=0.2538.
+$$
+
+With $N(d_1)=0.6272$ and $N(d_2)=0.6002$,
+
+$$
+\begin{aligned}
+C_{\text{coupon bond}}
+&=90.04(0.6272)-90e^{-0.04(0.5)}(0.6002)\\
+&=\boxed{3.5291}.
+\end{aligned}
+$$
+
+Ignoring the coupon produced a value of 4.8673. Accounting for the coupon therefore
+reduces the call value by
+
+$$
+4.8673-3.5291=\boxed{1.3382}.
+$$
+
+The reduction is smaller than the coupon's $1.96 present value because the call's
+delta is below one: a one-unit reduction in the adjusted bond price does not reduce
+the option value one-for-one.
+:::
 
 ### Arbitrage-Free Binomial Model
 
 The binomial model divides time into steps. At each step, the underlying moves up by
-a factor $u$ or down by a factor $d$. Under the risk-neutral probability:
+a factor $u$ or down by a factor $d$.
+
+#### Choosing $u$ and $d$ to Match Volatility
+
+In practice, $u$ and $d$ should not be chosen arbitrarily. In the standard
+**Cox-Ross-Rubinstein (CRR)** tree, divide the option's life into $N$ equal steps:
+
+$$
+\Delta t=\frac{T}{N}.
+$$
+
+For annualized underlying-price volatility $\sigma$, choose
+
+$$
+\boxed{u=e^{\sigma\sqrt{\Delta t}}},
+\qquad
+\boxed{d=e^{-\sigma\sqrt{\Delta t}}=\frac{1}{u}}.
+$$
+
+The one-step continuously compounded returns are therefore
+$+\sigma\sqrt{\Delta t}$ and $-\sigma\sqrt{\Delta t}$. Their separation grows with
+volatility and with the square root of time, matching the diffusion scaling assumed
+by Black-Scholes. As the number of steps increases, the CRR distribution converges
+to the corresponding lognormal distribution.
+
+The expected growth rate is not inserted into $u$ and $d$. Instead, no arbitrage
+determines the risk-neutral up probability:
 
 $$
 q=\frac{e^{r\Delta t}-d}{u-d}.
 $$
+
+The down probability is $1-q$. A valid tree requires
+
+$$
+d<e^{r\Delta t}<u,
+$$
+
+which ensures $0<q<1$. If the underlying has a continuous income yield $y$, replace
+$r$ by the cost-of-carry rate $r-y$ in the probability, not in the volatility-based
+definitions of $u$ and $d$.
+
+::: {.callout-note title="CRR Parameters for Example 6"}
+For the zero-coupon bond option, $T=0.5$, $\sigma=10\%$, and $r=4\%$. With 100
+steps,
+
+$$
+\Delta t=\frac{0.5}{100}=0.005.
+$$
+
+Therefore,
+
+$$
+u=e^{0.10\sqrt{0.005}}=1.007096,
+$$
+
+$$
+d=e^{-0.10\sqrt{0.005}}=0.992954.
+$$
+
+At every step, the bond price either rises by approximately $0.7096\%$ or falls by
+approximately $0.7046\%$. Starting from 92, the first two possible prices are
+
+$$
+S_u=92(1.007096)=92.6528,
+\qquad
+S_d=92(0.992954)=91.3518.
+$$
+
+The risk-neutral probability is
+
+$$
+\begin{aligned}
+q
+&=\frac{e^{0.04(0.005)}-0.992954}{1.007096-0.992954}\\
+&=\boxed{0.512376}.
+\end{aligned}
+$$
+
+Thus the probability of a down move is $1-q=0.487624$. These are pricing
+probabilities, not forecasts of the bond's actual next-period movement.
+:::
 
 At expiration, calculate option payoffs. Then work backward:
 
@@ -904,8 +1143,71 @@ $$
 For an American option, compare continuation value with immediate exercise value at
 every node and take the larger amount.
 
+### A One-Period Tree: Where the Formula Comes From
+
+::: {.callout-note title="Example: One-Period Replication and Tree Convergence"}
+Before using many steps, consider a one-year European call on a zero-coupon bond.
+The bond costs 100 today and will be worth either 110 or 90 in one year. The call
+strike is 100, and the one-year risk-free gross return is 1.05.
+
+| State in one year | Bond value | Call payoff |
+|---|---:|---:|
+| Up | 110 | 10 |
+| Down | 90 | 0 |
+
+Build a replicating portfolio with $\Delta$ units of the bond and $B$ dollars in the
+risk-free asset. It must match the call in both states:
+
+$$
+110\Delta+1.05B=10,
+\qquad
+90\Delta+1.05B=0.
+$$
+
+Subtracting the equations gives $\Delta=(10-0)/(110-90)=0.5$. Using the down
+state, $90(0.5)+1.05B=0$, so $B=-42.857$. The negative value means borrow
+$42.857$. The call's no-arbitrage price is the cost of the replicating portfolio:
+
+$$
+C_0=0.5(100)-42.857=7.143.
+$$
+
+The same answer comes from the risk-neutral probability:
+
+$$
+q=\frac{1.05-0.90}{1.10-0.90}=0.75,
+\qquad
+C_0=\frac{0.75(10)+0.25(0)}{1.05}=7.143.
+$$
+
+The 75% is **not** a forecast that the up state will occur. It is the probability
+that makes the underlying earn the risk-free rate inside the pricing calculation.
+Replication—not an opinion about real-world odds—is what determines value.
+
+
+With many periods, the computer repeats this one-period logic at every node. For an
+American option it adds one decision: at each node, choose the larger of immediate
+exercise and continuation value.
+
+For the zero-coupon bond in Example 6, a 100-step Cox-Ross-Rubinstein tree gives
+
+$$
+C_{\text{100-step tree}}=4.8723.
+$$
+
+The closed-form Black-Scholes value was 4.8673, so the difference is only
+
+$$
+4.8723-4.8673=0.0050.
+$$
+
+The tree does not require a different economic theory. It repeatedly applies the
+one-period risk-neutral valuation formula over intervals of
+$\Delta t=0.5/100=0.005$ years.
+
 ```{python}
-#| label: binomial-option-example
+#| label: binomial-visual-helper
+#| include: false
 def binomial_option_price(spot, strike, time, rate, volatility,
                           steps, option_type="call", american=False):
     """Price a call or put in a Cox-Ross-Rubinstein binomial tree."""
@@ -944,14 +1246,7 @@ def binomial_option_price(spot, strike, time, rate, volatility,
             option_values = np.maximum(option_values, exercise_values)
 
     return float(option_values[0])
-
-
-binomial_call = binomial_option_price(92, 90, 0.5, 0.04, 0.10, 100, "call")
-closed_form_call = black_scholes_option(92, 90, 0.5, 0.04, 0.10, "call")
-
-print(f"100-step binomial call: {binomial_call:.6f}")
-print(f"Black-Scholes call:     {closed_form_call:.6f}")
-print(f"Difference:             {binomial_call - closed_form_call:.6f}")
+closed_form_call = 4.8673436512
 ```
 
 ```{python}
@@ -977,6 +1272,7 @@ plt.show()
 The small saw-tooth pattern is normal. Whether the strike lies near an up or down
 node changes with the number of steps. The oscillation narrows as the tree becomes
 finer.
+:::
 
 ### Implied Volatility
 
@@ -990,39 +1286,35 @@ $$
 Implied volatility is not necessarily a forecast of realized volatility. It also
 reflects risk premiums, supply and demand, model assumptions, and market liquidity.
 
-```{python}
-#| label: implied-volatility-example
-def implied_volatility_bisection(market_price, spot, strike, time, rate,
-                                 option_type="call", tolerance=1e-8):
-    """Recover Black-Scholes implied volatility with a robust bisection search."""
-    low_vol = 1e-6
-    high_vol = 3.0
+::: {.callout-note title="Example: Recovering Implied Volatility"}
+Suppose the call from Example 6 trades for 4.25 rather than the 4.8673 value obtained
+using 10% volatility. The implied volatility solves
 
-    for _ in range(200):
-        middle_vol = 0.5 * (low_vol + high_vol)
-        model_price = black_scholes_option(
-            spot, strike, time, rate, middle_vol, option_type
-        )
+$$
+4.25=92N(d_1)-90e^{-0.04(0.5)}N(d_2),
+$$
 
-        if abs(model_price - market_price) < tolerance:
-            return middle_vol
-        if model_price < market_price:
-            low_vol = middle_vol
-        else:
-            high_vol = middle_vol
+where $d_1$ and $d_2$ both depend on the unknown $\sigma$. Because $\sigma$ cannot
+be isolated algebraically, use trial values or a numerical root search.
 
-    return 0.5 * (low_vol + high_vol)
+| Trial volatility | Black-Scholes call value | Direction for next trial |
+|---:|---:|---|
+| 5.000% | 3.9655 | Price too low; raise $\sigma$ |
+| 6.500% | 4.1878 | Price too low; raise $\sigma$ |
+| 7.000% | 4.2741 | Price too high; lower $\sigma$ |
+| 6.800% | 4.2390 | Price too low; raise $\sigma$ |
+| 6.863% | 4.2500 | Matches the market price |
 
+Therefore,
 
-observed_call_price = 4.25
-implied_vol = implied_volatility_bisection(
-    observed_call_price, 92, 90, 0.5, 0.04, "call"
-)
+$$
+\boxed{\sigma_{\text{implied}}\approx6.863\%}.
+$$
 
-print(f"Observed call price: ${observed_call_price:.2f}")
-print(f"Implied volatility:  {100 * implied_vol:.3f}%")
-print(f"Repriced call:        ${black_scholes_option(92, 90, 0.5, 0.04, implied_vol, 'call'):.6f}")
-```
+The procedure is conceptually simple: if the model price is below the market price,
+increase volatility; if it is above the market price, decrease volatility. Continue
+until the pricing error is sufficiently small.
+:::
 
 Across strikes, implied volatilities often form a **smile** or **skew** rather than a
 flat line. This is evidence that one constant lognormal volatility does not fully
@@ -1080,43 +1372,78 @@ Suppose:
 
 The following calculation gives the call and put in futures price points and then
 converts them to dollars for a $100,000 contract.
+
+First calculate the volatility over the option's life:
+
+$$
+\sigma\sqrt{T}=0.08\sqrt{0.25}=0.04.
+$$
+
+Then
+
+$$
+\begin{aligned}
+d_1
+&=\frac{\ln(111/110)+\tfrac12(0.08)^2(0.25)}{0.08\sqrt{0.25}}\\
+&=0.2462,
+\end{aligned}
+$$
+
+$$
+d_2=0.2462-0.04=0.2062.
+$$
+
+The required normal probabilities and discount factor are
+
+$$
+N(d_1)=0.5973,
+\qquad
+N(d_2)=0.5817,
+\qquad
+e^{-rT}=e^{-0.045(0.25)}=0.9888.
+$$
+
+**Call premium:**
+
+$$
+\begin{aligned}
+c
+&=e^{-rT}[F_0N(d_1)-KN(d_2)]\\
+&=0.9888[111(0.5973)-110(0.5817)]\\
+&=\boxed{2.2823\text{ points}}.
+\end{aligned}
+$$
+
+Because one point is \$1,000, the dollar premium is
+
+$$
+2.2823\times\$1{,}000=\boxed{\$2{,}282.32}.
+$$
+
+**Put premium:** using $N(-d)=1-N(d)$,
+
+$$
+\begin{aligned}
+p
+&=e^{-rT}[KN(-d_2)-F_0N(-d_1)]\\
+&=0.9888[110(0.4183)-111(0.4027)]\\
+&=\boxed{1.2935\text{ points}}\\
+&=\boxed{\$1{,}293.50}.
+\end{aligned}
+$$
+
+Finally, futures put-call parity provides a useful error check:
+
+$$
+c-p=2.2823-1.2935=0.9888,
+$$
+
+$$
+e^{-rT}(F_0-K)=0.9888(111-110)=0.9888.
+$$
+
+The equality confirms that the call and put calculations are internally consistent.
 :::
-
-```{python}
-#| label: black-futures-example
-def black_futures_option(futures_price, strike, time, rate, volatility,
-                         option_type="call"):
-    """Price a European futures call or put with Black's model."""
-    vol_time = volatility * np.sqrt(time)
-    d1 = (np.log(futures_price / strike) + 0.5 * volatility**2 * time) / vol_time
-    d2 = d1 - vol_time
-    discount = np.exp(-rate * time)
-
-    if option_type == "call":
-        return float(discount * (
-            futures_price * normal_cdf(d1) - strike * normal_cdf(d2)
-        ))
-    if option_type == "put":
-        return float(discount * (
-            strike * normal_cdf(-d2) - futures_price * normal_cdf(-d1)
-        ))
-    raise ValueError("option_type must be 'call' or 'put'")
-
-
-futures_price = 111.0
-strike = 110.0
-time = 0.25
-rate = 0.045
-volatility = 0.08
-
-futures_call = black_futures_option(futures_price, strike, time, rate, volatility, "call")
-futures_put = black_futures_option(futures_price, strike, time, rate, volatility, "put")
-
-print(f"Call premium: {futures_call:.4f} points = ${1_000 * futures_call:,.2f}")
-print(f"Put premium:  {futures_put:.4f} points = ${1_000 * futures_put:,.2f}")
-print(f"Parity LHS:   {futures_call - futures_put:.6f}")
-print(f"Parity RHS:   {np.exp(-rate * time) * (futures_price - strike):.6f}")
-```
 
 ### Model Limitations for Interest-Rate Options
 
@@ -1134,11 +1461,6 @@ The model must match the question:
   fixed-income cash flows.
 
 ---
-
-## Hedge Strategies
-
-Options allow managers to change the *shape* of portfolio outcomes rather than only
-the slope of price exposure.
 
 ## Hedging Long-Term Bonds with Puts on Futures
 
@@ -1186,46 +1508,58 @@ Buying 100 puts with strike 110 and premium 1.25 points costs:
 $$
 100\times1.25\times\$1{,}000=\$125{,}000.
 $$
-:::
 
 The next example compares an unhedged bond portfolio with a protective-put strategy.
 It uses a simple duration mapping: each one-point futures decline is associated with
 a $100,000 portfolio loss across the 100-contract hedge scale. This keeps the focus
 on payoff shape rather than basis details.
 
+For any expiration futures price $F_T$, the mapped bond change is
+
+$$
+100(\$1{,}000)(F_T-110),
+$$
+
+and the put payoff is
+
+$$
+100(\$1{,}000)\max(110-F_T,0).
+$$
+
+After subtracting the $125,000 premium, the scenarios are:
+
+| $F_T$ | Mapped bond change | Put payoff | Net change after premium |
+|---:|---:|---:|---:|
+| 104 | -$600,000 | $600,000 | -$125,000 |
+| 107 | -$300,000 | $300,000 | -$125,000 |
+| 110 | $0 | $0 | -$125,000 |
+| 113 | $300,000 | $0 | $175,000 |
+| 116 | $600,000 | $0 | $475,000 |
+
+For example, when $F_T=107$,
+
+$$
+\begin{aligned}
+\text{net change}
+&=100(\$1{,}000)(107-110)\\
+&\quad+100(\$1{,}000)(110-107)-\$125{,}000\\
+&=-\$125{,}000.
+\end{aligned}
+$$
+
+Below the strike, the mapped bond loss and put payoff cancel; the remaining loss is
+the insurance premium. Above the strike, the put expires worthless and the manager
+retains the bond gain less the premium.
+
 ```{python}
-#| label: protective-put-scenarios
-initial_portfolio = 10_000_000
+#| label: fig-protective-put-hedge
+#| fig-cap: "Protective puts establish a floor while preserving gains above the strike"
 initial_futures = 110.0
 put_strike = 110.0
 put_premium = 1.25
 contracts = 100
 dollars_per_point = 1_000
-
-scenario_futures = np.array([104, 107, 110, 113, 116], dtype=float)
-
-# Approximate bond change using the matched futures-price exposure.
-unhedged_change = contracts * dollars_per_point * (scenario_futures - initial_futures)
-put_payoff = contracts * dollars_per_point * np.maximum(put_strike - scenario_futures, 0)
 premium_cost = contracts * dollars_per_point * put_premium
-
-hedge_table = __import__("pandas").DataFrame({
-    "futures_at_expiration": scenario_futures,
-    "unhedged_bond_change": unhedged_change,
-    "put_payoff": put_payoff,
-    "net_change_with_put": unhedged_change + put_payoff - premium_cost,
-})
-display(hedge_table.style.format({
-    "futures_at_expiration": "{:.1f}",
-    "unhedged_bond_change": "${:,.0f}",
-    "put_payoff": "${:,.0f}",
-    "net_change_with_put": "${:,.0f}",
-}))
-```
-
-```{python}
-#| label: fig-protective-put-hedge
-#| fig-cap: "Protective puts establish a floor while preserving gains above the strike"
 futures_scenarios = np.linspace(102, 118, 321)
 bond_change = contracts * dollars_per_point * (futures_scenarios - initial_futures)
 protective_put_change = (
@@ -1252,6 +1586,7 @@ plt.show()
 The protection is not free. If rates fall and bond prices rise, the puts expire
 worthless and the portfolio return is reduced by the premium. If rates rise enough,
 the put payoff offsets further mapped losses below the strike.
+:::
 
 ### Practical Hedge Risks
 
@@ -1299,36 +1634,42 @@ premium. If futures finish at 118, the bond exposure gains, but the calls lose f
 points above the strike; gains are effectively capped near the strike plus premium.
 If futures fall sharply, the $100,000 premium offsets only the first part of the
 portfolio loss.
-:::
 
-```{python}
-#| label: covered-call-scenarios
-call_strike = 113.0
-call_premium = 1.0
+The short call's profit at expiration is
 
-covered_scenarios = np.array([104, 107, 110, 113, 116, 119], dtype=float)
-long_exposure_change = contracts * dollars_per_point * (covered_scenarios - initial_futures)
-short_call_profit = contracts * dollars_per_point * (
-    call_premium - np.maximum(covered_scenarios - call_strike, 0)
-)
+$$
+100(\$1{,}000)[1-\max(F_T-113,0)].
+$$
 
-covered_call_table = __import__("pandas").DataFrame({
-    "futures_at_expiration": covered_scenarios,
-    "long_bond_mapped_change": long_exposure_change,
-    "short_call_profit": short_call_profit,
-    "covered_call_net_change": long_exposure_change + short_call_profit,
-})
-display(covered_call_table.style.format({
-    "futures_at_expiration": "{:.1f}",
-    "long_bond_mapped_change": "${:,.0f}",
-    "short_call_profit": "${:,.0f}",
-    "covered_call_net_change": "${:,.0f}",
-}))
-```
+Combining this with the mapped bond exposure gives:
+
+| $F_T$ | Mapped bond change | Short-call profit | Covered-call net change |
+|---:|---:|---:|---:|
+| 104 | -$600,000 | $100,000 | -$500,000 |
+| 107 | -$300,000 | $100,000 | -$200,000 |
+| 110 | $0 | $100,000 | $100,000 |
+| 113 | $300,000 | $100,000 | $400,000 |
+| 116 | $600,000 | -$200,000 | $400,000 |
+| 119 | $900,000 | -$500,000 | $400,000 |
+
+At $F_T=119$, for example, the mapped bond exposure gains $900,000. The short calls
+lose six intrinsic-value points but retain the one-point premium:
+
+$$
+\text{short-call profit}
+=100(\$1{,}000)[1-(119-113)]
+=-\$500{,}000.
+$$
+
+The combined gain is therefore $900,000-$500,000=$400,000. This is the strategy's
+cap: every additional dollar gained on the long exposure is offset by an additional
+dollar lost on the short calls.
 
 ```{python}
 #| label: fig-covered-call
 #| fig-cap: "Covered call writing adds premium income but caps gains above the strike"
+call_strike = 113.0
+call_premium = 1.0
 long_change = contracts * dollars_per_point * (futures_scenarios - initial_futures)
 covered_change = long_change + contracts * dollars_per_point * (
     call_premium - np.maximum(futures_scenarios - call_strike, 0)
@@ -1348,6 +1689,7 @@ ax.legend()
 ax.grid(alpha=0.3)
 plt.show()
 ```
+:::
 
 ### Protective Put Versus Covered Call
 
@@ -1415,6 +1757,33 @@ plt.show()
 ```
 
 ---
+
+## Check Your Understanding {.unnumbered}
+
+1. A manager expects the 10-year yield to rise sharply. Should the manager buy a
+   call or a put on 10-year Treasury futures? Explain both links in the chain.
+2. A 110 put costs 0-32. What is its dollar premium? At what futures price does it
+   break even at expiration, ignoring fees?
+3. Why is the risk-neutral probability in a binomial tree not necessarily the
+   market's forecast probability?
+4. A put hedge has delta $-0.25$. Why might dividing portfolio DV01 only by futures
+   DV01 materially understate the number of puts required initially?
+5. Does a market-implied volatility prove that traders expect exactly that realized
+   volatility? Why or why not?
+
+::: {.callout-note title="Answers" collapse="true"}
+1. Buy a put: rising yields usually lower Treasury prices, and a put benefits when
+   the futures price falls.
+2. $0\text{-}32=32/64=0.5$ point, or $500. Break-even is $110-0.5=109.5$, quoted
+   as 109-32.
+3. It enforces no-arbitrage pricing and a risk-free expected return; it is not
+   estimated from real-world frequencies.
+4. Each put initially supplies only 0.25 of one futures contract's price sensitivity,
+   so roughly four puts are needed for one futures-equivalent unit before other
+   adjustments.
+5. No. Implied volatility is a model-consistent price quote that also reflects risk
+   premiums, supply and demand, liquidity, and model limitations.
+:::
 
 ## Key Points {.unnumbered}
 

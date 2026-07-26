@@ -97,8 +97,6 @@ plt.show()
 
 ## Option Definition
 
-### The Translation Students Must Make
-
 Interest-rate options are easiest to understand if every problem is translated in
 three steps:
 
@@ -195,7 +193,7 @@ strike.
 - A **European-style** option may be exercised only at expiration.
 
 The names describe exercise rules, not geography. Contract specifications determine
-the style. CME notes that Treasury and SOFR futures options are notable
+the style. Treasury and SOFR futures options are notable
 American-style products.
 
 ---
@@ -327,11 +325,9 @@ When a futures put is exercised:
 
 The new futures positions are then subject to ordinary futures marking to market.
 Assignment to writers is handled through the clearing process. Traders often close
-an in-the-money option by selling it rather than exercising early because selling
-can preserve remaining time value.
+an in-the-money option by selling it rather than exercising early.
 
-#### Follow One Trade from Purchase to Expiration
-
+::: {.callout-note title="Example: Follow One Trade from Purchase to Expiration"}
 Suppose a manager buys one December 10-year Treasury futures 110 put for 0-40. In
 the common option quotation, 0-40 means 40/64 of one price point:
 
@@ -340,7 +336,7 @@ $$
 $$
 
 The strike is 110, not $110. It is an index price equal to 110% of the contract's
-$100,000 face unit. The table follows the position to expiration.
+$100,000 face unit. The table shows the position payoff at expiration for different futures prices.
 
 | December futures at expiration | Put status | Exercise payoff | Profit after $625 premium | What happens |
 |---:|---|---:|---:|---|
@@ -354,6 +350,7 @@ position at 110. That short has an immediate economic gain of three points. Sell
 the option before expiration may be simpler; at expiration, exercise followed by an
 offsetting futures trade produces the same intrinsic value, apart from fees and
 execution differences.
+:::
 
 ::: {.callout-tip title="Reading Treasury Option Quotes"}
 One point is $1,000 per $100,000 face-value contract. One 1/64 is $15.625. Thus a
@@ -394,19 +391,16 @@ Margin treatment depends on the exchange and contract convention.
   option value changes generate settlement variation, and the premium is settled when
   the position is closed, exercised, or expires.
 
-Do not memorize a dollar margin amount. Exchanges and brokers update requirements as
-market volatility and portfolio risk change.
 
 #### Reasons for the Popularity of Futures Options
 
 Futures options are popular because they combine:
 
-- **asymmetric protection**—the buyer's loss is limited to the premium;
-- **liquidity** in benchmark rate contracts;
-- **capital efficiency** through clearing and portfolio margin offsets;
-- **price transparency** from competitive exchange trading;
-- **flexibility** across strikes and expirations; and
-- **easy implementation** for portfolios already hedged with futures and DV01.
+- **asymmetric protection**
+- **liquidity** 
+- **capital efficiency** 
+- **price transparency** 
+- **flexibility** 
 
 #### Specifications for Actively Traded Futures Options
 
@@ -879,9 +873,6 @@ Different models are useful for different underlyings and assumptions.
 
 ## Models for Valuing Options on Bonds
 
-Bond options are challenging because bond prices depend on interest rates, coupons,
-and maturity. Volatility is not naturally constant across time or maturity, and
-interest rates themselves can be negative.
 
 ### Black-Scholes Option Pricing Model
 
@@ -995,10 +986,6 @@ S_0-Ke^{-rT}=92-90e^{-0.04(0.5)}=3.7821.
 $$
 
 The two sides agree, as required by no arbitrage.
-
-The option price is not the discounted expected payoff under the bond's actual
-expected return. No-arbitrage valuation uses a risk-neutral distribution, so the
-asset's expected return is replaced by the risk-free rate.
 :::
 
 ### Coupon-Bond Adjustment
@@ -1373,13 +1360,15 @@ Suppose:
 The following calculation gives the call and put in futures price points and then
 converts them to dollars for a $100,000 contract.
 
-First calculate the volatility over the option's life:
+First calculate $d_1$ and $d_2$ using
 
 $$
-\sigma\sqrt{T}=0.08\sqrt{0.25}=0.04.
+d_1=\frac{\ln(F_0/K)+\tfrac12\sigma^2T}{\sigma\sqrt{T}},
+\qquad
+d_2=d_1-\sigma\sqrt{T}.
 $$
 
-Then
+Substituting the example inputs:
 
 $$
 \begin{aligned}
@@ -1453,7 +1442,7 @@ maturities move together. For path-dependent instruments or portfolios with many
 cash-flow dates, no-arbitrage short-rate or market models—such as Hull-White—can
 generate internally consistent future yield curves.
 
-The model must match the question:
+The model must match the problem:
 
 - Black/Black-Scholes: transparent benchmark and implied-volatility quoting;
 - binomial tree: early exercise and discrete decisions;

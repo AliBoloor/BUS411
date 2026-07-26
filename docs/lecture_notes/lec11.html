@@ -1830,20 +1830,20 @@ e^{-rT}(F_0-K)=0.9888(111-110)=0.9888.
 </section>
 <section id="hedging-long-term-bonds-with-puts-on-futures" class="level2" data-number="12">
 <h2 data-number="12" class="anchored" data-anchor-id="hedging-long-term-bonds-with-puts-on-futures"><span class="header-section-number">12</span> Hedging Long-Term Bonds with Puts on Futures</h2>
-<p>A long-duration bond portfolio loses value when yields rise. A Treasury futures put gains when the futures price falls. The first step is to match interest-rate sensitivity using DV01:</p>
+<p>A long-duration bond portfolio loses value when yields rise. A Treasury futures put gains when the futures price falls. First express the portfolio exposure in <strong>futures-equivalent contracts</strong> by matching DV01:</p>
 <p><span class="math display">\[
-N_{\text{puts}}
+N_{\text{fut-eq}}
 \approx
 \frac{\text{Portfolio DV01}}{\text{Futures DV01 per contract}}.
 \]</span></p>
-<p>If the bond portfolio and futures respond differently to rates, include a yield beta or key-rate adjustment. The put delta is less than one in absolute value, so a delta-based hedge may require:</p>
+<p>An option’s <strong>delta</strong> is the approximate change in the option price for a one-unit change in the underlying futures price, holding the other pricing inputs fixed: <span class="math inline">\(\Delta=\partial V/\partial F\)</span>. A put has negative delta because its value rises when the futures price falls. Since a put normally has <span class="math inline">\(|\Delta_{\text{put}}|&lt;1\)</span> before expiration, one put supplies only <span class="math inline">\(|\Delta_{\text{put}}|\)</span> futures-equivalent contracts. The number of actual puts for a current delta hedge is therefore:</p>
 <p><span class="math display">\[
 N_{\text{puts}}
 \approx
 \frac{\text{Portfolio DV01}}
 {|\Delta_{\text{put}}|\times\text{Futures DV01}}.
 \]</span></p>
-<p>This delta changes as prices, time, and volatility change. The hedge is therefore dynamic and imperfect.</p>
+<p>For example, a put with delta <span class="math inline">\(-0.40\)</span> supplies only <span class="math inline">\(0.40\)</span> of a short futures exposure, so hedging 100 futures-equivalent contracts initially requires <span class="math inline">\(100/0.40=250\)</span> puts. Delta changes with the futures price, time, and volatility, so this contract count must be rebalanced if the objective is to remain delta-neutral. If the bond portfolio and futures respond differently to rates, the DV01 mapping must also include a yield beta or key-rate adjustment.</p>
 <div class="callout callout-style-default callout-note callout-titled" title="Example 8: Protective Puts on Treasury Futures">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1854,28 +1854,46 @@ N_{\text{puts}}
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>A manager owns $10 million of long-term bonds with modified duration 8.0. The portfolio DV01 is approximately:</p>
+<p>A manager owns $10 million of long-term bonds with modified duration 8.0. Treasury futures are currently at <span class="math inline">\(F_0=110\)</span>, and each contract is worth <span class="math inline">\(\$1{,}000\)</span> per futures-price point. One futures contract has a DV01 of <span class="math inline">\(\$80\)</span>. A put on the futures has strike <span class="math inline">\(K=110\)</span>, premium <span class="math inline">\(1.25\)</span> points, and current delta <span class="math inline">\(-0.40\)</span>.</p>
+<p><strong>Step 1: Measure the portfolio’s rate exposure.</strong> Its DV01 is approximately:</p>
 <p><span class="math display">\[
 10{,}000{,}000\times8.0\times0.0001=\$8{,}000.
 \]</span></p>
-<p>Suppose one Treasury futures contract has DV01 of $80. A full futures-equivalent hedge is:</p>
+<p>Thus, a one-basis-point rise in yields is expected to reduce the portfolio value by about <span class="math inline">\(\$8{,}000\)</span>. The corresponding futures-equivalent exposure is:</p>
 <p><span class="math display">\[
-N=\frac{8{,}000}{80}=100\text{ contracts}.
+N_{\text{fut-eq}}=\frac{8{,}000}{80}=100\text{ contracts}.
 \]</span></p>
-<p>Buying 100 puts with strike 110 and premium 1.25 points costs:</p>
+<p><strong>Step 2: Adjust the contract count for delta.</strong> Because each put supplies only <span class="math inline">\(0.40\)</span> futures-equivalent contracts at initiation, a current delta hedge requires:</p>
 <p><span class="math display">\[
-100\times1.25\times\$1{,}000=\$125{,}000.
+N_{\text{delta hedge}}
+=\frac{100}{0.40}
+=250\text{ puts}.
 \]</span></p>
-<p>The next example compares an unhedged bond portfolio with a protective-put strategy. It uses a simple duration mapping: each one-point futures decline is associated with a $100,000 portfolio loss across the 100-contract hedge scale. This keeps the focus on payoff shape rather than basis details.</p>
-<p>For any expiration futures price <span class="math inline">\(F_T\)</span>, the mapped bond change is</p>
+<p>This is an <strong>initial local hedge</strong>: for a small futures-price change today, <span class="math inline">\(250(-0.40)=-100\)</span> futures-equivalent contracts offset the portfolio’s <span class="math inline">\(+100\)</span> exposure. Its premium cost is</p>
 <p><span class="math display">\[
-100(\$1{,}000)(F_T-110),
+250(1.25)(\$1{,}000)=\$312{,}500.
 \]</span></p>
-<p>and the put payoff is</p>
+<p>The manager could instead buy <strong>100 puts as a one-for-one static protective overlay</strong>. That position is not delta-neutral today—its initial option exposure is only <span class="math inline">\(100(0.40)=40\)</span> short futures equivalents—but each in-the-money put has an expiration payoff slope of <span class="math inline">\(-1\)</span>. Consequently, 100 puts create a simple floor for the 100-contract-equivalent exposure at expiration. The scenario analysis below uses this static 100-put design so that the payoff and the floor can be seen directly. Its premium is:</p>
 <p><span class="math display">\[
-100(\$1{,}000)\max(110-F_T,0).
+\text{Premium cost}=100(1.25)(\$1{,}000)=\$125{,}000.
 \]</span></p>
-<p>After subtracting the $125,000 premium, the scenarios are:</p>
+<p><strong>Step 3: Map the bond portfolio to the futures price.</strong> Under the simplifying assumption that the DV01 match remains valid and basis and convexity effects are ignored, the portfolio behaves like a long position in 100 futures contracts. A move from <span class="math inline">\(F_0=110\)</span> to <span class="math inline">\(F_T\)</span> therefore produces the mapped bond change:</p>
+<p><span class="math display">\[
+\Delta V_{\text{bond,mapped}}
+=100(\$1{,}000)(F_T-110).
+\]</span></p>
+<p>The sign now has a clear interpretation: if <span class="math inline">\(F_T=107\)</span>, the futures decline by three points and the mapped bond change is <span class="math inline">\(100(\$1{,}000)(-3)=-\$300{,}000\)</span>.</p>
+<p><strong>Step 4: Calculate the option payoff and net change.</strong> The 100 puts pay:</p>
+<p><span class="math display">\[
+\text{Put payoff}
+=100(\$1{,}000)\max(110-F_T,0).
+\]</span></p>
+<p>The combined change, measured relative to the initial portfolio value and including the premium paid, is:</p>
+<p><span class="math display">\[
+\Delta V_{\text{protected}}
+=\Delta V_{\text{bond,mapped}}+\text{Put payoff}-\$125{,}000.
+\]</span></p>
+<p>Applying these three components gives:</p>
 <table class="caption-top table">
 <thead>
 <tr class="header">
@@ -1918,7 +1936,7 @@ N=\frac{8{,}000}{80}=100\text{ contracts}.
 </tr>
 </tbody>
 </table>
-<p>For example, when <span class="math inline">\(F_T=107\)</span>,</p>
+<p>For example, when <span class="math inline">\(F_T=107\)</span>, the mapped bond loses <span class="math inline">\(\$300{,}000\)</span>, the puts pay <span class="math inline">\(\$300{,}000\)</span>, and the manager has paid <span class="math inline">\(\$125{,}000\)</span> for the insurance:</p>
 <p><span class="math display">\[
 \begin{aligned}
 \text{net change}
@@ -1927,7 +1945,7 @@ N=\frac{8{,}000}{80}=100\text{ contracts}.
 &amp;=-\$125{,}000.
 \end{aligned}
 \]</span></p>
-<p>Below the strike, the mapped bond loss and put payoff cancel; the remaining loss is the insurance premium. Above the strike, the put expires worthless and the manager retains the bond gain less the premium.</p>
+<p>Below the strike, every additional one-point mapped bond loss is offset by an additional one-point put payoff; the net loss is limited to the premium. Above the strike, the puts expire worthless and the manager retains the mapped bond gain less the premium. The exact floor will differ in practice because the bond and futures can have basis, curve, and convexity differences.</p>
 <div id="cell-fig-protective-put-hedge" class="cell" data-execution_count="12">
 <div class="cell-output cell-output-display">
 <div id="fig-protective-put-hedge" class="quarto-float quarto-figure quarto-figure-center anchored">
@@ -1942,7 +1960,7 @@ Figure&nbsp;11: Protective puts establish a floor while preserving gains above t
 </div>
 </div>
 </div>
-<p>The protection is not free. If rates fall and bond prices rise, the puts expire worthless and the portfolio return is reduced by the premium. If rates rise enough, the put payoff offsets further mapped losses below the strike.</p>
+<p>The 250-put delta hedge and the 100-put static overlay should not be confused. The first targets zero sensitivity for a small move today and must be rebalanced as delta changes. The second targets a transparent one-for-one payoff floor at expiration and retains some sensitivity before expiration.</p>
 </div>
 </div>
 <section id="practical-hedge-risks" class="level3">
@@ -1960,35 +1978,53 @@ Figure&nbsp;11: Protective puts establish a floor while preserving gains above t
 </section>
 <section id="covered-call-writing-with-futures-options" class="level2" data-number="13">
 <h2 data-number="13" class="anchored" data-anchor-id="covered-call-writing-with-futures-options"><span class="header-section-number">13</span> Covered Call Writing with Futures Options</h2>
-<p>A <strong>covered call</strong> combines a long underlying exposure with a short call. For a bond manager, a practical version is a long bond portfolio plus short calls on Treasury futures whose DV01 approximately matches the portfolio.</p>
+<p>A <strong>covered call</strong> combines a long underlying exposure with short calls on that exposure. For a bond manager, the long bond portfolio is first translated into futures-equivalent contracts using DV01. The manager then chooses whether to match the current option delta or to overwrite the exposure one-for-one for its expiration payoff.</p>
 <p>The manager receives option premium and gives up gains beyond the call strike. The strategy is attractive when the manager expects rates and prices to remain in a range, but it is not downside insurance.</p>
-<p>At expiration, the simplified mapped profit is:</p>
+<p>For one futures-equivalent unit and one short call, the simplified expiration change in futures-price points is:</p>
 <p><span class="math display">\[
 \Pi_{\text{covered call}}
 =(F_T-F_0)+c-\max(F_T-K,0).
 \]</span></p>
 <p>Below the strike, the call expires worthless and the premium cushions losses only by a fixed amount. Above the strike, the short call offsets further gains.</p>
-<div class="callout callout-style-default callout-note callout-titled" title="Example 9: Covered Call Income">
+<div class="callout callout-style-default callout-note callout-titled" title="Example 9: Covered Calls on a Mapped Bond Exposure">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Example 9: Covered Call Income
+<span class="screen-reader-only">Note</span>Example 9: Covered Calls on a Mapped Bond Exposure
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>A manager has futures-equivalent long exposure to 100 contracts. The current futures price is 110. The manager sells 100 calls with strike 113 for 1.00 point.</p>
-<p>Premium income is:</p>
+<p>Continue with the same <span class="math inline">\(\$10\)</span> million bond portfolio. Its <span class="math inline">\(\$8{,}000\)</span> DV01 and the <span class="math inline">\(\$80\)</span> futures DV01 imply a long exposure of 100 futures-equivalent contracts. The current futures price is <span class="math inline">\(F_0=110\)</span>. A call has strike <span class="math inline">\(K=113\)</span>, premium <span class="math inline">\(c=1.00\)</span> point, current delta <span class="math inline">\(+0.40\)</span>, and a <span class="math inline">\(\$1{,}000\)</span> value per futures-price point.</p>
+<p><strong>Step 1: Compare delta-neutral and static contract counts.</strong> Because the manager is short the calls, their delta contribution is negative. Neutralizing the portfolio’s current <span class="math inline">\(+100\)</span> futures-equivalent exposure would require:</p>
+<p><span class="math display">\[
+N_{\text{delta hedge}}
+=\frac{100}{0.40}
+=250\text{ short calls}.
+\]</span></p>
+<p>The initial net delta would be <span class="math inline">\(100-250(0.40)=0\)</span>. This aggressive overwrite must be rebalanced as call delta changes and can become overhedged if the futures price rises and the call delta approaches one.</p>
+<p>For a standard <strong>one-for-one covered-call overlay</strong>, the manager instead sells 100 calls against the 100 futures-equivalent units. This does not eliminate current delta: the initial net exposure is <span class="math inline">\(100-100(0.40)=60\)</span> long futures equivalents. However, at expiration above the strike, each call’s payoff slope is <span class="math inline">\(+1\)</span> to its holder and therefore <span class="math inline">\(-1\)</span> to the writer. The 100 short calls then offset the gains on the 100-unit mapped bond exposure. The calculations below use this 100-call static overlay.</p>
+<p><strong>Step 2: Calculate the premium income.</strong> Selling 100 calls produces:</p>
 <p><span class="math display">\[
 100\times1.00\times\$1{,}000=\$100{,}000.
 \]</span></p>
-<p>If futures finish at 110, the calls expire worthless and the manager keeps the premium. If futures finish at 118, the bond exposure gains, but the calls lose five points above the strike; gains are effectively capped near the strike plus premium. If futures fall sharply, the $100,000 premium offsets only the first part of the portfolio loss.</p>
-<p>The short call’s profit at expiration is</p>
+<p><strong>Step 3: Write each component of the expiration result.</strong> The mapped bond change is the same 100-contract-equivalent mapping used in the protective-put example:</p>
 <p><span class="math display">\[
-100(\$1{,}000)[1-\max(F_T-113,0)].
+\Delta V_{\text{bond,mapped}}
+=100(\$1{,}000)(F_T-110).
 \]</span></p>
-<p>Combining this with the mapped bond exposure gives:</p>
+<p>The call holder receives <span class="math inline">\(\max(F_T-113,0)\)</span> points. The manager wrote the calls, so the intrinsic value is a loss, while the premium received is a gain. The short-call profit is therefore:</p>
+<p><span class="math display">\[
+\Pi_{\text{short calls}}
+=100(\$1{,}000)[1-\max(F_T-113,0)].
+\]</span></p>
+<p>The covered-call net change is:</p>
+<p><span class="math display">\[
+\Delta V_{\text{covered call}}
+=\Delta V_{\text{bond,mapped}}+\Pi_{\text{short calls}}.
+\]</span></p>
+<p>The resulting scenarios are:</p>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 25%">
@@ -2043,13 +2079,18 @@ Figure&nbsp;11: Protective puts establish a floor while preserving gains above t
 </tr>
 </tbody>
 </table>
-<p>At <span class="math inline">\(F_T=119\)</span>, for example, the mapped bond exposure gains $900,000. The short calls lose six intrinsic-value points but retain the one-point premium:</p>
+<p>At <span class="math inline">\(F_T=107\)</span>, the calls expire worthless. The <span class="math inline">\(\$100{,}000\)</span> premium cushions—but does not eliminate—the mapped <span class="math inline">\(\$300{,}000\)</span> bond loss, leaving a <span class="math inline">\(\$200{,}000\)</span> net loss.</p>
+<p>At <span class="math inline">\(F_T=119\)</span>, the mapped bond exposure gains <span class="math inline">\(\$900{,}000\)</span>. The calls finish six points in the money, so the writer pays <span class="math inline">\(\$600{,}000\)</span> of intrinsic value but keeps the <span class="math inline">\(\$100{,}000\)</span> premium:</p>
 <p><span class="math display">\[
 \text{short-call profit}
 =100(\$1{,}000)[1-(119-113)]
 =-\$500{,}000.
 \]</span></p>
-<p>The combined gain is therefore $900,000-$500,000=$400,000. This is the strategy’s cap: every additional dollar gained on the long exposure is offset by an additional dollar lost on the short calls.</p>
+<p>The combined gain is therefore <span class="math inline">\(\$900{,}000-\$500{,}000=\$400{,}000\)</span>. More generally, once <span class="math inline">\(F_T&gt;113\)</span>, the mapped bond gains one dollar per incremental futures move while the written calls lose one dollar. The maximum net gain is consequently:</p>
+<p><span class="math display">\[
+100(\$1{,}000)[(113-110)+1]=\$400{,}000.
+\]</span></p>
+<p>Below the strike, the premium provides only a fixed <span class="math inline">\(\$100{,}000\)</span> cushion; it does not create a floor. Above the strike, the strategy gives up further mapped gains. As with the put example, actual results can differ because the bond portfolio is not the futures contract and the DV01 mapping can change.</p>
 <div id="cell-fig-covered-call" class="cell" data-execution_count="13">
 <div class="cell-output cell-output-display">
 <div id="fig-covered-call" class="quarto-float quarto-figure quarto-figure-center anchored">

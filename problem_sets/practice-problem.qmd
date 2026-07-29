@@ -1,0 +1,680 @@
+---
+title: "Practice Problems: Lectures 7–11"
+subtitle: "BUS 411 — Fixed Income Security Analysis and Valuation"
+format:
+  html:
+    toc: true
+    toc-location: left
+    number-sections: true
+    number-depth: 2
+  pdf:
+    pdf-engine: xelatex
+    toc: true
+    number-sections: true
+    number-depth: 2
+geometry:
+  - margin=1in
+fontsize: 11pt
+---
+
+## Instructions {.unnumbered}
+
+These 20 numerical problems review Lectures 7–11. Four problems are provided for
+each lecture. Several are variants of Assignment 2 questions, while others extend
+worked examples from the lecture notes. Attempt each problem before opening its
+solution. Keep rates in decimal form during calculations and state monetary units.
+
+# Lecture 7: Interest-Rate Models
+
+## Problem 1: Historical Short-Rate Volatility
+
+Weekly short-rate changes, in basis points, are
+
+$$2,;-2,;4,;-1,;3,;-3,;5,;0.$$
+
+a. Compute the sample mean.  
+b. Compute the sample weekly standard deviation.  
+c. Annualize the standard deviation using $\sqrt{52}$.  
+d. Interpret the annualized result and identify one limitation.
+
+::: {.callout-note title="Solution" collapse="true"}
+There are eight observations. Their sum is 8 bps, so
+
+$$\bar{x}=\frac{8}{8}=\boxed{1.00\text{ bp per week}}.$$
+
+The deviations from the mean are $1,-3,3,-2,2,-4,4,-1$. Their squared
+deviations sum to
+
+$$1+9+9+4+4+16+16+1=60.$$
+
+Using the sample denominator $n-1=7$,
+
+$$s=\sqrt{\frac{60}{7}}=\boxed{2.9277\text{ bps per week}}.$$
+
+The square-root-of-time annualization is
+
+$$s_{\text{annual}}=2.9277\sqrt{52}=\boxed{21.11\text{ bps per year}}.$$
+
+This describes the annualized scale of short-rate changes if weekly changes are
+independent and have stable variance. Those assumptions may fail when volatility
+clusters or the monetary-policy regime changes.
+:::
+
+## Problem 2: Mean Reversion and a One-Standard-Deviation Shock
+
+The short rate follows the Euler approximation
+
+$$\Delta r=a(\theta-r)\Delta t+\sigma\sqrt{\Delta t}\,\varepsilon,$$
+
+where $r=5.00\%$, $\theta=3.50\%$, $a=0.80$, $\sigma=1.20\%$ per year,
+$\Delta t=0.25$, and $E[\varepsilon]=0$.
+
+a. Compute the expected quarterly rate change.  
+b. Compute the expected rate after one quarter.  
+c. Compute the standard deviation of the quarterly shock.  
+d. Give the rates corresponding to shocks of $\varepsilon=+1$ and $-1$.
+
+::: {.callout-note title="Solution" collapse="true"}
+The expected shock is zero. The mean-reversion component is
+
+$$E[\Delta r]=0.80(0.035-0.050)(0.25)=-0.0030=-30\text{ bps}.$$
+
+Therefore,
+
+$$E[r_{t+0.25}]=0.0500-0.0030=\boxed{4.70\%}.$$
+
+The shock standard deviation is
+
+$$\sigma\sqrt{\Delta t}=0.012\sqrt{0.25}=0.0060=60\text{ bps}.$$
+
+For $\varepsilon=+1$, the rate is $4.70\%+0.60\%=\boxed{5.30\%}$; for
+$\varepsilon=-1$, it is $4.70\%-0.60\%=\boxed{4.10\%}$. Mean reversion controls
+the center of the distribution, while $\sigma$ controls its dispersion.
+:::
+
+## Problem 3: Nodes in a Lognormal Short-Rate Tree
+
+A model specifies year-2 short rates as
+
+$$r_{2,j}=a_2e^{(2j-2)\sigma},\qquad j=0,1,2,$$
+
+with $a_2=4.00\%$ and $\sigma=0.15$.
+
+a. Compute all three year-2 short rates.  
+b. Compute the one-year discount factor $1/(1+r)$ at each node.  
+c. Which parameter sets the middle level of the rates?  
+d. If $sigma$ rises while $a_2$ is unchanged, what happens numerically to the
+distance between the low and high nodes?
+
+::: {.callout-note title="Solution" collapse="true"}
+For $j=0,1,2$, the exponents are $-0.30,0,+0.30$. Thus,
+
+$$
+\begin{aligned}
+r_{2,0}&=0.04e^{-0.30}=\boxed{2.9633\%},\\
+r_{2,1}&=0.04=\boxed{4.0000\%},\\
+r_{2,2}&=0.04e^{0.30}=\boxed{5.3994\%}.
+\end{aligned}
+$$
+
+The associated one-year discount factors are approximately
+
+$$\boxed{0.9712,quad0.9615,quad0.9488}.$$
+
+The level parameter $a_2$ fixes the middle node. The current low-to-high distance
+is $5.3994\%-2.9633\%=2.4361\%$. A larger $\sigma$ lowers the low node and raises
+the high node, widening this distance; this is how volatility controls dispersion.
+:::
+
+## Problem 4: A One-Period Bond-Option Tree
+
+One year from today, a zero-coupon bond will be worth either 94 in the up-rate state
+or 98 in the down-rate state. A European call expiring then has strike 96. The
+risk-neutral probability of the up-rate state is 0.55, and today's one-year short
+rate is 4%.
+
+a. Compute the call payoff in each state.  
+b. Compute the call's time-0 value.  
+c. Compute the hedge ratio $(C_d-C_u)/(B_d-B_u)$.  
+d. Explain why the call pays more in the down-rate state.
+
+::: {.callout-note title="Solution" collapse="true"}
+The payoffs are
+
+$$C_u=\max(94-96,0)=0,qquad C_d=\max(98-96,0)=2.$$
+
+Risk-neutral valuation gives
+
+$$C_0=\frac{0.55(0)+0.45(2)}{1.04}=\boxed{0.8654}.$$
+
+The option changes by 2 when the bond changes by 4, so
+
+$$h=\frac{2-0}{98-94}=\boxed{0.50}.$$
+
+When rates fall, discount factors rise and the zero-coupon bond price is higher.
+The call is therefore in the money in the down-rate state.
+:::
+
+# Lecture 8: Bonds with Embedded Options and OAS
+
+## Problem 5: Estimating a Static Spread
+
+A corporate bond trades at 101.00. Discounting its promised cash flows at Treasury
+zero rates plus a trial spread gives:
+
+| Spread | Model value |
+|---:|---:|
+| 40 bps | 101.40 |
+| 60 bps | 100.72 |
+
+a. Explain why the value falls as the spread rises.  
+b. Estimate the static spread by linear interpolation.  
+c. How far is the estimate from each trial spread?  
+d. State what risk the static spread does not model for a callable bond.
+
+::: {.callout-note title="Solution" collapse="true"}
+A larger spread raises every discount rate, reducing present value. Since 101.00
+lies between the two trial values, the spread lies between 40 and 60 bps:
+
+$$
+s\approx40+
+\frac{101.40-101.00}{101.40-100.72}(60-40)
+=\boxed{51.76\text{ bps}}.
+$$
+
+It is 11.76 bps above 40 and 8.24 bps below 60. Interpolation is an approximation
+because price is convex rather than perfectly linear in spread. A static spread
+also ignores the path-dependent exercise of an embedded call; OAS uses a rate
+lattice to model that behavior.
+:::
+
+## Problem 6: Pricing a Callable Bond
+
+A two-year annual-pay bond has face value 100 and coupon 6. The time-0 short rate is
+5%. At year 1, rates are either 4% or 8%, each with risk-neutral probability 0.5.
+The bond may be called at 101 at year 1, after the continuation value is calculated.
+Coupons are added after discounting the next payment.
+
+a. Compute the year-2 payment.  
+b. Compute the year-1 option-free hold value at each node.  
+c. Apply the call rule and compute the time-0 callable value.  
+d. Compute the option-free value and the embedded call value.
+
+::: {.callout-note title="Solution" collapse="true"}
+The maturity payment is $100+6=106$. The year-1 hold values are
+
+$$V_{1,L}=\frac{106}{1.04}+6=107.9231,$$
+
+$$V_{1,H}=\frac{106}{1.08}+6=104.1481.$$
+
+Both exceed the call price, so the issuer calls in both states and the ex-coupon
+node value is capped at 101. The callable value is
+
+$$V_0^{\text{call}}=\frac{0.5(101)+0.5(101)}{1.05}+6
+=\boxed{102.1905}.$$
+
+Without the call,
+
+$$V_0^{\text{straight}}
+=\frac{0.5(107.9231)+0.5(104.1481)}{1.05}+6
+=\boxed{106.9863}.$$
+
+Thus, the issuer's embedded call is worth
+
+$$106.9863-102.1905=\boxed{4.7958}$$
+
+to the issuer and reduces the value received by the investor by the same amount.
+:::
+
+## Problem 7: Pricing a Putable Bond
+
+A two-year annual-pay bond has face value 100 and coupon 3. The time-0 short rate is
+5%. At year 1, rates are either 3% or 10%, each with probability 0.5. The investor
+may put the bond at 100 at year 1.
+
+a. Compute the year-2 payment.  
+b. Compute the year-1 hold values.  
+c. Apply the put rule.  
+d. Compute the time-0 putable and option-free values and the embedded put value.
+
+::: {.callout-note title="Solution" collapse="true"}
+The maturity payment is $100+3=103$. The hold values are
+
+$$V_{1,L}=\frac{103}{1.03}+3=103.0000,$$
+
+$$V_{1,H}=\frac{103}{1.10}+3=96.6364.$$
+
+The investor keeps the bond in the low-rate state and exercises the put in the
+high-rate state. Hence the year-1 values are 103 and 100. The time-0 putable value is
+
+$$V_0^{\text{put}}=\frac{0.5(103)+0.5(100)}{1.05}+3
+=\boxed{99.6667}.$$
+
+The option-free value is
+
+$$V_0^{\text{straight}}
+=\frac{0.5(103)+0.5(96.6364)}{1.05}+3
+=\boxed{98.0649}.$$
+
+The embedded investor put is worth
+
+$$99.6667-98.0649=\boxed{1.6017}.$$
+:::
+
+## Problem 8: OAS, Effective Duration, and Convexity
+
+A callable bond has market price $P_0=100.00$. Trial OAS prices are 100.40 at 45
+bps and 99.95 at 60 bps. After solving for OAS, the model gives $P_-=102.60$ when
+the curve falls 50 bps and $P_+=97.70$ when it rises 50 bps.
+
+a. Estimate the OAS.  
+b. Compute effective duration.  
+c. Compute effective convexity.  
+d. Interpret the two measures.
+
+::: {.callout-note title="Solution" collapse="true"}
+Interpolating to the market price,
+
+$$\text{OAS}\approx45+
+\frac{100.40-100.00}{100.40-99.95}(60-45)
+=\boxed{58.33\text{ bps}}.$$
+
+With $\Delta y=0.005$,
+
+$$D_{\text{eff}}=\frac{P_--P_+}{2P_0\Delta y}
+=\frac{102.60-97.70}{2(100)(0.005)}=\boxed{4.90}.$$
+
+$$C_{\text{eff}}=\frac{P_-+P_+-2P_0}{P_0(\Delta y)^2}
+=\frac{102.60+97.70-200}{100(0.005)^2}=\boxed{120.00}.$$
+
+Effective duration measures the local price slope after allowing the call decision
+to change. Effective convexity measures curvature under the same full repricing;
+both are therefore preferable to cash-flow duration for an option-embedded bond.
+:::
+
+# Lecture 9: Interest-Rate Futures
+
+## Problem 9: Treasury Futures Quotation and Margin Cash Flows
+
+A trader buys one Treasury futures contract at 101-12. Subsequent settlements are
+101-20, 101-08, and 101-24. Quotes are in 32nds, and one point is worth $\$1,000$.
+
+a. Convert all four prices to decimals.  
+b. Compute each daily cash flow to the long.  
+c. Compute cumulative profit or loss.  
+d. Explain the sign of the cash flows.
+
+::: {.callout-note title="Solution" collapse="true"}
+The decimal prices are
+
+$$101.375,quad101.625,quad101.250,quad101.750.$$
+
+Daily marking to market gives
+
+| Day | Price change | Long cash flow |
+|---:|---:|---:|
+| 1 | $+0.250$ | $+\$250$ |
+| 2 | $-0.375$ | $-\$375$ |
+| 3 | $+0.500$ | $+\$500$ |
+
+The cumulative result is $250-375+500=\boxed{\$375}$, equal to
+$(101.750-101.375)(\$1{,}000)$. A long receives cash when the settlement price
+rises and pays cash when it falls.
+:::
+
+## Problem 10: Three-Month SOFR Futures
+
+A long Three-Month SOFR futures position moves from 95.18 to 95.26. Each one-basis-
+point price move is worth $\$25$ per contract.
+
+a. Compute both implied SOFR rates.  
+b. Compute the price move in basis points.  
+c. Compute the long's dollar gain or loss.  
+d. Explain the inverse price-rate relation.
+
+::: {.callout-note title="Solution" collapse="true"}
+The quoted rate is $100-$ futures price. Initially it is
+$100-95.18=\boxed{4.82\%}$ and afterward it is
+$100-95.26=\boxed{4.74\%}$. The price rose by 0.08, or 8 basis points, so the long
+earns
+
+$$8(\$25)=\boxed{\$200}.$$
+
+The contract is quoted as 100 minus the implied rate; therefore, an increase in
+price mechanically corresponds to a decrease in the implied rate.
+:::
+
+## Problem 11: Cheapest-to-Deliver Bond
+
+A Treasury futures contract settles at 112.50. Ignore accrued interest and
+financing.
+
+| Bond | Cash price | Conversion factor |
+|---|---:|---:|
+| A | 119.10 | 1.0550 |
+| B | 111.25 | 0.9850 |
+| C | 106.40 | 0.9450 |
+
+a. Compute each invoice price.  
+b. Compute each net delivery cost.  
+c. Identify the cheapest-to-deliver bond.  
+d. Explain why cash price alone is insufficient.
+
+::: {.callout-note title="Solution" collapse="true"}
+Invoice price equals futures price times conversion factor:
+
+| Bond | Invoice price | Net delivery cost: cash minus invoice |
+|---|---:|---:|
+| A | $112.50(1.055)=118.6875$ | $0.4125$ |
+| B | $112.50(0.985)=110.8125$ | $0.4375$ |
+| C | $112.50(0.945)=106.3125$ | $0.0875$ |
+
+Bond C is the CTD because it has the smallest net delivery cost. Although C also
+has the lowest cash price here, the decision is based on cash price relative to the
+conversion-factor-adjusted invoice price, not cash price by itself.
+:::
+
+## Problem 12: Futures DV01 and a Portfolio Hedge
+
+Using Bond C from Problem 11, assume modified duration 7.10, clean price 106.40,
+deliverable face value $\$100,000$, and conversion factor 0.9450. A long bond
+portfolio has DV01 of $\$30,500$.
+
+a. Compute the CTD market value.  
+b. Compute CTD DV01.  
+c. Compute approximate futures DV01.  
+d. Compute the contract hedge and state its direction.
+
+::: {.callout-note title="Solution" collapse="true"}
+The deliverable market value is
+
+$$MV_{CTD}=1.0640(\$100{,}000)=\$106{,}400.$$
+
+Therefore,
+
+$$DV01_{CTD}=7.10(\$106{,}400)(0.0001)=\boxed{\$75.5440}.$$
+
+Adjusting for the conversion factor,
+
+$$DV01_F\approx\frac{75.5440}{0.9450}=\boxed{\$79.9407}.$$
+
+The hedge requires
+
+$$N=\frac{30{,}500}{79.9407}=381.53.$$
+
+The manager should sell approximately $\boxed{382}$ futures contracts because the
+long bond portfolio loses when rates rise, while short futures gain. Rounding to a
+whole contract leaves a small residual DV01.
+:::
+
+# Lecture 10: Credit Exposure and Credit Risk
+
+## Problem 13: Spread Duration and DTS
+
+A corporate bond position has market value $\$5,000,000$, spread duration 4.20, and
+spread 220 bps. Its spread widens by 30 bps.
+
+a. Estimate the percentage price change.  
+b. Estimate the dollar change.  
+c. Compute DTS using spread in percentage points.  
+d. Interpret DTS.
+
+::: {.callout-note title="Solution" collapse="true"}
+Using $\Delta P/P\approx-SD\,\Delta s$ and $\Delta s=0.0030$,
+
+$$\frac{\Delta P}{P}\approx-4.20(0.0030)=\boxed{-1.26\%}.$$
+
+The dollar change is
+
+$$-0.0126(\$5{,}000{,}000)=\boxed{-\$63{,}000}.$$
+
+With spread expressed as 2.20 percentage points,
+
+$$DTS=4.20(2.20)=\boxed{9.24}.$$
+
+Equivalently, using decimal spread gives 0.0924. DTS combines sensitivity and the
+current spread level, providing a rough relative measure of spread risk across
+bonds with different credit quality.
+:::
+
+## Problem 14: Empirical Duration Multiplier
+
+A $\$20$ million corporate bond position has analytical duration 6.50 and spread
+$s=2.50\%=0.025$. The correlation between Treasury-yield changes and relative
+spread changes is $-0.60$. Their volatilities are $\sigma_y=0.25\%$ and
+$\sigma_s=2.00\%$.
+
+a. Compute $\beta=\rho\sigma_s/\sigma_y$.  
+b. Compute $M=1+s\beta$ and empirical duration.  
+c. Estimate the loss for a 50 bp Treasury-yield increase.  
+d. Compare it with the analytical-duration loss.
+
+::: {.callout-note title="Solution" collapse="true"}
+
+$$\beta=-0.60\frac{0.0200}{0.0025}=\boxed{-4.80}.$$
+
+The duration multiplier and empirical duration are
+
+$$M=1+0.025(-4.80)=\boxed{0.88},$$
+
+$$D_{emp}=6.50(0.88)=\boxed{5.72}.$$
+
+For $\Delta y=0.0050$, the empirical estimate is
+
+$$\frac{\Delta P}{P}\approx-5.72(0.005)=-2.86\%,$$
+
+$$\Delta P=-0.0286(\$20{,}000{,}000)=\boxed{-\$572{,}000}.$$
+
+Analytical duration gives $-6.50(0.005)=-3.25\%$, or $-\$650,000$. It overstates
+this empirically adjusted loss by $\boxed{\$78,000}$ because spreads are assumed to
+tighten when Treasury yields rise.
+:::
+
+## Problem 15: A One-Period Structural Credit Model
+
+A firm owes $\$100$ million in one year. Its asset value will be $\$140$ million
+with probability 0.65 or $\$70$ million with probability 0.35. Ignore discounting.
+
+a. Identify the default state.  
+b. Compute debt and equity payoffs in each state.  
+c. Compute expected debt and equity payoffs.  
+d. Compute expected debt loss and recovery in the default state.
+
+::: {.callout-note title="Solution" collapse="true"}
+Default occurs when assets are below promised debt, so it occurs in the $\$70$
+million state.
+
+| Asset value | Debt payoff $\min(V_A,100)$ | Equity payoff $\max(V_A-100,0)$ |
+|---:|---:|---:|
+| $\$140m$ | $\$100m$ | $\$40m$ |
+| $\$70m$ | $\$70m$ | $0$ |
+
+Expected payoffs are
+
+$$E[D]=0.65(100)+0.35(70)=\boxed{\$89.5\text{m}},$$
+
+$$E[E]=0.65(40)+0.35(0)=\boxed{\$26.0\text{m}}.$$
+
+Expected debt loss relative to the promised $\$100$ million is $\$10.5$ million.
+Recovery conditional on default is $70/100=\boxed{70\%}$, so loss given default is
+30%. Equity is a call option on firm assets with strike equal to debt face value.
+:::
+
+## Problem 16: Default Intensity and Credit Spread
+
+A reduced-form model has constant annual intensity $\lambda=2.5\%$ and loss given
+default of 60%.
+
+a. Compute one-year survival and default probabilities.  
+b. Compute five-year survival and cumulative default probabilities.  
+c. For 100 surviving issuers, compute expected defaults during the next year.  
+d. Estimate the credit spread using $s\approx\lambda\times LGD$.
+
+::: {.callout-note title="Solution" collapse="true"}
+For constant intensity, $S(t)=e^{-\lambda t}$. At one year,
+
+$$S(1)=e^{-0.025}=0.97531,$$
+
+$$PD(1)=1-S(1)=\boxed{2.4690\%}.$$
+
+At five years,
+
+$$S(5)=e^{-0.125}=\boxed{88.2497\%},$$
+
+$$PD(5)=1-S(5)=\boxed{11.7503\%}.$$
+
+Among 100 initially surviving issuers, expected one-year defaults are
+$100(0.024690)=\boxed{2.469}$. The spread approximation is
+
+$$s\approx0.025(0.60)=0.0150=\boxed{150\text{ bps}}.$$
+
+An observed spread may differ because it also reflects liquidity, risk premia,
+taxes, and uncertainty about recovery and intensity.
+:::
+
+# Lecture 11: Interest-Rate Options
+
+## Problem 17: Treasury Futures Put Quotation
+
+A trader buys one 110 Treasury futures put for 0-48. Option premiums are quoted in
+64ths, and one point is worth $\$1,000$.
+
+a. Convert the premium to points and dollars.  
+b. Compute the expiration break-even price in decimal and fractional notation.  
+c. Compute payoff and net profit if futures finish at 107-32.  
+d. Compute payoff and net profit if futures finish at 112-00.
+
+::: {.callout-note title="Solution" collapse="true"}
+The quote means 48/64 of one point:
+
+$$0\text{-}48=\frac{48}{64}=0.75\text{ point},$$
+
+so the premium is $0.75(\$1,000)=\boxed{\$750}$. Break-even for a long put is
+
+$$K-p=110-0.75=109.25=\boxed{109\text{-}16},$$
+
+because $0.25=16/64$. At 107-32, $F_T=107.50$, so
+
+$$\text{payoff}=110-107.50=2.50\text{ points}=\$2,500,$$
+
+$$\text{net profit}=2,500-750=\boxed{\$1,750}.$$
+
+At 112-00 the put is out of the money, payoff is zero, and net profit is
+$\boxed{-\$750}$. It should not be exercised.
+:::
+
+## Problem 18: Put-Call Parity for Futures Options
+
+European futures options have $F_0=112$, $K=110$, $r=4\%$, $T=0.5$, and call
+premium $c=3.10$ points.
+
+a. Compute $e^{-rT}$.  
+b. Use $c-p=e^{-rT}(F_0-K)$ to compute the fair put.  
+c. If the market put is 1.40, compute the mispricing in points and dollars.  
+d. Describe an arbitrage that locks in the difference.
+
+::: {.callout-note title="Solution" collapse="true"}
+
+$$e^{-rT}=e^{-0.04(0.5)}=\boxed{0.980199}.$$
+
+Therefore,
+
+$$p=c-e^{-rT}(F_0-K)
+=3.10-0.980199(2)=\boxed{1.1396\text{ points}}.$$
+
+The market put at 1.40 is overpriced by
+
+$$1.40-1.1396=0.2604\text{ point}=\boxed{\$260.40}.$$
+
+At market prices, a long call and short put cost $3.10-1.40=1.70$ points and have
+expiration payoff $F_T-K$. Add a short futures contract, whose payoff is
+$F_0-F_T$, and the combined expiration payoff is the certain amount
+$F_0-K=2$. Borrow its present value, $1.9604$, to finance the $1.70$ option cost.
+The time-0 surplus is $1.9604-1.70=0.2604$ point, while the expiration cash flows
+repay the borrowing.
+:::
+
+## Problem 19: Black-Scholes on a Zero-Coupon Bond
+
+A European call and put are written on a zero-coupon bond with $S_0=95$, $K=94$,
+$T=0.75$, $r=3\%$, and bond-price volatility $\sigma=12\%$.
+
+a. Compute $\sigma\sqrt{T}$, $d_1$, and $d_2$.  
+b. Use $N(d_1)=0.6444$ and $N(d_2)=0.6050$ to compute the call.  
+c. Compute the put using complementary normal probabilities.  
+d. Verify put-call parity.
+
+::: {.callout-note title="Solution" collapse="true"}
+
+$$\sigma\sqrt{T}=0.12\sqrt{0.75}=\boxed{0.103923}.$$
+
+$$d_1=\frac{\ln(95/94)+(0.03+0.5(0.12)^2)(0.75)}{0.103923}
+=\boxed{0.3703},$$
+
+$$d_2=d_1-0.103923=\boxed{0.2664}.$$
+
+The call value is
+
+$$c=95(0.6444)-94e^{-0.03(0.75)}(0.6050)=\boxed{5.61}.$$
+
+Using $N(-d_1)=0.3556$ and $N(-d_2)=0.3950$,
+
+$$p=94e^{-0.0225}(0.3950)-95(0.3556)=\boxed{2.52}.$$
+
+The values satisfy parity up to rounding:
+
+$$c-p\approx5.61-2.52=3.09,$$
+
+$$S_0-Ke^{-rT}=95-94e^{-0.0225}=3.09.$$
+:::
+
+## Problem 20: Delta-DV01 Protective Put Hedge
+
+A $\$12$ million bond portfolio has modified duration 7.50. A Treasury futures
+contract has DV01 $\$75$, current price 112, and point value $\$1,000$. A put has
+strike 111, premium 1.10 points, and delta $-0.45$.
+
+a. Compute portfolio DV01 and futures-equivalent contracts.  
+b. Compute the number of puts for an initial delta-DV01 hedge and premium cost.  
+c. If rates rise 50 bps and futures fall 3.75 points at expiration, compute the
+portfolio loss, put payoff, and net hedged P&L using a whole-number hedge.  
+d. If rates instead fall 50 bps and the put expires worthless, compute net P&L.
+
+::: {.callout-note title="Solution" collapse="true"}
+Portfolio DV01 is
+
+$$DV01_P=\$12{,}000{,}000(7.50)(0.0001)=\boxed{\$9,000}.$$
+
+The portfolio is equivalent to
+
+$$N_{fut-eq}=\frac{9,000}{75}=\boxed{120\text{ futures contracts}}.$$
+
+Because each put supplies only 0.45 short futures equivalent initially,
+
+$$N_p=\frac{9,000}{0.45(75)}=266.67,$$
+
+so use 267 puts. Premium cost is
+
+$$267(1.10)(\$1,000)=\boxed{\$293,700}.$$
+
+For a 50 bp rate rise, the duration loss is
+
+$$-\$9,000(50)=-\$450,000.$$
+
+The expiration futures price is $112-3.75=108.25$. Each put pays
+$111-108.25=2.75$ points, so total payoff is
+
+$$267(2.75)(\$1,000)=\$734,250.$$
+
+Net hedged P&L is
+
+$$-450,000+734,250-293,700=\boxed{-\$9,450}.$$
+
+If rates fall 50 bps, the mapped portfolio gain is $\$450,000$. With no put payoff,
+
+$$\text{net P\&L}=450,000-293,700=\boxed{\$156,300}.$$
+
+The hedge is delta-neutral only for a small move when initiated. By expiration the
+put's nonlinear payoff can create gains or losses different from a futures hedge,
+and the premium is paid in either scenario.
+:::

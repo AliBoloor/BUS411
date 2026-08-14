@@ -4,10 +4,13 @@ format:
   html:
     toc: true
     number-sections: true
+    code-fold: true
+    code-tools: true
 jupyter: python3
 execute:
   echo: true
   warning: false
+  message: false
 ---
 
 ## Purpose and Assumptions {.unnumbered}
@@ -18,9 +21,17 @@ $$
 dr_t=\kappa(\theta-r_t)dt+\sigma dW_t.
 $$
 
-This demo connects its parameters to a compact rate history, simulates scenarios, checks long-run moments, and compares model-based changes with a simple historical shock. Rates and parameters are **illustrative**, not a current calibration. The short rate is represented by a monthly overnight-rate proxy; parameters are constant; estimation error, regime shifts, jumps, and term premiums are ignored.
+This demo estimates its parameters from a dated monthly U.S. effective federal
+funds-rate history, simulates scenarios, checks long-run moments, and uses the
+fitted distribution for a one-year risk decision. The embedded observations are
+monthly averages for January 2023 through June 2025, recorded in percent and
+converted to decimals. Source: [Federal Reserve Bank of St. Louis, Effective
+Federal Funds Rate (FEDFUNDS)](https://fred.stlouisfed.org/series/FEDFUNDS).
+Parameters are constant; estimation error, regime shifts, jumps, and term premia
+are ignored. This short sample is pedagogical and should not be treated as a robust
+trading calibration.
 
-## Compact Illustrative Rate History
+## Step 1: Record the observed rate history
 
 ```{python}
 #| label: history
@@ -30,33 +41,65 @@ import matplotlib.pyplot as plt
 
 dates = pd.date_range("2023-01-31", periods=30, freq="ME")
 rates = np.array([
-    0.0430, 0.0450, 0.0470, 0.0490, 0.0510, 0.0525,
-    0.0530, 0.0535, 0.0532, 0.0528, 0.0525, 0.0520,
-    0.0515, 0.0508, 0.0500, 0.0492, 0.0484, 0.0475,
-    0.0468, 0.0460, 0.0455, 0.0450, 0.0446, 0.0442,
-    0.0439, 0.0436, 0.0434, 0.0432, 0.0431, 0.0430,
-])
-history = pd.Series(rates, index=dates, name="Illustrative short rate")
+    4.33, 4.57, 4.65, 4.83, 5.06, 5.08,
+    5.12, 5.33, 5.33, 5.33, 5.33, 5.33,
+    5.33, 5.33, 5.33, 5.33, 5.33, 5.33,
+    5.33, 5.33, 5.13, 4.83, 4.64, 4.48,
+    4.33, 4.33, 4.33, 4.33, 4.33, 4.33,
+]) / 100
+history = pd.Series(rates, index=dates, name="Effective federal funds rate")
 history.to_frame().tail()
 ```
 
-The series shows a tightening phase followed by gradual normalization. It is too short for a robust statistical calibration, so the demo uses transparent, economically plausible parameters informed by its scale rather than presenting false precision.
+The series shows tightening, a long plateau, and initial easing. It is too short
+and policy-driven for a robust structural calibration, but it lets us show the
+entire estimation workflow without hiding the model's limitations.
 
-## Parameters and Financial Meaning
+## Step 2: Estimate Vasicek parameters
+
+The exact monthly transition can be written as an AR(1):
+
+$$
+r_{t+\Delta}=\alpha+\phi r_t+\varepsilon_{t+\Delta},\qquad
+\phi=e^{-\kappa\Delta},\qquad \alpha=\theta(1-\phi).
+$$
+
+After OLS estimation,
+
+$$
+\widehat\kappa=-\frac{\log\widehat\phi}{\Delta},\qquad
+\widehat\theta=\frac{\widehat\alpha}{1-\widehat\phi},\qquad
+\widehat\sigma=s_\varepsilon
+\sqrt{\frac{2\widehat\kappa}{1-\widehat\phi^2}}.
+$$
+
+Here $\Delta=1/12$ year, $\kappa$ is in $1/\text{year}$, and $\sigma$ is in
+decimal rate units per $\sqrt{\text{year}}$.
 
 ```{python}
 #| label: parameters
-r0 = float(history.iloc[-1])
-kappa = 0.70       # annual speed of mean reversion
-theta = 0.0380     # long-run mean rate
-sigma = 0.0180     # annualized short-rate volatility
 dt = 1 / 12
+x = history.iloc[:-1].to_numpy()
+y = history.iloc[1:].to_numpy()
+design = np.column_stack([np.ones_like(x), x])
+alpha_hat, phi_hat = np.linalg.lstsq(design, y, rcond=None)[0]
+residuals = y - (alpha_hat + phi_hat * x)
+residual_std = residuals.std(ddof=2)
+
+if not 0 < phi_hat < 1:
+    raise ValueError("This sample does not imply a stationary Vasicek fit.")
+
+kappa = -np.log(phi_hat) / dt
+theta = alpha_hat / (1 - phi_hat)
+sigma = residual_std * np.sqrt(2 * kappa / (1 - phi_hat**2))
+r0 = float(history.iloc[-1])
 
 half_life = np.log(2) / kappa
 long_run_std = sigma / np.sqrt(2 * kappa)
 
 pd.Series({
     "Current rate": r0,
+    "Estimated monthly persistence phi": phi_hat,
     "Mean-reversion speed kappa (1/year)": kappa,
     "Long-run mean theta": theta,
     "Volatility sigma (rate/sqrt(year))": sigma,
@@ -131,6 +174,31 @@ summary.round(5)
 ```
 
 Vasicek rates are normally distributed, so negative rates are possible. That can be useful in markets where negative policy rates are plausible, but it may be undesirable for other applications. A positivity-preserving model such as CIR changes this feature, at the cost of a different distribution and dynamics.
+
+## Use the fitted distribution in a funding decision
+
+Suppose a treasury team wants a one-year planning range for a floating-rate funding
+cost tied to the overnight rate. Simulate 50,000 one-year endpoints and report the
+central 90% range and the probability that the rate exceeds 5%. This applies the
+fitted **physical-measure** model; it is not a risk-neutral bond price.
+
+```{python}
+#| label: one-year-funding-risk
+one_year_rates = simulate_vasicek(
+    r0, years=1.0, paths=50_000, rng=np.random.default_rng(414)
+)[-1]
+funding_summary = pd.Series({
+    "5th-percentile funding rate (%)": 100 * np.quantile(one_year_rates, 0.05),
+    "Median funding rate (%)": 100 * np.median(one_year_rates),
+    "95th-percentile funding rate (%)": 100 * np.quantile(one_year_rates, 0.95),
+    "Probability funding rate exceeds 5%": np.mean(one_year_rates > 0.05),
+})
+funding_summary.round(3)
+```
+
+The 95th percentile can serve as a planning stress, while the exceedance
+probability helps size an interest-expense buffer. Parameter uncertainty and policy
+regime changes should be added as separate stresses.
 
 ## Model Scenario Versus a Historical Shock
 

@@ -360,7 +360,10 @@ window.Quarto = {
   <ul>
   <li><a href="#purpose-and-assumptions" id="toc-purpose-and-assumptions" class="nav-link active" data-scroll-target="#purpose-and-assumptions">Purpose and Assumptions</a></li>
   <li><a href="#full-cash-flow-pricing-and-risk-measures" id="toc-full-cash-flow-pricing-and-risk-measures" class="nav-link" data-scroll-target="#full-cash-flow-pricing-and-risk-measures"><span class="header-section-number">1</span> Full Cash-Flow Pricing and Risk Measures</a></li>
-  <li><a href="#exact-repricing-versus-approximations" id="toc-exact-repricing-versus-approximations" class="nav-link" data-scroll-target="#exact-repricing-versus-approximations"><span class="header-section-number">2</span> Exact Repricing Versus Approximations</a></li>
+  <li><a href="#exact-repricing-versus-approximations" id="toc-exact-repricing-versus-approximations" class="nav-link" data-scroll-target="#exact-repricing-versus-approximations"><span class="header-section-number">2</span> Exact Repricing Versus Approximations</a>
+  <ul class="collapse">
+  <li><a href="#explore-the-shock-size-html" id="toc-explore-the-shock-size-html" class="nav-link" data-scroll-target="#explore-the-shock-size-html"><span class="header-section-number">2.1</span> Explore the shock size (HTML)</a></li>
+  </ul></li>
   <li><a href="#portfolio-aggregation" id="toc-portfolio-aggregation" class="nav-link" data-scroll-target="#portfolio-aggregation"><span class="header-section-number">3</span> Portfolio Aggregation</a></li>
   <li><a href="#parallel-and-nonparallel-scenarios" id="toc-parallel-and-nonparallel-scenarios" class="nav-link" data-scroll-target="#parallel-and-nonparallel-scenarios"><span class="header-section-number">4</span> Parallel and Nonparallel Scenarios</a></li>
   <li><a href="#validation-checks" id="toc-validation-checks" class="nav-link" data-scroll-target="#validation-checks"><span class="header-section-number">5</span> Validation Checks</a></li>
@@ -378,7 +381,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Practical Demo: Duration, Convexity, and Portfolio Repricing</h1>
+<div class="quarto-title-block"><div><h1 class="title">Practical Demo: Duration, Convexity, and Portfolio Repricing</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button">View Source</a></li></ul></div></div>
 </div>
 
 
@@ -398,7 +401,39 @@ window.Quarto = {
 <section id="purpose-and-assumptions" class="level2 unnumbered">
 <h2 class="unnumbered anchored" data-anchor-id="purpose-and-assumptions">Purpose and Assumptions</h2>
 <p>This demo prices a small bond portfolio from contractual cash flows, measures Macaulay duration, modified duration, DV01/PVBP, and convexity, and compares approximations with exact repricing. All bonds and yields are <strong>illustrative, market-like inputs</strong>, not live quotes. Bonds pay semiannual coupons; yields are nominal annual yields compounded semiannually; settlement is on a coupon date; default, taxes, accrued interest, and embedded options are ignored.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Workflow stage</th>
+<th>In this case</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Observed on a position report</td>
+<td>Face amount, coupon, maturity, and yield</td>
+</tr>
+<tr class="even">
+<td>Calculated</td>
+<td>Full price, duration, DV01, and convexity</td>
+</tr>
+<tr class="odd">
+<td>Checked</td>
+<td>Approximation error against exact cash-flow repricing</td>
+</tr>
+<tr class="even">
+<td>Used for</td>
+<td>Portfolio shock P&amp;L and identification of curve risk</td>
+</tr>
+</tbody>
+</table>
 <div id="setup" class="cell" data-execution_count="1">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
@@ -411,6 +446,7 @@ window.Quarto = {
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Yield"</span>: [<span class="fl">0.0410</span>, <span class="fl">0.0485</span>, <span class="fl">0.0610</span>],</span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>})</span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>frequency <span class="op">=</span> <span class="dv">2</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 </div>
 </section>
 <section id="full-cash-flow-pricing-and-risk-measures" class="level2" data-number="1">
@@ -424,6 +460,8 @@ P=\sum_{k=1}^{n}\frac{CF_k}{(1+y/m)^k}.
 DV01=P D_{mod}(0.0001).
 \]</span></p>
 <div id="cell-bond-functions" class="cell" data-execution_count="2">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> bond_metrics(face, coupon_rate, maturity, ytm, frequency<span class="op">=</span><span class="dv">2</span>):</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    periods <span class="op">=</span> <span class="bu">int</span>(<span class="bu">round</span>(maturity <span class="op">*</span> frequency))</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    times <span class="op">=</span> np.arange(<span class="dv">1</span>, periods <span class="op">+</span> <span class="dv">1</span>) <span class="op">/</span> frequency</span>
@@ -452,6 +490,7 @@ DV01=P D_{mod}(0.0001).
 <span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>                                      <span class="st">"Modified duration"</span>, <span class="st">"DV01/PVBP ($/bp)"</span>, <span class="st">"Convexity"</span>])</span>
 <span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>bond_risk <span class="op">=</span> pd.concat([bonds, metrics], axis<span class="op">=</span><span class="dv">1</span>)</span>
 <span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>bond_risk.<span class="bu">round</span>(<span class="dv">4</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 <div id="bond-functions" class="cell-output cell-output-display" data-execution_count="2">
 <div>
 
@@ -530,6 +569,8 @@ DV01=P D_{mod}(0.0001).
 \frac{\Delta P}{P}\approx-D_{mod}\Delta y+\frac12 C(\Delta y)^2.
 \]</span></p>
 <div id="cell-approximation-table" class="cell" data-execution_count="3">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>selected <span class="op">=</span> bond_risk.iloc[<span class="dv">2</span>]</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>shocks_bp <span class="op">=</span> np.array([<span class="op">-</span><span class="dv">150</span>, <span class="op">-</span><span class="dv">75</span>, <span class="op">-</span><span class="dv">25</span>, <span class="dv">25</span>, <span class="dv">75</span>, <span class="dv">150</span>])</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>base_price <span class="op">=</span> selected[<span class="st">"Price ($)"</span>]</span>
@@ -553,6 +594,7 @@ DV01=P D_{mod}(0.0001).
 <span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Duration + convexity error (bp of price)"</span>: <span class="dv">10_000</span> <span class="op">*</span> (duration_convexity_change <span class="op">-</span> exact_change),</span>
 <span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>})</span>
 <span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>comparison.<span class="bu">round</span>(<span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 <div id="approximation-table" class="cell-output cell-output-display" data-execution_count="3">
 <div>
 
@@ -631,6 +673,8 @@ DV01=P D_{mod}(0.0001).
 </div>
 </div>
 <div id="cell-fig-approximation-errors" class="cell" data-execution_count="4">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">7.4</span>, <span class="fl">4.0</span>))</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>ax.plot(shocks_bp, <span class="dv">100</span> <span class="op">*</span> exact_change, <span class="st">"o-"</span>, label<span class="op">=</span><span class="st">"Exact repricing"</span>)</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>ax.plot(shocks_bp, <span class="dv">100</span> <span class="op">*</span> duration_change, <span class="st">"s--"</span>, label<span class="op">=</span><span class="st">"Duration only"</span>)</span>
@@ -641,6 +685,7 @@ DV01=P D_{mod}(0.0001).
 <span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>ax.legend()</span>
 <span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
 <span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 <div class="cell-output cell-output-display">
 <div id="fig-approximation-errors" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
@@ -654,11 +699,46 @@ Figure&nbsp;1: Convexity materially improves the approximation for larger yield 
 </div>
 </div>
 </div>
+<section id="explore-the-shock-size-html" class="level3" data-number="2.1">
+<h3 data-number="2.1" class="anchored" data-anchor-id="explore-the-shock-size-html"><span class="header-section-number">2.1</span> Explore the shock size (HTML)</h3>
+<p>The table and figure above are the static fallback in PDF. In HTML, move the slider to reprice the same 10-year 5.75% coupon bond exactly.</p>
+<div id="duration-explorer" style="padding:1rem;border:1px solid #d9e1e8;border-radius:.4rem">
+<label for="shock-slider"><strong>Yield shock:</strong>
+<output id="shock-label">
++50 bp
+</output>
+</label><br> <input id="shock-slider" type="range" min="-200" max="200" step="5" value="50" style="width:70%">
+<p id="shock-result" aria-live="polite">
+</p>
+</div>
+<script>
+(() => {
+  const slider = document.getElementById('shock-slider');
+  const label = document.getElementById('shock-label');
+  const result = document.getElementById('shock-result');
+  const face = 100, coupon = 100 * 0.0575 / 2, periods = 20, baseYield = 0.0610;
+  const price = y => {
+    let value = 0;
+    for (let k = 1; k <= periods; k++) value += (coupon + (k === periods ? face : 0)) / Math.pow(1 + y / 2, k);
+    return value;
+  };
+  const base = price(baseYield);
+  const update = () => {
+    const bp = Number(slider.value), shocked = price(baseYield + bp / 10000);
+    label.value = `${bp > 0 ? '+' : ''}${bp} bp`;
+    result.textContent = `Exact price: ${shocked.toFixed(3)} per 100; change: ${((shocked / base - 1) * 100).toFixed(3)}%.`;
+  };
+  slider.addEventListener('input', update); update();
+})();
+</script>
+</section>
 </section>
 <section id="portfolio-aggregation" class="level2" data-number="3">
 <h2 data-number="3" class="anchored" data-anchor-id="portfolio-aggregation"><span class="header-section-number">3</span> Portfolio Aggregation</h2>
 <p>Dollar risk aggregates across positions. Portfolio DV01 is the sum of bond DV01s; market-value-weighted duration is equivalent to total dollar duration divided by portfolio value.</p>
 <div id="cell-portfolio-aggregation" class="cell" data-execution_count="5">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>portfolio_value <span class="op">=</span> bond_risk[<span class="st">"Price ($)"</span>].<span class="bu">sum</span>()</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>portfolio_dv01 <span class="op">=</span> bond_risk[<span class="st">"DV01/PVBP ($/bp)"</span>].<span class="bu">sum</span>()</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>portfolio_modified_duration <span class="op">=</span> portfolio_dv01 <span class="op">/</span> (portfolio_value <span class="op">*</span> <span class="fl">0.0001</span>)</span>
@@ -670,6 +750,7 @@ Figure&nbsp;1: Convexity materially improves the approximation for larger yield 
 <span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Portfolio modified duration"</span>: portfolio_modified_duration,</span>
 <span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Market-value-weighted convexity"</span>: portfolio_convexity,</span>
 <span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>}).<span class="bu">round</span>(<span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 <div id="portfolio-aggregation" class="cell-output cell-output-display" data-execution_count="5">
 <pre><code>Portfolio market value ($)         2.9726e+07
 Portfolio DV01/PVBP ($/bp)         1.2489e+04
@@ -683,6 +764,8 @@ dtype: float64</code></pre>
 <h2 data-number="4" class="anchored" data-anchor-id="parallel-and-nonparallel-scenarios"><span class="header-section-number">4</span> Parallel and Nonparallel Scenarios</h2>
 <p>A single duration number is designed for a parallel shift. A curve twist must be applied bond by bond.</p>
 <div id="cell-portfolio-scenarios" class="cell" data-execution_count="6">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>scenario_shocks <span class="op">=</span> {</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Parallel +50 bp"</span>: np.array([<span class="dv">50</span>, <span class="dv">50</span>, <span class="dv">50</span>]),</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Bear steepener"</span>: np.array([<span class="dv">10</span>, <span class="dv">35</span>, <span class="dv">75</span>]),</span>
@@ -712,6 +795,7 @@ dtype: float64</code></pre>
 <span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>    columns<span class="op">=</span>[<span class="st">"Scenario"</span>, <span class="st">"Duration P&amp;L ($)"</span>, <span class="st">"Duration + convexity P&amp;L ($)"</span>, <span class="st">"Exact P&amp;L ($)"</span>],</span>
 <span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>).set_index(<span class="st">"Scenario"</span>)</span>
 <span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>scenario_results.<span class="bu">round</span>(<span class="dv">0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 <div id="portfolio-scenarios" class="cell-output cell-output-display" data-execution_count="6">
 <div>
 
@@ -761,6 +845,8 @@ dtype: float64</code></pre>
 <section id="validation-checks" class="level2" data-number="5">
 <h2 data-number="5" class="anchored" data-anchor-id="validation-checks"><span class="header-section-number">5</span> Validation Checks</h2>
 <div id="cell-validation" class="cell" data-execution_count="7">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> np.<span class="bu">all</span>(bond_risk[<span class="st">"Macaulay duration"</span>] <span class="op">&gt;</span> bond_risk[<span class="st">"Modified duration"</span>])</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> np.<span class="bu">all</span>(bond_risk[<span class="st">"DV01/PVBP ($/bp)"</span>] <span class="op">&gt;</span> <span class="dv">0</span>)</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="bu">abs</span>(portfolio_dv01 <span class="op">-</span> bond_risk[<span class="st">"DV01/PVBP ($/bp)"</span>].<span class="bu">sum</span>()) <span class="op">&lt;</span> <span class="fl">1e-10</span></span>
@@ -774,6 +860,7 @@ dtype: float64</code></pre>
 <span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Convexity improves average approximation"</span>: <span class="va">True</span>,</span>
 <span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Exact price falls as yield rises"</span>: <span class="va">True</span>,</span>
 <span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 <div id="validation" class="cell-output cell-output-display" data-execution_count="7">
 <pre><code>Macaulay duration exceeds modified duration    True
 DV01 values are positive                       True
@@ -788,6 +875,8 @@ dtype: bool</code></pre>
 <h2 data-number="6" class="anchored" data-anchor-id="financial-interpretation"><span class="header-section-number">6</span> Financial Interpretation</h2>
 <p>Duration is a local slope, convexity is a curvature correction, and exact cash-flow repricing is the benchmark. DV01 translates percentage sensitivity into dollars. Portfolio aggregation is reliable for a stated parallel shock, but nonparallel scenarios require maturity-specific or key-rate exposures.</p>
 
+
+<!-- -->
 
 </section>
 
@@ -875,6 +964,57 @@ dtype: bool</code></pre>
         container: window.document.getElementById('quarto-embedded-source-code-modal')
       });
       clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
@@ -1204,7 +1344,266 @@ dtype: bool</code></pre>
       }
     }
   });
-  </script>
+  </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Practical Demo: Duration, Convexity, and Portfolio Repricing"</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="co">    toc: true</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="co">    number-sections: true</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="co">    code-fold: true</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="co">    code-tools: true</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="an">jupyter:</span><span class="co"> python3</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="an">execute:</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="co">  echo: true</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="co">  warning: false</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="co">  message: false</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a><span class="fu">## Purpose and Assumptions {.unnumbered}</span></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>This demo prices a small bond portfolio from contractual cash flows, measures Macaulay duration, modified duration, DV01/PVBP, and convexity, and compares approximations with exact repricing. All bonds and yields are **illustrative, market-like inputs**, not live quotes. Bonds pay semiannual coupons; yields are nominal annual yields compounded semiannually; settlement is on a coupon date; default, taxes, accrued interest, and embedded options are ignored.</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Workflow stage <span class="pp">|</span> In this case <span class="pp">|</span></span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a><span class="pp">|---|---|</span></span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Observed on a position report <span class="pp">|</span> Face amount, coupon, maturity, and yield <span class="pp">|</span></span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Calculated <span class="pp">|</span> Full price, duration, DV01, and convexity <span class="pp">|</span></span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Checked <span class="pp">|</span> Approximation error against exact cash-flow repricing <span class="pp">|</span></span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Used for <span class="pp">|</span> Portfolio shock P&amp;L and identification of curve risk <span class="pp">|</span></span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: setup</span></span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a>bonds <span class="op">=</span> pd.DataFrame({</span>
+<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Bond"</span>: [<span class="st">"2-year Treasury"</span>, <span class="st">"5-year agency"</span>, <span class="st">"10-year corporate"</span>],</span>
+<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Face value ($mm)"</span>: [<span class="fl">12.0</span>, <span class="fl">10.0</span>, <span class="fl">8.0</span>],</span>
+<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Coupon rate"</span>: [<span class="fl">0.040</span>, <span class="fl">0.0475</span>, <span class="fl">0.0575</span>],</span>
+<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Maturity (years)"</span>: [<span class="dv">2</span>, <span class="dv">5</span>, <span class="dv">10</span>],</span>
+<span id="cb10-40"><a href="#cb10-40" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Yield"</span>: [<span class="fl">0.0410</span>, <span class="fl">0.0485</span>, <span class="fl">0.0610</span>],</span>
+<span id="cb10-41"><a href="#cb10-41" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb10-42"><a href="#cb10-42" aria-hidden="true" tabindex="-1"></a>frequency <span class="op">=</span> <span class="dv">2</span></span>
+<span id="cb10-43"><a href="#cb10-43" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-44"><a href="#cb10-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-45"><a href="#cb10-45" aria-hidden="true" tabindex="-1"></a><span class="fu">## Full Cash-Flow Pricing and Risk Measures</span></span>
+<span id="cb10-46"><a href="#cb10-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-47"><a href="#cb10-47" aria-hidden="true" tabindex="-1"></a>For cash flow $CF_k$ at semiannual period $k$,</span>
+<span id="cb10-48"><a href="#cb10-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-49"><a href="#cb10-49" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb10-50"><a href="#cb10-50" aria-hidden="true" tabindex="-1"></a>P=\sum_{k=1}^{n}\frac{CF_k}{(1+y/m)^k}.</span>
+<span id="cb10-51"><a href="#cb10-51" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb10-52"><a href="#cb10-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-53"><a href="#cb10-53" aria-hidden="true" tabindex="-1"></a>Macaulay duration is the present-value-weighted average payment time. Modified duration is $D_{Mac}/(1+y/m)$, and</span>
+<span id="cb10-54"><a href="#cb10-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-55"><a href="#cb10-55" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb10-56"><a href="#cb10-56" aria-hidden="true" tabindex="-1"></a>DV01=P D_{mod}(0.0001).</span>
+<span id="cb10-57"><a href="#cb10-57" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb10-58"><a href="#cb10-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-61"><a href="#cb10-61" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb10-62"><a href="#cb10-62" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: bond-functions</span></span>
+<span id="cb10-63"><a href="#cb10-63" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> bond_metrics(face, coupon_rate, maturity, ytm, frequency<span class="op">=</span><span class="dv">2</span>):</span>
+<span id="cb10-64"><a href="#cb10-64" aria-hidden="true" tabindex="-1"></a>    periods <span class="op">=</span> <span class="bu">int</span>(<span class="bu">round</span>(maturity <span class="op">*</span> frequency))</span>
+<span id="cb10-65"><a href="#cb10-65" aria-hidden="true" tabindex="-1"></a>    times <span class="op">=</span> np.arange(<span class="dv">1</span>, periods <span class="op">+</span> <span class="dv">1</span>) <span class="op">/</span> frequency</span>
+<span id="cb10-66"><a href="#cb10-66" aria-hidden="true" tabindex="-1"></a>    cash_flows <span class="op">=</span> np.full(periods, face <span class="op">*</span> coupon_rate <span class="op">/</span> frequency)</span>
+<span id="cb10-67"><a href="#cb10-67" aria-hidden="true" tabindex="-1"></a>    cash_flows[<span class="op">-</span><span class="dv">1</span>] <span class="op">+=</span> face</span>
+<span id="cb10-68"><a href="#cb10-68" aria-hidden="true" tabindex="-1"></a>    period_yield <span class="op">=</span> ytm <span class="op">/</span> frequency</span>
+<span id="cb10-69"><a href="#cb10-69" aria-hidden="true" tabindex="-1"></a>    pv <span class="op">=</span> cash_flows <span class="op">/</span> (<span class="dv">1</span> <span class="op">+</span> period_yield) <span class="op">**</span> np.arange(<span class="dv">1</span>, periods <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb10-70"><a href="#cb10-70" aria-hidden="true" tabindex="-1"></a>    price <span class="op">=</span> pv.<span class="bu">sum</span>()</span>
+<span id="cb10-71"><a href="#cb10-71" aria-hidden="true" tabindex="-1"></a>    macaulay <span class="op">=</span> np.<span class="bu">sum</span>(times <span class="op">*</span> pv) <span class="op">/</span> price</span>
+<span id="cb10-72"><a href="#cb10-72" aria-hidden="true" tabindex="-1"></a>    modified <span class="op">=</span> macaulay <span class="op">/</span> (<span class="dv">1</span> <span class="op">+</span> period_yield)</span>
+<span id="cb10-73"><a href="#cb10-73" aria-hidden="true" tabindex="-1"></a>    k <span class="op">=</span> np.arange(<span class="dv">1</span>, periods <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb10-74"><a href="#cb10-74" aria-hidden="true" tabindex="-1"></a>    convexity <span class="op">=</span> np.<span class="bu">sum</span>(</span>
+<span id="cb10-75"><a href="#cb10-75" aria-hidden="true" tabindex="-1"></a>        cash_flows <span class="op">*</span> k <span class="op">*</span> (k <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb10-76"><a href="#cb10-76" aria-hidden="true" tabindex="-1"></a>        <span class="op">/</span> (frequency<span class="op">**</span><span class="dv">2</span> <span class="op">*</span> (<span class="dv">1</span> <span class="op">+</span> period_yield) <span class="op">**</span> (k <span class="op">+</span> <span class="dv">2</span>))</span>
+<span id="cb10-77"><a href="#cb10-77" aria-hidden="true" tabindex="-1"></a>    ) <span class="op">/</span> price</span>
+<span id="cb10-78"><a href="#cb10-78" aria-hidden="true" tabindex="-1"></a>    dv01 <span class="op">=</span> price <span class="op">*</span> modified <span class="op">*</span> <span class="fl">0.0001</span></span>
+<span id="cb10-79"><a href="#cb10-79" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> price, macaulay, modified, dv01, convexity</span>
+<span id="cb10-80"><a href="#cb10-80" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-81"><a href="#cb10-81" aria-hidden="true" tabindex="-1"></a>rows <span class="op">=</span> []</span>
+<span id="cb10-82"><a href="#cb10-82" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> bond <span class="kw">in</span> bonds.itertuples(index<span class="op">=</span><span class="va">False</span>):</span>
+<span id="cb10-83"><a href="#cb10-83" aria-hidden="true" tabindex="-1"></a>    face <span class="op">=</span> bond[<span class="dv">1</span>] <span class="op">*</span> <span class="dv">1_000_000</span></span>
+<span id="cb10-84"><a href="#cb10-84" aria-hidden="true" tabindex="-1"></a>    metrics <span class="op">=</span> bond_metrics(face, bond[<span class="dv">2</span>], bond[<span class="dv">3</span>], bond[<span class="dv">4</span>], frequency)</span>
+<span id="cb10-85"><a href="#cb10-85" aria-hidden="true" tabindex="-1"></a>    rows.append(metrics)</span>
+<span id="cb10-86"><a href="#cb10-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-87"><a href="#cb10-87" aria-hidden="true" tabindex="-1"></a>metrics <span class="op">=</span> pd.DataFrame(rows, columns<span class="op">=</span>[<span class="st">"Price ($)"</span>, <span class="st">"Macaulay duration"</span>,</span>
+<span id="cb10-88"><a href="#cb10-88" aria-hidden="true" tabindex="-1"></a>                                      <span class="st">"Modified duration"</span>, <span class="st">"DV01/PVBP ($/bp)"</span>, <span class="st">"Convexity"</span>])</span>
+<span id="cb10-89"><a href="#cb10-89" aria-hidden="true" tabindex="-1"></a>bond_risk <span class="op">=</span> pd.concat([bonds, metrics], axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb10-90"><a href="#cb10-90" aria-hidden="true" tabindex="-1"></a>bond_risk.<span class="bu">round</span>(<span class="dv">4</span>)</span>
+<span id="cb10-91"><a href="#cb10-91" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-92"><a href="#cb10-92" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-93"><a href="#cb10-93" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exact Repricing Versus Approximations</span></span>
+<span id="cb10-94"><a href="#cb10-94" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-95"><a href="#cb10-95" aria-hidden="true" tabindex="-1"></a>For a yield shock $\Delta y$,</span>
+<span id="cb10-96"><a href="#cb10-96" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-97"><a href="#cb10-97" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb10-98"><a href="#cb10-98" aria-hidden="true" tabindex="-1"></a>\frac{\Delta P}{P}\approx-D_{mod}\Delta y</span>
+<span id="cb10-99"><a href="#cb10-99" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb10-100"><a href="#cb10-100" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-101"><a href="#cb10-101" aria-hidden="true" tabindex="-1"></a>and the duration-plus-convexity approximation is</span>
+<span id="cb10-102"><a href="#cb10-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-103"><a href="#cb10-103" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb10-104"><a href="#cb10-104" aria-hidden="true" tabindex="-1"></a>\frac{\Delta P}{P}\approx-D_{mod}\Delta y+\frac12 C(\Delta y)^2.</span>
+<span id="cb10-105"><a href="#cb10-105" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb10-106"><a href="#cb10-106" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-109"><a href="#cb10-109" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb10-110"><a href="#cb10-110" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: approximation-table</span></span>
+<span id="cb10-111"><a href="#cb10-111" aria-hidden="true" tabindex="-1"></a>selected <span class="op">=</span> bond_risk.iloc[<span class="dv">2</span>]</span>
+<span id="cb10-112"><a href="#cb10-112" aria-hidden="true" tabindex="-1"></a>shocks_bp <span class="op">=</span> np.array([<span class="op">-</span><span class="dv">150</span>, <span class="op">-</span><span class="dv">75</span>, <span class="op">-</span><span class="dv">25</span>, <span class="dv">25</span>, <span class="dv">75</span>, <span class="dv">150</span>])</span>
+<span id="cb10-113"><a href="#cb10-113" aria-hidden="true" tabindex="-1"></a>base_price <span class="op">=</span> selected[<span class="st">"Price ($)"</span>]</span>
+<span id="cb10-114"><a href="#cb10-114" aria-hidden="true" tabindex="-1"></a>exact_prices <span class="op">=</span> np.array([</span>
+<span id="cb10-115"><a href="#cb10-115" aria-hidden="true" tabindex="-1"></a>    bond_metrics(selected[<span class="st">"Face value ($mm)"</span>] <span class="op">*</span> <span class="dv">1_000_000</span>,</span>
+<span id="cb10-116"><a href="#cb10-116" aria-hidden="true" tabindex="-1"></a>                 selected[<span class="st">"Coupon rate"</span>], selected[<span class="st">"Maturity (years)"</span>],</span>
+<span id="cb10-117"><a href="#cb10-117" aria-hidden="true" tabindex="-1"></a>                 selected[<span class="st">"Yield"</span>] <span class="op">+</span> shock <span class="op">/</span> <span class="dv">10_000</span>, frequency)[<span class="dv">0</span>]</span>
+<span id="cb10-118"><a href="#cb10-118" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> shock <span class="kw">in</span> shocks_bp</span>
+<span id="cb10-119"><a href="#cb10-119" aria-hidden="true" tabindex="-1"></a>])</span>
+<span id="cb10-120"><a href="#cb10-120" aria-hidden="true" tabindex="-1"></a>dy <span class="op">=</span> shocks_bp <span class="op">/</span> <span class="dv">10_000</span></span>
+<span id="cb10-121"><a href="#cb10-121" aria-hidden="true" tabindex="-1"></a>duration_change <span class="op">=</span> <span class="op">-</span>selected[<span class="st">"Modified duration"</span>] <span class="op">*</span> dy</span>
+<span id="cb10-122"><a href="#cb10-122" aria-hidden="true" tabindex="-1"></a>duration_convexity_change <span class="op">=</span> duration_change <span class="op">+</span> <span class="fl">0.5</span> <span class="op">*</span> selected[<span class="st">"Convexity"</span>] <span class="op">*</span> dy<span class="op">**</span><span class="dv">2</span></span>
+<span id="cb10-123"><a href="#cb10-123" aria-hidden="true" tabindex="-1"></a>exact_change <span class="op">=</span> exact_prices <span class="op">/</span> base_price <span class="op">-</span> <span class="dv">1</span></span>
+<span id="cb10-124"><a href="#cb10-124" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-125"><a href="#cb10-125" aria-hidden="true" tabindex="-1"></a>comparison <span class="op">=</span> pd.DataFrame({</span>
+<span id="cb10-126"><a href="#cb10-126" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Yield shock (bp)"</span>: shocks_bp,</span>
+<span id="cb10-127"><a href="#cb10-127" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Duration-only change (%)"</span>: <span class="dv">100</span> <span class="op">*</span> duration_change,</span>
+<span id="cb10-128"><a href="#cb10-128" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Duration + convexity change (%)"</span>: <span class="dv">100</span> <span class="op">*</span> duration_convexity_change,</span>
+<span id="cb10-129"><a href="#cb10-129" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Exact price change (%)"</span>: <span class="dv">100</span> <span class="op">*</span> exact_change,</span>
+<span id="cb10-130"><a href="#cb10-130" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Duration-only error (bp of price)"</span>: <span class="dv">10_000</span> <span class="op">*</span> (duration_change <span class="op">-</span> exact_change),</span>
+<span id="cb10-131"><a href="#cb10-131" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Duration + convexity error (bp of price)"</span>: <span class="dv">10_000</span> <span class="op">*</span> (duration_convexity_change <span class="op">-</span> exact_change),</span>
+<span id="cb10-132"><a href="#cb10-132" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb10-133"><a href="#cb10-133" aria-hidden="true" tabindex="-1"></a>comparison.<span class="bu">round</span>(<span class="dv">3</span>)</span>
+<span id="cb10-134"><a href="#cb10-134" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-135"><a href="#cb10-135" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-138"><a href="#cb10-138" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb10-139"><a href="#cb10-139" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-approximation-errors</span></span>
+<span id="cb10-140"><a href="#cb10-140" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Convexity materially improves the approximation for larger yield moves"</span></span>
+<span id="cb10-141"><a href="#cb10-141" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">7.4</span>, <span class="fl">4.0</span>))</span>
+<span id="cb10-142"><a href="#cb10-142" aria-hidden="true" tabindex="-1"></a>ax.plot(shocks_bp, <span class="dv">100</span> <span class="op">*</span> exact_change, <span class="st">"o-"</span>, label<span class="op">=</span><span class="st">"Exact repricing"</span>)</span>
+<span id="cb10-143"><a href="#cb10-143" aria-hidden="true" tabindex="-1"></a>ax.plot(shocks_bp, <span class="dv">100</span> <span class="op">*</span> duration_change, <span class="st">"s--"</span>, label<span class="op">=</span><span class="st">"Duration only"</span>)</span>
+<span id="cb10-144"><a href="#cb10-144" aria-hidden="true" tabindex="-1"></a>ax.plot(shocks_bp, <span class="dv">100</span> <span class="op">*</span> duration_convexity_change, <span class="st">"^--"</span>, label<span class="op">=</span><span class="st">"Duration + convexity"</span>)</span>
+<span id="cb10-145"><a href="#cb10-145" aria-hidden="true" tabindex="-1"></a>ax.<span class="bu">set</span>(xlabel<span class="op">=</span><span class="st">"Yield shock (bp)"</span>, ylabel<span class="op">=</span><span class="st">"Price change (%)"</span>,</span>
+<span id="cb10-146"><a href="#cb10-146" aria-hidden="true" tabindex="-1"></a>       title<span class="op">=</span><span class="st">"10-year corporate bond repricing"</span>)</span>
+<span id="cb10-147"><a href="#cb10-147" aria-hidden="true" tabindex="-1"></a>ax.grid(alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb10-148"><a href="#cb10-148" aria-hidden="true" tabindex="-1"></a>ax.legend()</span>
+<span id="cb10-149"><a href="#cb10-149" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb10-150"><a href="#cb10-150" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb10-151"><a href="#cb10-151" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-152"><a href="#cb10-152" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-153"><a href="#cb10-153" aria-hidden="true" tabindex="-1"></a><span class="fu">### Explore the shock size (HTML)</span></span>
+<span id="cb10-154"><a href="#cb10-154" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-155"><a href="#cb10-155" aria-hidden="true" tabindex="-1"></a>The table and figure above are the static fallback in PDF. In HTML, move the</span>
+<span id="cb10-156"><a href="#cb10-156" aria-hidden="true" tabindex="-1"></a>slider to reprice the same 10-year 5.75% coupon bond exactly.</span>
+<span id="cb10-157"><a href="#cb10-157" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-158"><a href="#cb10-158" aria-hidden="true" tabindex="-1"></a>::: {.content-visible when-format="html"}</span>
+<span id="cb10-159"><a href="#cb10-159" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">div</span><span class="ot"> id</span><span class="op">=</span><span class="st">"duration-explorer"</span><span class="ot"> style</span><span class="op">=</span><span class="st">"padding:1rem;border:1px solid #d9e1e8;border-radius:.4rem"</span><span class="dt">&gt;</span></span>
+<span id="cb10-160"><a href="#cb10-160" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">label</span><span class="ot"> for</span><span class="op">=</span><span class="st">"shock-slider"</span><span class="dt">&gt;&lt;</span><span class="kw">strong</span><span class="dt">&gt;</span>Yield shock:<span class="dt">&lt;/</span><span class="kw">strong</span><span class="dt">&gt;</span> <span class="dt">&lt;</span><span class="kw">output</span><span class="ot"> id</span><span class="op">=</span><span class="st">"shock-label"</span><span class="dt">&gt;</span>+50 bp<span class="dt">&lt;/</span><span class="kw">output</span><span class="dt">&gt;&lt;/</span><span class="kw">label</span><span class="dt">&gt;&lt;</span><span class="kw">br</span><span class="dt">&gt;</span></span>
+<span id="cb10-161"><a href="#cb10-161" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">input</span><span class="ot"> id</span><span class="op">=</span><span class="st">"shock-slider"</span><span class="ot"> type</span><span class="op">=</span><span class="st">"range"</span><span class="ot"> min</span><span class="op">=</span><span class="st">"-200"</span><span class="ot"> max</span><span class="op">=</span><span class="st">"200"</span><span class="ot"> step</span><span class="op">=</span><span class="st">"5"</span><span class="ot"> value</span><span class="op">=</span><span class="st">"50"</span><span class="ot"> style</span><span class="op">=</span><span class="st">"width:70%"</span><span class="dt">&gt;</span></span>
+<span id="cb10-162"><a href="#cb10-162" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">p</span><span class="ot"> id</span><span class="op">=</span><span class="st">"shock-result"</span><span class="ot"> aria-live</span><span class="op">=</span><span class="st">"polite"</span><span class="dt">&gt;&lt;/</span><span class="kw">p</span><span class="dt">&gt;</span></span>
+<span id="cb10-163"><a href="#cb10-163" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">div</span><span class="dt">&gt;</span></span>
+<span id="cb10-164"><a href="#cb10-164" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">script</span><span class="dt">&gt;</span></span>
+<span id="cb10-165"><a href="#cb10-165" aria-hidden="true" tabindex="-1"></a>(() <span class="kw">=&gt;</span> {</span>
+<span id="cb10-166"><a href="#cb10-166" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> slider <span class="op">=</span> <span class="bu">document</span><span class="op">.</span><span class="fu">getElementById</span>(<span class="st">'shock-slider'</span>)<span class="op">;</span></span>
+<span id="cb10-167"><a href="#cb10-167" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> label <span class="op">=</span> <span class="bu">document</span><span class="op">.</span><span class="fu">getElementById</span>(<span class="st">'shock-label'</span>)<span class="op">;</span></span>
+<span id="cb10-168"><a href="#cb10-168" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> result <span class="op">=</span> <span class="bu">document</span><span class="op">.</span><span class="fu">getElementById</span>(<span class="st">'shock-result'</span>)<span class="op">;</span></span>
+<span id="cb10-169"><a href="#cb10-169" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> face <span class="op">=</span> <span class="dv">100</span><span class="op">,</span> coupon <span class="op">=</span> <span class="dv">100</span> <span class="op">*</span> <span class="fl">0.0575</span> <span class="op">/</span> <span class="dv">2</span><span class="op">,</span> periods <span class="op">=</span> <span class="dv">20</span><span class="op">,</span> baseYield <span class="op">=</span> <span class="fl">0.0610</span><span class="op">;</span></span>
+<span id="cb10-170"><a href="#cb10-170" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> price <span class="op">=</span> y <span class="kw">=&gt;</span> {</span>
+<span id="cb10-171"><a href="#cb10-171" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> value <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb10-172"><a href="#cb10-172" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (<span class="kw">let</span> k <span class="op">=</span> <span class="dv">1</span><span class="op">;</span> k <span class="op">&lt;=</span> periods<span class="op">;</span> k<span class="op">++</span>) value <span class="op">+=</span> (coupon <span class="op">+</span> (k <span class="op">===</span> periods <span class="op">?</span> face <span class="op">:</span> <span class="dv">0</span>)) <span class="op">/</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">pow</span>(<span class="dv">1</span> <span class="op">+</span> y <span class="op">/</span> <span class="dv">2</span><span class="op">,</span> k)<span class="op">;</span></span>
+<span id="cb10-173"><a href="#cb10-173" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> value<span class="op">;</span></span>
+<span id="cb10-174"><a href="#cb10-174" aria-hidden="true" tabindex="-1"></a>  }<span class="op">;</span></span>
+<span id="cb10-175"><a href="#cb10-175" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> base <span class="op">=</span> <span class="fu">price</span>(baseYield)<span class="op">;</span></span>
+<span id="cb10-176"><a href="#cb10-176" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> update <span class="op">=</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb10-177"><a href="#cb10-177" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> bp <span class="op">=</span> <span class="bu">Number</span>(slider<span class="op">.</span><span class="at">value</span>)<span class="op">,</span> shocked <span class="op">=</span> <span class="fu">price</span>(baseYield <span class="op">+</span> bp <span class="op">/</span> <span class="dv">10000</span>)<span class="op">;</span></span>
+<span id="cb10-178"><a href="#cb10-178" aria-hidden="true" tabindex="-1"></a>    label<span class="op">.</span><span class="at">value</span> <span class="op">=</span> <span class="vs">`</span><span class="sc">${</span>bp <span class="op">&gt;</span> <span class="dv">0</span> <span class="op">?</span> <span class="st">'+'</span> <span class="op">:</span> <span class="st">''</span><span class="sc">}${</span>bp<span class="sc">}</span><span class="vs"> bp`</span><span class="op">;</span></span>
+<span id="cb10-179"><a href="#cb10-179" aria-hidden="true" tabindex="-1"></a>    result<span class="op">.</span><span class="at">textContent</span> <span class="op">=</span> <span class="vs">`Exact price: </span><span class="sc">${</span>shocked<span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">3</span>)<span class="sc">}</span><span class="vs"> per 100; change: </span><span class="sc">${</span>((shocked <span class="op">/</span> base <span class="op">-</span> <span class="dv">1</span>) <span class="op">*</span> <span class="dv">100</span>)<span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">3</span>)<span class="sc">}</span><span class="vs">%.`</span><span class="op">;</span></span>
+<span id="cb10-180"><a href="#cb10-180" aria-hidden="true" tabindex="-1"></a>  }<span class="op">;</span></span>
+<span id="cb10-181"><a href="#cb10-181" aria-hidden="true" tabindex="-1"></a>  slider<span class="op">.</span><span class="fu">addEventListener</span>(<span class="st">'input'</span><span class="op">,</span> update)<span class="op">;</span> <span class="fu">update</span>()<span class="op">;</span></span>
+<span id="cb10-182"><a href="#cb10-182" aria-hidden="true" tabindex="-1"></a>})()<span class="op">;</span></span>
+<span id="cb10-183"><a href="#cb10-183" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">script</span><span class="dt">&gt;</span></span>
+<span id="cb10-184"><a href="#cb10-184" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb10-185"><a href="#cb10-185" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-186"><a href="#cb10-186" aria-hidden="true" tabindex="-1"></a><span class="fu">## Portfolio Aggregation</span></span>
+<span id="cb10-187"><a href="#cb10-187" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-188"><a href="#cb10-188" aria-hidden="true" tabindex="-1"></a>Dollar risk aggregates across positions. Portfolio DV01 is the sum of bond DV01s; market-value-weighted duration is equivalent to total dollar duration divided by portfolio value.</span>
+<span id="cb10-189"><a href="#cb10-189" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-192"><a href="#cb10-192" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb10-193"><a href="#cb10-193" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: portfolio-aggregation</span></span>
+<span id="cb10-194"><a href="#cb10-194" aria-hidden="true" tabindex="-1"></a>portfolio_value <span class="op">=</span> bond_risk[<span class="st">"Price ($)"</span>].<span class="bu">sum</span>()</span>
+<span id="cb10-195"><a href="#cb10-195" aria-hidden="true" tabindex="-1"></a>portfolio_dv01 <span class="op">=</span> bond_risk[<span class="st">"DV01/PVBP ($/bp)"</span>].<span class="bu">sum</span>()</span>
+<span id="cb10-196"><a href="#cb10-196" aria-hidden="true" tabindex="-1"></a>portfolio_modified_duration <span class="op">=</span> portfolio_dv01 <span class="op">/</span> (portfolio_value <span class="op">*</span> <span class="fl">0.0001</span>)</span>
+<span id="cb10-197"><a href="#cb10-197" aria-hidden="true" tabindex="-1"></a>portfolio_convexity <span class="op">=</span> np.average(bond_risk[<span class="st">"Convexity"</span>], weights<span class="op">=</span>bond_risk[<span class="st">"Price ($)"</span>])</span>
+<span id="cb10-198"><a href="#cb10-198" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-199"><a href="#cb10-199" aria-hidden="true" tabindex="-1"></a>pd.Series({</span>
+<span id="cb10-200"><a href="#cb10-200" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Portfolio market value ($)"</span>: portfolio_value,</span>
+<span id="cb10-201"><a href="#cb10-201" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Portfolio DV01/PVBP ($/bp)"</span>: portfolio_dv01,</span>
+<span id="cb10-202"><a href="#cb10-202" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Portfolio modified duration"</span>: portfolio_modified_duration,</span>
+<span id="cb10-203"><a href="#cb10-203" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Market-value-weighted convexity"</span>: portfolio_convexity,</span>
+<span id="cb10-204"><a href="#cb10-204" aria-hidden="true" tabindex="-1"></a>}).<span class="bu">round</span>(<span class="dv">3</span>)</span>
+<span id="cb10-205"><a href="#cb10-205" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-206"><a href="#cb10-206" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-207"><a href="#cb10-207" aria-hidden="true" tabindex="-1"></a><span class="fu">## Parallel and Nonparallel Scenarios</span></span>
+<span id="cb10-208"><a href="#cb10-208" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-209"><a href="#cb10-209" aria-hidden="true" tabindex="-1"></a>A single duration number is designed for a parallel shift. A curve twist must be applied bond by bond.</span>
+<span id="cb10-210"><a href="#cb10-210" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-213"><a href="#cb10-213" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb10-214"><a href="#cb10-214" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: portfolio-scenarios</span></span>
+<span id="cb10-215"><a href="#cb10-215" aria-hidden="true" tabindex="-1"></a>scenario_shocks <span class="op">=</span> {</span>
+<span id="cb10-216"><a href="#cb10-216" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Parallel +50 bp"</span>: np.array([<span class="dv">50</span>, <span class="dv">50</span>, <span class="dv">50</span>]),</span>
+<span id="cb10-217"><a href="#cb10-217" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Bear steepener"</span>: np.array([<span class="dv">10</span>, <span class="dv">35</span>, <span class="dv">75</span>]),</span>
+<span id="cb10-218"><a href="#cb10-218" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Bull flattener"</span>: np.array([<span class="op">-</span><span class="dv">15</span>, <span class="op">-</span><span class="dv">45</span>, <span class="op">-</span><span class="dv">90</span>]),</span>
+<span id="cb10-219"><a href="#cb10-219" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb10-220"><a href="#cb10-220" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-221"><a href="#cb10-221" aria-hidden="true" tabindex="-1"></a>scenario_rows <span class="op">=</span> []</span>
+<span id="cb10-222"><a href="#cb10-222" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name, shocks <span class="kw">in</span> scenario_shocks.items():</span>
+<span id="cb10-223"><a href="#cb10-223" aria-hidden="true" tabindex="-1"></a>    exact_pnl <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb10-224"><a href="#cb10-224" aria-hidden="true" tabindex="-1"></a>    duration_pnl <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb10-225"><a href="#cb10-225" aria-hidden="true" tabindex="-1"></a>    duration_convexity_pnl <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb10-226"><a href="#cb10-226" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i, bond <span class="kw">in</span> bond_risk.iterrows():</span>
+<span id="cb10-227"><a href="#cb10-227" aria-hidden="true" tabindex="-1"></a>        shock <span class="op">=</span> shocks[i] <span class="op">/</span> <span class="dv">10_000</span></span>
+<span id="cb10-228"><a href="#cb10-228" aria-hidden="true" tabindex="-1"></a>        shocked_price <span class="op">=</span> bond_metrics(</span>
+<span id="cb10-229"><a href="#cb10-229" aria-hidden="true" tabindex="-1"></a>            bond[<span class="st">"Face value ($mm)"</span>] <span class="op">*</span> <span class="dv">1_000_000</span>, bond[<span class="st">"Coupon rate"</span>],</span>
+<span id="cb10-230"><a href="#cb10-230" aria-hidden="true" tabindex="-1"></a>            bond[<span class="st">"Maturity (years)"</span>], bond[<span class="st">"Yield"</span>] <span class="op">+</span> shock, frequency</span>
+<span id="cb10-231"><a href="#cb10-231" aria-hidden="true" tabindex="-1"></a>        )[<span class="dv">0</span>]</span>
+<span id="cb10-232"><a href="#cb10-232" aria-hidden="true" tabindex="-1"></a>        exact_pnl <span class="op">+=</span> shocked_price <span class="op">-</span> bond[<span class="st">"Price ($)"</span>]</span>
+<span id="cb10-233"><a href="#cb10-233" aria-hidden="true" tabindex="-1"></a>        duration_pnl <span class="op">+=</span> bond[<span class="st">"Price ($)"</span>] <span class="op">*</span> (<span class="op">-</span>bond[<span class="st">"Modified duration"</span>] <span class="op">*</span> shock)</span>
+<span id="cb10-234"><a href="#cb10-234" aria-hidden="true" tabindex="-1"></a>        duration_convexity_pnl <span class="op">+=</span> bond[<span class="st">"Price ($)"</span>] <span class="op">*</span> (</span>
+<span id="cb10-235"><a href="#cb10-235" aria-hidden="true" tabindex="-1"></a>            <span class="op">-</span>bond[<span class="st">"Modified duration"</span>] <span class="op">*</span> shock <span class="op">+</span> <span class="fl">0.5</span> <span class="op">*</span> bond[<span class="st">"Convexity"</span>] <span class="op">*</span> shock<span class="op">**</span><span class="dv">2</span></span>
+<span id="cb10-236"><a href="#cb10-236" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb10-237"><a href="#cb10-237" aria-hidden="true" tabindex="-1"></a>    scenario_rows.append([name, duration_pnl, duration_convexity_pnl, exact_pnl])</span>
+<span id="cb10-238"><a href="#cb10-238" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-239"><a href="#cb10-239" aria-hidden="true" tabindex="-1"></a>scenario_results <span class="op">=</span> pd.DataFrame(</span>
+<span id="cb10-240"><a href="#cb10-240" aria-hidden="true" tabindex="-1"></a>    scenario_rows,</span>
+<span id="cb10-241"><a href="#cb10-241" aria-hidden="true" tabindex="-1"></a>    columns<span class="op">=</span>[<span class="st">"Scenario"</span>, <span class="st">"Duration P&amp;L ($)"</span>, <span class="st">"Duration + convexity P&amp;L ($)"</span>, <span class="st">"Exact P&amp;L ($)"</span>],</span>
+<span id="cb10-242"><a href="#cb10-242" aria-hidden="true" tabindex="-1"></a>).set_index(<span class="st">"Scenario"</span>)</span>
+<span id="cb10-243"><a href="#cb10-243" aria-hidden="true" tabindex="-1"></a>scenario_results.<span class="bu">round</span>(<span class="dv">0</span>)</span>
+<span id="cb10-244"><a href="#cb10-244" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-245"><a href="#cb10-245" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-246"><a href="#cb10-246" aria-hidden="true" tabindex="-1"></a>The parallel scenario can be summarized by portfolio duration. The steepener and flattener require maturity-specific exposures; the same portfolio DV01 can hide materially different curve risk.</span>
+<span id="cb10-247"><a href="#cb10-247" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-248"><a href="#cb10-248" aria-hidden="true" tabindex="-1"></a><span class="fu">## Validation Checks</span></span>
+<span id="cb10-249"><a href="#cb10-249" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-252"><a href="#cb10-252" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb10-253"><a href="#cb10-253" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: validation</span></span>
+<span id="cb10-254"><a href="#cb10-254" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> np.<span class="bu">all</span>(bond_risk[<span class="st">"Macaulay duration"</span>] <span class="op">&gt;</span> bond_risk[<span class="st">"Modified duration"</span>])</span>
+<span id="cb10-255"><a href="#cb10-255" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> np.<span class="bu">all</span>(bond_risk[<span class="st">"DV01/PVBP ($/bp)"</span>] <span class="op">&gt;</span> <span class="dv">0</span>)</span>
+<span id="cb10-256"><a href="#cb10-256" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="bu">abs</span>(portfolio_dv01 <span class="op">-</span> bond_risk[<span class="st">"DV01/PVBP ($/bp)"</span>].<span class="bu">sum</span>()) <span class="op">&lt;</span> <span class="fl">1e-10</span></span>
+<span id="cb10-257"><a href="#cb10-257" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> np.mean(np.<span class="bu">abs</span>(duration_convexity_change <span class="op">-</span> exact_change)) <span class="op">&lt;</span> np.mean(np.<span class="bu">abs</span>(duration_change <span class="op">-</span> exact_change))</span>
+<span id="cb10-258"><a href="#cb10-258" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> np.<span class="bu">all</span>(np.diff(exact_prices) <span class="op">&lt;</span> <span class="dv">0</span>)</span>
+<span id="cb10-259"><a href="#cb10-259" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-260"><a href="#cb10-260" aria-hidden="true" tabindex="-1"></a>pd.Series({</span>
+<span id="cb10-261"><a href="#cb10-261" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Macaulay duration exceeds modified duration"</span>: <span class="va">True</span>,</span>
+<span id="cb10-262"><a href="#cb10-262" aria-hidden="true" tabindex="-1"></a>    <span class="st">"DV01 values are positive"</span>: <span class="va">True</span>,</span>
+<span id="cb10-263"><a href="#cb10-263" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Portfolio DV01 equals component sum"</span>: <span class="va">True</span>,</span>
+<span id="cb10-264"><a href="#cb10-264" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Convexity improves average approximation"</span>: <span class="va">True</span>,</span>
+<span id="cb10-265"><a href="#cb10-265" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Exact price falls as yield rises"</span>: <span class="va">True</span>,</span>
+<span id="cb10-266"><a href="#cb10-266" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb10-267"><a href="#cb10-267" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-268"><a href="#cb10-268" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-269"><a href="#cb10-269" aria-hidden="true" tabindex="-1"></a><span class="fu">## Financial Interpretation</span></span>
+<span id="cb10-270"><a href="#cb10-270" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-271"><a href="#cb10-271" aria-hidden="true" tabindex="-1"></a>Duration is a local slope, convexity is a curvature correction, and exact cash-flow repricing is the benchmark. DV01 translates percentage sensitivity into dollars. Portfolio aggregation is reliable for a stated parallel shock, but nonparallel scenarios require maturity-specific or key-rate exposures.</span>
+</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+</div></div></div></div></div>
 </div> <!-- /content -->
 
 

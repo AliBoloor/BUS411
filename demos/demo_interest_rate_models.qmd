@@ -1,12 +1,12 @@
 ---
-title: "Demo: From Bond Prices to Hull–White Future Yield Curves"
+title: "Demo: From Observed Treasury Yields to Hull–White Future Curves"
 subtitle: "A hands-on companion to Lecture 7"
 format:
   html:
     toc: true
     toc-location: left
     number-sections: true
-    code-fold: false
+    code-fold: true
     code-tools: true
     embed-resources: true
 jupyter: python3
@@ -20,16 +20,22 @@ execute:
 
 This demo follows one complete fixed-income workflow:
 
-1. start with **observable market prices** for coupon bonds;
+1. start with a **dated U.S. Treasury par-yield snapshot**;
 2. bootstrap today's discount factors and zero-coupon yield curve;
 3. calibrate Hull–White so that it exactly respects that curve;
-4. fit the model's mean reversion and volatility to observable option prices;
+4. fit the model's mean reversion and volatility to a supplied synthetic option
+   quote snapshot that demonstrates the calibration mechanics;
 5. generate yield curves at a future date in different interest-rate states; and
 6. use those future curves to price remaining bond cash flows.
 
-The data are artificial, so the demo is reproducible. Their magnitudes resemble
-prices and rates that could be observed in a government-bond market. All rates are
-continuously compounded unless stated otherwise.
+The initial curve uses the U.S. Treasury's published **January 2, 2025** par-yield
+snapshot. To keep every calculation auditable, the market nodes are embedded below
+rather than downloaded during rendering. Treasury par yields are bond-equivalent
+quoted rates; bootstrapped zero rates are continuously compounded. The option
+premiums used later are explicitly labeled synthetic because a stable, public
+option-volatility surface is not available with the course files.
+
+Source: [U.S. Treasury, Daily Treasury Par Yield Curve Rates](https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve&field_tdr_date_value=2025).
 
 ::: {.callout-tip}
 ## The central idea
@@ -72,36 +78,18 @@ plt.rcParams.update({
 })
 ```
 
-## Step 1: Create observable bond-market data
+## Step 1: Record the observed Treasury curve
 
-Suppose the market contains annual-pay government bonds maturing in one through ten
-years. We first create a smooth but non-flat zero curve. This curve is hidden from
-the calibration routine; it is used only to manufacture internally consistent bond
-prices.
+The published Treasury series contains par yields at standard maturity nodes. We
+retain the 1-, 2-, 3-, 5-, 7-, and 10-year observations and linearly interpolate
+missing integer maturities. The interpolation is an **estimated curve-construction
+choice**, not an additional market quote. For transparent annual bootstrapping we
+treat each interpolated par yield as the coupon on an annual-pay par bond. A
+production Treasury curve would instead use security-level prices, semiannual
+coupons, actual day counts, accrued interest, and bills at the short end.
 
 ```{python}
-#| label: synthetic-market
-def hidden_zero_rate(maturity):
-    """Return a realistic synthetic continuously compounded zero rate.
-
-    Input
-    -----
-    maturity : number or NumPy array
-        Time to maturity in years.
-
-    Output
-    ------
-    number or NumPy array
-        Continuously compounded annual zero rate, in decimal form.
-    """
-    maturity = np.asarray(maturity, dtype=float)
-    return (
-        0.031
-        + 0.009 * np.exp(-maturity / 1.8)  # initially inverted front end
-        + 0.004 * (1 - np.exp(-maturity / 7.0))  # gentle long-end rise
-    )
-
-
+#| label: observed-treasury-market
 def price_annual_coupon_bond(coupon_rate, maturity, discount_factors, face=100.0):
     """Price an annual-pay bond from discount factors at integer years.
 
@@ -113,33 +101,37 @@ def price_annual_coupon_bond(coupon_rate, maturity, discount_factors, face=100.0
     return float(np.sum(cash_flows * discount_factors[:maturity]))
 
 
+observed_date = "2025-01-02"
+observed_maturities = np.array([1, 2, 3, 5, 7, 10], dtype=float)
+observed_par_yields = np.array([4.17, 4.25, 4.29, 4.38, 4.47, 4.57]) / 100
+
+market_nodes = pd.DataFrame({
+    "observation_date": observed_date,
+    "maturity_years": observed_maturities,
+    "observed_par_yield_pct": 100 * observed_par_yields,
+})
+display(market_nodes)
+
 maturities = np.arange(1, 11)
-true_zero_rates = hidden_zero_rate(maturities)
-true_discount_factors = np.exp(-true_zero_rates * maturities)
+coupon_rates = np.interp(maturities, observed_maturities, observed_par_yields)
 
-# Coupon rates are quoted market characteristics, not fitted model parameters.
-coupon_rates = np.array([0.040, 0.038, 0.037, 0.036, 0.036,
-                         0.037, 0.038, 0.039, 0.040, 0.041])
-
-clean_prices = np.array([
-    price_annual_coupon_bond(coupon, int(maturity), true_discount_factors)
-    for coupon, maturity in zip(coupon_rates, maturities)
-])
+# Under the annual-pay teaching convention, a par-yield quote implies price 100.
+clean_prices = np.full(len(maturities), 100.0)
 
 bond_market = pd.DataFrame({
     "maturity_years": maturities,
-    "coupon_rate_pct": 100 * coupon_rates,
-    "observed_clean_price": clean_prices,
+    "par_yield_pct": 100 * coupon_rates,
+    "implied_par_price": clean_prices,
+    "input_status": np.where(np.isin(maturities, observed_maturities),
+                             "Observed Treasury node", "Interpolated node"),
 })
-bond_market["observed_clean_price"] = bond_market["observed_clean_price"].round(4)
 
 display(bond_market)
 ```
 
-These are the quantities a trader can observe: maturity, coupon, and clean price.
-The zero rates used to manufacture the prices are not passed into the bootstrap.
-For simplicity, all valuation dates are coupon dates, accrued interest is zero,
-and each maturity has one suitable benchmark bond.
+Observed nodes are facts from the dated snapshot. Interpolated nodes and the
+annual-pay par-bond representation are assumptions. That separation matters: a
+curve can fit its inputs perfectly while still depending on construction choices.
 
 ## Step 2: Bootstrap today's discount curve
 
@@ -148,7 +140,8 @@ immediately gives $P(0,1)$. For each later bond, discount factors for earlier co
 are already known. The final discount factor is the only unknown:
 
 $$
-P(0,n)=\frac{\text{Bond price}-\sum_{i=1}^{n-1}C\,P(0,i)}{100+C}.
+P(0,n)=\frac{100-\sum_{i=1}^{n-1}C_nP(0,i)}{100+C_n},
+\qquad C_n=100c_n.
 $$
 
 ```{python}
@@ -347,7 +340,7 @@ def zero_bond_call_price(expiry, bond_maturity, strike,
     return face * call_per_dollar
 ```
 
-### Create artificial observable option quotes
+### Create a synthetic option quote snapshot
 
 We create at-the-money-forward calls with expiries from six months to five years.
 The hidden values $a=0.18$ and $\sigma=1.20\%$ are used only to generate the market

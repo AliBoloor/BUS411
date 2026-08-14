@@ -380,7 +380,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Practical Demo: Hedging with Options on Treasury Futures</h1>
+<div class="quarto-title-block"><div><h1 class="title">Practical Demo: Hedging with Options on Treasury Futures</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button">View Source</a></li></ul></div></div>
 </div>
 
 
@@ -404,7 +404,39 @@ window.Quarto = {
 <section id="inputs-and-assumptions" class="level2" data-number="1">
 <h2 data-number="1" class="anchored" data-anchor-id="inputs-and-assumptions"><span class="header-section-number">1</span> Inputs and Assumptions</h2>
 <p>All inputs are <strong>illustrative, market-like inputs</strong>, not live quotes. The option is treated as European for Black-model transparency; actual contract exercise and margin conventions must be checked. The bond portfolio is mapped to one Treasury futures contract with DV01; the CTD, conversion factor, basis, convexity, transaction costs, margin cash flows, and early exercise are held fixed or ignored.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Workflow stage</th>
+<th>In this case</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Observed or supplied</td>
+<td>Futures, strike, quoted premium, expiry, and portfolio DV01</td>
+</tr>
+<tr class="even">
+<td>Estimated</td>
+<td>Black benchmark value and futures-equivalent exposure</td>
+</tr>
+<tr class="odd">
+<td>Diagnosed</td>
+<td>Quote-versus-model gap, intrinsic value, and time value</td>
+</tr>
+<tr class="even">
+<td>Used for</td>
+<td>Choosing between a linear hedge and asymmetric protection</td>
+</tr>
+</tbody>
+</table>
 <div id="inputs" class="cell" data-execution_count="1">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> math</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
@@ -419,6 +451,7 @@ window.Quarto = {
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>time_to_expiry <span class="op">=</span> <span class="fl">0.50</span></span>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>risk_free_rate <span class="op">=</span> <span class="fl">0.042</span></span>
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>volatility <span class="op">=</span> <span class="fl">0.075</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 </div>
 </section>
 <section id="treasury-option-quote-convention" class="level2" data-number="2">
@@ -429,10 +462,13 @@ window.Quarto = {
 \]</span></p>
 <p>or $1,843.75 per contract. Price points, dollars, and yield basis points are different units.</p>
 <div id="cell-quote-conversion" class="cell" data-execution_count="2">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>quoted_points <span class="op">=</span> <span class="dv">1</span> <span class="op">+</span> <span class="dv">54</span> <span class="op">/</span> <span class="dv">64</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>quoted_dollars <span class="op">=</span> quoted_points <span class="op">*</span> dollars_per_point</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>pd.Series({<span class="st">"Quoted premium (points)"</span>: quoted_points,</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>           <span class="st">"Quoted premium ($/contract)"</span>: quoted_dollars})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 <div id="quote-conversion" class="cell-output cell-output-display" data-execution_count="2">
 <pre><code>Quoted premium (points)           1.8438
 Quoted premium ($/contract)    1843.7500
@@ -451,6 +487,8 @@ d_1=\frac{\ln(F/K)+\tfrac12\sigma^2T}{\sigma\sqrt{T}},
 \qquad d_2=d_1-\sigma\sqrt{T}.
 \]</span></p>
 <div id="cell-black-model" class="cell" data-execution_count="3">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> normal_cdf(x):</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> np.asarray(x, dtype<span class="op">=</span><span class="bu">float</span>)</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="fl">0.5</span> <span class="op">*</span> (<span class="dv">1</span> <span class="op">+</span> np.vectorize(math.erf)(x <span class="op">/</span> np.sqrt(<span class="dv">2</span>)))</span>
@@ -473,6 +511,7 @@ d_1=\frac{\ln(F/K)+\tfrac12\sigma^2T}{\sigma\sqrt{T}},
 <span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Time value (points)"</span>: time_value_points,</span>
 <span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Illustrative quoted premium (points)"</span>: quoted_points,</span>
 <span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>}).<span class="bu">round</span>(<span class="dv">4</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 <div id="black-model" class="cell-output cell-output-display" data-execution_count="3">
 <pre><code>Black put value (points)                   1.8531
 Black put value ($/contract)            1853.0571
@@ -492,6 +531,8 @@ N_{fut-eq}=\frac{DV01_{portfolio}}{DV01_{futures}}.
 \]</span></p>
 <p>For a one-for-one static floor at expiration, buy approximately one put per futures-equivalent contract. A current delta hedge would generally require a different count and rebalancing.</p>
 <div id="cell-contract-sizing" class="cell" data-execution_count="4">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>exact_futures_equivalents <span class="op">=</span> portfolio_dv01 <span class="op">/</span> futures_dv01</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>contracts <span class="op">=</span> <span class="bu">int</span>(np.rint(exact_futures_equivalents))</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>premium_cost <span class="op">=</span> contracts <span class="op">*</span> quoted_dollars</span>
@@ -504,6 +545,7 @@ N_{fut-eq}=\frac{DV01_{portfolio}}{DV01_{futures}}.
 <span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Premium cost ($)"</span>: premium_cost,</span>
 <span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Residual DV01 after rounding ($/bp)"</span>: residual_dv01,</span>
 <span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>}).<span class="bu">round</span>(<span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 <div id="contract-sizing" class="cell-output cell-output-display" data-execution_count="4">
 <pre><code>Exact futures equivalents                 230.77
 Static puts purchased                     231.00
@@ -521,6 +563,8 @@ dtype: float64</code></pre>
 \]</span></p>
 <p>The mapped bond P&amp;L moves like a long futures position. The protective put pays only below the strike. A short-futures hedge offsets mapped price changes linearly in both directions.</p>
 <div id="cell-scenario-table" class="cell" data-execution_count="5">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>yield_shocks_bp <span class="op">=</span> np.array([<span class="op">-</span><span class="dv">75</span>, <span class="op">-</span><span class="dv">40</span>, <span class="dv">0</span>, <span class="dv">40</span>, <span class="dv">75</span>])</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>terminal_futures <span class="op">=</span> futures_price <span class="op">-</span> futures_dv01 <span class="op">/</span> dollars_per_point <span class="op">*</span> yield_shocks_bp</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>mapped_bond_pnl <span class="op">=</span> contracts <span class="op">*</span> dollars_per_point <span class="op">*</span> (terminal_futures <span class="op">-</span> futures_price)</span>
@@ -538,6 +582,7 @@ dtype: float64</code></pre>
 <span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Bond + short futures P&amp;L ($)"</span>: linear_hedge_pnl,</span>
 <span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>})</span>
 <span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>scenario_table.<span class="bu">round</span>(<span class="dv">0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 <div id="scenario-table" class="cell-output cell-output-display" data-execution_count="5">
 <div>
 
@@ -608,6 +653,8 @@ dtype: float64</code></pre>
 </div>
 <p>The put preserves gains when yields fall but requires an upfront premium. The linear futures hedge has no option premium in this simplified comparison, but it gives up gains as well as losses.</p>
 <div id="cell-fig-option-hedge" class="cell" data-execution_count="6">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>fine_shocks <span class="op">=</span> np.linspace(<span class="op">-</span><span class="dv">100</span>, <span class="dv">100</span>, <span class="dv">401</span>)</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>fine_futures <span class="op">=</span> futures_price <span class="op">-</span> futures_dv01 <span class="op">/</span> dollars_per_point <span class="op">*</span> fine_shocks</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>fine_bond <span class="op">=</span> contracts <span class="op">*</span> dollars_per_point <span class="op">*</span> (fine_futures <span class="op">-</span> futures_price)</span>
@@ -625,6 +672,7 @@ dtype: float64</code></pre>
 <span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>ax.legend()</span>
 <span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
 <span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 <div class="cell-output cell-output-display">
 <div id="fig-option-hedge" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
@@ -654,6 +702,8 @@ Figure&nbsp;1: A protective put creates a floor; a short-futures hedge removes b
 <section id="validation-checks" class="level2" data-number="7">
 <h2 data-number="7" class="anchored" data-anchor-id="validation-checks"><span class="header-section-number">7</span> Validation Checks</h2>
 <div id="cell-validation" class="cell" data-execution_count="7">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> model_put_points <span class="op">&gt;=</span> intrinsic_points <span class="op">&gt;=</span> <span class="dv">0</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="bu">abs</span>(quoted_dollars <span class="op">-</span> <span class="fl">1_843.75</span>) <span class="op">&lt;</span> <span class="fl">1e-10</span></span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="bu">abs</span>(residual_dv01) <span class="op">&lt;=</span> <span class="fl">0.5</span> <span class="op">*</span> futures_dv01 <span class="op">+</span> <span class="fl">1e-10</span></span>
@@ -667,6 +717,7 @@ Figure&nbsp;1: A protective put creates a floor; a short-futures hedge removes b
 <span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Linear futures hedge offsets mapped P&amp;L"</span>: <span class="bu">bool</span>(np.allclose(linear_hedge_pnl, <span class="dv">0</span>)),</span>
 <span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Put improves the rising-yield outcome"</span>: protective_put_pnl[<span class="op">-</span><span class="dv">1</span>] <span class="op">&gt;</span> mapped_bond_pnl[<span class="op">-</span><span class="dv">1</span>],</span>
 <span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 <div id="validation" class="cell-output cell-output-display" data-execution_count="7">
 <pre><code>Model put value exceeds intrinsic value               True
 1-54 quote converts to $1,843.75                      True
@@ -681,6 +732,8 @@ dtype: bool</code></pre>
 <h2 data-number="8" class="anchored" data-anchor-id="financial-interpretation"><span class="header-section-number">8</span> Financial Interpretation</h2>
 <p>Contract selection begins with the risk, not the forecast. A short futures hedge is appropriate when the objective is to remove exposure linearly. A protective put is appropriate when the manager wants a loss floor while retaining favorable bond-price gains. That asymmetry is valuable, but its premium, volatility exposure, time decay, basis, and expiration must be budgeted explicitly.</p>
 
+
+<!-- -->
 
 </section>
 
@@ -768,6 +821,57 @@ dtype: bool</code></pre>
         container: window.document.getElementById('quarto-embedded-source-code-modal')
       });
       clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
@@ -1097,7 +1201,230 @@ dtype: bool</code></pre>
       }
     }
   });
-  </script>
+  </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Practical Demo: Hedging with Options on Treasury Futures"</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="co">    toc: true</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="co">    toc-location: left</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="co">    number-sections: true</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="co">    code-fold: true</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="co">    code-tools: true</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="an">jupyter:</span><span class="co"> python3</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="an">execute:</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="co">  echo: true</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a><span class="co">  warning: false</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a><span class="co">  message: false</span></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a><span class="fu">## Learning Objectives {.unnumbered}</span></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>After completing this demo you should be able to read a Treasury futures option quote, separate intrinsic value from time value, calculate a Black futures-option benchmark, size a protective-put overlay with DV01, compare its scenario P&amp;L with a linear futures hedge, and explain basis, volatility, and time-decay risks.</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a><span class="fu">## Inputs and Assumptions</span></span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>All inputs are **illustrative, market-like inputs**, not live quotes. The option is treated as European for Black-model transparency; actual contract exercise and margin conventions must be checked. The bond portfolio is mapped to one Treasury futures contract with DV01; the CTD, conversion factor, basis, convexity, transaction costs, margin cash flows, and early exercise are held fixed or ignored.</span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Workflow stage <span class="pp">|</span> In this case <span class="pp">|</span></span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a><span class="pp">|---|---|</span></span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Observed or supplied <span class="pp">|</span> Futures, strike, quoted premium, expiry, and portfolio DV01 <span class="pp">|</span></span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Estimated <span class="pp">|</span> Black benchmark value and futures-equivalent exposure <span class="pp">|</span></span>
+<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Diagnosed <span class="pp">|</span> Quote-versus-model gap, intrinsic value, and time value <span class="pp">|</span></span>
+<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Used for <span class="pp">|</span> Choosing between a linear hedge and asymmetric protection <span class="pp">|</span></span>
+<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: inputs</span></span>
+<span id="cb12-36"><a href="#cb12-36" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> math</span>
+<span id="cb12-37"><a href="#cb12-37" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb12-38"><a href="#cb12-38" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb12-39"><a href="#cb12-39" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb12-40"><a href="#cb12-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-41"><a href="#cb12-41" aria-hidden="true" tabindex="-1"></a>portfolio_value <span class="op">=</span> <span class="dv">25_000_000</span></span>
+<span id="cb12-42"><a href="#cb12-42" aria-hidden="true" tabindex="-1"></a>portfolio_dv01 <span class="op">=</span> <span class="dv">18_000</span></span>
+<span id="cb12-43"><a href="#cb12-43" aria-hidden="true" tabindex="-1"></a>futures_price <span class="op">=</span> <span class="fl">112.00</span></span>
+<span id="cb12-44"><a href="#cb12-44" aria-hidden="true" tabindex="-1"></a>strike <span class="op">=</span> <span class="fl">111.00</span></span>
+<span id="cb12-45"><a href="#cb12-45" aria-hidden="true" tabindex="-1"></a>futures_dv01 <span class="op">=</span> <span class="fl">78.00</span></span>
+<span id="cb12-46"><a href="#cb12-46" aria-hidden="true" tabindex="-1"></a>dollars_per_point <span class="op">=</span> <span class="dv">1_000</span></span>
+<span id="cb12-47"><a href="#cb12-47" aria-hidden="true" tabindex="-1"></a>time_to_expiry <span class="op">=</span> <span class="fl">0.50</span></span>
+<span id="cb12-48"><a href="#cb12-48" aria-hidden="true" tabindex="-1"></a>risk_free_rate <span class="op">=</span> <span class="fl">0.042</span></span>
+<span id="cb12-49"><a href="#cb12-49" aria-hidden="true" tabindex="-1"></a>volatility <span class="op">=</span> <span class="fl">0.075</span></span>
+<span id="cb12-50"><a href="#cb12-50" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-51"><a href="#cb12-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-52"><a href="#cb12-52" aria-hidden="true" tabindex="-1"></a><span class="fu">## Treasury Option Quote Convention</span></span>
+<span id="cb12-53"><a href="#cb12-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-54"><a href="#cb12-54" aria-hidden="true" tabindex="-1"></a>Treasury futures and their options are quoted in price points and fractions. For a \$100,000 face-value contract, one full point is \$1,000 and 1/64 of a point is \$15.625. A premium of 1-54 means</span>
+<span id="cb12-55"><a href="#cb12-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-56"><a href="#cb12-56" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb12-57"><a href="#cb12-57" aria-hidden="true" tabindex="-1"></a>1+\frac{54}{64}=1.84375\text{ points},</span>
+<span id="cb12-58"><a href="#cb12-58" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb12-59"><a href="#cb12-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-60"><a href="#cb12-60" aria-hidden="true" tabindex="-1"></a>or \$1,843.75 per contract. Price points, dollars, and yield basis points are different units.</span>
+<span id="cb12-61"><a href="#cb12-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-64"><a href="#cb12-64" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb12-65"><a href="#cb12-65" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: quote-conversion</span></span>
+<span id="cb12-66"><a href="#cb12-66" aria-hidden="true" tabindex="-1"></a>quoted_points <span class="op">=</span> <span class="dv">1</span> <span class="op">+</span> <span class="dv">54</span> <span class="op">/</span> <span class="dv">64</span></span>
+<span id="cb12-67"><a href="#cb12-67" aria-hidden="true" tabindex="-1"></a>quoted_dollars <span class="op">=</span> quoted_points <span class="op">*</span> dollars_per_point</span>
+<span id="cb12-68"><a href="#cb12-68" aria-hidden="true" tabindex="-1"></a>pd.Series({<span class="st">"Quoted premium (points)"</span>: quoted_points,</span>
+<span id="cb12-69"><a href="#cb12-69" aria-hidden="true" tabindex="-1"></a>           <span class="st">"Quoted premium ($/contract)"</span>: quoted_dollars})</span>
+<span id="cb12-70"><a href="#cb12-70" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-71"><a href="#cb12-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-72"><a href="#cb12-72" aria-hidden="true" tabindex="-1"></a><span class="fu">## Intrinsic Value, Time Value, and Black's Model</span></span>
+<span id="cb12-73"><a href="#cb12-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-74"><a href="#cb12-74" aria-hidden="true" tabindex="-1"></a>For a futures put, intrinsic value is $\max(K-F,0)$. Black's European futures-put formula is</span>
+<span id="cb12-75"><a href="#cb12-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-76"><a href="#cb12-76" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb12-77"><a href="#cb12-77" aria-hidden="true" tabindex="-1"></a>p=e^{-rT}\left<span class="co">[</span><span class="ot">K N(-d_2)-F N(-d_1)\right</span><span class="co">]</span>,</span>
+<span id="cb12-78"><a href="#cb12-78" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb12-79"><a href="#cb12-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-80"><a href="#cb12-80" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb12-81"><a href="#cb12-81" aria-hidden="true" tabindex="-1"></a>d_1=\frac{\ln(F/K)+\tfrac12\sigma^2T}{\sigma\sqrt{T}},</span>
+<span id="cb12-82"><a href="#cb12-82" aria-hidden="true" tabindex="-1"></a>\qquad d_2=d_1-\sigma\sqrt{T}.</span>
+<span id="cb12-83"><a href="#cb12-83" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb12-84"><a href="#cb12-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-87"><a href="#cb12-87" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb12-88"><a href="#cb12-88" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: black-model</span></span>
+<span id="cb12-89"><a href="#cb12-89" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> normal_cdf(x):</span>
+<span id="cb12-90"><a href="#cb12-90" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> np.asarray(x, dtype<span class="op">=</span><span class="bu">float</span>)</span>
+<span id="cb12-91"><a href="#cb12-91" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="fl">0.5</span> <span class="op">*</span> (<span class="dv">1</span> <span class="op">+</span> np.vectorize(math.erf)(x <span class="op">/</span> np.sqrt(<span class="dv">2</span>)))</span>
+<span id="cb12-92"><a href="#cb12-92" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-93"><a href="#cb12-93" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> black_futures_put(F, K, T, r, sigma):</span>
+<span id="cb12-94"><a href="#cb12-94" aria-hidden="true" tabindex="-1"></a>    vol_time <span class="op">=</span> sigma <span class="op">*</span> np.sqrt(T)</span>
+<span id="cb12-95"><a href="#cb12-95" aria-hidden="true" tabindex="-1"></a>    d1 <span class="op">=</span> (np.log(F <span class="op">/</span> K) <span class="op">+</span> <span class="fl">0.5</span> <span class="op">*</span> sigma<span class="op">**</span><span class="dv">2</span> <span class="op">*</span> T) <span class="op">/</span> vol_time</span>
+<span id="cb12-96"><a href="#cb12-96" aria-hidden="true" tabindex="-1"></a>    d2 <span class="op">=</span> d1 <span class="op">-</span> vol_time</span>
+<span id="cb12-97"><a href="#cb12-97" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.exp(<span class="op">-</span>r <span class="op">*</span> T) <span class="op">*</span> (K <span class="op">*</span> normal_cdf(<span class="op">-</span>d2) <span class="op">-</span> F <span class="op">*</span> normal_cdf(<span class="op">-</span>d1))</span>
+<span id="cb12-98"><a href="#cb12-98" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-99"><a href="#cb12-99" aria-hidden="true" tabindex="-1"></a>model_put_points <span class="op">=</span> <span class="bu">float</span>(black_futures_put(futures_price, strike, time_to_expiry,</span>
+<span id="cb12-100"><a href="#cb12-100" aria-hidden="true" tabindex="-1"></a>                                           risk_free_rate, volatility))</span>
+<span id="cb12-101"><a href="#cb12-101" aria-hidden="true" tabindex="-1"></a>intrinsic_points <span class="op">=</span> <span class="bu">max</span>(strike <span class="op">-</span> futures_price, <span class="dv">0</span>)</span>
+<span id="cb12-102"><a href="#cb12-102" aria-hidden="true" tabindex="-1"></a>time_value_points <span class="op">=</span> model_put_points <span class="op">-</span> intrinsic_points</span>
+<span id="cb12-103"><a href="#cb12-103" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-104"><a href="#cb12-104" aria-hidden="true" tabindex="-1"></a>pd.Series({</span>
+<span id="cb12-105"><a href="#cb12-105" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Black put value (points)"</span>: model_put_points,</span>
+<span id="cb12-106"><a href="#cb12-106" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Black put value ($/contract)"</span>: model_put_points <span class="op">*</span> dollars_per_point,</span>
+<span id="cb12-107"><a href="#cb12-107" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Intrinsic value (points)"</span>: intrinsic_points,</span>
+<span id="cb12-108"><a href="#cb12-108" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Time value (points)"</span>: time_value_points,</span>
+<span id="cb12-109"><a href="#cb12-109" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Illustrative quoted premium (points)"</span>: quoted_points,</span>
+<span id="cb12-110"><a href="#cb12-110" aria-hidden="true" tabindex="-1"></a>}).<span class="bu">round</span>(<span class="dv">4</span>)</span>
+<span id="cb12-111"><a href="#cb12-111" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-112"><a href="#cb12-112" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-113"><a href="#cb12-113" aria-hidden="true" tabindex="-1"></a>The quoted premium and model value need not match. A trader can interpret their difference as a signal to investigate volatility, exercise style, liquidity, model inputs, and bid-ask effects—not as an automatic arbitrage.</span>
+<span id="cb12-114"><a href="#cb12-114" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-115"><a href="#cb12-115" aria-hidden="true" tabindex="-1"></a><span class="fu">## Size the Protective Put Overlay</span></span>
+<span id="cb12-116"><a href="#cb12-116" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-117"><a href="#cb12-117" aria-hidden="true" tabindex="-1"></a>First map the portfolio into futures-equivalent contracts:</span>
+<span id="cb12-118"><a href="#cb12-118" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-119"><a href="#cb12-119" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb12-120"><a href="#cb12-120" aria-hidden="true" tabindex="-1"></a>N_{fut-eq}=\frac{DV01_{portfolio}}{DV01_{futures}}.</span>
+<span id="cb12-121"><a href="#cb12-121" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb12-122"><a href="#cb12-122" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-123"><a href="#cb12-123" aria-hidden="true" tabindex="-1"></a>For a one-for-one static floor at expiration, buy approximately one put per futures-equivalent contract. A current delta hedge would generally require a different count and rebalancing.</span>
+<span id="cb12-124"><a href="#cb12-124" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-127"><a href="#cb12-127" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb12-128"><a href="#cb12-128" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: contract-sizing</span></span>
+<span id="cb12-129"><a href="#cb12-129" aria-hidden="true" tabindex="-1"></a>exact_futures_equivalents <span class="op">=</span> portfolio_dv01 <span class="op">/</span> futures_dv01</span>
+<span id="cb12-130"><a href="#cb12-130" aria-hidden="true" tabindex="-1"></a>contracts <span class="op">=</span> <span class="bu">int</span>(np.rint(exact_futures_equivalents))</span>
+<span id="cb12-131"><a href="#cb12-131" aria-hidden="true" tabindex="-1"></a>premium_cost <span class="op">=</span> contracts <span class="op">*</span> quoted_dollars</span>
+<span id="cb12-132"><a href="#cb12-132" aria-hidden="true" tabindex="-1"></a>mapped_dv01 <span class="op">=</span> contracts <span class="op">*</span> futures_dv01</span>
+<span id="cb12-133"><a href="#cb12-133" aria-hidden="true" tabindex="-1"></a>residual_dv01 <span class="op">=</span> portfolio_dv01 <span class="op">-</span> mapped_dv01</span>
+<span id="cb12-134"><a href="#cb12-134" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-135"><a href="#cb12-135" aria-hidden="true" tabindex="-1"></a>pd.Series({</span>
+<span id="cb12-136"><a href="#cb12-136" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Exact futures equivalents"</span>: exact_futures_equivalents,</span>
+<span id="cb12-137"><a href="#cb12-137" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Static puts purchased"</span>: contracts,</span>
+<span id="cb12-138"><a href="#cb12-138" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Premium cost ($)"</span>: premium_cost,</span>
+<span id="cb12-139"><a href="#cb12-139" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Residual DV01 after rounding ($/bp)"</span>: residual_dv01,</span>
+<span id="cb12-140"><a href="#cb12-140" aria-hidden="true" tabindex="-1"></a>}).<span class="bu">round</span>(<span class="dv">2</span>)</span>
+<span id="cb12-141"><a href="#cb12-141" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-142"><a href="#cb12-142" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-143"><a href="#cb12-143" aria-hidden="true" tabindex="-1"></a><span class="fu">## Futures-Price and Yield Scenarios</span></span>
+<span id="cb12-144"><a href="#cb12-144" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-145"><a href="#cb12-145" aria-hidden="true" tabindex="-1"></a>Approximate the futures-price change from a Treasury yield shock:</span>
+<span id="cb12-146"><a href="#cb12-146" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-147"><a href="#cb12-147" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb12-148"><a href="#cb12-148" aria-hidden="true" tabindex="-1"></a>\Delta F\approx-\frac{DV01_{futures}}{\$1{,}000\text{ per point}}\Delta y_{bp}.</span>
+<span id="cb12-149"><a href="#cb12-149" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb12-150"><a href="#cb12-150" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-151"><a href="#cb12-151" aria-hidden="true" tabindex="-1"></a>The mapped bond P&amp;L moves like a long futures position. The protective put pays only below the strike. A short-futures hedge offsets mapped price changes linearly in both directions.</span>
+<span id="cb12-152"><a href="#cb12-152" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-155"><a href="#cb12-155" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb12-156"><a href="#cb12-156" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: scenario-table</span></span>
+<span id="cb12-157"><a href="#cb12-157" aria-hidden="true" tabindex="-1"></a>yield_shocks_bp <span class="op">=</span> np.array([<span class="op">-</span><span class="dv">75</span>, <span class="op">-</span><span class="dv">40</span>, <span class="dv">0</span>, <span class="dv">40</span>, <span class="dv">75</span>])</span>
+<span id="cb12-158"><a href="#cb12-158" aria-hidden="true" tabindex="-1"></a>terminal_futures <span class="op">=</span> futures_price <span class="op">-</span> futures_dv01 <span class="op">/</span> dollars_per_point <span class="op">*</span> yield_shocks_bp</span>
+<span id="cb12-159"><a href="#cb12-159" aria-hidden="true" tabindex="-1"></a>mapped_bond_pnl <span class="op">=</span> contracts <span class="op">*</span> dollars_per_point <span class="op">*</span> (terminal_futures <span class="op">-</span> futures_price)</span>
+<span id="cb12-160"><a href="#cb12-160" aria-hidden="true" tabindex="-1"></a>put_payoff <span class="op">=</span> contracts <span class="op">*</span> dollars_per_point <span class="op">*</span> np.maximum(strike <span class="op">-</span> terminal_futures, <span class="dv">0</span>)</span>
+<span id="cb12-161"><a href="#cb12-161" aria-hidden="true" tabindex="-1"></a>protective_put_pnl <span class="op">=</span> mapped_bond_pnl <span class="op">+</span> put_payoff <span class="op">-</span> premium_cost</span>
+<span id="cb12-162"><a href="#cb12-162" aria-hidden="true" tabindex="-1"></a>short_futures_pnl <span class="op">=</span> <span class="op">-</span>mapped_bond_pnl</span>
+<span id="cb12-163"><a href="#cb12-163" aria-hidden="true" tabindex="-1"></a>linear_hedge_pnl <span class="op">=</span> mapped_bond_pnl <span class="op">+</span> short_futures_pnl</span>
+<span id="cb12-164"><a href="#cb12-164" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-165"><a href="#cb12-165" aria-hidden="true" tabindex="-1"></a>scenario_table <span class="op">=</span> pd.DataFrame({</span>
+<span id="cb12-166"><a href="#cb12-166" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Yield shock (bp)"</span>: yield_shocks_bp,</span>
+<span id="cb12-167"><a href="#cb12-167" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Terminal futures"</span>: terminal_futures,</span>
+<span id="cb12-168"><a href="#cb12-168" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Mapped bond P&amp;L ($)"</span>: mapped_bond_pnl,</span>
+<span id="cb12-169"><a href="#cb12-169" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Put payoff ($)"</span>: put_payoff,</span>
+<span id="cb12-170"><a href="#cb12-170" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Bond + put P&amp;L after premium ($)"</span>: protective_put_pnl,</span>
+<span id="cb12-171"><a href="#cb12-171" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Bond + short futures P&amp;L ($)"</span>: linear_hedge_pnl,</span>
+<span id="cb12-172"><a href="#cb12-172" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb12-173"><a href="#cb12-173" aria-hidden="true" tabindex="-1"></a>scenario_table.<span class="bu">round</span>(<span class="dv">0</span>)</span>
+<span id="cb12-174"><a href="#cb12-174" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-175"><a href="#cb12-175" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-176"><a href="#cb12-176" aria-hidden="true" tabindex="-1"></a>The put preserves gains when yields fall but requires an upfront premium. The linear futures hedge has no option premium in this simplified comparison, but it gives up gains as well as losses.</span>
+<span id="cb12-177"><a href="#cb12-177" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-180"><a href="#cb12-180" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb12-181"><a href="#cb12-181" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-option-hedge</span></span>
+<span id="cb12-182"><a href="#cb12-182" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "A protective put creates a floor; a short-futures hedge removes both upside and downside"</span></span>
+<span id="cb12-183"><a href="#cb12-183" aria-hidden="true" tabindex="-1"></a>fine_shocks <span class="op">=</span> np.linspace(<span class="op">-</span><span class="dv">100</span>, <span class="dv">100</span>, <span class="dv">401</span>)</span>
+<span id="cb12-184"><a href="#cb12-184" aria-hidden="true" tabindex="-1"></a>fine_futures <span class="op">=</span> futures_price <span class="op">-</span> futures_dv01 <span class="op">/</span> dollars_per_point <span class="op">*</span> fine_shocks</span>
+<span id="cb12-185"><a href="#cb12-185" aria-hidden="true" tabindex="-1"></a>fine_bond <span class="op">=</span> contracts <span class="op">*</span> dollars_per_point <span class="op">*</span> (fine_futures <span class="op">-</span> futures_price)</span>
+<span id="cb12-186"><a href="#cb12-186" aria-hidden="true" tabindex="-1"></a>fine_put <span class="op">=</span> fine_bond <span class="op">+</span> contracts <span class="op">*</span> dollars_per_point <span class="op">*</span> np.maximum(strike <span class="op">-</span> fine_futures, <span class="dv">0</span>) <span class="op">-</span> premium_cost</span>
+<span id="cb12-187"><a href="#cb12-187" aria-hidden="true" tabindex="-1"></a>fine_linear <span class="op">=</span> np.zeros_like(fine_shocks)</span>
+<span id="cb12-188"><a href="#cb12-188" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-189"><a href="#cb12-189" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">7.6</span>, <span class="fl">4.2</span>))</span>
+<span id="cb12-190"><a href="#cb12-190" aria-hidden="true" tabindex="-1"></a>ax.plot(fine_shocks, fine_bond <span class="op">/</span> <span class="dv">1_000</span>, linewidth<span class="op">=</span><span class="dv">2</span>, label<span class="op">=</span><span class="st">"Unhedged mapped bond"</span>)</span>
+<span id="cb12-191"><a href="#cb12-191" aria-hidden="true" tabindex="-1"></a>ax.plot(fine_shocks, fine_put <span class="op">/</span> <span class="dv">1_000</span>, linewidth<span class="op">=</span><span class="dv">2</span>, label<span class="op">=</span><span class="st">"Bond + protective puts"</span>)</span>
+<span id="cb12-192"><a href="#cb12-192" aria-hidden="true" tabindex="-1"></a>ax.plot(fine_shocks, fine_linear, linestyle<span class="op">=</span><span class="st">"--"</span>, linewidth<span class="op">=</span><span class="dv">2</span>, label<span class="op">=</span><span class="st">"Bond + short futures"</span>)</span>
+<span id="cb12-193"><a href="#cb12-193" aria-hidden="true" tabindex="-1"></a>ax.axhline(<span class="dv">0</span>, color<span class="op">=</span><span class="st">"black"</span>, linewidth<span class="op">=</span><span class="fl">0.8</span>)</span>
+<span id="cb12-194"><a href="#cb12-194" aria-hidden="true" tabindex="-1"></a>ax.<span class="bu">set</span>(xlabel<span class="op">=</span><span class="st">"Treasury yield shock (bp)"</span>, ylabel<span class="op">=</span><span class="st">"P&amp;L ($ thousands)"</span>,</span>
+<span id="cb12-195"><a href="#cb12-195" aria-hidden="true" tabindex="-1"></a>       title<span class="op">=</span><span class="st">"Expiration P&amp;L after option premium"</span>)</span>
+<span id="cb12-196"><a href="#cb12-196" aria-hidden="true" tabindex="-1"></a>ax.grid(alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb12-197"><a href="#cb12-197" aria-hidden="true" tabindex="-1"></a>ax.legend()</span>
+<span id="cb12-198"><a href="#cb12-198" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb12-199"><a href="#cb12-199" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb12-200"><a href="#cb12-200" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-201"><a href="#cb12-201" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-202"><a href="#cb12-202" aria-hidden="true" tabindex="-1"></a><span class="fu">## Risks the Simple Comparison Omits</span></span>
+<span id="cb12-203"><a href="#cb12-203" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-204"><a href="#cb12-204" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Basis risk:** the bond portfolio and Treasury futures may move differently.</span>
+<span id="cb12-205"><a href="#cb12-205" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Curve risk:** a single contract cannot hedge every maturity exposure.</span>
+<span id="cb12-206"><a href="#cb12-206" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Volatility risk:** option value changes when implied volatility changes.</span>
+<span id="cb12-207"><a href="#cb12-207" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Time decay:** the put loses time value as expiration approaches, all else equal.</span>
+<span id="cb12-208"><a href="#cb12-208" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Delta drift:** the option's sensitivity changes with price, time, and volatility.</span>
+<span id="cb12-209"><a href="#cb12-209" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Exercise and margin conventions:** listed contracts can differ from the European, premium-paid simplification.</span>
+<span id="cb12-210"><a href="#cb12-210" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Liquidity and roll risk:** bid-ask costs and hedge replacement affect realized results.</span>
+<span id="cb12-211"><a href="#cb12-211" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-212"><a href="#cb12-212" aria-hidden="true" tabindex="-1"></a><span class="fu">## Validation Checks</span></span>
+<span id="cb12-213"><a href="#cb12-213" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-216"><a href="#cb12-216" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb12-217"><a href="#cb12-217" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: validation</span></span>
+<span id="cb12-218"><a href="#cb12-218" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> model_put_points <span class="op">&gt;=</span> intrinsic_points <span class="op">&gt;=</span> <span class="dv">0</span></span>
+<span id="cb12-219"><a href="#cb12-219" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="bu">abs</span>(quoted_dollars <span class="op">-</span> <span class="fl">1_843.75</span>) <span class="op">&lt;</span> <span class="fl">1e-10</span></span>
+<span id="cb12-220"><a href="#cb12-220" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="bu">abs</span>(residual_dv01) <span class="op">&lt;=</span> <span class="fl">0.5</span> <span class="op">*</span> futures_dv01 <span class="op">+</span> <span class="fl">1e-10</span></span>
+<span id="cb12-221"><a href="#cb12-221" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> np.allclose(linear_hedge_pnl, <span class="dv">0</span>)</span>
+<span id="cb12-222"><a href="#cb12-222" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> protective_put_pnl[<span class="op">-</span><span class="dv">1</span>] <span class="op">&gt;</span> mapped_bond_pnl[<span class="op">-</span><span class="dv">1</span>]</span>
+<span id="cb12-223"><a href="#cb12-223" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-224"><a href="#cb12-224" aria-hidden="true" tabindex="-1"></a>pd.Series({</span>
+<span id="cb12-225"><a href="#cb12-225" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Model put value exceeds intrinsic value"</span>: model_put_points <span class="op">&gt;=</span> intrinsic_points,</span>
+<span id="cb12-226"><a href="#cb12-226" aria-hidden="true" tabindex="-1"></a>    <span class="st">"1-54 quote converts to $1,843.75"</span>: <span class="va">True</span>,</span>
+<span id="cb12-227"><a href="#cb12-227" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Rounding residual is within half one contract DV01"</span>: <span class="va">True</span>,</span>
+<span id="cb12-228"><a href="#cb12-228" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Linear futures hedge offsets mapped P&amp;L"</span>: <span class="bu">bool</span>(np.allclose(linear_hedge_pnl, <span class="dv">0</span>)),</span>
+<span id="cb12-229"><a href="#cb12-229" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Put improves the rising-yield outcome"</span>: protective_put_pnl[<span class="op">-</span><span class="dv">1</span>] <span class="op">&gt;</span> mapped_bond_pnl[<span class="op">-</span><span class="dv">1</span>],</span>
+<span id="cb12-230"><a href="#cb12-230" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb12-231"><a href="#cb12-231" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-232"><a href="#cb12-232" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-233"><a href="#cb12-233" aria-hidden="true" tabindex="-1"></a><span class="fu">## Financial Interpretation</span></span>
+<span id="cb12-234"><a href="#cb12-234" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-235"><a href="#cb12-235" aria-hidden="true" tabindex="-1"></a>Contract selection begins with the risk, not the forecast. A short futures hedge is appropriate when the objective is to remove exposure linearly. A protective put is appropriate when the manager wants a loss floor while retaining favorable bond-price gains. That asymmetry is valuable, but its premium, volatility exposure, time decay, basis, and expiration must be budgeted explicitly.</span>
+</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+</div></div></div></div></div>
 </div> <!-- /content -->
 
 

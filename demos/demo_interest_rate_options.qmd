@@ -5,10 +5,13 @@ format:
     toc: true
     toc-location: left
     number-sections: true
+    code-fold: true
+    code-tools: true
 jupyter: python3
 execute:
   echo: true
   warning: false
+  message: false
 ---
 
 ## Learning Objectives {.unnumbered}
@@ -18,6 +21,13 @@ After completing this demo you should be able to read a Treasury futures option 
 ## Inputs and Assumptions
 
 All inputs are **illustrative, market-like inputs**, not live quotes. The option is treated as European for Black-model transparency; actual contract exercise and margin conventions must be checked. The bond portfolio is mapped to one Treasury futures contract with DV01; the CTD, conversion factor, basis, convexity, transaction costs, margin cash flows, and early exercise are held fixed or ignored.
+
+| Workflow stage | In this case |
+|---|---|
+| Observed or supplied | Futures, strike, quoted premium, expiry, and portfolio DV01 |
+| Estimated | Black benchmark value and futures-equivalent exposure |
+| Diagnosed | Quote-versus-model gap, intrinsic value, and time value |
+| Used for | Choosing between a linear hedge and asymmetric protection |
 
 ```{python}
 #| label: inputs

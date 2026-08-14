@@ -60,6 +60,20 @@ curve bootstrapping and Hull–White calibration, Vasicek scenarios, callable-bo
 OAS, Treasury futures hedging, credit-spread risk, and interest-rate options.
 The demo index identifies the lecture and workflow for each demonstration.
 
+### Second-pass demo review
+
+- Standardized foldable HTML code and code tools across all seven demos while
+  preserving visible results and PDF output.
+- Reworked the curve/Hull–White workflow to begin with an embedded January 2, 2025
+  U.S. Treasury par-yield snapshot, explicitly separate observed nodes from
+  interpolation assumptions, bootstrap and reprice the curve, calibrate model
+  dynamics, and use future fitted curves for bond valuation.
+- Reworked the Vasicek workflow to estimate parameters from an embedded January
+  2023–June 2025 effective-federal-funds-rate history and use the fitted distribution
+  for a one-year funding-risk decision.
+- Added input/estimate/diagnostic/use maps to the remaining practical cases and an
+  HTML yield-shock explorer with a static PDF fallback to the duration demo.
+
 ## Course-wide validation
 
 Navigation and render-source inclusion were checked across the home page, lecture
@@ -76,7 +90,7 @@ Final publication QA completed successfully:
 - The 29-source HTML site render completed with every lecture and demo code cell.
 - The 29-source PDF pass completed with `--no-clean` and preserved the HTML site.
 - All 11 reveal.js decks rendered in their native format and were copied to
-  `docs/slides/` with their dependency folders.
+  `docs/slides/` as self-contained HTML files.
 - Public output checks found 11 slide decks, seven demo HTML pages, seven demo PDFs,
   the team-project catalog, and the cumulative practice set.
 - Source whitespace checks, internal-path checks, executable-cell-label checks, and

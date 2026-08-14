@@ -4,15 +4,25 @@ format:
   html:
     toc: true
     number-sections: true
+    code-fold: true
+    code-tools: true
 jupyter: python3
 execute:
   echo: true
   warning: false
+  message: false
 ---
 
 ## Purpose and Assumptions {.unnumbered}
 
 This demo prices a small bond portfolio from contractual cash flows, measures Macaulay duration, modified duration, DV01/PVBP, and convexity, and compares approximations with exact repricing. All bonds and yields are **illustrative, market-like inputs**, not live quotes. Bonds pay semiannual coupons; yields are nominal annual yields compounded semiannually; settlement is on a coupon date; default, taxes, accrued interest, and embedded options are ignored.
+
+| Workflow stage | In this case |
+|---|---|
+| Observed on a position report | Face amount, coupon, maturity, and yield |
+| Calculated | Full price, duration, DV01, and convexity |
+| Checked | Approximation error against exact cash-flow repricing |
+| Used for | Portfolio shock P&L and identification of curve risk |
 
 ```{python}
 #| label: setup
@@ -131,6 +141,39 @@ ax.legend()
 plt.tight_layout()
 plt.show()
 ```
+
+### Explore the shock size (HTML)
+
+The table and figure above are the static fallback in PDF. In HTML, move the
+slider to reprice the same 10-year 5.75% coupon bond exactly.
+
+::: {.content-visible when-format="html"}
+<div id="duration-explorer" style="padding:1rem;border:1px solid #d9e1e8;border-radius:.4rem">
+  <label for="shock-slider"><strong>Yield shock:</strong> <output id="shock-label">+50 bp</output></label><br>
+  <input id="shock-slider" type="range" min="-200" max="200" step="5" value="50" style="width:70%">
+  <p id="shock-result" aria-live="polite"></p>
+</div>
+<script>
+(() => {
+  const slider = document.getElementById('shock-slider');
+  const label = document.getElementById('shock-label');
+  const result = document.getElementById('shock-result');
+  const face = 100, coupon = 100 * 0.0575 / 2, periods = 20, baseYield = 0.0610;
+  const price = y => {
+    let value = 0;
+    for (let k = 1; k <= periods; k++) value += (coupon + (k === periods ? face : 0)) / Math.pow(1 + y / 2, k);
+    return value;
+  };
+  const base = price(baseYield);
+  const update = () => {
+    const bp = Number(slider.value), shocked = price(baseYield + bp / 10000);
+    label.value = `${bp > 0 ? '+' : ''}${bp} bp`;
+    result.textContent = `Exact price: ${shocked.toFixed(3)} per 100; change: ${((shocked / base - 1) * 100).toFixed(3)}%.`;
+  };
+  slider.addEventListener('input', update); update();
+})();
+</script>
+:::
 
 ## Portfolio Aggregation
 

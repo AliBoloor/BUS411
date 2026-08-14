@@ -379,7 +379,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Practical Demo: Callable-Bond Valuation, OAS, and Effective Risk</h1>
+<div class="quarto-title-block"><div><h1 class="title">Practical Demo: Callable-Bond Valuation, OAS, and Effective Risk</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button">View Source</a></li></ul></div></div>
 </div>
 
 
@@ -472,6 +472,40 @@ window.Quarto = {
 </tbody>
 </table>
 <p>The rate tree is recombining and lognormal. It captures path-dependent call decisions, but it is not presented as a fully calibrated term-structure model. Rates cannot be negative, the time step is one year, the OAS is a constant spread, and transaction costs, taxes, accrued interest, default, recovery, and notice periods are ignored.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Workflow stage</th>
+<th>In this case</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Supplied in the teaching case</td>
+<td>Callable price and contractual cash flows</td>
+</tr>
+<tr class="even">
+<td>Assumed</td>
+<td>Benchmark rate tree, volatility, and exercise convention</td>
+</tr>
+<tr class="odd">
+<td>Solved</td>
+<td>OAS that reprices the observed bond price</td>
+</tr>
+<tr class="even">
+<td>Diagnosed</td>
+<td>Repricing error and call exercise by node</td>
+</tr>
+<tr class="odd">
+<td>Used for</td>
+<td>Effective duration, convexity, and rate-stress decisions</td>
+</tr>
+</tbody>
+</table>
 </section>
 <section id="build-a-recombining-short-rate-tree" class="level2" data-number="2">
 <h2 data-number="2" class="anchored" data-anchor-id="build-a-recombining-short-rate-tree"><span class="header-section-number">2</span> Build a Recombining Short-Rate Tree</h2>
@@ -481,6 +515,8 @@ r_{t,j}=m_t\exp\left[(2j-t)\sigma\right],
 \]</span></p>
 <p>where <span class="math inline">\(m_t\)</span> is the median-rate path and <span class="math inline">\(\sigma\)</span> controls annual volatility. Moving up increases <span class="math inline">\(j\)</span> by one; moving down leaves <span class="math inline">\(j\)</span> unchanged. Because the same number of up moves leads to the same node, the tree recombines.</p>
 <div id="cell-build-rate-tree" class="cell" data-execution_count="1">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
@@ -515,6 +551,7 @@ r_{t,j}=m_t\exp\left[(2j-t)\sigma\right],
 <span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>}).<span class="bu">round</span>(<span class="dv">3</span>)</span>
 <span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>rate_table.index.name <span class="op">=</span> <span class="st">"Node (number of up moves)"</span></span>
 <span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>rate_table</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 <div id="build-rate-tree" class="cell-output cell-output-display" data-execution_count="1">
 <div>
 
@@ -621,6 +658,8 @@ r_{t,j}=m_t\exp\left[(2j-t)\sigma\right],
 </div>
 <p>The entries are annual short rates in percent. The low-rate nodes are economically important because they are where refinancing and call exercise become most attractive.</p>
 <div id="cell-fig-short-rate-tree" class="cell" data-execution_count="2">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">8.0</span>, <span class="fl">4.4</span>))</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> t, nodes <span class="kw">in</span> <span class="bu">enumerate</span>(rate_tree):</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    y <span class="op">=</span> np.arange(t <span class="op">+</span> <span class="dv">1</span>) <span class="op">-</span> t <span class="op">/</span> <span class="dv">2</span></span>
@@ -635,6 +674,7 @@ r_{t,j}=m_t\exp\left[(2j-t)\sigma\right],
 <span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>ax.grid(axis<span class="op">=</span><span class="st">"x"</span>, alpha<span class="op">=</span><span class="fl">0.2</span>)</span>
 <span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
 <span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 <div class="cell-output cell-output-display">
 <div id="fig-short-rate-tree" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
@@ -665,6 +705,8 @@ V_{t,j}^{\text{callable}}
 \min\left\{V_{t,j}^{\text{hold}},\text{Call Price}_t\right\}.
 \]</span></p>
 <div id="cell-lattice-pricer" class="cell" data-execution_count="3">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> price_bond(rate_tree, spread<span class="op">=</span><span class="fl">0.0</span>, callable_bond<span class="op">=</span><span class="va">False</span>, return_tree<span class="op">=</span><span class="va">False</span>):</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Price the bond by backward induction; node values are ex-coupon."""</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    values <span class="op">=</span> np.full(maturity <span class="op">+</span> <span class="dv">1</span>, face, dtype<span class="op">=</span><span class="bu">float</span>)</span>
@@ -696,6 +738,7 @@ V_{t,j}^{\text{callable}}
 <span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Callable value"</span>: benchmark_callable_price,</span>
 <span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Embedded call value"</span>: benchmark_option_cost,</span>
 <span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>}).<span class="bu">round</span>(<span class="dv">4</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 <div id="lattice-pricer" class="cell-output cell-output-display" data-execution_count="3">
 <pre><code>Option-free value      107.0091
 Callable value         103.3419
@@ -714,6 +757,8 @@ V_{\text{callable}}
 <h2 data-number="4" class="anchored" data-anchor-id="illustrate-and-solve-for-oas"><span class="header-section-number">4</span> Illustrate and Solve for OAS</h2>
 <p>To make the exercise reproducible, suppose the callable bond trades at the model value generated by an 85-basis-point spread. We then hide that spread and recover it from the price. In practice, the price would come from the market.</p>
 <div id="cell-solve-oas" class="cell" data-execution_count="4">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>illustrative_true_oas <span class="op">=</span> <span class="fl">0.0085</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>market_price <span class="op">=</span> price_bond(</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    rate_tree,</span>
@@ -751,6 +796,7 @@ V_{\text{callable}}
 <span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Option cost in spread terms (bp)"</span>: option_cost_spread <span class="op">*</span> <span class="dv">10_000</span>,</span>
 <span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Repriced callable value"</span>: reprice,</span>
 <span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>}).<span class="bu">round</span>(<span class="dv">6</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 <div id="solve-oas" class="cell-output cell-output-display" data-execution_count="4">
 <pre><code>Illustrative market price                    100.0700
 Solved OAS (bp)                               85.0000
@@ -763,6 +809,8 @@ dtype: float64</code></pre>
 <p>OAS is the spread left after the tree has modeled the issuer’s exercise decision. The static spread is larger because it discounts promised maturity cash flows and does not recognize that favorable low-rate paths can be taken away through a call.</p>
 <p>The option cost can also be expressed in price terms at the solved OAS:</p>
 <div id="cell-option-cost-at-oas" class="cell" data-execution_count="5">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>straight_at_oas <span class="op">=</span> price_bond(rate_tree, solved_oas, callable_bond<span class="op">=</span><span class="va">False</span>)</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>callable_at_oas <span class="op">=</span> price_bond(rate_tree, solved_oas, callable_bond<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>option_cost_at_oas <span class="op">=</span> straight_at_oas <span class="op">-</span> callable_at_oas</span>
@@ -772,6 +820,7 @@ dtype: float64</code></pre>
 <span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Callable value at OAS"</span>: callable_at_oas,</span>
 <span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Call option cost in price points"</span>: option_cost_at_oas,</span>
 <span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>}).<span class="bu">round</span>(<span class="dv">4</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 <div id="option-cost-at-oas" class="cell-output cell-output-display" data-execution_count="5">
 <pre><code>Option-free value at OAS            101.8603
 Callable value at OAS               100.0700
@@ -792,6 +841,8 @@ C_{\text{eff}}
 =\frac{P_-+P_+-2P_0}{P_0(\Delta y)^2}.
 \]</span></p>
 <div id="cell-effective-risk" class="cell" data-execution_count="6">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>curve_shock <span class="op">=</span> <span class="fl">0.0025</span>  <span class="co"># 25 basis points</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> effective_risk(callable_bond):</span>
@@ -813,6 +864,7 @@ C_{\text{eff}}
 <span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>    columns<span class="op">=</span>[<span class="st">"P0"</span>, <span class="st">"P(-25 bp)"</span>, <span class="st">"P(+25 bp)"</span>, <span class="st">"Effective duration"</span>, <span class="st">"Effective convexity"</span>],</span>
 <span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>risk_table.<span class="bu">round</span>(<span class="dv">4</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 <div id="effective-risk" class="cell-output cell-output-display" data-execution_count="6">
 <div>
 
@@ -853,6 +905,8 @@ C_{\text{eff}}
 </div>
 <p>The callable bond should generally have shorter effective duration because its upside is capped when rates fall. Its effective convexity can also be much lower, or negative, near the region where call exercise changes rapidly.</p>
 <div id="cell-fig-callable-repricing" class="cell" data-execution_count="7">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>shocks_bp <span class="op">=</span> np.arange(<span class="op">-</span><span class="dv">150</span>, <span class="dv">151</span>, <span class="dv">10</span>)</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>straight_prices <span class="op">=</span> []</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>callable_prices <span class="op">=</span> []</span>
@@ -871,6 +925,7 @@ C_{\text{eff}}
 <span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>ax.legend()</span>
 <span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
 <span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 <div class="cell-output cell-output-display">
 <div id="fig-callable-repricing" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
@@ -888,6 +943,8 @@ Figure&nbsp;2: Full repricing reveals the callable bond’s capped upside
 <section id="validation-checks" class="level2" data-number="6">
 <h2 data-number="6" class="anchored" data-anchor-id="validation-checks"><span class="header-section-number">6</span> Validation Checks</h2>
 <div id="cell-validation-checks" class="cell" data-execution_count="8">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="bu">abs</span>(solved_oas <span class="op">-</span> illustrative_true_oas) <span class="op">&lt;</span> <span class="fl">1e-10</span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="bu">abs</span>(reprice <span class="op">-</span> market_price) <span class="op">&lt;</span> <span class="fl">1e-10</span></span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> benchmark_callable_price <span class="op">&lt;=</span> benchmark_straight_price</span>
@@ -903,6 +960,7 @@ Figure&nbsp;2: Full repricing reveals the callable bond’s capped upside
 <span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Price rises when the curve falls"</span>: callable_risk[<span class="dv">1</span>] <span class="op">&gt;</span> callable_risk[<span class="dv">0</span>],</span>
 <span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>})</span>
 <span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>checks</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 <div id="validation-checks" class="cell-output cell-output-display" data-execution_count="8">
 <pre><code>OAS recovered within 0.0001 bp                   True
 Model reprices market value                      True
@@ -923,6 +981,8 @@ dtype: bool</code></pre>
 </ol>
 <p>The outputs are model-dependent. A different benchmark curve, volatility, call behavior, or tree calibration can materially change the option value, OAS, effective duration, and effective convexity.</p>
 
+
+<!-- -->
 
 </section>
 
@@ -1010,6 +1070,57 @@ dtype: bool</code></pre>
         container: window.document.getElementById('quarto-embedded-source-code-modal')
       });
       clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
@@ -1339,7 +1450,349 @@ dtype: bool</code></pre>
       }
     }
   });
-  </script>
+  </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Practical Demo: Callable-Bond Valuation, OAS, and Effective Risk"</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="co">    toc: true</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="co">    toc-location: left</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="co">    number-sections: true</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="co">    code-fold: true</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="co">    code-tools: true</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="an">jupyter:</span><span class="co"> python3</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="an">execute:</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a><span class="co">  echo: true</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a><span class="co">  warning: false</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a><span class="co">  message: false</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a><span class="fu">## Learning Objectives {.unnumbered}</span></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>After completing this demo you should be able to:</span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>value option-free and callable bonds with backward induction;</span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>apply the issuer's call decision at each eligible node;</span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>isolate the embedded call option's price cost;</span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>solve for the option-adjusted spread (OAS) that matches a market price; and</span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>calculate effective duration and effective convexity by repricing the bond.</span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a><span class="fu">## Market Inputs Versus Illustrative Inputs</span></span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a>This is a transparent teaching workflow, not a live security valuation. A production model would calibrate an arbitrage-free tree to a current benchmark curve and an option-volatility surface.</span>
+<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Input <span class="pp">|</span> Value <span class="pp">|</span> Status <span class="pp">|</span></span>
+<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a><span class="pp">|---|---:|---|</span></span>
+<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Face value <span class="pp">|</span> 100 <span class="pp">|</span> Illustrative bond term <span class="pp">|</span></span>
+<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Annual coupon rate <span class="pp">|</span> 5.25% <span class="pp">|</span> Illustrative bond term <span class="pp">|</span></span>
+<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Final maturity <span class="pp">|</span> 7 years <span class="pp">|</span> Illustrative bond term <span class="pp">|</span></span>
+<span id="cb13-36"><a href="#cb13-36" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Call schedule <span class="pp">|</span> Years 3–6 <span class="pp">|</span> Illustrative bond term <span class="pp">|</span></span>
+<span id="cb13-37"><a href="#cb13-37" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Call prices <span class="pp">|</span> 101.50, 101.00, 100.50, 100.00 <span class="pp">|</span> Illustrative bond term <span class="pp">|</span></span>
+<span id="cb13-38"><a href="#cb13-38" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Median one-year short-rate path <span class="pp">|</span> 4.20% to 3.70% <span class="pp">|</span> Market-like, not live <span class="pp">|</span></span>
+<span id="cb13-39"><a href="#cb13-39" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Annual short-rate volatility <span class="pp">|</span> 18% <span class="pp">|</span> Illustrative model input <span class="pp">|</span></span>
+<span id="cb13-40"><a href="#cb13-40" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Risk-neutral up probability <span class="pp">|</span> 50% <span class="pp">|</span> Simplifying assumption <span class="pp">|</span></span>
+<span id="cb13-41"><a href="#cb13-41" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Observed callable-bond price <span class="pp">|</span> Generated below <span class="pp">|</span> Illustrative market price <span class="pp">|</span></span>
+<span id="cb13-42"><a href="#cb13-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-43"><a href="#cb13-43" aria-hidden="true" tabindex="-1"></a>The rate tree is recombining and lognormal. It captures path-dependent call decisions, but it is not presented as a fully calibrated term-structure model. Rates cannot be negative, the time step is one year, the OAS is a constant spread, and transaction costs, taxes, accrued interest, default, recovery, and notice periods are ignored.</span>
+<span id="cb13-44"><a href="#cb13-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-45"><a href="#cb13-45" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Workflow stage <span class="pp">|</span> In this case <span class="pp">|</span></span>
+<span id="cb13-46"><a href="#cb13-46" aria-hidden="true" tabindex="-1"></a><span class="pp">|---|---|</span></span>
+<span id="cb13-47"><a href="#cb13-47" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Supplied in the teaching case <span class="pp">|</span> Callable price and contractual cash flows <span class="pp">|</span></span>
+<span id="cb13-48"><a href="#cb13-48" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Assumed <span class="pp">|</span> Benchmark rate tree, volatility, and exercise convention <span class="pp">|</span></span>
+<span id="cb13-49"><a href="#cb13-49" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Solved <span class="pp">|</span> OAS that reprices the observed bond price <span class="pp">|</span></span>
+<span id="cb13-50"><a href="#cb13-50" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Diagnosed <span class="pp">|</span> Repricing error and call exercise by node <span class="pp">|</span></span>
+<span id="cb13-51"><a href="#cb13-51" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Used for <span class="pp">|</span> Effective duration, convexity, and rate-stress decisions <span class="pp">|</span></span>
+<span id="cb13-52"><a href="#cb13-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-53"><a href="#cb13-53" aria-hidden="true" tabindex="-1"></a><span class="fu">## Build a Recombining Short-Rate Tree</span></span>
+<span id="cb13-54"><a href="#cb13-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-55"><a href="#cb13-55" aria-hidden="true" tabindex="-1"></a>At time $t$, node $j$ has short rate</span>
+<span id="cb13-56"><a href="#cb13-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-57"><a href="#cb13-57" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb13-58"><a href="#cb13-58" aria-hidden="true" tabindex="-1"></a>r_{t,j}=m_t\exp\left<span class="co">[</span><span class="ot">(2j-t)\sigma\right</span><span class="co">]</span>,</span>
+<span id="cb13-59"><a href="#cb13-59" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb13-60"><a href="#cb13-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-61"><a href="#cb13-61" aria-hidden="true" tabindex="-1"></a>where $m_t$ is the median-rate path and $\sigma$ controls annual volatility. Moving up increases $j$ by one; moving down leaves $j$ unchanged. Because the same number of up moves leads to the same node, the tree recombines.</span>
+<span id="cb13-62"><a href="#cb13-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-65"><a href="#cb13-65" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb13-66"><a href="#cb13-66" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: build-rate-tree</span></span>
+<span id="cb13-67"><a href="#cb13-67" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb13-68"><a href="#cb13-68" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb13-69"><a href="#cb13-69" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb13-70"><a href="#cb13-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-71"><a href="#cb13-71" aria-hidden="true" tabindex="-1"></a>face <span class="op">=</span> <span class="fl">100.0</span></span>
+<span id="cb13-72"><a href="#cb13-72" aria-hidden="true" tabindex="-1"></a>coupon_rate <span class="op">=</span> <span class="fl">0.0525</span></span>
+<span id="cb13-73"><a href="#cb13-73" aria-hidden="true" tabindex="-1"></a>coupon <span class="op">=</span> face <span class="op">*</span> coupon_rate</span>
+<span id="cb13-74"><a href="#cb13-74" aria-hidden="true" tabindex="-1"></a>maturity <span class="op">=</span> <span class="dv">7</span></span>
+<span id="cb13-75"><a href="#cb13-75" aria-hidden="true" tabindex="-1"></a>median_rates <span class="op">=</span> np.array([<span class="fl">0.0420</span>, <span class="fl">0.0410</span>, <span class="fl">0.0400</span>, <span class="fl">0.0390</span>, <span class="fl">0.0380</span>, <span class="fl">0.0375</span>, <span class="fl">0.0370</span>])</span>
+<span id="cb13-76"><a href="#cb13-76" aria-hidden="true" tabindex="-1"></a>rate_volatility <span class="op">=</span> <span class="fl">0.18</span></span>
+<span id="cb13-77"><a href="#cb13-77" aria-hidden="true" tabindex="-1"></a>up_probability <span class="op">=</span> <span class="fl">0.50</span></span>
+<span id="cb13-78"><a href="#cb13-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-79"><a href="#cb13-79" aria-hidden="true" tabindex="-1"></a>call_schedule <span class="op">=</span> {<span class="dv">3</span>: <span class="fl">101.50</span>, <span class="dv">4</span>: <span class="fl">101.00</span>, <span class="dv">5</span>: <span class="fl">100.50</span>, <span class="dv">6</span>: <span class="fl">100.00</span>}</span>
+<span id="cb13-80"><a href="#cb13-80" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-81"><a href="#cb13-81" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> build_rate_tree(medians, volatility, parallel_shift<span class="op">=</span><span class="fl">0.0</span>):</span>
+<span id="cb13-82"><a href="#cb13-82" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Return a recombining lognormal short-rate tree."""</span></span>
+<span id="cb13-83"><a href="#cb13-83" aria-hidden="true" tabindex="-1"></a>    tree <span class="op">=</span> []</span>
+<span id="cb13-84"><a href="#cb13-84" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> t, median <span class="kw">in</span> <span class="bu">enumerate</span>(medians):</span>
+<span id="cb13-85"><a href="#cb13-85" aria-hidden="true" tabindex="-1"></a>        nodes <span class="op">=</span> np.array([</span>
+<span id="cb13-86"><a href="#cb13-86" aria-hidden="true" tabindex="-1"></a>            median <span class="op">*</span> np.exp((<span class="dv">2</span> <span class="op">*</span> j <span class="op">-</span> t) <span class="op">*</span> volatility) <span class="op">+</span> parallel_shift</span>
+<span id="cb13-87"><a href="#cb13-87" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(t <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb13-88"><a href="#cb13-88" aria-hidden="true" tabindex="-1"></a>        ])</span>
+<span id="cb13-89"><a href="#cb13-89" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> np.<span class="bu">any</span>(nodes <span class="op">&lt;=</span> <span class="op">-</span><span class="fl">1.0</span>):</span>
+<span id="cb13-90"><a href="#cb13-90" aria-hidden="true" tabindex="-1"></a>            <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">"A shocked node rate is below -100%."</span>)</span>
+<span id="cb13-91"><a href="#cb13-91" aria-hidden="true" tabindex="-1"></a>        tree.append(nodes)</span>
+<span id="cb13-92"><a href="#cb13-92" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> tree</span>
+<span id="cb13-93"><a href="#cb13-93" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-94"><a href="#cb13-94" aria-hidden="true" tabindex="-1"></a>rate_tree <span class="op">=</span> build_rate_tree(median_rates, rate_volatility)</span>
+<span id="cb13-95"><a href="#cb13-95" aria-hidden="true" tabindex="-1"></a>rate_table <span class="op">=</span> pd.DataFrame({</span>
+<span id="cb13-96"><a href="#cb13-96" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f"Year </span><span class="sc">{</span>t<span class="sc">}</span><span class="ss">"</span>: pd.Series(<span class="dv">100</span> <span class="op">*</span> nodes)</span>
+<span id="cb13-97"><a href="#cb13-97" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> t, nodes <span class="kw">in</span> <span class="bu">enumerate</span>(rate_tree)</span>
+<span id="cb13-98"><a href="#cb13-98" aria-hidden="true" tabindex="-1"></a>}).<span class="bu">round</span>(<span class="dv">3</span>)</span>
+<span id="cb13-99"><a href="#cb13-99" aria-hidden="true" tabindex="-1"></a>rate_table.index.name <span class="op">=</span> <span class="st">"Node (number of up moves)"</span></span>
+<span id="cb13-100"><a href="#cb13-100" aria-hidden="true" tabindex="-1"></a>rate_table</span>
+<span id="cb13-101"><a href="#cb13-101" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-102"><a href="#cb13-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-103"><a href="#cb13-103" aria-hidden="true" tabindex="-1"></a>The entries are annual short rates in percent. The low-rate nodes are economically important because they are where refinancing and call exercise become most attractive.</span>
+<span id="cb13-104"><a href="#cb13-104" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-107"><a href="#cb13-107" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb13-108"><a href="#cb13-108" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-short-rate-tree</span></span>
+<span id="cb13-109"><a href="#cb13-109" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Illustrative recombining short-rate tree"</span></span>
+<span id="cb13-110"><a href="#cb13-110" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">8.0</span>, <span class="fl">4.4</span>))</span>
+<span id="cb13-111"><a href="#cb13-111" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> t, nodes <span class="kw">in</span> <span class="bu">enumerate</span>(rate_tree):</span>
+<span id="cb13-112"><a href="#cb13-112" aria-hidden="true" tabindex="-1"></a>    y <span class="op">=</span> np.arange(t <span class="op">+</span> <span class="dv">1</span>) <span class="op">-</span> t <span class="op">/</span> <span class="dv">2</span></span>
+<span id="cb13-113"><a href="#cb13-113" aria-hidden="true" tabindex="-1"></a>    ax.scatter(np.repeat(t, t <span class="op">+</span> <span class="dv">1</span>), y, color<span class="op">=</span><span class="st">"#4C78A8"</span>, s<span class="op">=</span><span class="dv">45</span>, zorder<span class="op">=</span><span class="dv">3</span>)</span>
+<span id="cb13-114"><a href="#cb13-114" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> j, (yj, rate) <span class="kw">in</span> <span class="bu">enumerate</span>(<span class="bu">zip</span>(y, nodes)):</span>
+<span id="cb13-115"><a href="#cb13-115" aria-hidden="true" tabindex="-1"></a>        ax.text(t, yj <span class="op">+</span> <span class="fl">0.14</span>, <span class="ss">f"</span><span class="sc">{</span><span class="dv">100</span><span class="op">*</span>rate<span class="sc">:.2f}</span><span class="ss">%"</span>, ha<span class="op">=</span><span class="st">"center"</span>, fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb13-116"><a href="#cb13-116" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> t <span class="op">&lt;</span> maturity <span class="op">-</span> <span class="dv">1</span>:</span>
+<span id="cb13-117"><a href="#cb13-117" aria-hidden="true" tabindex="-1"></a>            ax.plot([t, t <span class="op">+</span> <span class="dv">1</span>], [yj, j <span class="op">-</span> (t <span class="op">+</span> <span class="dv">1</span>) <span class="op">/</span> <span class="dv">2</span>], color<span class="op">=</span><span class="st">"#BBBBBB"</span>, linewidth<span class="op">=</span><span class="fl">0.8</span>)</span>
+<span id="cb13-118"><a href="#cb13-118" aria-hidden="true" tabindex="-1"></a>            ax.plot([t, t <span class="op">+</span> <span class="dv">1</span>], [yj, j <span class="op">+</span> <span class="dv">1</span> <span class="op">-</span> (t <span class="op">+</span> <span class="dv">1</span>) <span class="op">/</span> <span class="dv">2</span>], color<span class="op">=</span><span class="st">"#BBBBBB"</span>, linewidth<span class="op">=</span><span class="fl">0.8</span>)</span>
+<span id="cb13-119"><a href="#cb13-119" aria-hidden="true" tabindex="-1"></a>ax.<span class="bu">set</span>(xlabel<span class="op">=</span><span class="st">"Year"</span>, title<span class="op">=</span><span class="st">"Short rates by state"</span>)</span>
+<span id="cb13-120"><a href="#cb13-120" aria-hidden="true" tabindex="-1"></a>ax.set_yticks([])</span>
+<span id="cb13-121"><a href="#cb13-121" aria-hidden="true" tabindex="-1"></a>ax.grid(axis<span class="op">=</span><span class="st">"x"</span>, alpha<span class="op">=</span><span class="fl">0.2</span>)</span>
+<span id="cb13-122"><a href="#cb13-122" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb13-123"><a href="#cb13-123" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb13-124"><a href="#cb13-124" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-125"><a href="#cb13-125" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-126"><a href="#cb13-126" aria-hidden="true" tabindex="-1"></a><span class="fu">## Price the Option-Free and Callable Bonds</span></span>
+<span id="cb13-127"><a href="#cb13-127" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-128"><a href="#cb13-128" aria-hidden="true" tabindex="-1"></a>Values are measured immediately after any coupon at a node. The one-period holding value is</span>
+<span id="cb13-129"><a href="#cb13-129" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-130"><a href="#cb13-130" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb13-131"><a href="#cb13-131" aria-hidden="true" tabindex="-1"></a>V_{t,j}^{\text{hold}}</span>
+<span id="cb13-132"><a href="#cb13-132" aria-hidden="true" tabindex="-1"></a>=</span>
+<span id="cb13-133"><a href="#cb13-133" aria-hidden="true" tabindex="-1"></a>\frac{C+pV_{t+1,j+1}+(1-p)V_{t+1,j}}</span>
+<span id="cb13-134"><a href="#cb13-134" aria-hidden="true" tabindex="-1"></a>{1+r_{t,j}+s}.</span>
+<span id="cb13-135"><a href="#cb13-135" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb13-136"><a href="#cb13-136" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-137"><a href="#cb13-137" aria-hidden="true" tabindex="-1"></a>For the option-free bond, this holding value is retained. At an eligible call date, the callable bond applies the issuer's minimum rule:</span>
+<span id="cb13-138"><a href="#cb13-138" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-139"><a href="#cb13-139" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb13-140"><a href="#cb13-140" aria-hidden="true" tabindex="-1"></a>V_{t,j}^{\text{callable}}</span>
+<span id="cb13-141"><a href="#cb13-141" aria-hidden="true" tabindex="-1"></a>=</span>
+<span id="cb13-142"><a href="#cb13-142" aria-hidden="true" tabindex="-1"></a>\min\left<span class="sc">\{</span>V_{t,j}^{\text{hold}},\text{Call Price}_t\right<span class="sc">\}</span>.</span>
+<span id="cb13-143"><a href="#cb13-143" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb13-144"><a href="#cb13-144" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-147"><a href="#cb13-147" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb13-148"><a href="#cb13-148" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: lattice-pricer</span></span>
+<span id="cb13-149"><a href="#cb13-149" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> price_bond(rate_tree, spread<span class="op">=</span><span class="fl">0.0</span>, callable_bond<span class="op">=</span><span class="va">False</span>, return_tree<span class="op">=</span><span class="va">False</span>):</span>
+<span id="cb13-150"><a href="#cb13-150" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Price the bond by backward induction; node values are ex-coupon."""</span></span>
+<span id="cb13-151"><a href="#cb13-151" aria-hidden="true" tabindex="-1"></a>    values <span class="op">=</span> np.full(maturity <span class="op">+</span> <span class="dv">1</span>, face, dtype<span class="op">=</span><span class="bu">float</span>)</span>
+<span id="cb13-152"><a href="#cb13-152" aria-hidden="true" tabindex="-1"></a>    value_tree <span class="op">=</span> [<span class="va">None</span>] <span class="op">*</span> (maturity <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb13-153"><a href="#cb13-153" aria-hidden="true" tabindex="-1"></a>    value_tree[maturity] <span class="op">=</span> values.copy()</span>
+<span id="cb13-154"><a href="#cb13-154" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-155"><a href="#cb13-155" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> t <span class="kw">in</span> <span class="bu">range</span>(maturity <span class="op">-</span> <span class="dv">1</span>, <span class="op">-</span><span class="dv">1</span>, <span class="op">-</span><span class="dv">1</span>):</span>
+<span id="cb13-156"><a href="#cb13-156" aria-hidden="true" tabindex="-1"></a>        expected_next <span class="op">=</span> (</span>
+<span id="cb13-157"><a href="#cb13-157" aria-hidden="true" tabindex="-1"></a>            (<span class="dv">1</span> <span class="op">-</span> up_probability) <span class="op">*</span> values[:<span class="op">-</span><span class="dv">1</span>]</span>
+<span id="cb13-158"><a href="#cb13-158" aria-hidden="true" tabindex="-1"></a>            <span class="op">+</span> up_probability <span class="op">*</span> values[<span class="dv">1</span>:]</span>
+<span id="cb13-159"><a href="#cb13-159" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb13-160"><a href="#cb13-160" aria-hidden="true" tabindex="-1"></a>        hold_value <span class="op">=</span> (coupon <span class="op">+</span> expected_next) <span class="op">/</span> (<span class="dv">1</span> <span class="op">+</span> rate_tree[t] <span class="op">+</span> spread)</span>
+<span id="cb13-161"><a href="#cb13-161" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> callable_bond <span class="kw">and</span> t <span class="kw">in</span> call_schedule:</span>
+<span id="cb13-162"><a href="#cb13-162" aria-hidden="true" tabindex="-1"></a>            values <span class="op">=</span> np.minimum(hold_value, call_schedule[t])</span>
+<span id="cb13-163"><a href="#cb13-163" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb13-164"><a href="#cb13-164" aria-hidden="true" tabindex="-1"></a>            values <span class="op">=</span> hold_value</span>
+<span id="cb13-165"><a href="#cb13-165" aria-hidden="true" tabindex="-1"></a>        value_tree[t] <span class="op">=</span> values.copy()</span>
+<span id="cb13-166"><a href="#cb13-166" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-167"><a href="#cb13-167" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> return_tree:</span>
+<span id="cb13-168"><a href="#cb13-168" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="bu">float</span>(values[<span class="dv">0</span>]), value_tree</span>
+<span id="cb13-169"><a href="#cb13-169" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">float</span>(values[<span class="dv">0</span>])</span>
+<span id="cb13-170"><a href="#cb13-170" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-171"><a href="#cb13-171" aria-hidden="true" tabindex="-1"></a>benchmark_straight_price <span class="op">=</span> price_bond(rate_tree, spread<span class="op">=</span><span class="fl">0.0</span>)</span>
+<span id="cb13-172"><a href="#cb13-172" aria-hidden="true" tabindex="-1"></a>benchmark_callable_price <span class="op">=</span> price_bond(rate_tree, spread<span class="op">=</span><span class="fl">0.0</span>, callable_bond<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb13-173"><a href="#cb13-173" aria-hidden="true" tabindex="-1"></a>benchmark_option_cost <span class="op">=</span> benchmark_straight_price <span class="op">-</span> benchmark_callable_price</span>
+<span id="cb13-174"><a href="#cb13-174" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-175"><a href="#cb13-175" aria-hidden="true" tabindex="-1"></a>pd.Series({</span>
+<span id="cb13-176"><a href="#cb13-176" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Option-free value"</span>: benchmark_straight_price,</span>
+<span id="cb13-177"><a href="#cb13-177" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Callable value"</span>: benchmark_callable_price,</span>
+<span id="cb13-178"><a href="#cb13-178" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Embedded call value"</span>: benchmark_option_cost,</span>
+<span id="cb13-179"><a href="#cb13-179" aria-hidden="true" tabindex="-1"></a>}).<span class="bu">round</span>(<span class="dv">4</span>)</span>
+<span id="cb13-180"><a href="#cb13-180" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-181"><a href="#cb13-181" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-182"><a href="#cb13-182" aria-hidden="true" tabindex="-1"></a>The price decomposition is</span>
+<span id="cb13-183"><a href="#cb13-183" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-184"><a href="#cb13-184" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb13-185"><a href="#cb13-185" aria-hidden="true" tabindex="-1"></a>V_{\text{callable}}</span>
+<span id="cb13-186"><a href="#cb13-186" aria-hidden="true" tabindex="-1"></a>=V_{\text{option-free}}-V_{\text{call option}}.</span>
+<span id="cb13-187"><a href="#cb13-187" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb13-188"><a href="#cb13-188" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-189"><a href="#cb13-189" aria-hidden="true" tabindex="-1"></a>The option cost is positive because the issuer owns the call. It is largest when low-rate paths make refinancing valuable.</span>
+<span id="cb13-190"><a href="#cb13-190" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-191"><a href="#cb13-191" aria-hidden="true" tabindex="-1"></a><span class="fu">## Illustrate and Solve for OAS</span></span>
+<span id="cb13-192"><a href="#cb13-192" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-193"><a href="#cb13-193" aria-hidden="true" tabindex="-1"></a>To make the exercise reproducible, suppose the callable bond trades at the model value generated by an 85-basis-point spread. We then hide that spread and recover it from the price. In practice, the price would come from the market.</span>
+<span id="cb13-194"><a href="#cb13-194" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-197"><a href="#cb13-197" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb13-198"><a href="#cb13-198" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: solve-oas</span></span>
+<span id="cb13-199"><a href="#cb13-199" aria-hidden="true" tabindex="-1"></a>illustrative_true_oas <span class="op">=</span> <span class="fl">0.0085</span></span>
+<span id="cb13-200"><a href="#cb13-200" aria-hidden="true" tabindex="-1"></a>market_price <span class="op">=</span> price_bond(</span>
+<span id="cb13-201"><a href="#cb13-201" aria-hidden="true" tabindex="-1"></a>    rate_tree,</span>
+<span id="cb13-202"><a href="#cb13-202" aria-hidden="true" tabindex="-1"></a>    spread<span class="op">=</span>illustrative_true_oas,</span>
+<span id="cb13-203"><a href="#cb13-203" aria-hidden="true" tabindex="-1"></a>    callable_bond<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb13-204"><a href="#cb13-204" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb13-205"><a href="#cb13-205" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-206"><a href="#cb13-206" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> solve_spread(target_price, callable_bond, lower<span class="op">=-</span><span class="fl">0.02</span>, upper<span class="op">=</span><span class="fl">0.10</span>, tolerance<span class="op">=</span><span class="fl">1e-12</span>):</span>
+<span id="cb13-207"><a href="#cb13-207" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Solve a constant spread with robust bisection."""</span></span>
+<span id="cb13-208"><a href="#cb13-208" aria-hidden="true" tabindex="-1"></a>    price_lower <span class="op">=</span> price_bond(rate_tree, lower, callable_bond)</span>
+<span id="cb13-209"><a href="#cb13-209" aria-hidden="true" tabindex="-1"></a>    price_upper <span class="op">=</span> price_bond(rate_tree, upper, callable_bond)</span>
+<span id="cb13-210"><a href="#cb13-210" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="kw">not</span> (price_lower <span class="op">&gt;=</span> target_price <span class="op">&gt;=</span> price_upper):</span>
+<span id="cb13-211"><a href="#cb13-211" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">"Target price is not bracketed by the spread interval."</span>)</span>
+<span id="cb13-212"><a href="#cb13-212" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-213"><a href="#cb13-213" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">200</span>):</span>
+<span id="cb13-214"><a href="#cb13-214" aria-hidden="true" tabindex="-1"></a>        midpoint <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> (lower <span class="op">+</span> upper)</span>
+<span id="cb13-215"><a href="#cb13-215" aria-hidden="true" tabindex="-1"></a>        midpoint_price <span class="op">=</span> price_bond(rate_tree, midpoint, callable_bond)</span>
+<span id="cb13-216"><a href="#cb13-216" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="bu">abs</span>(midpoint_price <span class="op">-</span> target_price) <span class="op">&lt;</span> tolerance:</span>
+<span id="cb13-217"><a href="#cb13-217" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> midpoint</span>
+<span id="cb13-218"><a href="#cb13-218" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> midpoint_price <span class="op">&gt;</span> target_price:</span>
+<span id="cb13-219"><a href="#cb13-219" aria-hidden="true" tabindex="-1"></a>            lower <span class="op">=</span> midpoint</span>
+<span id="cb13-220"><a href="#cb13-220" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb13-221"><a href="#cb13-221" aria-hidden="true" tabindex="-1"></a>            upper <span class="op">=</span> midpoint</span>
+<span id="cb13-222"><a href="#cb13-222" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="fl">0.5</span> <span class="op">*</span> (lower <span class="op">+</span> upper)</span>
+<span id="cb13-223"><a href="#cb13-223" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-224"><a href="#cb13-224" aria-hidden="true" tabindex="-1"></a>solved_oas <span class="op">=</span> solve_spread(market_price, callable_bond<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb13-225"><a href="#cb13-225" aria-hidden="true" tabindex="-1"></a>static_spread <span class="op">=</span> solve_spread(market_price, callable_bond<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb13-226"><a href="#cb13-226" aria-hidden="true" tabindex="-1"></a>option_cost_spread <span class="op">=</span> static_spread <span class="op">-</span> solved_oas</span>
+<span id="cb13-227"><a href="#cb13-227" aria-hidden="true" tabindex="-1"></a>reprice <span class="op">=</span> price_bond(rate_tree, solved_oas, callable_bond<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb13-228"><a href="#cb13-228" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-229"><a href="#cb13-229" aria-hidden="true" tabindex="-1"></a>pd.Series({</span>
+<span id="cb13-230"><a href="#cb13-230" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Illustrative market price"</span>: market_price,</span>
+<span id="cb13-231"><a href="#cb13-231" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Solved OAS (bp)"</span>: solved_oas <span class="op">*</span> <span class="dv">10_000</span>,</span>
+<span id="cb13-232"><a href="#cb13-232" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Static spread on promised cash flows (bp)"</span>: static_spread <span class="op">*</span> <span class="dv">10_000</span>,</span>
+<span id="cb13-233"><a href="#cb13-233" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Option cost in spread terms (bp)"</span>: option_cost_spread <span class="op">*</span> <span class="dv">10_000</span>,</span>
+<span id="cb13-234"><a href="#cb13-234" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Repriced callable value"</span>: reprice,</span>
+<span id="cb13-235"><a href="#cb13-235" aria-hidden="true" tabindex="-1"></a>}).<span class="bu">round</span>(<span class="dv">6</span>)</span>
+<span id="cb13-236"><a href="#cb13-236" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-237"><a href="#cb13-237" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-238"><a href="#cb13-238" aria-hidden="true" tabindex="-1"></a>OAS is the spread left after the tree has modeled the issuer's exercise decision. The static spread is larger because it discounts promised maturity cash flows and does not recognize that favorable low-rate paths can be taken away through a call.</span>
+<span id="cb13-239"><a href="#cb13-239" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-240"><a href="#cb13-240" aria-hidden="true" tabindex="-1"></a>The option cost can also be expressed in price terms at the solved OAS:</span>
+<span id="cb13-241"><a href="#cb13-241" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-244"><a href="#cb13-244" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb13-245"><a href="#cb13-245" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: option-cost-at-oas</span></span>
+<span id="cb13-246"><a href="#cb13-246" aria-hidden="true" tabindex="-1"></a>straight_at_oas <span class="op">=</span> price_bond(rate_tree, solved_oas, callable_bond<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb13-247"><a href="#cb13-247" aria-hidden="true" tabindex="-1"></a>callable_at_oas <span class="op">=</span> price_bond(rate_tree, solved_oas, callable_bond<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb13-248"><a href="#cb13-248" aria-hidden="true" tabindex="-1"></a>option_cost_at_oas <span class="op">=</span> straight_at_oas <span class="op">-</span> callable_at_oas</span>
+<span id="cb13-249"><a href="#cb13-249" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-250"><a href="#cb13-250" aria-hidden="true" tabindex="-1"></a>pd.Series({</span>
+<span id="cb13-251"><a href="#cb13-251" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Option-free value at OAS"</span>: straight_at_oas,</span>
+<span id="cb13-252"><a href="#cb13-252" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Callable value at OAS"</span>: callable_at_oas,</span>
+<span id="cb13-253"><a href="#cb13-253" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Call option cost in price points"</span>: option_cost_at_oas,</span>
+<span id="cb13-254"><a href="#cb13-254" aria-hidden="true" tabindex="-1"></a>}).<span class="bu">round</span>(<span class="dv">4</span>)</span>
+<span id="cb13-255"><a href="#cb13-255" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-256"><a href="#cb13-256" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-257"><a href="#cb13-257" aria-hidden="true" tabindex="-1"></a><span class="fu">## Effective Duration and Effective Convexity</span></span>
+<span id="cb13-258"><a href="#cb13-258" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-259"><a href="#cb13-259" aria-hidden="true" tabindex="-1"></a>Modified duration is not sufficient because the call decision changes across rate paths. Hold OAS fixed, shift the entire benchmark tree by $\pm\Delta y$, and fully reprice:</span>
+<span id="cb13-260"><a href="#cb13-260" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-261"><a href="#cb13-261" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb13-262"><a href="#cb13-262" aria-hidden="true" tabindex="-1"></a>D_{\text{eff}}</span>
+<span id="cb13-263"><a href="#cb13-263" aria-hidden="true" tabindex="-1"></a>=\frac{P_- - P_+}{2P_0\Delta y},</span>
+<span id="cb13-264"><a href="#cb13-264" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb13-265"><a href="#cb13-265" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-266"><a href="#cb13-266" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb13-267"><a href="#cb13-267" aria-hidden="true" tabindex="-1"></a>C_{\text{eff}}</span>
+<span id="cb13-268"><a href="#cb13-268" aria-hidden="true" tabindex="-1"></a>=\frac{P_-+P_+-2P_0}{P_0(\Delta y)^2}.</span>
+<span id="cb13-269"><a href="#cb13-269" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb13-270"><a href="#cb13-270" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-273"><a href="#cb13-273" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb13-274"><a href="#cb13-274" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: effective-risk</span></span>
+<span id="cb13-275"><a href="#cb13-275" aria-hidden="true" tabindex="-1"></a>curve_shock <span class="op">=</span> <span class="fl">0.0025</span>  <span class="co"># 25 basis points</span></span>
+<span id="cb13-276"><a href="#cb13-276" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-277"><a href="#cb13-277" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> effective_risk(callable_bond):</span>
+<span id="cb13-278"><a href="#cb13-278" aria-hidden="true" tabindex="-1"></a>    base <span class="op">=</span> price_bond(rate_tree, solved_oas, callable_bond)</span>
+<span id="cb13-279"><a href="#cb13-279" aria-hidden="true" tabindex="-1"></a>    down_tree <span class="op">=</span> build_rate_tree(median_rates, rate_volatility, <span class="op">-</span>curve_shock)</span>
+<span id="cb13-280"><a href="#cb13-280" aria-hidden="true" tabindex="-1"></a>    up_tree <span class="op">=</span> build_rate_tree(median_rates, rate_volatility, curve_shock)</span>
+<span id="cb13-281"><a href="#cb13-281" aria-hidden="true" tabindex="-1"></a>    price_down <span class="op">=</span> price_bond(down_tree, solved_oas, callable_bond)</span>
+<span id="cb13-282"><a href="#cb13-282" aria-hidden="true" tabindex="-1"></a>    price_up <span class="op">=</span> price_bond(up_tree, solved_oas, callable_bond)</span>
+<span id="cb13-283"><a href="#cb13-283" aria-hidden="true" tabindex="-1"></a>    duration <span class="op">=</span> (price_down <span class="op">-</span> price_up) <span class="op">/</span> (<span class="dv">2</span> <span class="op">*</span> base <span class="op">*</span> curve_shock)</span>
+<span id="cb13-284"><a href="#cb13-284" aria-hidden="true" tabindex="-1"></a>    convexity <span class="op">=</span> (price_down <span class="op">+</span> price_up <span class="op">-</span> <span class="dv">2</span> <span class="op">*</span> base) <span class="op">/</span> (base <span class="op">*</span> curve_shock<span class="op">**</span><span class="dv">2</span>)</span>
+<span id="cb13-285"><a href="#cb13-285" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> base, price_down, price_up, duration, convexity</span>
+<span id="cb13-286"><a href="#cb13-286" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-287"><a href="#cb13-287" aria-hidden="true" tabindex="-1"></a>straight_risk <span class="op">=</span> effective_risk(<span class="va">False</span>)</span>
+<span id="cb13-288"><a href="#cb13-288" aria-hidden="true" tabindex="-1"></a>callable_risk <span class="op">=</span> effective_risk(<span class="va">True</span>)</span>
+<span id="cb13-289"><a href="#cb13-289" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-290"><a href="#cb13-290" aria-hidden="true" tabindex="-1"></a>risk_table <span class="op">=</span> pd.DataFrame(</span>
+<span id="cb13-291"><a href="#cb13-291" aria-hidden="true" tabindex="-1"></a>    [straight_risk, callable_risk],</span>
+<span id="cb13-292"><a href="#cb13-292" aria-hidden="true" tabindex="-1"></a>    index<span class="op">=</span>[<span class="st">"Option-free bond"</span>, <span class="st">"Callable bond"</span>],</span>
+<span id="cb13-293"><a href="#cb13-293" aria-hidden="true" tabindex="-1"></a>    columns<span class="op">=</span>[<span class="st">"P0"</span>, <span class="st">"P(-25 bp)"</span>, <span class="st">"P(+25 bp)"</span>, <span class="st">"Effective duration"</span>, <span class="st">"Effective convexity"</span>],</span>
+<span id="cb13-294"><a href="#cb13-294" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb13-295"><a href="#cb13-295" aria-hidden="true" tabindex="-1"></a>risk_table.<span class="bu">round</span>(<span class="dv">4</span>)</span>
+<span id="cb13-296"><a href="#cb13-296" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-297"><a href="#cb13-297" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-298"><a href="#cb13-298" aria-hidden="true" tabindex="-1"></a>The callable bond should generally have shorter effective duration because its upside is capped when rates fall. Its effective convexity can also be much lower, or negative, near the region where call exercise changes rapidly.</span>
+<span id="cb13-299"><a href="#cb13-299" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-302"><a href="#cb13-302" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb13-303"><a href="#cb13-303" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-callable-repricing</span></span>
+<span id="cb13-304"><a href="#cb13-304" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Full repricing reveals the callable bond's capped upside"</span></span>
+<span id="cb13-305"><a href="#cb13-305" aria-hidden="true" tabindex="-1"></a>shocks_bp <span class="op">=</span> np.arange(<span class="op">-</span><span class="dv">150</span>, <span class="dv">151</span>, <span class="dv">10</span>)</span>
+<span id="cb13-306"><a href="#cb13-306" aria-hidden="true" tabindex="-1"></a>straight_prices <span class="op">=</span> []</span>
+<span id="cb13-307"><a href="#cb13-307" aria-hidden="true" tabindex="-1"></a>callable_prices <span class="op">=</span> []</span>
+<span id="cb13-308"><a href="#cb13-308" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> shock_bp <span class="kw">in</span> shocks_bp:</span>
+<span id="cb13-309"><a href="#cb13-309" aria-hidden="true" tabindex="-1"></a>    shocked_tree <span class="op">=</span> build_rate_tree(median_rates, rate_volatility, shock_bp <span class="op">/</span> <span class="dv">10_000</span>)</span>
+<span id="cb13-310"><a href="#cb13-310" aria-hidden="true" tabindex="-1"></a>    straight_prices.append(price_bond(shocked_tree, solved_oas, <span class="va">False</span>))</span>
+<span id="cb13-311"><a href="#cb13-311" aria-hidden="true" tabindex="-1"></a>    callable_prices.append(price_bond(shocked_tree, solved_oas, <span class="va">True</span>))</span>
+<span id="cb13-312"><a href="#cb13-312" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-313"><a href="#cb13-313" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">7.6</span>, <span class="fl">4.2</span>))</span>
+<span id="cb13-314"><a href="#cb13-314" aria-hidden="true" tabindex="-1"></a>ax.plot(shocks_bp, straight_prices, linewidth<span class="op">=</span><span class="fl">2.1</span>, label<span class="op">=</span><span class="st">"Option-free bond"</span>)</span>
+<span id="cb13-315"><a href="#cb13-315" aria-hidden="true" tabindex="-1"></a>ax.plot(shocks_bp, callable_prices, linewidth<span class="op">=</span><span class="fl">2.1</span>, label<span class="op">=</span><span class="st">"Callable bond"</span>)</span>
+<span id="cb13-316"><a href="#cb13-316" aria-hidden="true" tabindex="-1"></a>ax.axvline(<span class="dv">0</span>, color<span class="op">=</span><span class="st">"gray"</span>, linestyle<span class="op">=</span><span class="st">"--"</span>, linewidth<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb13-317"><a href="#cb13-317" aria-hidden="true" tabindex="-1"></a>ax.<span class="bu">set</span>(xlabel<span class="op">=</span><span class="st">"Parallel benchmark-curve shock (bp)"</span>, ylabel<span class="op">=</span><span class="st">"Model price"</span>,</span>
+<span id="cb13-318"><a href="#cb13-318" aria-hidden="true" tabindex="-1"></a>       title<span class="op">=</span><span class="st">"Callable and option-free repricing at constant OAS"</span>)</span>
+<span id="cb13-319"><a href="#cb13-319" aria-hidden="true" tabindex="-1"></a>ax.grid(alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb13-320"><a href="#cb13-320" aria-hidden="true" tabindex="-1"></a>ax.legend()</span>
+<span id="cb13-321"><a href="#cb13-321" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb13-322"><a href="#cb13-322" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb13-323"><a href="#cb13-323" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-324"><a href="#cb13-324" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-325"><a href="#cb13-325" aria-hidden="true" tabindex="-1"></a><span class="fu">## Validation Checks</span></span>
+<span id="cb13-326"><a href="#cb13-326" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-329"><a href="#cb13-329" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb13-330"><a href="#cb13-330" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: validation-checks</span></span>
+<span id="cb13-331"><a href="#cb13-331" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="bu">abs</span>(solved_oas <span class="op">-</span> illustrative_true_oas) <span class="op">&lt;</span> <span class="fl">1e-10</span></span>
+<span id="cb13-332"><a href="#cb13-332" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="bu">abs</span>(reprice <span class="op">-</span> market_price) <span class="op">&lt;</span> <span class="fl">1e-10</span></span>
+<span id="cb13-333"><a href="#cb13-333" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> benchmark_callable_price <span class="op">&lt;=</span> benchmark_straight_price</span>
+<span id="cb13-334"><a href="#cb13-334" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> callable_at_oas <span class="op">&lt;=</span> straight_at_oas</span>
+<span id="cb13-335"><a href="#cb13-335" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> option_cost_at_oas <span class="op">&gt;=</span> <span class="dv">0</span></span>
+<span id="cb13-336"><a href="#cb13-336" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> callable_risk[<span class="dv">1</span>] <span class="op">&gt;</span> callable_risk[<span class="dv">0</span>] <span class="op">&gt;</span> callable_risk[<span class="dv">2</span>]</span>
+<span id="cb13-337"><a href="#cb13-337" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-338"><a href="#cb13-338" aria-hidden="true" tabindex="-1"></a>checks <span class="op">=</span> pd.Series({</span>
+<span id="cb13-339"><a href="#cb13-339" aria-hidden="true" tabindex="-1"></a>    <span class="st">"OAS recovered within 0.0001 bp"</span>: <span class="bu">abs</span>(solved_oas <span class="op">-</span> illustrative_true_oas) <span class="op">&lt;</span> <span class="fl">1e-8</span>,</span>
+<span id="cb13-340"><a href="#cb13-340" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Model reprices market value"</span>: <span class="bu">abs</span>(reprice <span class="op">-</span> market_price) <span class="op">&lt;</span> <span class="fl">1e-8</span>,</span>
+<span id="cb13-341"><a href="#cb13-341" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Callable value does not exceed straight value"</span>: callable_at_oas <span class="op">&lt;=</span> straight_at_oas,</span>
+<span id="cb13-342"><a href="#cb13-342" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Price falls when the curve rises"</span>: callable_risk[<span class="dv">2</span>] <span class="op">&lt;</span> callable_risk[<span class="dv">0</span>],</span>
+<span id="cb13-343"><a href="#cb13-343" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Price rises when the curve falls"</span>: callable_risk[<span class="dv">1</span>] <span class="op">&gt;</span> callable_risk[<span class="dv">0</span>],</span>
+<span id="cb13-344"><a href="#cb13-344" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb13-345"><a href="#cb13-345" aria-hidden="true" tabindex="-1"></a>checks</span>
+<span id="cb13-346"><a href="#cb13-346" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-347"><a href="#cb13-347" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-348"><a href="#cb13-348" aria-hidden="true" tabindex="-1"></a><span class="fu">## Financial Interpretation</span></span>
+<span id="cb13-349"><a href="#cb13-349" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-350"><a href="#cb13-350" aria-hidden="true" tabindex="-1"></a>This workflow separates three ideas that a yield-to-maturity comparison mixes together:</span>
+<span id="cb13-351"><a href="#cb13-351" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-352"><a href="#cb13-352" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>The benchmark short-rate tree values state-contingent cash flows.</span>
+<span id="cb13-353"><a href="#cb13-353" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>The minimum rule transfers low-rate upside from the investor to the issuer.</span>
+<span id="cb13-354"><a href="#cb13-354" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>OAS measures the constant spread that remains after the call option has been modeled.</span>
+<span id="cb13-355"><a href="#cb13-355" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-356"><a href="#cb13-356" aria-hidden="true" tabindex="-1"></a>The outputs are model-dependent. A different benchmark curve, volatility, call behavior, or tree calibration can materially change the option value, OAS, effective duration, and effective convexity.</span>
+</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+</div></div></div></div></div>
 </div> <!-- /content -->
 
 

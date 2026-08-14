@@ -94,6 +94,14 @@ The demo index identifies the lecture and workflow for each demonstration.
 - Replaced assignment due dates and all syllabus assessment weights and important
   dates with `TBD`; added the team project to the syllabus assessment table.
 
+## Lecture diagrams and market resources
+
+- Standardized the display height of the three Treasury-security diagrams in
+  Lecture 5 so the portrait flowchart no longer dominates the comparison row.
+- Added concise, lecture-specific market resources to Lectures 1–11, prioritizing
+  official Treasury, Federal Reserve, central-bank, SEC, FINRA, CME, CFTC, OCC,
+  and FRED pages and explaining how each source supports the lecture workflow.
+
 ## Course-wide validation
 
 Navigation and render-source inclusion were checked across the home page, lecture

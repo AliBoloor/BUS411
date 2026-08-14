@@ -98,9 +98,13 @@ The demo index identifies the lecture and workflow for each demonstration.
 
 - Standardized the display height of the three Treasury-security diagrams in
   Lecture 5 so the portrait flowchart no longer dominates the comparison row.
+- Replaced that comparison's flex layout with a responsive, overflow-safe grid
+  and added height caps to the remaining tall Lecture 5 diagrams.
 - Added concise, lecture-specific market resources to Lectures 1–11, prioritizing
   official Treasury, Federal Reserve, central-bank, SEC, FINRA, CME, CFTC, OCC,
   and FRED pages and explaining how each source supports the lecture workflow.
+- Confirmed an explicit Fabozzi chapter assignment in every lecture's suggested
+  readings while retaining the added market resources.
 
 ## Course-wide validation
 

@@ -1,0 +1,279 @@
+---
+title: "Lecture 10: Credit Spread Exposure and Credit Risk"
+subtitle: "Measure spread risk, model default, and make portfolio decisions"
+author: "BUS 411"
+---
+
+## Credit analysis answers two different questions
+
+::: {.columns}
+::: {.column width="50%"}
+### Market-value risk
+
+How much will price change when credit spreads move?
+:::
+
+::: {.column width="50%"}
+### Default risk
+
+What is the probability and loss if promised payments fail?
+:::
+:::
+
+Spread risk and expected default loss are related—but not identical.
+
+## A spread is compensation for more than default
+
+$$
+\text{Credit spread}
+=\text{default compensation}
++\text{risk premium}
++\text{liquidity premium}
++\text{technical effects}
+$$
+
+Observed spread is a market price of a bundle of risks.
+
+## Spread changes can be absolute or relative
+
+- **Absolute change:** $s_1-s_0$
+- **Relative change:** $(s_1-s_0)/s_0$
+
+A move from 100 to 150 bps is:
+
+$$+50\text{ bps absolute},\qquad +50\%\text{ relative}$$
+
+Both descriptions matter when comparing bonds across rating categories.
+
+## Wider spread lowers price
+
+For fixed benchmark rates and promised cash flows:
+
+$$
+P=\sum_t\frac{CF_t}{(1+r_t+s)^t}
+$$
+
+An increase in $s$ raises discount rates and reduces present value.
+
+The spread shock should match the spread convention used in valuation.
+
+## Spread duration measures local spread sensitivity
+
+$$
+D_s=-\frac{1}{P}\frac{\partial P}{\partial s}
+$$
+
+For a small spread change:
+
+$$\frac{\Delta P}{P}\approx-D_s\Delta s$$
+
+Spread duration holds the benchmark curve fixed and moves the credit spread.
+
+## Spread duration turns a scenario into a loss estimate
+
+A bond has spread duration 4.5 and spread widens 35 bps:
+
+$$\frac{\Delta P}{P}\approx-4.5(0.0035)=-1.575\%$$
+
+For \$4 million market value:
+
+$$\Delta P\approx-0.01575(\$4{,}000{,}000)=-\$63{,}000$$
+
+## DTS scales sensitivity by the starting spread
+
+$$\text{DTS}=D_s\times s$$
+
+For $D_s=4.5$ and $s=180$ bps:
+
+$$\text{DTS}=4.5(180)=810$$
+
+DTS reflects the empirical idea that wide-spread bonds often experience larger absolute spread moves.
+
+## Equal spread duration does not mean equal credit risk
+
+| Bond | Spread duration | Spread | DTS |
+|---|---:|---:|---:|
+| A | 5.0 | 60 bps | 300 |
+| B | 5.0 | 300 bps | 1,500 |
+
+Bond B has the same sensitivity per basis point but much greater exposure to proportional spread volatility.
+
+## Analytical duration can miss corporate-bond behavior
+
+**Analytical duration** asks: what happens if the discount rate changes mechanically?
+
+**Empirical duration** asks: how has the bond actually moved with Treasury rates?
+
+For risky bonds, falling Treasury yields can coincide with wider credit spreads, offsetting the usual price gain.
+
+## A duration multiplier connects observed and analytical risk
+
+$$D_{empirical}=M\times D_{analytical}$$
+
+If analytical duration is 6.0 and the multiplier is 0.65:
+
+$$D_{empirical}=0.65(6.0)=3.9$$
+
+The multiplier summarizes joint Treasury-spread behavior in the sample period.
+
+## Empirical duration is regime dependent
+
+- Flight to quality can make spreads widen as Treasury yields fall
+- Calm markets can weaken that offset
+- Ratings, sectors, and maturities behave differently
+- Historical relationships can break
+
+Regression estimates are evidence, not immutable bond characteristics.
+
+Incomplete-information models add a realistic friction: investors observe noisy signals rather than the firm's true asset value, so default may arrive as a surprise even when fundamentals drive the default boundary.
+
+## Credit ratings and models do different jobs
+
+| Ratings | Credit models |
+|---|---|
+| Ordinal credit category | Quantitative probability or value |
+| Stable through normal noise | Responsive to inputs and market data |
+| Committee judgment | Explicit assumptions |
+| Easy communication | Scenario and pricing flexibility |
+
+Good analysis uses each for the question it can answer.
+
+## Structural models begin with the firm's assets
+
+At debt maturity $T$:
+
+$$\text{Debt payoff}=\min(V_T,F)$$
+
+$$\text{Equity payoff}=\max(V_T-F,0)$$
+
+Default occurs when firm asset value $V_T$ is below promised debt $F$.
+
+## Equity is a call option on firm value
+
+| Firm value at maturity | Bondholders receive | Shareholders receive |
+|---:|---:|---:|
+| $V_T<F$ | $V_T$ | 0 |
+| $V_T\ge F$ | $F$ | $V_T-F$ |
+
+Limited liability gives shareholders upside after debt is paid and no payoff below the default boundary.
+
+## More asset volatility transfers value toward equity
+
+- Equity's call option becomes more valuable
+- Probability of finishing below the debt boundary can rise
+- Risky debt value can fall
+- Required spread can widen
+
+This creates a potential shareholder–bondholder conflict after leverage is in place.
+
+## Structural models are intuitive but input intensive
+
+**Strengths**
+
+- Link default to leverage and asset value
+- Clarify capital-structure incentives
+
+**Challenges**
+
+- Firm asset value and volatility are not directly observed
+- Real debt has multiple maturities and covenants
+- Default can occur before one terminal date
+
+## Reduced-form models specify default arrival directly
+
+With constant default intensity $\lambda$:
+
+$$\Pr(\tau>T)=e^{-\lambda T}$$
+
+$$\Pr(\tau\le T)=1-e^{-\lambda T}$$
+
+The model does not require a firm-value default boundary.
+
+- **Jarrow–Turnbull:** models default timing using exogenous transition or intensity assumptions.
+- **Duffie–Singleton:** combines default intensity with an explicit recovery convention in pricing.
+
+## Intensity converts cleanly into survival probabilities
+
+For $\lambda=2\%$:
+
+$$\Pr(\text{survive 1 year})=e^{-0.02}=98.02\%$$
+
+$$\Pr(\text{default by 5 years})=1-e^{-0.10}=9.52\%$$
+
+Intensity is an arrival rate, not exactly the one-year default probability.
+
+## Spread is approximately intensity times loss given default
+
+For a simple risky bond:
+
+$$s\approx\lambda\times LGD$$
+
+If $\lambda=2\%$ and recovery is 40%, then $LGD=60\%$:
+
+$$s\approx0.02(0.60)=1.20\%=120\text{ bps}$$
+
+Market spreads also include risk, liquidity, and technical premiums.
+
+## Risk-neutral and physical probabilities answer different questions
+
+| Probability | Primary use |
+|---|---|
+| Physical, $\mathbb{P}$ | Forecasting defaults and portfolio losses |
+| Risk-neutral, $\mathbb{Q}$ | Matching market prices and valuing securities |
+
+Risk-neutral default probabilities usually embed compensation for bearing systematic credit risk.
+
+## Recovery convention matters as much as default probability
+
+Possible assumptions include recovery of:
+
+- face value,
+- market value immediately before default,
+- a default-free equivalent claim.
+
+Seniority, collateral, industry, and the economic cycle shape realized recovery.
+
+## Correlation turns expected loss into tail risk
+
+Two portfolios can have the same expected defaults but different loss distributions.
+
+- Independent defaults diversify
+- Common recession exposure clusters defaults
+- Seniority and recovery can deteriorate together
+
+Portfolio risk depends on **joint default behavior**, not only marginal probabilities.
+
+## Copulas join marginal default distributions
+
+A copula separates:
+
+1. each issuer's marginal default probability, and
+2. the dependence structure across issuers.
+
+The flexibility is useful, but tail dependence is difficult to estimate and easy to understate.
+
+## A credit workflow moves from position to decision
+
+1. Identify the instrument, seniority, and spread measure.
+2. Estimate spread duration and DTS.
+3. Build benchmark-rate and spread scenarios.
+4. Assess default probability and recovery separately.
+5. Add liquidity, correlation, and model-risk overlays.
+6. Convert the analysis into a limit, hedge, or relative-value decision.
+
+For relative value, ask why a spread is wide:
+
+- higher expected loss,
+- systematic risk exposure,
+- weaker liquidity,
+- optionality or covenants,
+- temporary technical pressure.
+
+## Credit models organize judgment; they do not replace it
+
+- Spread duration measures a local market-price response.
+- DTS helps compare proportional spread risk.
+- Empirical duration captures observed Treasury-spread interaction.
+- Structural models explain default through firm value.
+- Reduced-form models fit default timing and market prices flexibly.
+- Recovery and dependence determine portfolio tail loss.

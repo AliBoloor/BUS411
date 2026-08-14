@@ -1,0 +1,292 @@
+---
+title: "Lecture 11: Interest-Rate Options"
+subtitle: "Use asymmetric payoffs to reshape fixed-income risk"
+author: "BUS 411"
+---
+
+## Options turn rate risk into a choice
+
+> The buyer pays a premium for a **right without an obligation**.
+
+- Calls protect or benefit from higher underlying prices
+- Puts protect or benefit from lower underlying prices
+- The seller receives premium and accepts contingent exposure
+
+Options reshape the distribution rather than simply reversing direction.
+
+## Calls and puts allocate exercise rights
+
+| Contract | Buyer may… | Exercise when… |
+|---|---|---|
+| Call | Buy at strike $K$ | Underlying price is high |
+| Put | Sell at strike $K$ | Underlying price is low |
+
+The buyer chooses; the writer must perform if assigned.
+
+- **European:** exercise only at expiration
+- **American:** exercise any time through expiration
+
+American flexibility cannot reduce option value, but early exercise is not always optimal.
+
+## Futures create symmetry; options create asymmetry
+
+| Position | Upside | Downside | Upfront premium |
+|---|---|---|---|
+| Long futures | Unlimited | Unlimited | No option premium |
+| Long call | Unlimited | Limited to premium | Yes |
+| Long put | Large if price falls | Limited to premium | Yes |
+
+Margin and daily settlement still matter for futures and many option-writing positions.
+
+## Interest-rate options appear in several forms
+
+- Options on cash bonds
+- Caps and floors on interest rates
+- Swaptions
+- Options on Treasury or SOFR futures
+- Embedded calls and puts in bonds
+
+The underlying and settlement convention determine how a rate move becomes an option payoff.
+
+- Exercise a futures call → receive a long futures position
+- Exercise a futures put → receive a short futures position
+
+Most exchange-traded positions are closed or offset rather than exercised into delivery.
+
+## Treasury futures option premiums use 64ths
+
+Premium quote 0-40 means:
+
+$$\frac{40}{64}=0.625\text{ points}$$
+
+With \$1,000 per full point:
+
+$$0.625(\$1{,}000)=\$625$$
+
+Do not confuse the option premium convention with the futures price convention in 32nds.
+
+## Intrinsic value is the value of immediate exercise
+
+$$C_{intrinsic}=\max(S-K,0)$$
+
+$$P_{intrinsic}=\max(K-S,0)$$
+
+| Position | In the money when… |
+|---|---|
+| Call | $S>K$ |
+| Put | $S<K$ |
+
+## Time value is what remains beyond intrinsic value
+
+$$\text{Option premium}=\text{intrinsic value}+\text{time value}$$
+
+Time value reflects the possibility of more favorable outcomes before expiration.
+
+At expiration, time value is zero.
+
+## Long-option loss is capped at the premium
+
+For a call bought at premium $c$:
+
+$$\Pi_{call}=\max(S_T-K,0)-c$$
+
+For a put bought at premium $p$:
+
+$$\Pi_{put}=\max(K-S_T,0)-p$$
+
+The writer receives the mirror-image profit and loss.
+
+| Strategy | Expiration break-even |
+|---|---|
+| Long call | $K+c$ |
+| Long put | $K-p$ |
+
+A 110 put costing 0.625 points breaks even at:
+
+$$110-0.625=109.375=109\text{-}12$$
+
+## Put-call parity prevents inconsistent prices
+
+For European options on a non-coupon-paying cash asset:
+
+$$C-P=S_0-Ke^{-rT}$$
+
+Equivalently:
+
+$$C+Ke^{-rT}=P+S_0$$
+
+Two portfolios with the same expiration payoff must have the same price today.
+
+Thus, a protective put is equivalent to a call plus the present value of the strike:
+
+$$S_0+P=C+Ke^{-rT}$$
+
+For European options on futures, the corresponding parity is:
+
+$$c-p=e^{-rT}(F_0-K)$$
+
+Parity is both a pricing relationship and a map of synthetic positions.
+
+## Six inputs drive option value
+
+| Input rises | Call value | Put value |
+|---|---:|---:|
+| Underlying price | ↑ | ↓ |
+| Strike | ↓ | ↑ |
+| Time to expiration | Usually ↑ | Usually ↑ |
+| Volatility | ↑ | ↑ |
+| Risk-free rate | Usually ↑ | Usually ↓ |
+| Coupon or income | ↓ | ↑ |
+
+Effects depend on the exact underlying and model.
+
+## Volatility benefits both option buyers
+
+The option buyer participates in favorable outcomes but can walk away from unfavorable exercise.
+
+- More dispersion raises the value of the right
+- Direction does not need to be known in advance
+- The writer demands a larger premium
+
+Volatility changes option value even when expected price is unchanged.
+
+## Black–Scholes values an option on a traded asset
+
+For a non-coupon-paying underlying:
+
+$$C=S_0N(d_1)-Ke^{-rT}N(d_2)$$
+
+$$P=Ke^{-rT}N(-d_2)-S_0N(-d_1)$$
+
+$$d_1=\frac{\ln(S_0/K)+(r+\sigma^2/2)T}{\sigma\sqrt{T}},\qquad d_2=d_1-\sigma\sqrt{T}$$
+
+## A zero-coupon bond option fits the basic formula
+
+Suppose $S_0=95$, $K=94$, $T=0.75$, $r=3\%$, and $\sigma=12\%$.
+
+Using $N(d_1)=0.6444$ and $N(d_2)=0.6050$:
+
+$$C=95(0.6444)-94e^{-0.03(0.75)}(0.6050)$$
+
+$$C\approx5.61$$
+
+The calculation discounts the strike, not the current underlying price.
+
+## Coupon bonds require an income adjustment
+
+Coupons paid before option expiration reduce the value available to the option holder.
+
+A common approximation replaces spot price with:
+
+$$S_0^*=S_0-PV(\text{coupons before expiration})$$
+
+Interest-rate models are preferable when bond price dynamics and curve movements matter materially.
+
+## A binomial tree makes replication visible
+
+Choose up and down factors to match volatility:
+
+$$u=e^{\sigma\sqrt{\Delta t}},\qquad d=\frac{1}{u}$$
+
+Risk-neutral probability:
+
+$$q=\frac{e^{r\Delta t}-d}{u-d}$$
+
+Then discount expected option values backward through the tree.
+
+## Backward induction separates payoff from pricing
+
+1. Build terminal underlying prices.
+2. Apply $\max(S_T-K,0)$ or $\max(K-S_T,0)$.
+3. Form the risk-neutral expected value at each prior node.
+4. Discount one step.
+5. Repeat to time 0.
+
+American options also compare continuation value with immediate exercise value at each node.
+
+## Implied volatility makes model price equal market price
+
+$$\text{Model price}(\sigma_{impl})=\text{Observed option price}$$
+
+Implied volatility is found by iteration or interpolation.
+
+It is a market-consistent pricing input—not a promise about realized volatility.
+
+## Black's model is built for futures options
+
+$$c=e^{-rT}[F_0N(d_1)-KN(d_2)]$$
+
+$$p=e^{-rT}[KN(-d_2)-F_0N(-d_1)]$$
+
+$$d_1=\frac{\ln(F_0/K)+\tfrac12\sigma^2T}{\sigma\sqrt T},\qquad d_2=d_1-\sigma\sqrt T$$
+
+Both futures price and strike are inside the discounted payoff.
+
+## A protective put places a floor under bond exposure
+
+A manager long bonds buys puts on Treasury futures.
+
+- Rates rise → bond loses, put gains
+- Rates fall → bond gains, put expires
+- Premium is the cost of preserving upside
+
+This is insurance against a large adverse rate move, not a free hedge.
+
+## Delta-DV01 sizes an option hedge locally
+
+If portfolio DV01 is \$9,000, put delta magnitude is 0.45, and futures DV01 is \$75:
+
+$$N_p=\frac{9{,}000}{0.45(75)}=266.67$$
+
+Use about 267 puts for the initial local hedge.
+
+Delta changes with futures price, time, and volatility, so the hedge must be monitored.
+
+## Covered calls exchange upside for premium income
+
+Long bond or futures exposure + short call:
+
+- Premium cushions modest losses
+- Return improves in flat markets
+- Upside is capped above the strike
+- Short-option margin and assignment risk remain
+
+Covered calls monetize a willingness to sell upside—not simply “extra yield.”
+
+## Protective puts and covered calls solve opposite problems
+
+| Strategy | Keeps upside? | Limits downside? | Premium cash flow |
+|---|---:|---:|---:|
+| Protective put | Yes | Yes, locally | Pay |
+| Covered call | No, capped | Only by premium | Receive |
+
+Choose based on the risk objective before comparing premiums.
+
+## Model output is only as good as the mapping
+
+- Yield curves do not move in one dimension
+- Futures basis and CTD can change
+- Volatility varies by strike and maturity
+- Liquidity and transaction costs matter
+- American exercise can matter
+- Delta and DV01 evolve through time
+
+Practical hedging combines a model with scenarios and implementation judgment.
+
+## An option decision begins with the unwanted outcome
+
+1. Define the underlying exposure and adverse scenario.
+2. Choose the option type, contract, expiration, and strike.
+3. Translate premium into dollars and break-even.
+4. Size with delta-DV01, then stress nonlinear outcomes.
+5. Evaluate basis, liquidity, margin, and rebalancing.
+6. Compare the hedge with doing nothing or using futures.
+
+## Options buy flexibility; the premium makes the tradeoff explicit
+
+- Calls and puts create asymmetric payoff profiles.
+- Intrinsic value and time value explain the premium.
+- Parity links option prices and synthetic positions.
+- Black–Scholes, binomial, and Black models match different underlyings and exercise features.
+- Protective puts preserve upside; covered calls sell it.
+- A successful hedge maps the option to the actual fixed-income risk.

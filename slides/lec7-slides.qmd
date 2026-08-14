@@ -1,0 +1,210 @@
+---
+title: "Lecture 7: Interest-Rate Models and Option Pricing"
+subtitle: "From stochastic short rates to trees and backward induction"
+author: "BUS 411"
+---
+
+## Models answer questions that discounting alone cannot
+
+Today's curve prices fixed cash flows. A model becomes essential when value depends on **future rates**, **future curves**, or **exercise decisions**.
+
+Examples include callable bonds, mortgage prepayments, caps, floors, and swaptions.
+
+## A useful model is a disciplined simplification
+
+- State variables summarize the market.
+- Dynamics describe how those variables evolve.
+- Calibration connects the model to observed prices.
+- Pricing converts future states into today's value.
+
+The model should be as simple as possible—but rich enough for the payoff.
+
+## Short-rate models begin with a stochastic process
+
+$$dr_t=\mu(r_t,t)dt+\sigma(r_t,t)dW_t$$
+
+- Drift $\mu$ describes the expected local direction.
+- Volatility $\sigma$ controls uncertainty.
+- Brownian increment $dW_t$ has mean 0 and variance $dt$.
+
+## Brownian shocks scale with the square root of time
+
+$$dW_t=\sqrt{dt}\,z,\qquad z\sim N(0,1)$$
+
+Therefore:
+
+$$E[dW_t]=0,\qquad Var(dW_t)=dt$$
+
+Halving the time step does not halve shock size; it multiplies it by $\sqrt{1/2}$.
+
+## Drift and volatility encode different economic beliefs
+
+- Constant drift allows rates to wander systematically.
+- Mean reversion pulls rates toward a long-run level.
+- Constant volatility permits negative rates.
+- Level-dependent volatility can keep rates nonnegative.
+
+No specification is universally best.
+
+## Vasicek adds mean reversion
+
+$$dr_t=a(b-r_t)dt+\sigma dW_t$$
+
+- $a$: speed of mean reversion
+- $b$: long-run mean
+- $\sigma$: short-rate volatility
+
+When $r_t>b$, expected drift is downward; when $r_t<b$, it is upward.
+
+## Mean reversion limits long-horizon dispersion
+
+The conditional mean is:
+
+$$E_t[r_T]=b+(r_t-b)e^{-a(T-t)}$$
+
+The influence of today's rate decays at speed $a$. A larger $a$ means faster return toward $b$.
+
+## Equilibrium and no-arbitrage models solve different problems
+
+| Model type | Primary goal |
+|---|---|
+| Equilibrium | Explain rates from assumed economic dynamics |
+| No-arbitrage | Fit today's term structure and price consistently |
+
+Vasicek is an equilibrium model; Hull–White adapts its structure to the observed curve.
+
+## A curve and a short-rate model are not substitutes
+
+- The **yield curve** gives today's discount factors $P(0,T)$.
+- A **short-rate model** generates future $r_t$ and future discount factors $P(t,T)$.
+
+Plain fixed cash flows need the first. Rate-dependent cash flows need both.
+
+## A short-rate path generates discount factors
+
+For continuously compounded short rates:
+
+$$P(t,T)=E_t^Q\left[\exp\left(-\int_t^T r_sds\right)\right]$$
+
+Risk-neutral expectation $Q$ links simulated future rates to no-arbitrage prices.
+
+## A recombining tree organizes future states
+
+At each step, rates move up or down. Paths that reach the same state merge.
+
+Recombination reduces the number of nodes from exponential growth to a manageable triangular lattice.
+
+## Hull–White fits today's curve and models tomorrow
+
+$$dr_t=[\theta(t)-ar_t]dt+\sigma dW_t$$
+
+- $\theta(t)$ is a time-dependent function chosen to fit today's term structure.
+- $a$ controls mean reversion.
+- $\sigma$ controls volatility.
+
+## Calibration separates curve fit from dynamics
+
+1. Bootstrap market discount factors.
+2. Choose $\theta(t)$ to match $P(0,T)$.
+3. Calibrate $a$ and $\sigma$ to rate options when needed.
+4. Use the calibrated model to value the target instrument.
+
+Plain bonds mostly need step 1; embedded options need the full workflow.
+
+## The Hull–White workflow turns states into exercise values
+
+Observed curve → calibrated model → future short rates → future discount factors → remaining cash-flow values → exercise decisions → present value
+
+<div class="takeaway">Calibration preserves today's market; dynamics determine tomorrow's decision states.</div>
+
+## The practical demo makes calibration choices visible
+
+The course demo `demo_interest_rate_models.qmd` walks through:
+
+- observed versus illustrative inputs,
+- Vasicek estimation intuition,
+- Hull–White term-structure fitting,
+- path simulation and model comparison.
+
+Use the demo to separate what is estimated historically from what is calibrated to market prices.
+
+## Historical volatility describes the past
+
+For rate changes $\Delta r_t$:
+
+$$\hat\sigma_{annual}=sd(\Delta r_t)\sqrt{N}$$
+
+$N$ is the number of observations per year. Window, frequency, and regime materially affect the estimate.
+
+## Implied volatility is the market's pricing input
+
+Implied volatility is the value of $\sigma$ that makes a model price equal an observed option price.
+
+Historical volatility asks “what happened?” Implied volatility asks “what volatility is priced now?”
+
+## Model selection follows the payoff and market regime
+
+Consider:
+
+- need to fit today's curve,
+- possibility of negative rates,
+- mean reversion,
+- volatility smile or term structure,
+- number of risk factors,
+- computational cost and transparency.
+
+## A one-period option has two future values
+
+Let the option be worth $C_u$ in the up state and $C_d$ in the down state.
+
+Under risk-neutral probability $q$:
+
+$$C_0=\frac{qC_u+(1-q)C_d}{1+r}$$
+
+Pricing discounts the risk-neutral expected payoff—not the investor's subjective forecast.
+
+## Risk-neutral probability enforces no arbitrage
+
+In a simple stock-style binomial model:
+
+$$q=\frac{(1+r)-d}{u-d}$$
+
+$q$ is a pricing device that makes the expected return equal the risk-free rate within the model.
+
+## Backward induction solves decisions from the end
+
+1. Calculate terminal payoffs.
+2. Move one step backward.
+3. Take the risk-neutral expected next value.
+4. Discount at the node rate.
+5. Apply any exercise decision.
+6. Repeat to time 0.
+
+## Fixed-income options combine rates and exercise
+
+At every node, the model must determine:
+
+- the discount rate,
+- the value of remaining cash flows,
+- whether call, put, or prepayment is optimal.
+
+This is why a tree is more than a forecast: it is a state-by-state valuation engine.
+
+## The next step is pricing optionality inside the bond
+
+Lecture 8 applies trees to callable bonds:
+
+$$V_{callable}=V_{option\text{-}free}-V_{issuer\ call}$$
+
+The model converts future refinancing opportunities into today's option cost and OAS.
+
+## Keep the hierarchy of questions clear
+
+1. What does today's curve price?
+2. Which future state variable drives the payoff?
+3. How should that variable evolve?
+4. How is the model calibrated?
+5. What decision occurs at each node?
+
+<div class="takeaway">A model is valuable when it connects observable markets to contingent future cash flows.</div>
+

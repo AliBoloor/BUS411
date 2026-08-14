@@ -1,0 +1,265 @@
+---
+title: "Lecture 9: Interest-Rate Futures"
+subtitle: "Translate rate views into liquid, margined exposure"
+author: "BUS 411"
+---
+
+## Futures change exposure without moving the cash portfolio
+
+> A futures contract separates **interest-rate exposure** from ownership of the underlying bond.
+
+- Hedge duration quickly
+- Express a rate or curve view
+- Create synthetic exposure
+- Preserve liquidity in the cash portfolio
+
+## The clearinghouse makes the contract tradable
+
+| Long futures | Clearinghouse | Short futures |
+|---|---|---|
+| Commits to buy | Guarantees performance | Commits to sell |
+| Gains when price rises | Marks positions daily | Gains when price falls |
+
+Most positions are closed with an offsetting trade before delivery.
+
+## Bond futures translate price direction into rate direction
+
+::: {.columns}
+::: {.column width="50%"}
+### Long futures
+
+- Price rises → gain
+- Rates usually fall
+- Adds positive duration
+:::
+
+::: {.column width="50%"}
+### Short futures
+
+- Price falls → gain
+- Rates usually rise
+- Removes duration
+:::
+:::
+
+## Margin is collateral—not the purchase price
+
+- **Initial margin:** posted when the position opens
+- **Maintenance margin:** minimum account balance
+- **Variation margin:** restores the account after losses
+- **Marking to market:** converts each day's price move into cash
+
+Notional value measures exposure; margin measures performance collateral.
+
+## Daily settlement changes cash-flow timing
+
+One Treasury futures contract is long at 100-00. One point is worth \$1,000.
+
+| Day | Settlement | Daily cash flow |
+|---:|---:|---:|
+| 0 | 100-00 | — |
+| 1 | 100-12 | +\$375 |
+| 2 | 99-28 | −\$500 |
+| 3 | 100-08 | +\$375 |
+
+$$\text{Cumulative gain}=375-500+375=\$250$$
+
+## Futures trade standardization for liquidity
+
+| Feature | Futures | Forwards |
+|---|---|---|
+| Venue | Exchange | Over the counter |
+| Terms | Standardized | Customized |
+| Credit support | Clearinghouse and margin | Bilateral agreement |
+| Settlement | Daily | Usually at maturity |
+| Exit | Offset readily | Negotiate or unwind |
+
+Customization and liquidity pull in opposite directions.
+
+## The underlying determines the rate exposure
+
+| Contract family | Primary exposure |
+|---|---|
+| SOFR futures | Forward overnight financing rate |
+| Fed Funds futures | Average effective policy rate |
+| Treasury futures | Price of a deliverable Treasury basket |
+
+Contract selection begins by locating the risk on the curve.
+
+Eurodollar futures historically referenced 3-month LIBOR; SOFR futures now provide the main exchange-traded USD short-rate exposure after the LIBOR transition.
+
+## SOFR futures quote a rate as an index
+
+$$\text{Futures price}=100-\text{implied SOFR rate}$$
+
+A price of 95.25 implies:
+
+$$100-95.25=4.75\%$$
+
+For a Three-Month SOFR contract, a one-basis-point move is approximately:
+
+$$\$1{,}000{,}000(0.0001)\left(\frac{90}{360}\right)=\$25$$
+
+## A long SOFR future benefits when the implied rate falls
+
+Price moves from 95.25 to 95.40:
+
+$$\Delta \text{price}=+15\text{ bps}$$
+
+$$\text{Gain to long}=15(\$25)=\$375$$
+
+The implied rate falls from 4.75% to 4.60%.
+
+<div class="takeaway">SOFR futures prices and implied rates move in opposite directions.</div>
+
+## Fed Funds futures focus on the policy month
+
+- Reference the average effective federal funds rate for a calendar month
+- Help infer the market-implied policy path
+- Blend expectations with risk premiums and contract conventions
+
+An implied rate is a hedgeable market price—not a guaranteed forecast.
+
+## Treasury futures deliver a basket, not one named bond
+
+- Contract specifies maturity and eligibility rules
+- Short chooses an eligible issue for delivery
+- Long pays the invoice amount
+- Delivery flexibility has economic value
+
+The futures contract inherits risk from the bond expected to be delivered.
+
+## Treasury prices use points and 32nds
+
+$$107\text{-}16=107+\frac{16}{32}=107.50$$
+
+For \$100,000 face value:
+
+$$107.50\%\times \$100{,}000=\$107{,}500$$
+
+A one-tick move of $1/32$ is worth \$31.25 per \$100,000 contract.
+
+## Conversion factors normalize different deliverable bonds
+
+When futures price is quoted per \$100 par, the invoice amount is:
+
+$$\text{Invoice}=\frac{\text{Futures price}}{100}\times\text{conversion factor}\times\text{face value}+\text{accrued interest}$$
+
+Conversion factors make different coupons and maturities comparable—but do not make delivery economics identical.
+
+## The cheapest-to-deliver bond minimizes net delivery cost
+
+$$
+\text{Net delivery cost}
+=\text{Cash bond price}-\text{Futures price}\times\text{CF}
+$$
+
+| Bond | Cash price | CF | Futures × CF | Net cost |
+|---|---:|---:|---:|---:|
+| A | 118.00 | 1.120 | 112.00 | 6.00 |
+| B | 104.50 | 0.995 | 99.50 | **5.00** |
+
+Bond B is cheapest to deliver even though delivery compares adjusted—not raw—prices.
+
+## Cash-and-carry links futures and cash prices
+
+For a simple asset with price $P$, financing rate $r$, income yield $c$, and horizon $t$:
+
+$$F=P[1+t(r-c)]$$
+
+- Financing cost raises fair futures value
+- Coupon income lowers fair futures value
+- Arbitrage pressures large deviations toward fair value
+
+## Carry can place futures above or below cash
+
+Suppose $P=100$, $r=7\%$, $c=5\%$, and $t=0.5$:
+
+$$F=100[1+0.5(0.07-0.05)]=101$$
+
+- If market futures = 103: buy cash and sell futures
+- If market futures = 99: short cash and buy futures
+
+Real trades also include coupons, repo, bid-ask costs, and delivery choices.
+
+## Delivery options break the one-bond pricing shortcut
+
+The short may have flexibility over:
+
+- **quality:** which eligible bond to deliver;
+- **timing:** when to deliver within the delivery month;
+- **wild card:** whether to act after the futures settlement is set.
+
+These options generally benefit the short and reduce the futures price.
+
+## Duration management starts with the target exposure
+
+1. Measure current portfolio duration or DV01.
+2. Define the target exposure.
+3. Identify the relevant futures contract and CTD.
+4. Estimate futures DV01.
+5. Trade, monitor, and rebalance.
+
+The hedge ratio is an exposure equation—not a forecast.
+
+## Futures DV01 comes from the CTD bond
+
+Approximate CTD DV01:
+
+$$\text{DV01}_{CTD}=D_{mod}\times MV\times 0.0001$$
+
+Approximate futures DV01:
+
+$$\text{DV01}_{fut}\approx\frac{\text{DV01}_{CTD}}{\text{conversion factor}}$$
+
+The estimate changes if the cheapest-to-deliver bond changes.
+
+## Hedge contracts equal the DV01 gap divided by futures DV01
+
+Portfolio DV01 is \$27,840. CTD data: duration 6.5, price 98.50, face \$100,000, conversion factor 0.9200.
+
+$$\text{DV01}_{CTD}=6.5(98{,}500)(0.0001)=\$64.03$$
+
+$$\text{DV01}_{fut}=64.03/0.9200=\$69.59$$
+
+$$N=27{,}840/69.59\approx400\text{ contracts}$$
+
+A long cash portfolio sells futures to reduce DV01.
+
+## A perfect DV01 match is still an imperfect hedge
+
+- CTD can switch
+- Cash and futures yields may not move equally
+- Credit spreads can move independently of Treasury rates
+- Curve shifts may be nonparallel
+- Contract quantity must be rounded
+- Margin creates liquidity needs
+
+Hedge effectiveness must be monitored after the trade.
+
+## Curve trades require maturity-specific contracts
+
+| View | Possible structure |
+|---|---|
+| Rates rise broadly | Short Treasury futures |
+| Curve steepens | Short long-maturity / long short-maturity futures |
+| Front-end cuts arrive sooner | Long selected SOFR futures |
+
+DV01 weighting helps isolate slope from an unintended level position.
+
+The same exposure logic can create a **synthetic bond allocation**: hold liquid collateral and add the desired rate exposure with futures. Shifting futures positions can also change the bond-versus-equity allocation without immediately trading the underlying portfolios.
+
+## A practical futures decision has four layers
+
+1. **Exposure:** What rate, maturity, and direction matter?
+2. **Instrument:** Which contract maps most closely to that risk?
+3. **Sizing:** What DV01 or tick-value hedge ratio is required?
+4. **Implementation:** What can CTD, basis, margin, and liquidity do to the result?
+
+## Futures are precise tools only when the mapping is precise
+
+- Futures provide liquid, leveraged rate exposure.
+- Daily margining controls credit risk but creates cash-flow demands.
+- SOFR prices move opposite implied forward rates.
+- Treasury futures depend on conversion factors and delivery options.
+- DV01 sizing is the starting point; basis risk determines realized hedge quality.

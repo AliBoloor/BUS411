@@ -1,0 +1,207 @@
+---
+title: "Lecture 6: Bond Portfolio Construction"
+subtitle: "Tracking error, cell matching, and factor-based risk control"
+author: "BUS 411"
+---
+
+## Portfolio construction begins with the objective
+
+- Match a benchmark closely?
+- Express active views with a risk budget?
+- Fund liabilities?
+- Improve yield without unintended factor bets?
+
+The same bonds can form very different portfolios when the objective changes.
+
+## Portfolio return combines weighted security returns
+
+$$R_P=\sum_{i=1}^{N}w_iR_i$$
+
+Weights connect security selection to portfolio outcome. Constraints determine which weight combinations are feasible.
+
+## Risk depends on covariance—not only individual volatility
+
+$$\sigma_P^2=\mathbf{w}'\Sigma\mathbf{w}$$
+
+Diversification works when positions do not move perfectly together. In bond portfolios, common rate and spread factors create substantial co-movement.
+
+## Systematic and idiosyncratic risks require different tools
+
+- **Systematic:** curve level, slope, credit spreads, volatility
+- **Idiosyncratic:** issuer events, security-specific liquidity, covenants
+
+Factor exposure is managed at portfolio level; issuer concentration is managed through limits and diversification.
+
+## A benchmark defines both opportunity and comparison
+
+Bond indexes specify:
+
+- eligible sectors and ratings,
+- maturity and issue-size rules,
+- weighting and rebalancing,
+- pricing sources.
+
+The benchmark is an investable target only approximately because many bonds are illiquid.
+
+## Active return is portfolio return minus benchmark return
+
+$$R_A=R_P-R_B$$
+
+Active weights sum to zero when both portfolio and benchmark are fully invested:
+
+$$\sum_i(w_{P,i}-w_{B,i})=0$$
+
+## Tracking error measures active-return volatility
+
+$$TE=\sqrt{\operatorname{Var}(R_P-R_B)}$$
+
+Historical tracking error estimates realized dispersion. Ex ante tracking error uses a risk model to forecast it.
+
+## Tracking error is risk to both passive and active managers
+
+- For a passive manager, lower tracking error is usually the goal.
+- For an active manager, tracking error is a budget for differentiated positions.
+
+Low tracking error does not guarantee strong returns; it only limits deviation from the benchmark.
+
+## Small active positions can create large factor bets
+
+An overweight in long corporate bonds may combine:
+
+- positive duration exposure,
+- credit-spread exposure,
+- curve exposure,
+- sector and issuer concentration.
+
+Security labels do not reveal the full risk decomposition.
+
+## Cell matching approximates the benchmark by segments
+
+Partition the benchmark into cells such as:
+
+- sector,
+- credit quality,
+- maturity or duration,
+- coupon or issue type.
+
+Select representative bonds so portfolio weights match benchmark cell weights.
+
+## A cell matrix makes omissions visible
+
+|  | 1–5 years | 5–10 years | 10+ years |
+|---|---:|---:|---:|
+| Government | Match | Match | Match |
+| Investment-grade corporate | Match | Match | Match |
+| High yield | Match | Match | Match |
+
+Empty or poorly matched cells signal potential tracking error.
+
+## Cell matching is transparent but coarse
+
+**Strengths**
+
+- Easy to explain and monitor
+- Limits large sector/maturity mismatches
+- Works with modest analytics
+
+**Limitations**
+
+- Bonds within a cell are not identical
+- Cross-cell covariance is implicit
+- Illiquidity can make exact matching impossible
+
+## Bond indexes are costly to replicate exactly
+
+- Thousands of issues
+- Dealer inventory and transaction costs
+- New issuance and monthly rebalancing
+- Bonds entering and leaving eligibility
+- Stale or matrix prices
+
+Sampling aims to reproduce risk and return without owning every constituent.
+
+## Multi-factor models describe return through exposures
+
+$$R_i=\alpha_i+\sum_{k=1}^{K}\beta_{ik}F_k+\epsilon_i$$
+
+$F_k$ are common factor returns; $\beta_{ik}$ are bond exposures; $\epsilon_i$ is security-specific return.
+
+## Fixed-income factors map to economic risks
+
+- Treasury curve level, slope, and curvature
+- Key-rate durations
+- Sector and quality spreads
+- Volatility and optionality
+- Liquidity and carry
+
+Factor choice should match the instruments and the decision horizon.
+
+## Factor exposures come from holdings and models
+
+Inputs may include:
+
+- cash-flow analytics and key-rate durations,
+- spread-duration estimates,
+- issuer and sector classifications,
+- historical covariance or scenario shocks,
+- model-based option sensitivities.
+
+Poor inputs create precise-looking but unreliable optimization.
+
+## Active risk decomposes into factor and specific risk
+
+$$TE^2=\mathbf{b}'\Sigma_F\mathbf{b}+\sum_i a_i^2\sigma^2_{\epsilon,i}$$
+
+- $\mathbf{b}$: active factor exposures
+- $a_i$: active security weights
+- $\Sigma_F$: factor covariance matrix
+
+The decomposition shows what actually consumes the risk budget.
+
+## Marginal risk identifies the next expensive position
+
+The marginal contribution asks how tracking error changes when one position increases slightly.
+
+A small trade can be risk-intensive when it reinforces exposures already concentrated in the portfolio.
+
+## Optimization turns objectives and constraints into weights
+
+A common formulation minimizes predicted tracking error:
+
+$$\min_{\mathbf w}(\mathbf w-\mathbf w_B)'\Sigma(\mathbf w-\mathbf w_B)$$
+
+subject to full investment, position limits, liquidity constraints, and required portfolio characteristics.
+
+## Constraints keep the mathematical solution investable
+
+- Minimum and maximum holding sizes
+- Sector, issuer, and rating limits
+- Duration or key-rate bounds
+- Turnover and transaction-cost limits
+- Cash and liquidity requirements
+
+Without constraints, an optimizer can exploit estimation noise.
+
+## Rebalancing trades accuracy against cost
+
+Portfolio exposures drift because of:
+
+- yield and spread moves,
+- aging and cash flows,
+- index composition changes,
+- credit migration,
+- new cash or withdrawals.
+
+Rebalance when the expected benefit exceeds transaction and market-impact costs.
+
+## A practical construction workflow
+
+1. Define benchmark and objective.
+2. Build clean holdings and analytics.
+3. Match broad cells.
+4. Measure factor and specific risk.
+5. Optimize within realistic constraints.
+6. Stress test and plan rebalancing.
+
+<div class="takeaway">The best portfolio is not the most mathematically precise—it is the one whose intended risks survive implementation.</div>
+

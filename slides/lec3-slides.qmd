@@ -1,0 +1,209 @@
+---
+title: "Lecture 3: Duration and Convexity"
+subtitle: "Measuring how bond prices respond to yield changes"
+author: "BUS 411"
+---
+
+## Fixed cash flows isolate the effect of yield
+
+For an option-free bond:
+
+$$P(y)=\sum_{t=1}^{n}\frac{CF_t}{(1+y)^t}$$
+
+When promised cash flows remain fixed, changing yield changes only the discounting.
+
+## The price–yield curve has four useful properties
+
+1. Price falls when yield rises.
+2. Longer maturity generally means greater price volatility.
+3. Small yield changes produce nearly symmetric price changes.
+4. For large equal moves, the price gain exceeds the price loss.
+
+The fourth property is convexity.
+
+## Cash-flow timing drives volatility
+
+- Long-maturity bonds depend more on distant dollars.
+- Low-coupon bonds return less value early.
+- Zero-coupon bonds concentrate all value at maturity.
+
+Later dollars are more sensitive to a change in the discount rate.
+
+## Lower starting yields amplify percentage sensitivity
+
+For otherwise identical bonds, a given basis-point move generally has a larger percentage price effect when the starting yield is lower.
+
+At lower yields, the price–yield curve is steeper and distant cash flows are discounted less heavily.
+
+## PVBP converts a tiny rate move into dollars
+
+**Price value of a basis point** measures the price change for a one-basis-point yield move.
+
+$$PVBP\approx\frac{P_{-1bp}-P_{+1bp}}{2}$$
+
+PVBP is usually reported as a positive dollar amount.
+
+## Position DV01 scales unit risk to portfolio dollars
+
+If PVBP is \$0.04 per \$100 par, then for \$10 million par:
+
+$$\text{DV01}=0.04\times\frac{10{,}000{,}000}{100}=\$4{,}000$$
+
+A one-basis-point yield rise implies approximately a \$4,000 loss.
+
+## Duration is local percentage price sensitivity
+
+$$
+\frac{\Delta P}{P}\approx-D^*\Delta y
+$$
+
+A modified duration of 6 implies approximately a 6% price decline for a 100-basis-point yield increase—before convexity.
+
+## Macaulay duration is a present-value-weighted time
+
+$$
+D_M=\sum_{t=1}^{n}t\left(\frac{PV(CF_t)}{P}\right)
+$$
+
+The weights are present values, not raw cash flows. For a zero-coupon bond, Macaulay duration equals maturity.
+
+## Modified duration converts time into sensitivity
+
+For yield per payment period $y$:
+
+$$D^*=\frac{D_M}{1+y}$$
+
+With $m$ coupon periods per year, use a consistent annualized convention:
+
+$$D^*=\frac{D_M}{1+y/m}$$
+
+## The derivative reveals duration's meaning
+
+$$
+D^*=-\frac{1}{P}\frac{dP}{dy}
+$$
+
+Duration is the negative slope of the price–yield curve, scaled by price. It describes one point on the curve—not the entire relationship.
+
+## Duration approximates a percentage price change
+
+If $D^*=10.62$ and yield rises 10 basis points:
+
+$$
+\frac{\Delta P}{P}\approx-10.62(0.001)=-1.062\%
+$$
+
+Multiply by current price to obtain the approximate dollar change.
+
+## Portfolio duration is market-value weighted
+
+$$D_P=\sum_i w_iD_i$$
+
+| Bond | Market-value weight | Duration | Contribution |
+|---|---:|---:|---:|
+| A | 40% | 3.0 | 1.20 |
+| B | 60% | 7.0 | 4.20 |
+| **Portfolio** | **100%** |  | **5.40** |
+
+## Spread duration isolates credit-spread risk
+
+Spread duration measures sensitivity to a change in credit spread while holding the benchmark curve fixed.
+
+$$\frac{\Delta P}{P}\approx-D_{spread}\Delta s$$
+
+A spread duration of 5 implies about a 5% loss if spread widens 100 basis points.
+
+## Analytical and empirical duration answer the same question
+
+- **Analytical:** differentiate a pricing formula.
+- **Empirical:** shock yield up and down, then reprice.
+
+$$D^*\approx\frac{P_- - P_+}{2P_0\Delta y}$$
+
+Empirical duration extends naturally to model-priced securities.
+
+## Convexity measures curvature
+
+$$
+\text{Convexity}=\frac{1}{P}\frac{d^2P}{dy^2}
+$$
+
+Duration gives slope; convexity describes how quickly that slope changes as yield moves.
+
+## Convexity improves the price-change estimate
+
+$$
+\frac{\Delta P}{P}\approx-D^*\Delta y+\frac{1}{2}C(\Delta y)^2
+$$
+
+The second-order term is positive for a conventional option-free bond, improving estimates for larger moves.
+
+## Numerical convexity comes from three prices
+
+$$
+C\approx\frac{P_-+P_+-2P_0}{P_0(\Delta y)^2}
+$$
+
+With $P_0=70.3570$, $P_-=71.1105$, $P_+=69.6164$, and $\Delta y=0.001$:
+
+$$C\approx183.3$$
+
+## More convexity improves asymmetry
+
+For two bonds with the same price and duration, the more convex bond:
+
+- gains more when yields fall,
+- loses less when yields rise.
+
+Investors usually pay for that favorable asymmetry through a higher price or lower yield.
+
+## Duration is not simply “time”
+
+For risk management, duration means **price sensitivity**.
+
+An inverse floater can have duration greater than its legal maturity because changing rates affect both discounting and the coupon cash flows.
+
+## Inverse floaters concentrate collateral exposure
+
+If collateral is split into a floater and inverse floater:
+
+$$D_{inverse}\approx(1+L)D_{collateral}\frac{P_{collateral}}{P_{inverse}}$$
+
+With $L=4$, collateral duration 8, and prices near par, inverse-floater duration is approximately 40.
+
+## One duration cannot describe a twisting curve
+
+- Standard duration assumes a parallel shift.
+- Real curves steepen, flatten, and change curvature.
+- Key-rate durations allocate sensitivity to selected maturity points.
+
+Portfolio risk depends on **where** yields move, not only how much an average yield moves.
+
+## Portfolio mandates define the relevant risk
+
+| Framework | Primary objective |
+|---|---|
+| Benchmark based | Outperform an index within active-risk limits |
+| Absolute return | Deliver positive or target return across environments |
+| Liability driven | Fund dated obligations with controlled surplus risk |
+
+Market-cap-weighted bond indexes can overweight the largest debt issuers and may be costly to replicate.
+
+## Strategy can begin with factors or securities
+
+- **Top down:** allocate duration, curve, sector, and quality exposures first.
+- **Bottom up:** select securities from issuer and relative-value analysis.
+- **Smart beta:** follow systematic rules beyond market-value weighting.
+- **Leverage:** magnifies intended returns and every unintended risk.
+
+A complete process reconciles security choices with portfolio-level exposures.
+
+## Use duration first—then ask what it omits
+
+1. Duration gives the local first-order response.
+2. Convexity adds curvature.
+3. Spread duration separates credit exposure.
+4. Key-rate duration addresses nonparallel curve moves.
+5. Effective measures are needed when cash flows can change.
+
+<div class="takeaway">Risk measurement should match the way the instrument's price and cash flows actually respond.</div>

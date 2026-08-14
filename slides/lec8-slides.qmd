@@ -1,0 +1,198 @@
+---
+title: "Lecture 8: Bonds with Embedded Options"
+subtitle: "Callable valuation, option-adjusted spread, and effective risk"
+author: "BUS 411"
+---
+
+## Embedded options make cash flows state dependent
+
+For an option-free bond, promised cash flows are fixed. For a callable bond, falling rates can cause the issuer to redeem early.
+
+Valuation must model both **future rates** and the **exercise rule**.
+
+## Traditional yield spread mixes several effects
+
+$$\text{Yield spread}=YTM_{bond}-YTM_{benchmark}$$
+
+Drawbacks:
+
+- one YTM discounts many dates,
+- benchmark cash flows differ,
+- the spread includes option cost,
+- expected cash flows change with rates.
+
+## Static spread improves cash-flow timing
+
+The static spread $s$ solves:
+
+$$P=\sum_t\frac{CF_t}{(1+z_t+s)^t}$$
+
+Each cash flow uses its spot rate plus one constant spread. This works when cash flows are known—but callable cash flows are not.
+
+## Callability transfers value to the issuer
+
+When rates fall, the issuer can refinance at a lower cost. The investor receives the call price and loses the valuable above-market coupon stream.
+
+Therefore a callable bond is worth less than an otherwise identical option-free bond.
+
+## Callable-bond value decomposes cleanly
+
+$$
+V_{callable}=V_{option\text{-}free}-V_{call\ option}
+$$
+
+The issuer owns the call. Greater rate volatility usually increases the option's value and reduces the callable bond's value.
+
+## Negative convexity appears when calls become likely
+
+- At high yields, the call is unlikely and the bond behaves more like an option-free bond.
+- As yields fall, expected maturity shortens.
+- Price appreciation slows near the call price.
+
+Duration can decline precisely when a noncallable bond's duration would remain high.
+
+## Yield to worst is a convention—not an option model
+
+Yield to worst selects the lowest calculated yield among relevant call, put, and maturity dates.
+
+It does not model changing exercise probabilities, rate volatility, or the full term structure.
+
+## A rate lattice supplies state-by-state discounting
+
+A binomial tree provides short rates $r_{t,j}$ at future time $t$ and state $j$.
+
+At every node, value depends on the two next-state values and the local discount rate.
+
+## Backward induction values the holding decision
+
+For coupon $C$, spread $s$, and risk-neutral up probability $q$:
+
+$$
+V^{hold}_{t,j}=\frac{C+qV_{t+1,j+1}+(1-q)V_{t+1,j}}{1+r_{t,j}+s}
+$$
+
+Work backward from maturity to today.
+
+## The issuer applies a minimum rule
+
+At an eligible call node:
+
+$$
+V^{callable}_{t,j}=\min\{V^{hold}_{t,j},K_t\}
+$$
+
+$K_t$ is the call price. If continuation value exceeds $K_t$, the issuer calls and caps the investor's value.
+
+For an investor-owned put, the rule reverses:
+
+$$V^{putable}_{t,j}=\max\{V^{hold}_{t,j},\text{Put price}_t\}$$
+
+## A simple tree begins with terminal values
+
+At maturity, after the final coupon convention is handled consistently:
+
+$$V_T=F$$
+
+The final coupon enters the preceding one-period holding value. Clear timing conventions prevent double counting.
+
+## Work backward first without the call
+
+At year 2 in a three-year example:
+
+$$V^{straight}_{2,j}=\frac{C+qF+(1-q)F}{1+r_{2,j}}$$
+
+This provides the continuation value against which the call price is compared.
+
+## Then impose the call node by node
+
+If continuation values are \$103.20 and \$99.40 with a \$101 call price:
+
+- Low-rate node: $\min(103.20,101)=101$
+- High-rate node: $\min(99.40,101)=99.40$
+
+The option is exercised only where refinancing is valuable.
+
+## Continue backward using capped node values
+
+Earlier callable values use the already-capped next-state values:
+
+$$V^{callable}_{t,j}=\frac{C+qV^{callable}_{t+1,j+1}+(1-q)V^{callable}_{t+1,j}}{1+r_{t,j}}$$
+
+The exercise decision propagates backward into today's price.
+
+## The embedded option cost is a price difference
+
+$$V_{call\ option}=V_{straight}-V_{callable}$$
+
+Value both securities on the same calibrated tree and with the same non-option spread assumptions.
+
+## A production tree must fit today's curve
+
+An arbitrary rate tree may illustrate mechanics but can misprice even option-free bonds.
+
+A model-based tree is calibrated so its state prices reproduce observed discount factors before it is used for optionality.
+
+## OAS removes modeled option cost from the spread
+
+The option-adjusted spread is the constant spread added at every node that makes model value equal market price:
+
+$$P_{market}=P_{model}(OAS)$$
+
+OAS is solved numerically because price decreases as the trial spread increases.
+
+## OAS supports more comparable spread analysis
+
+- Callable and option-free bonds can be compared after modeled optionality.
+- OAS still depends on the benchmark curve, volatility, model, and exercise assumptions.
+- A wider OAS is not automatically a bargain; it may compensate for credit, liquidity, or model risk.
+
+## Spread decomposition separates compensation from option cost
+
+Conceptually:
+
+$$\text{Observed spread}\approx\text{OAS}+\text{option cost in spread terms}$$
+
+Option cost is model dependent and need not equal a simple yield-to-call adjustment.
+
+## The callable/OAS demo is a reproducible workflow
+
+The course demo `demo_callable_bond_oas.qmd` uses self-contained illustrative inputs to:
+
+1. build a recombining short-rate tree,
+2. price straight and callable bonds,
+3. solve OAS from a target price,
+4. calculate effective duration and convexity.
+
+No external data file is required at render time.
+
+## Effective duration reprices the entire option model
+
+$$
+D_{eff}=\frac{P_- - P_+}{2P_0\Delta y}
+$$
+
+$P_-$ and $P_+$ come from shifting the benchmark curve, rebuilding or recalibrating consistently, and repricing with the exercise rule.
+
+## Effective convexity measures the model's curvature
+
+$$
+C_{eff}=\frac{P_-+P_+-2P_0}{P_0(\Delta y)^2}
+$$
+
+Callable bonds can exhibit low or negative effective convexity when falling rates materially increase call probability.
+
+## OAS implementation is a chain of dependencies
+
+Observed curve → calibrated rate model → volatility → exercise behavior → model price → solved OAS → effective risk
+
+An error early in the chain can look like attractive spread later.
+
+## A practical callable-bond review
+
+1. Verify call schedule and timing conventions.
+2. Inspect benchmark curve and volatility inputs.
+3. Confirm tree calibration on option-free instruments.
+4. Review exercise regions and option cost.
+5. Stress OAS, duration, and convexity.
+
+<div class="takeaway">OAS is not observed directly; it is the spread left after a model explains the option.</div>

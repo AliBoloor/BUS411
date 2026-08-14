@@ -1,0 +1,228 @@
+---
+title: "Lecture 4: Benchmark Spreads and the Term Structure"
+subtitle: "From required yield to spot, forward, and strategy curves"
+author: "BUS 411"
+---
+
+## Required yield has two building blocks
+
+$$
+\text{Required yield}=\text{base interest rate}+\text{benchmark spread}
+$$
+
+The base rate reflects time value with minimal default risk; the spread compensates for additional risks and features.
+
+## A spread is a yield difference
+
+If a corporate bond yields 6.20% and its Treasury benchmark yields 4.70%:
+
+$$6.20\%-4.70\%=1.50\%=150\text{ bps}$$
+
+The comparison is meaningful only when benchmark maturity and cash-flow exposure are appropriate.
+
+## Issuer and issue features shape the spread
+
+- Creditworthiness and recovery prospects
+- Embedded calls, puts, or conversion rights
+- Tax treatment
+- Expected secondary-market liquidity
+- Financing value in the repo market
+- Maturity and sector
+
+Spread is compensation for a bundle of differences, not only expected default loss.
+
+## Creditworthiness is forward looking
+
+Investors assess:
+
+- leverage and interest coverage,
+- earnings stability and business cyclicality,
+- asset quality and collateral,
+- creditor protections and expected recovery.
+
+A rating summarizes risk; market spread continuously reprices it.
+
+## Options shift value between issuer and investor
+
+- An issuer call limits investor upside → usually wider required spread.
+- An investor put provides downside protection → usually narrower required spread.
+
+Option-adjusted analysis is needed when a simple yield spread mixes credit and option value.
+
+## Liquidity and financeability can lower required yield
+
+- Investors value the ability to sell quickly near fair value.
+- Dealers and leveraged investors value securities that can finance efficiently in repo.
+- Scarce, desirable collateral may trade “special” in repo.
+
+These benefits can support price and compress yield spread.
+
+## Maturity spreads describe curve slope
+
+$$\text{Maturity spread}=y_{long}-y_{short}$$
+
+The relationship between yields on comparable securities across maturities is the **term structure of interest rates**.
+
+## One term structure can generate several curves
+
+| Curve | What it reports |
+|---|---|
+| Par yield | Coupon rate that prices a new bond at par |
+| Spot | Discount rate for one cash flow at a stated maturity |
+| Forward | Implied rate between two future dates |
+
+Each curve answers a different valuation question.
+
+## YTM compresses many cash flows into one number
+
+$$P=\sum_{t=1}^{n}\frac{CF_t}{(1+YTM)^t}$$
+
+YTM is one internal rate of return for the entire cash-flow package. It is not the market discount rate for each individual payment date.
+
+## Individual cash flows require individual spot rates
+
+$$
+P=\sum_{t=1}^{n}\frac{CF_t}{(1+z_t)^t}
+$$
+
+The year-1 coupon uses the year-1 spot rate; the year-2 cash flow uses the year-2 spot rate; and so on.
+
+## Bootstrapping extracts spot rates sequentially
+
+For a par bond with semiannual coupons:
+
+$$
+100=\sum_{i=1}^{m-1}\frac{c_m/2}{(1+z_i/2)^i}+\frac{100+c_m/2}{(1+z_m/2)^m}
+$$
+
+Earlier spot rates are known; solve the final unknown $z_m$, then move to the next maturity.
+
+## The first bootstrap step has one cash flow
+
+For a six-month par yield of 3.60%:
+
+$$100=\frac{101.80}{1+z_{0.5}/2}$$
+
+Therefore:
+
+$$z_{0.5}=3.60\%$$
+
+The par and spot rate coincide only at the first maturity.
+
+## The second step uses the first spot rate
+
+For a one-year par coupon of 3.80%, each coupon is 1.90:
+
+$$
+100=\frac{1.90}{1+z_{0.5}/2}+\frac{101.90}{(1+z_1/2)^2}
+$$
+
+With $z_{0.5}$ known, solve for $z_1$.
+
+## Treasury curve construction involves choices
+
+Possible inputs include:
+
+- on-the-run issues,
+- selected off-the-run issues,
+- all coupon securities and bills,
+- Treasury STRIPS.
+
+Liquidity, tax effects, issue-specific richness, and interpolation can make observed securities deviate from a smooth curve.
+
+## STRIPS reveal single-payment discount rates
+
+A coupon Treasury can be separated into individual coupon and principal claims. Each STRIP has one cash flow at one date.
+
+That makes its yield directly interpretable as a spot rate, subject to market liquidity and technical effects.
+
+## Spot valuation separates base rates from spread
+
+For a risky bond with constant spread $s$ over the Treasury spot curve:
+
+$$
+P=\sum_{t=1}^{n}\frac{CF_t}{(1+z_t+s)^t}
+$$
+
+This respects cash-flow timing better than comparing YTM with one Treasury issue.
+
+## Forward rates are implied future borrowing rates
+
+For annual compounding, the one-year forward rate beginning in year 1 is:
+
+$$
+(1+z_2)^2=(1+z_1)(1+f_{1,1})
+$$
+
+$$
+f_{1,1}=\frac{(1+z_2)^2}{1+z_1}-1
+$$
+
+## Forward rates are no-arbitrage break-even rates
+
+Investing for two years at the two-year spot rate must match:
+
+1. investing for one year at the one-year spot rate, then
+2. locking the second year at the forward rate.
+
+A forward rate is hedgeable today; it is not necessarily an unbiased forecast.
+
+## Curve shape reflects several forces
+
+| Theory | Main explanation |
+|---|---|
+| Pure expectations | Expected future short rates |
+| Liquidity premium | Extra return for longer maturity |
+| Preferred habitat | Investor maturity preferences plus compensation |
+| Market segmentation | Supply and demand within maturity sectors |
+
+Observed curves combine expectations, risk premiums, and convexity effects.
+
+## Swap rates form a widely used benchmark curve
+
+In a fixed-for-floating interest-rate swap:
+
+- one party pays a fixed rate and receives a floating reference rate,
+- the other receives fixed and pays floating.
+
+The swap curve plots market fixed rates across maturities.
+
+## Swap spreads compare derivative and Treasury curves
+
+$$\text{Swap spread}=\text{swap rate}-\text{Treasury yield}$$
+
+Swap spreads reflect collateralized derivatives economics, bank balance sheets, Treasury supply and demand, and relative liquidity—not simply bank default risk.
+
+## Curve trades express views on slope and curvature
+
+| View | Typical curve move |
+|---|---|
+| Bull steepener | Rates fall; short rates fall more |
+| Bear steepener | Rates rise; long rates rise more |
+| Bull flattener | Rates fall; long rates fall more |
+| Bear flattener | Rates rise; short rates rise more |
+
+Trades should isolate the intended curve exposure rather than an unintended level bet.
+
+## Butterfly trades target the belly versus the wings
+
+A butterfly combines short-, intermediate-, and long-maturity positions.
+
+- **Long belly / short wings:** benefits if intermediate yields fall relative to short and long yields.
+- Duration and DV01 weighting help neutralize broad parallel-shift exposure.
+
+## Carry and roll-down reward holding the right point
+
+- **Carry:** coupon income minus financing cost if the curve does not change.
+- **Roll-down:** price effect as a bond ages into a shorter maturity on an unchanged curve.
+
+An upward-sloping curve can create positive roll-down—but the curve need not remain unchanged.
+
+## Curve strategy begins with disciplined risk controls
+
+1. State the expected level, slope, or curvature move.
+2. Choose instruments and benchmarks consistently.
+3. Neutralize unwanted DV01 or key-rate exposure.
+4. Include carry, financing, liquidity, and scenario losses.
+
+<div class="takeaway">The curve is both a valuation system and a map of tradable interest-rate risk.</div>

@@ -11,11 +11,12 @@ options. See [Topics.md](Topics.md) for the lecture-by-lecture map.
 
 - `lecture_notes/` — source notes for Lectures 1–11 and source appendices
 - `course_outline/` — syllabus source, stylesheet, and PDF header reference
-- `assignments/` — public question files; answer files and working data stay local
-- `problem_sets/` — retained workspace for problem sets
-- `demos/` — source demonstrations
+- `assignments/` — public questions and team projects; answers and working data stay local
+- `problem_sets/` — public cumulative practice material
+- `demos/` — practical, reproducible fixed-income workflows
 - `assets/` — shared data, images, figures, and PDFs
-- `labs/` and `slides/` — reserved course-material folders
+- `slides/` — reveal.js lecture-deck sources
+- `labs/` — reserved course-material folder
 - `exams/` — local-only exams and solutions; ignored by Git
 - `docs/` — rendered public website served by GitHub Pages
 
@@ -51,6 +52,16 @@ the `docs/` directory from `main`.
 
 ```bash
 quarto render --to html
+```
+
+Reveal.js decks use their own format and are rendered separately after the website
+build. Copy the resulting self-contained HTML decks into the public site:
+
+```bash
+for lecture in {1..11}; do
+  quarto render "slides/lec${lecture}-slides.qmd"
+done
+cp slides/lec*-slides.html docs/slides/
 ```
 
 Render public PDFs after the HTML build. The `--no-clean` flag is required so the

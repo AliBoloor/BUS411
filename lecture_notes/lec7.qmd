@@ -17,7 +17,7 @@ jupyter: python3
 
 After completing this lecture you will be able to:
 
-- Define an interest‑rate model and interpret its key components (drift, volatility and mean reversion).
+- Define an interest‑rate model and interpret its key components (drift, volatility, and mean reversion).
 - Explain the mathematics behind one‑factor stochastic processes used to model interest rates.
 - Distinguish between **arbitrage‑free** and **equilibrium** interest‑rate models and understand the purpose of each.
 - Explain when a stochastic short‑rate model is needed, and when a discount curve alone is sufficient.
@@ -289,7 +289,7 @@ where $\sigma_0>0$ is a scale parameter and $\gamma$ controls how volatility dep
 
 - $\gamma=0$ (**Vasicek model**): volatility is constant and independent of $r_t$. This is a **normal model**.
 - $\gamma=1$ (**Dothan model**): volatility is proportional to $r_t$. This is a **lognormal model** (changes are proportional to the level).
-- $\gamma=\tfrac{1}{2}$ (**Cox–Ingersoll–Ross model**): volatility is proportional to $\sqrt{r_t}$. This avoids negative rates because $\sigma_0 r_t^{1/2}$ goes to zero as $r_t$ approaches zero.
+- $\gamma=\tfrac{1}{2}$ (**Cox–Ingersoll–Ross model**): volatility is proportional to $\sqrt{r_t}$. Under the model's standard parameter restrictions, rates remain nonnegative because $\sigma_0 r_t^{1/2}$ goes to zero as $r_t$ approaches zero.
 
 Combining mean reversion in drift with square‑root volatility yields the **mean‑reverting square‑root** model:
 
@@ -306,7 +306,7 @@ An Ornstein–Uhlenbeck (Vasicek) process has constant volatility and mean‑rev
 - volatility: $\sigma_0 = 0.02$
 - starting short rate: $r_0 = 0.04$
 - time horizon: $T = 5$ years
-- time step: $\Delta t = 1/252$ days
+- time step: $\Delta t = 1/252$ years (one trading day)
 - number of simulated paths: $5$
 
 ```{python}
@@ -944,7 +944,7 @@ The next step is to apply this logic directly to bonds with embedded options. Th
 
 ## Key Points {.unnumbered}
 
-- An interest‑rate model specifies a stochastic process for the short rate and derives other rates from it. Drift, volatility and mean reversion are key components.
+- An interest‑rate model specifies a stochastic process for the short rate and derives other rates from it. Drift, volatility, and mean reversion are key components.
 - One‑factor models use a single source of uncertainty (Brownian motion). Mean‑reverting drift and level‑dependent volatility are common specifications.
 - Arbitrage‑free models (Ho–Lee, Hull–White, KWF, Black–Karasinski, BDT, HJM) calibrate to market prices and are widely used for valuation. Equilibrium models (Vasicek, CIR, Brennan–Schwartz, Longstaff–Schwartz) derive rates from economic assumptions.
 - Plain fixed‑rate bonds usually do not need a stochastic short‑rate model; a bootstrapped discount curve is typically enough.

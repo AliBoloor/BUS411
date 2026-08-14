@@ -47,12 +47,12 @@ format:
 ---
 # Course Information
 
-**Instructor:** Ali Boloor  
-**Semester:** Summer 2026  
-**Email:** [aboloorf@sfu.ca](mailto:aboloorf@sfu.ca)  
-**LMS:** [Canvas](https://canvas.sfu.ca/) , [Course website](https://aliboloor.github.io/BUS411/)  
-**Lectures:** Tuesdays, 2:30-5:20pm  
-**Office hours:** Tuesdays, 1:30-2:20pm (by appointment only)
+**Instructor:** Ali Boloor\
+**Semester:** Summer 2026\
+**Email:** [aboloorf@sfu.ca](mailto:aboloorf@sfu.ca)\
+**LMS:** [Canvas](https://canvas.sfu.ca/); [course website](https://aliboloor.github.io/BUS411/)\
+**Lectures:** Tuesdays, 2:30–5:20 p.m.\
+**Office hours:** Tuesdays, 1:30–2:20 p.m. (by appointment only)\
 **Office:** WMC 4394
 
 # Course Description
@@ -82,9 +82,9 @@ Classes are primarily lecture-based; discussion is encouraged. Materials include
 | Item                | Date           |
 |---------------------|---------------|
 | Exam 1              | June 23, 2026 |
-| Exam 2              | Aug. 04, 2026 |
+| Exam 2              | August 4, 2026 |
 | Assignment 1 Due    | June 23, 2026 |
-| Assignment 2 Due    | Aug. 04, 2026 |
+| Assignment 2 Due    | August 4, 2026 |
 
 # Topics
 
@@ -94,11 +94,11 @@ Classes are primarily lecture-based; discussion is encouraged. Materials include
 4. Term structure and curve strategies
 5. Treasury securities and corporate debt instruments
 6. Bond portfolio construction
-7. Interest rate models
+7. Interest-rate models
 8. Embedded options
-9. Credit risk modeling
-10. Interest rate futures 
-11. Interest rate derivatives
+9. Interest-rate futures
+10. Credit spread exposure and credit risk modeling
+11. Interest-rate options
 
 # Academic Honesty
 

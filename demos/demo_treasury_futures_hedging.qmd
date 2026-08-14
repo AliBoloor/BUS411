@@ -1,0 +1,304 @@
+---
+title: "Practical Demo: Hedging a Bond Portfolio with Treasury Futures"
+format:
+  html:
+    toc: true
+    toc-location: left
+    number-sections: true
+jupyter: python3
+execute:
+  echo: true
+  warning: false
+---
+
+## Learning Objectives {.unnumbered}
+
+After completing this demo you should be able to:
+
+- calculate a bond portfolio's analytical and Treasury-beta-adjusted DV01;
+- derive Treasury futures DV01 from the cheapest-to-deliver (CTD) bond and conversion factor;
+- size and round a short futures hedge;
+- compare portfolio P&L before and after the hedge; and
+- identify residual basis, spread, curve, rounding, and CTD risks.
+
+## Market Inputs Versus Illustrative Inputs
+
+The workflow resembles a daily risk-management task, but every number below is illustrative rather than live market data. A live hedge would use current positions, clean prices, accrued interest, key-rate durations, deliverable-basket data, conversion factors, CTD candidates, financing rates, and exchange contract specifications.
+
+Simplifying assumptions:
+
+- changes are small enough for first-order DV01 approximations;
+- the selected CTD remains unchanged;
+- futures DV01 is constant over the scenario;
+- the Treasury move is parallel;
+- spread duration equals modified duration for the corporate positions;
+- yield betas summarize how each position historically responds to Treasury yields; and
+- transaction costs, margin cash flows, convexity, carry, and roll are ignored.
+
+## Build the Portfolio Risk Table
+
+The portfolio contains Treasuries and investment-grade corporate bonds. Analytical DV01 is
+
+$$
+DV01_i=D_{\text{mod},i}\times MV_i\times0.0001.
+$$
+
+For cross-hedging, a Treasury yield beta maps each bond's historical price sensitivity to the hedging instrument:
+
+$$
+DV01_i^{\text{Treasury}}
+=DV01_i\times\beta_i.
+$$
+
+```{python}
+#| label: portfolio-risk
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+portfolio = pd.DataFrame({
+    "Position": [
+        "5-year Treasury notes",
+        "10-year Treasury notes",
+        "A industrial bonds",
+        "BBB financial bonds",
+    ],
+    "Market value ($mm)": [30.0, 25.0, 24.0, 18.0],
+    "Modified duration": [4.5, 7.6, 6.1, 7.2],
+    "Treasury yield beta": [1.00, 1.00, 0.88, 0.72],
+    "Spread shock in scenario (bp)": [0.0, 0.0, 12.0, 20.0],
+})
+
+portfolio["Analytical DV01 ($/bp)"] = (
+    portfolio["Market value ($mm)"] * 1_000_000
+    * portfolio["Modified duration"] * 0.0001
+)
+portfolio["Treasury DV01 ($/bp)"] = (
+    portfolio["Analytical DV01 ($/bp)"] * portfolio["Treasury yield beta"]
+)
+portfolio["Spread DV01 ($/bp)"] = np.where(
+    portfolio["Position"].str.contains("bonds"),
+    portfolio["Analytical DV01 ($/bp)"],
+    0.0,
+)
+
+portfolio.round(2)
+```
+
+```{python}
+#| label: portfolio-summary
+analytical_dv01 = portfolio["Analytical DV01 ($/bp)"].sum()
+treasury_dv01 = portfolio["Treasury DV01 ($/bp)"].sum()
+spread_dv01 = portfolio["Spread DV01 ($/bp)"].sum()
+
+pd.Series({
+    "Portfolio market value ($mm)": portfolio["Market value ($mm)"].sum(),
+    "Analytical DV01 ($/bp)": analytical_dv01,
+    "Treasury-beta-adjusted DV01 ($/bp)": treasury_dv01,
+    "Corporate spread DV01 ($/bp)": spread_dv01,
+}).round(2)
+```
+
+The analytical DV01 describes a common change in every position's discount yield. The beta-adjusted DV01 is the exposure targeted by a Treasury futures hedge. Spread risk remains a separate exposure.
+
+## Frame the CTD and Conversion-Factor Problem
+
+Treasury futures are linked to a delivery basket. The short chooses the eligible security to deliver, and the cheapest-to-deliver issue often determines the futures contract's effective interest-rate sensitivity.
+
+Suppose the current CTD candidate has the following illustrative inputs:
+
+| Input | Value |
+|---|---:|
+| CTD clean price | 101.75 |
+| CTD modified duration | 7.35 |
+| Deliverable face amount | \$100,000 |
+| Conversion factor | 0.9275 |
+| Futures price | 112-16 = 112.50 |
+
+Ignoring accrued interest and delivery-option details,
+
+$$
+DV01_{CTD}
+=D_{\text{mod,CTD}}P_{CTD}(0.0001),
+$$
+
+and
+
+$$
+DV01_{futures}\approx\frac{DV01_{CTD}}{CF}.
+$$
+
+```{python}
+#| label: futures-dv01
+ctd_clean_price = 101.75
+ctd_modified_duration = 7.35
+deliverable_face = 100_000
+conversion_factor = 0.9275
+futures_price = 112.50
+
+ctd_market_value = ctd_clean_price / 100 * deliverable_face
+ctd_dv01 = ctd_modified_duration * ctd_market_value * 0.0001
+futures_dv01 = ctd_dv01 / conversion_factor
+approx_invoice_price = futures_price / 100 * deliverable_face * conversion_factor
+
+pd.Series({
+    "CTD market value ($)": ctd_market_value,
+    "Approximate invoice price before accrued interest ($)": approx_invoice_price,
+    "CTD DV01 ($/bp)": ctd_dv01,
+    "Futures DV01 ($/bp)": futures_dv01,
+}).round(2)
+```
+
+The futures contract does not have a true bond duration. Its practical sensitivity is inherited from the current CTD bond and scaled by the conversion factor.
+
+## Size and Round the Hedge
+
+The portfolio is long bonds and loses when rates rise, so the hedge shorts Treasury futures. The exact contract count is
+
+$$
+N^*
+=\frac{DV01_{portfolio}^{\text{Treasury}}}{DV01_{futures}}.
+$$
+
+```{python}
+#| label: hedge-size
+exact_contracts = treasury_dv01 / futures_dv01
+rounded_contracts = int(np.rint(exact_contracts))
+hedge_dv01 = rounded_contracts * futures_dv01
+residual_treasury_dv01 = treasury_dv01 - hedge_dv01
+hedge_ratio = hedge_dv01 / treasury_dv01
+
+pd.Series({
+    "Exact contracts to short": exact_contracts,
+    "Rounded contracts to short": rounded_contracts,
+    "Hedge DV01 ($/bp)": hedge_dv01,
+    "Residual Treasury DV01 ($/bp)": residual_treasury_dv01,
+    "Hedge ratio": hedge_ratio,
+}).round(4)
+```
+
+Rounding creates a small residual exposure. A negative residual means the rounded hedge is slightly too large; a positive residual means it is slightly too small.
+
+## Before-and-After Scenario P&L
+
+Suppose Treasury yields rise by 35 basis points. Corporate spreads also widen by the amounts in the portfolio table. The first-order bond P&L is separated into Treasury and spread components:
+
+$$
+\Delta V_{portfolio}
+\approx
+-DV01^{\text{Treasury}}\Delta y_{Treasury}
+-DV01^{\text{spread}}\Delta s.
+$$
+
+Because the hedge is short futures, its approximate gain when Treasury yields rise is
+
+$$
+\Delta V_{futures}
+\approx
+N\times DV01_{futures}\times\Delta y_{Treasury}.
+$$
+
+```{python}
+#| label: scenario-pnl
+treasury_shock_bp = 35.0
+
+portfolio["Treasury P&L ($)"] = -portfolio["Treasury DV01 ($/bp)"] * treasury_shock_bp
+portfolio["Spread P&L ($)"] = (
+    -portfolio["Spread DV01 ($/bp)"]
+    * portfolio["Spread shock in scenario (bp)"]
+)
+portfolio["Total unhedged P&L ($)"] = (
+    portfolio["Treasury P&L ($)"] + portfolio["Spread P&L ($)"]
+)
+
+futures_pnl = rounded_contracts * futures_dv01 * treasury_shock_bp
+unhedged_pnl = portfolio["Total unhedged P&L ($)"].sum()
+hedged_pnl = unhedged_pnl + futures_pnl
+residual_rate_pnl = -residual_treasury_dv01 * treasury_shock_bp
+spread_pnl = portfolio["Spread P&L ($)"].sum()
+
+portfolio[[
+    "Position", "Treasury P&L ($)", "Spread P&L ($)", "Total unhedged P&L ($)"
+]].round(0)
+```
+
+```{python}
+#| label: scenario-summary
+pd.Series({
+    "Unhedged portfolio P&L ($)": unhedged_pnl,
+    "Short futures P&L ($)": futures_pnl,
+    "Hedged portfolio P&L ($)": hedged_pnl,
+    "Residual rate P&L from rounding ($)": residual_rate_pnl,
+    "Unhedged spread P&L ($)": spread_pnl,
+}).round(0)
+```
+
+The futures hedge removes almost all of the modeled Treasury-rate loss. It does not hedge the corporate spread widening, which remains the dominant loss after the hedge.
+
+```{python}
+#| label: fig-hedge-scenarios
+#| fig-cap: "The futures hedge offsets parallel Treasury-rate risk but not spread risk"
+treasury_scenarios = np.arange(-75, 76, 5)
+unhedged_rate_pnl = -treasury_dv01 * treasury_scenarios
+hedged_rate_pnl = unhedged_rate_pnl + hedge_dv01 * treasury_scenarios
+
+fig, ax = plt.subplots(figsize=(7.5, 4.1))
+ax.plot(treasury_scenarios, unhedged_rate_pnl / 1_000, linewidth=2.1,
+        label="Unhedged Treasury-rate P&L")
+ax.plot(treasury_scenarios, hedged_rate_pnl / 1_000, linewidth=2.1,
+        label="After rounded futures hedge")
+ax.axhline(0, color="black", linewidth=0.8)
+ax.axvline(0, color="gray", linestyle="--", linewidth=1)
+ax.set(xlabel="Parallel Treasury yield shock (bp)", ylabel="Rate-driven P&L ($ thousands)",
+       title="First-order Treasury-rate hedge")
+ax.grid(alpha=0.3)
+ax.legend()
+plt.tight_layout()
+plt.show()
+```
+
+## Validation Checks
+
+```{python}
+#| label: hedge-validation
+assert ctd_dv01 > 0 and futures_dv01 > 0
+assert rounded_contracts > 0
+assert abs(treasury_dv01 - hedge_dv01 - residual_treasury_dv01) < 1e-8
+assert abs(hedged_pnl - (spread_pnl + residual_rate_pnl)) < 1e-8
+assert abs(residual_treasury_dv01) <= 0.5 * futures_dv01 + 1e-10
+
+checks = pd.Series({
+    "Futures DV01 is positive": futures_dv01 > 0,
+    "Long-bond hedge requires short futures": rounded_contracts > 0,
+    "Rounded residual is no more than half one contract DV01": (
+        abs(residual_treasury_dv01) <= 0.5 * futures_dv01
+    ),
+    "Hedged P&L reconciles to spread plus residual-rate P&L": (
+        abs(hedged_pnl - spread_pnl - residual_rate_pnl) < 1e-8
+    ),
+})
+checks
+```
+
+## What Can Break the Hedge?
+
+- **Basis risk:** cash bonds and the futures contract may not move together.
+- **Curve risk:** one CTD-based DV01 cannot hedge every key-rate exposure.
+- **Spread risk:** Treasury futures do not directly hedge corporate credit spreads.
+- **Yield-beta error:** historical betas can change in stress periods.
+- **CTD switching:** a different deliverable bond can become cheapest to deliver.
+- **Conversion-factor and delivery-option effects:** the simple DV01 scaling is approximate.
+- **Convexity:** large yield moves make a first-order DV01 hedge less accurate.
+- **Rounding, liquidity, margin, and roll:** implementation affects realized results.
+
+## Financial Interpretation
+
+A Treasury futures hedge is a risk-matching exercise, not a notional-matching exercise. The correct sequence is:
+
+1. identify the portfolio risk to hedge;
+2. map that risk into Treasury DV01;
+3. estimate futures DV01 from the current CTD and conversion factor;
+4. choose and round the contract count; and
+5. test the combined position under rate, spread, curve, and basis scenarios.
+
+The hedge is successful here because it neutralizes the stated parallel Treasury-rate exposure. The remaining loss is economically meaningful: it is primarily credit spread risk, which was never within the hedge's scope.

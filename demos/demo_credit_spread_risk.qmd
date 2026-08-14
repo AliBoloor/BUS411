@@ -1,0 +1,205 @@
+---
+title: "Practical Demo: Corporate-Bond Spread Risk and Scenario Analysis"
+format:
+  html:
+    toc: true
+    toc-location: left
+    number-sections: true
+jupyter: python3
+execute:
+  echo: true
+  warning: false
+---
+
+## Learning Objectives {.unnumbered}
+
+After completing this demo you should be able to decompose corporate-bond risk into Treasury-rate, spread, default, and liquidity components; calculate spread duration and duration times spread (DTS); compare spread carry with widening risk; and evaluate mild and severe portfolio scenarios.
+
+## Inputs and Assumptions
+
+All values are **illustrative, market-like inputs**, not current quotes. The portfolio is intentionally small enough to audit by hand. Prices are near par; annual carry is approximated by spread times market value; spread duration is treated as constant; Treasury and spread P&L use first-order duration; PDs are physical one-year probabilities; defaults and mark-to-market spread changes are reported separately to avoid double counting.
+
+```{python}
+#| label: portfolio-inputs
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+bonds = pd.DataFrame({
+    "Bond": ["A utility 2029", "BBB bank 2031", "BBB industrial 2034", "BB telecom 2028"],
+    "Market value ($mm)": [12.0, 10.0, 8.0, 5.0],
+    "Treasury duration": [4.2, 5.6, 7.1, 3.4],
+    "Spread duration": [4.0, 5.1, 6.3, 3.0],
+    "Spread (bp)": [78, 142, 185, 410],
+    "One-year PD": [0.0015, 0.0040, 0.0070, 0.0250],
+    "Recovery rate": [0.40, 0.40, 0.35, 0.30],
+    "Liquidity reserve (bp/year)": [8, 15, 22, 45],
+})
+
+bonds["Treasury DV01 ($/bp)"] = (
+    bonds["Market value ($mm)"] * 1_000_000 * bonds["Treasury duration"] * 0.0001
+)
+bonds["Spread DV01 ($/bp)"] = (
+    bonds["Market value ($mm)"] * 1_000_000 * bonds["Spread duration"] * 0.0001
+)
+bonds["DTS"] = bonds["Spread duration"] * bonds["Spread (bp)"] / 10_000
+bonds["Contribution to DTS"] = (
+    bonds["Market value ($mm)"] / bonds["Market value ($mm)"].sum() * bonds["DTS"]
+)
+bonds.round(4)
+```
+
+## Treasury and Spread Decomposition
+
+For small changes,
+
+$$
+\frac{\Delta P}{P}\approx-D_T\Delta y_T-D_s\Delta s.
+$$
+
+Treasury duration measures exposure to the benchmark curve. Spread duration measures exposure to the bond's compensation over that curve. DTS rewrites spread risk for a proportional spread shock:
+
+$$
+\text{DTS}=D_s s,
+\qquad
+\frac{\Delta P}{P}\approx-\text{DTS}\frac{\Delta s}{s}.
+$$
+
+```{python}
+#| label: risk-summary
+portfolio_value = bonds["Market value ($mm)"].sum() * 1_000_000
+treasury_dv01 = bonds["Treasury DV01 ($/bp)"].sum()
+spread_dv01 = bonds["Spread DV01 ($/bp)"].sum()
+portfolio_dts = bonds["Contribution to DTS"].sum()
+
+pd.Series({
+    "Portfolio value ($)": portfolio_value,
+    "Treasury DV01 ($/bp)": treasury_dv01,
+    "Spread DV01 ($/bp)": spread_dv01,
+    "Portfolio DTS": portfolio_dts,
+}).round(4)
+```
+
+Equal market values do not imply equal credit risk. Wider-spread bonds can contribute disproportionately to DTS even when their spread duration is shorter.
+
+## Carry Versus Widening Breakeven
+
+Approximate annual spread carry is $MV\times s$. The spread widening that consumes one year of spread carry is
+
+$$
+\Delta s_{BE}\approx\frac{s}{D_s}.
+$$
+
+This is a mark-to-market breakeven, not a total-return forecast. It ignores rolldown, Treasury carry, default, taxes, and financing.
+
+```{python}
+#| label: carry-breakeven
+bonds["Annual spread carry ($)"] = (
+    bonds["Market value ($mm)"] * 1_000_000 * bonds["Spread (bp)"] / 10_000
+)
+bonds["Widening breakeven (bp)"] = bonds["Spread (bp)"] / bonds["Spread duration"]
+bonds[["Bond", "Annual spread carry ($)", "Widening breakeven (bp)"]].round(1)
+```
+
+## Expected Loss and Liquidity Reserve
+
+Expected credit loss is
+
+$$
+EL=PD\times LGD\times EAD,
+\qquad LGD=1-\text{Recovery Rate}.
+$$
+
+Spread is not expected loss. It may also compensate for systematic credit risk, uncertainty, liquidity, taxes, and supply-demand effects.
+
+```{python}
+#| label: expected-loss
+bonds["LGD"] = 1 - bonds["Recovery rate"]
+bonds["Expected loss ($)"] = (
+    bonds["Market value ($mm)"] * 1_000_000 * bonds["One-year PD"] * bonds["LGD"]
+)
+bonds["Liquidity reserve ($)"] = (
+    bonds["Market value ($mm)"] * 1_000_000 * bonds["Liquidity reserve (bp/year)"] / 10_000
+)
+bonds["Carry after EL and liquidity ($)"] = (
+    bonds["Annual spread carry ($)"]
+    - bonds["Expected loss ($)"]
+    - bonds["Liquidity reserve ($)"]
+)
+bonds[["Bond", "Annual spread carry ($)", "Expected loss ($)",
+       "Liquidity reserve ($)", "Carry after EL and liquidity ($)"]].round(0)
+```
+
+## Mild and Severe Scenarios
+
+The scenarios distinguish a benchmark-rate shock from issuer spread shocks. Expected loss is shown as a separate one-year planning measure rather than added to scenario P&L.
+
+```{python}
+#| label: scenarios
+scenarios = {
+    "Mild slowdown": {
+        "Treasury shock (bp)": -20,
+        "Spread shocks (bp)": np.array([15, 30, 40, 80]),
+    },
+    "Severe recession": {
+        "Treasury shock (bp)": -75,
+        "Spread shocks (bp)": np.array([55, 110, 160, 350]),
+    },
+}
+
+rows = []
+for name, scenario in scenarios.items():
+    rate_pnl = -bonds["Treasury DV01 ($/bp)"] * scenario["Treasury shock (bp)"]
+    spread_pnl = -bonds["Spread DV01 ($/bp)"] * scenario["Spread shocks (bp)"]
+    rows.append({
+        "Scenario": name,
+        "Treasury P&L ($)": rate_pnl.sum(),
+        "Spread P&L ($)": spread_pnl.sum(),
+        "Total mark-to-market P&L ($)": rate_pnl.sum() + spread_pnl.sum(),
+    })
+
+scenario_table = pd.DataFrame(rows).set_index("Scenario")
+scenario_table.round(0)
+```
+
+```{python}
+#| label: fig-scenario-decomposition
+#| fig-cap: "Falling Treasury yields can partly offset, but do not eliminate, spread losses"
+plot_data = scenario_table[["Treasury P&L ($)", "Spread P&L ($)"]] / 1_000
+ax = plot_data.plot(kind="bar", figsize=(7.4, 4.0), color=["#4C78A8", "#F58518"])
+ax.axhline(0, color="black", linewidth=0.8)
+ax.set(ylabel="P&L ($ thousands)", title="Scenario P&L decomposition")
+ax.tick_params(axis="x", rotation=0)
+ax.grid(axis="y", alpha=0.3)
+plt.tight_layout()
+plt.show()
+```
+
+## Why the Risks Differ
+
+- **Rate risk** is exposure to the benchmark Treasury curve and can often be hedged with Treasury futures or swaps.
+- **Spread risk** is mark-to-market exposure to changing required compensation for credit and liquidity risk.
+- **Default risk** is a discrete credit event with uncertain recovery; PD and LGD describe expected loss, not daily spread volatility.
+- **Liquidity risk** is the cost or inability to trade near an observed price, often worst when spreads are already widening.
+
+## Validation Checks
+
+```{python}
+#| label: checks
+assert np.all(bonds["DTS"] > 0)
+assert np.all(bonds["Widening breakeven (bp)"] > 0)
+assert np.all(bonds["Expected loss ($)"] >= 0)
+assert scenario_table.loc["Severe recession", "Spread P&L ($)"] < scenario_table.loc["Mild slowdown", "Spread P&L ($)"]
+assert abs(portfolio_dts - np.average(bonds["DTS"], weights=bonds["Market value ($mm)"])) < 1e-12
+
+pd.Series({
+    "DTS is positive": bool(np.all(bonds["DTS"] > 0)),
+    "Expected loss is nonnegative": bool(np.all(bonds["Expected loss ($)"] >= 0)),
+    "Severe spread loss exceeds mild spread loss": True,
+    "Portfolio DTS reconciles to weighted bond DTS": True,
+})
+```
+
+## Financial Interpretation
+
+A wide spread is not automatically attractive. The analyst should ask how much of the spread may be consumed by expected loss and liquidity, how much widening erases carry, and whether falling Treasury yields are likely to offset spread losses in stress. DTS is useful for proportional spread shocks; DV01 is useful for basis-point shocks; neither replaces explicit default and liquidity analysis.

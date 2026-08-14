@@ -1,0 +1,189 @@
+---
+title: "Practical Demo: Vasicek Rate Scenarios and Long-Run Behavior"
+format:
+  html:
+    toc: true
+    number-sections: true
+jupyter: python3
+execute:
+  echo: true
+  warning: false
+---
+
+## Purpose and Assumptions {.unnumbered}
+
+The Vasicek model is
+
+$$
+dr_t=\kappa(\theta-r_t)dt+\sigma dW_t.
+$$
+
+This demo connects its parameters to a compact rate history, simulates scenarios, checks long-run moments, and compares model-based changes with a simple historical shock. Rates and parameters are **illustrative**, not a current calibration. The short rate is represented by a monthly overnight-rate proxy; parameters are constant; estimation error, regime shifts, jumps, and term premiums are ignored.
+
+## Compact Illustrative Rate History
+
+```{python}
+#| label: history
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+dates = pd.date_range("2023-01-31", periods=30, freq="ME")
+rates = np.array([
+    0.0430, 0.0450, 0.0470, 0.0490, 0.0510, 0.0525,
+    0.0530, 0.0535, 0.0532, 0.0528, 0.0525, 0.0520,
+    0.0515, 0.0508, 0.0500, 0.0492, 0.0484, 0.0475,
+    0.0468, 0.0460, 0.0455, 0.0450, 0.0446, 0.0442,
+    0.0439, 0.0436, 0.0434, 0.0432, 0.0431, 0.0430,
+])
+history = pd.Series(rates, index=dates, name="Illustrative short rate")
+history.to_frame().tail()
+```
+
+The series shows a tightening phase followed by gradual normalization. It is too short for a robust statistical calibration, so the demo uses transparent, economically plausible parameters informed by its scale rather than presenting false precision.
+
+## Parameters and Financial Meaning
+
+```{python}
+#| label: parameters
+r0 = float(history.iloc[-1])
+kappa = 0.70       # annual speed of mean reversion
+theta = 0.0380     # long-run mean rate
+sigma = 0.0180     # annualized short-rate volatility
+dt = 1 / 12
+
+half_life = np.log(2) / kappa
+long_run_std = sigma / np.sqrt(2 * kappa)
+
+pd.Series({
+    "Current rate": r0,
+    "Mean-reversion speed kappa (1/year)": kappa,
+    "Long-run mean theta": theta,
+    "Volatility sigma (rate/sqrt(year))": sigma,
+    "Mean-reversion half-life (years)": half_life,
+    "Long-run standard deviation": long_run_std,
+}).round(5)
+```
+
+- $\kappa$ controls how quickly shocks decay; the half-life is $\ln(2)/\kappa$.
+- $\theta$ is the long-run mean under the chosen probability measure.
+- $\sigma$ controls the size of random innovations and the long-run dispersion.
+
+## Simulate Monthly Paths
+
+The exact Vasicek transition is normal:
+
+$$
+r_{t+\Delta}=\theta+(r_t-\theta)e^{-\kappa\Delta}
++\sigma\sqrt{\frac{1-e^{-2\kappa\Delta}}{2\kappa}}Z.
+$$
+
+```{python}
+#| label: simulation
+rng = np.random.default_rng(411)
+
+def simulate_vasicek(initial_rate, years, paths, rng):
+    steps = int(round(years / dt))
+    output = np.empty((steps + 1, paths))
+    output[0] = initial_rate
+    persistence = np.exp(-kappa * dt)
+    innovation_std = sigma * np.sqrt((1 - np.exp(-2 * kappa * dt)) / (2 * kappa))
+    for t in range(steps):
+        output[t + 1] = (
+            theta + (output[t] - theta) * persistence
+            + innovation_std * rng.standard_normal(paths)
+        )
+    return output
+
+paths = simulate_vasicek(r0, years=5, paths=5_000, rng=rng)
+time = np.arange(paths.shape[0]) * dt
+```
+
+```{python}
+#| label: fig-paths
+#| fig-cap: "Vasicek paths fluctuate randomly but revert toward the long-run mean"
+fig, ax = plt.subplots(figsize=(7.5, 4.1))
+for i in range(30):
+    ax.plot(time, 100 * paths[:, i], alpha=0.28, linewidth=0.8)
+ax.plot(time, 100 * paths.mean(axis=1), color="black", linewidth=2.2, label="Simulation mean")
+ax.axhline(100 * theta, color="#F58518", linestyle="--", label="Long-run mean")
+ax.set(xlabel="Years", ylabel="Short rate (%)", title="Illustrative Vasicek scenarios")
+ax.grid(alpha=0.3)
+ax.legend()
+plt.tight_layout()
+plt.show()
+```
+
+## Distribution and Negative Rates
+
+```{python}
+#| label: distribution
+horizon_rate = paths[-1]
+summary = pd.Series({
+    "Five-year mean": horizon_rate.mean(),
+    "Five-year standard deviation": horizon_rate.std(ddof=1),
+    "5th percentile": np.quantile(horizon_rate, 0.05),
+    "Median": np.median(horizon_rate),
+    "95th percentile": np.quantile(horizon_rate, 0.95),
+    "Probability of negative rate": np.mean(horizon_rate < 0),
+})
+summary.round(5)
+```
+
+Vasicek rates are normally distributed, so negative rates are possible. That can be useful in markets where negative policy rates are plausible, but it may be undesirable for other applications. A positivity-preserving model such as CIR changes this feature, at the cost of a different distribution and dynamics.
+
+## Model Scenario Versus a Historical Shock
+
+Use the largest one-month decline in the compact history as a simple historical shock, and compare it with the model's one-month distribution.
+
+```{python}
+#| label: historical-shock
+monthly_changes = history.diff().dropna()
+historical_down_shock = monthly_changes.min()
+model_one_month = simulate_vasicek(r0, years=dt, paths=50_000,
+                                   rng=np.random.default_rng(412))[-1] - r0
+
+pd.Series({
+    "Largest historical monthly decline (bp)": historical_down_shock * 10_000,
+    "Model mean one-month change (bp)": model_one_month.mean() * 10_000,
+    "Model 5th-percentile change (bp)": np.quantile(model_one_month, 0.05) * 10_000,
+    "Model 1st-percentile change (bp)": np.quantile(model_one_month, 0.01) * 10_000,
+}).round(2)
+```
+
+The historical scenario preserves an observed move but supplies only one outcome. The Vasicek simulation supplies a distribution and mean reversion, but depends on model specification and parameters. Risk management should compare both rather than treating either as truth.
+
+## Validate Long-Run Moments and Units
+
+The stationary Vasicek distribution has
+
+$$
+E[r]=\theta,
+\qquad
+\operatorname{Var}(r)=\frac{\sigma^2}{2\kappa}.
+$$
+
+```{python}
+#| label: validation
+long_paths = simulate_vasicek(r0, years=20, paths=30_000,
+                              rng=np.random.default_rng(413))[-1]
+simulated_mean = long_paths.mean()
+simulated_std = long_paths.std(ddof=1)
+
+assert kappa > 0 and sigma > 0
+assert abs(simulated_mean - theta) < 0.0005
+assert abs(simulated_std - long_run_std) < 0.0005
+assert abs((0.0001 * 10_000) - 1.0) < 1e-12
+
+pd.Series({
+    "Theoretical long-run mean": round(theta, 5),
+    "Simulated 20-year mean": round(simulated_mean, 5),
+    "Theoretical long-run standard deviation": round(long_run_std, 5),
+    "Simulated 20-year standard deviation": round(simulated_std, 5),
+    "Decimal 0.0001 equals one basis point": True,
+})
+```
+
+## Financial Interpretation
+
+Mean reversion makes the expected rate move toward $\theta$, while volatility keeps future rates dispersed. $\kappa$ determines how quickly today's rate loses influence; $\sigma$ determines scenario width. The model is a disciplined scenario generator, not a forecast guarantee. Calibration window, probability measure, structural breaks, and the normal model's negative-rate tail all affect how its output should be used.

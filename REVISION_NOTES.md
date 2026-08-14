@@ -74,6 +74,15 @@ The demo index identifies the lecture and workflow for each demonstration.
 - Added input/estimate/diagnostic/use maps to the remaining practical cases and an
   HTML yield-shock explorer with a static PDF fallback to the duration demo.
 
+### Bond portfolio construction addition
+
+- Added a Lecture 6 case that moves from a supplied investable universe and
+  benchmark through cell sampling, constrained factor-aware optimization, trade
+  sizing, transaction-cost estimates, and rate/spread stress tests.
+- Made the objective and constraints explicit, displayed the tracking-error and
+  scenario mathematics, included validation checks, and added an HTML rate/spread
+  shock explorer with a static PDF fallback.
+
 ## Course-wide validation
 
 Navigation and render-source inclusion were checked across the home page, lecture

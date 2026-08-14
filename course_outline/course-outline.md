@@ -73,18 +73,20 @@ Classes are primarily lecture-based; discussion is encouraged. Materials include
 
 | Component | Weight |
 |:----------|-------:|
-| Exam 1 | 35% |
-| Exam 2 | 35% |
-| Assignment 1 | 15% |
-| Assignment 2 | 15% |
+| Exam 1 | TBD |
+| Exam 2 | TBD |
+| Assignment 1 | TBD |
+| Assignment 2 | TBD |
+| Team project | TBD |
 
 # Important Dates
 | Item                | Date           |
 |---------------------|---------------|
-| Exam 1              | June 23, 2026 |
-| Exam 2              | August 4, 2026 |
-| Assignment 1 Due    | June 23, 2026 |
-| Assignment 2 Due    | August 4, 2026 |
+| Exam 1                    | TBD |
+| Exam 2                    | TBD |
+| Assignment 1 Due          | TBD |
+| Assignment 2 Due          | TBD |
+| Team Project Presentation | TBD |
 
 # Topics
 

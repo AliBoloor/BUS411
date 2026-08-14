@@ -11,7 +11,9 @@ options. See [Topics.md](Topics.md) for the lecture-by-lecture map.
 
 - `lecture_notes/` — source notes for Lectures 1–11 and source appendices
 - `course_outline/` — syllabus source, stylesheet, and PDF header reference
-- `assignments/` — public questions and team projects; answers and working data stay local
+- `assignments/` — public assignment questions; answers and working data stay local
+- `team_projects/` — project index and one project-choice file for each lecture
+- `problem_sets/` — cumulative practice sets for Lectures 1–6 and 7–11
 - `problem_sets/` — public cumulative practice material
 - `demos/` — practical, reproducible fixed-income workflows
 - `assets/` — shared data, images, figures, and PDFs

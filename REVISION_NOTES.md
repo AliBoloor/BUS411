@@ -83,10 +83,21 @@ The demo index identifies the lecture and workflow for each demonstration.
   scenario mathematics, included validation checks, and added an HTML rate/spread
   shock explorer with a static PDF fallback.
 
+## Assignment, project, and syllabus organization
+
+- Reduced the display width of tall Lecture 5 process diagrams so they remain
+  readable without dominating the page.
+- Added Practice Problems 1 with 24 worked problems covering Lectures 1–6 and
+  renamed the existing Lectures 7–11 collection Practice Problems 2.
+- Moved team projects to a dedicated top-level section with one file per lecture:
+  two choices for Lectures 1–5 and four choices for Lectures 6–11, for 34 total.
+- Replaced assignment due dates and all syllabus assessment weights and important
+  dates with `TBD`; added the team project to the syllabus assessment table.
+
 ## Course-wide validation
 
 Navigation and render-source inclusion were checked across the home page, lecture
-notes, slides, demos, assignments, team projects, and practice problems. All 22
+notes, slides, demos, assignments, team projects, and practice problems. All 34
 project rubrics sum to 100 points, required project sections are present, configured
 source paths exist, and public links resolve to source or generated targets.
 
@@ -96,11 +107,11 @@ index, and the team-project bank.
 
 Final publication QA completed successfully:
 
-- The 29-source HTML site render completed with every lecture and demo code cell.
-- The 29-source PDF pass completed with `--no-clean` and preserved the HTML site.
+- The configured HTML site render completed with every lecture and demo code cell.
+- The configured PDF pass completed with `--no-clean` and preserved the HTML site.
 - All 11 reveal.js decks rendered in their native format and were copied to
   `docs/slides/` as self-contained HTML files.
-- Public output checks found 11 slide decks, seven demo HTML pages, seven demo PDFs,
-  the team-project catalog, and the cumulative practice set.
+- Public output checks found 11 slide decks, eight demo HTML pages, eight demo PDFs,
+  11 lecture-specific project pages, and both cumulative practice sets.
 - Source whitespace checks, internal-path checks, executable-cell-label checks, and
   private-material ignore checks passed.

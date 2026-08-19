@@ -117,6 +117,17 @@ Private-material rules continue to ignore the entire `exams/` directory and all
 assignment contents except explicitly approved public question files, the assignment
 index, and the team-project bank.
 
+## Team-project data and instructor materials
+
+- Kept the 34 team-project specifications in the repository while removing them
+  from the public render list, navigation, homepage, and generated website.
+- Expanded project source acronyms, linked authoritative public data providers,
+  and assigned every project a specific documented fallback CSV.
+- Added 12 dated, synthetic teaching datasets with units, provenance, and validation
+  notes so projects remain feasible when live data are inaccessible or inconsistent.
+- Created local worked instructor solutions for all 34 projects. The solutions
+  directory is ignored by Git and is neither published nor pushed.
+
 Final publication QA completed successfully:
 
 - The configured HTML site render completed with every lecture and demo code cell.

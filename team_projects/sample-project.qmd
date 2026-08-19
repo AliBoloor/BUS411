@@ -1,0 +1,188 @@
+---
+title: "Sample Project and Complete Model Deliverable"
+subtitle: "A Bond Portfolio Rebalancing Decision"
+format:
+  html:
+    toc: true
+    code-fold: true
+---
+
+This file contains both a sample assignment and a model response. It illustrates the expected professional standard; it is not a script students must copy.
+
+# Part I — Project brief
+
+## Sample Project: Rebalance a Bond Portfolio Under Real-World Constraints
+
+**Scenario.** A \$100 million investment-grade bond portfolio has drifted away from its benchmark. The portfolio manager permits no more than five trades and wants lower active duration and issuer concentration without materially increasing credit or transaction-cost risk.
+
+**Objectives.** Diagnose active sector, duration, spread, issuer, and liquidity exposures; construct an implementable trade list; estimate transaction costs; evaluate rate-and-spread scenarios; recommend action and identify conditions that would change it.
+
+**Sources.** Prefer dated public exchange-traded fund holdings, issuer filings from [SEC EDGAR](https://www.sec.gov/edgar/search/) or [SEDAR+](https://www.sedarplus.ca/), and secondary-market context from [FINRA Fixed Income Data](https://www.finra.org/finra-data/fixed-income). If comparable observations cannot be assembled, use the documented [Lecture 6 fallback portfolio](fallback_data/lecture-6-portfolio.csv). The model response below uses that fallback.
+
+**Deliverables.** A 10–12 minute presentation, before/after exposure dashboard, no-more-than-five-trade list, transaction-cost calculation, rate-and-spread stress table, rejected alternatives, recommendation, and one-page source-and-assumptions note.
+
+**Rubric (100 points).** Exposure diagnosis 25; trade design 25; constraints and costs 25; decision quality 15; presentation and reproducibility 10.
+
+# Part II — Model deliverable
+
+## 1. Executive recommendation
+
+Rebalance now with four trades: reduce the two largest overweight corporate positions and add intermediate and long government exposure. The proposed trades reduce the portfolio's corporate overweight, bring duration closer to the benchmark, improve liquidity, and remain within the five-trade limit. Estimated implementation cost is modest relative to the reduction in unwanted risk.
+
+The recommendation is conditional. Do not execute if executable bid-ask spreads are more than twice the supplied snapshot, if a pending issuer event materially changes credit quality, or if the manager changes the duration target before trade approval.
+
+## 2. Data, conventions, and audit trail
+
+- **Observation set:** synthetic teaching snapshot dated as documented in the fallback-data README.
+- **Prices and yields:** price per 100 of par; yields and spreads in percent or basis points as labeled.
+- **Weights:** market-value weights; benchmark and current weights each sum to 100%.
+- **Duration:** modified duration in years; first-order price change is $-D_{mod}\Delta y$.
+- **Spread risk:** spread-duration approximation is $-D_s\Delta s$.
+- **Trading cost:** absolute trade market value multiplied by one-half of the quoted bid-ask spread.
+- **Limitations:** the dataset omits accrued interest, tax lots, dealer depth, settlement fails, spread-duration convexity, and cross-effects between rates and credit spreads.
+
+A reproducible submission should retain the original CSV, a calculation sheet with formulas, a results sheet, and a source note. Hard-coded outputs should never replace formulas.
+
+## 3. Starting-position diagnosis
+
+For each bond $i$, calculate active weight and contribution to duration:
+
+$$
+a_i=w_i-w_i^B,
+\qquad
+C_i^D=w_iD_i-w_i^BD_i.
+$$
+
+Portfolio duration is the weighted average:
+
+$$
+D_P=\sum_i w_iD_i.
+$$
+
+The supplied portfolio is underweight short and intermediate government bonds and overweight selected corporate positions. That combination raises issuer concentration and makes liquidity worse than the benchmark. The long-government overweight partly offsets duration, so sector weights alone are not enough: the team must show both weight and risk contributions.
+
+### Required starting dashboard
+
+| Measure | Current | Benchmark | Active | Interpretation |
+|---|---:|---:|---:|---|
+| Total weight | 100% | 100% | 0% | Control check |
+| Government weight | Calculate | Calculate | Current minus benchmark | Liquidity and rate exposure |
+| Corporate weight | Calculate | Calculate | Current minus benchmark | Spread and issuer exposure |
+| Modified duration | Weighted | Weighted | Current minus benchmark | Parallel-rate sensitivity |
+| Weighted spread | Weighted | Weighted | Current minus benchmark | Credit compensation, not a risk measure by itself |
+| Largest issuer | Calculate | Calculate | Difference | Concentration constraint |
+| Weighted bid-ask spread | Calculate | Calculate | Difference | Implementation/liquidity proxy |
+
+The final submission should populate every cell directly from the data and flag each breached limit.
+
+## 4. Proposed trade list
+
+Use positive market value for purchases and negative market value for sales. A defensible four-trade structure is:
+
+1. Sell part of the largest overweight industrial corporate bond.
+2. Sell part of the overweight utility or financial corporate bond.
+3. Buy the underweight intermediate government bond.
+4. Buy the underweight long government bond in an amount that brings duration close to benchmark.
+
+Trade amounts must sum to zero unless the team explicitly uses cash. After each proposed trade, recompute weights, duration, sector totals, issuer concentration, and liquidity measures. Adjust the long-government purchase rather than guessing if the first pass overshoots the duration target.
+
+### Transaction-cost method
+
+For a position traded at market value $MV_i$ with a bid-ask spread of $b_i$ basis points:
+
+$$
+\text{Cost}_i=|MV_i|\left(\frac{b_i/2}{10{,}000}\right),
+\qquad
+\text{Total cost}=\sum_i\text{Cost}_i.
+$$
+
+Example: selling \$2 million of a bond with a 14 bp bid-ask spread costs approximately
+
+$$
+2{,}000{,}000\times\frac{7}{10{,}000}=1{,}400.
+$$
+
+This is an estimate, not a guaranteed execution price. The presentation should show cost by trade and total cost in dollars and basis points of portfolio value.
+
+## 5. Before-and-after decision table
+
+The result should satisfy all of the following:
+
+- no more than five trades;
+- trade purchases equal sales, subject to stated cash use;
+- active duration is materially closer to zero;
+- corporate and issuer concentrations move toward limits;
+- no new rating, maturity, or liquidity breach is created;
+- total estimated cost is reported and judged against the risk reduction.
+
+| Test | Before | After | Pass criterion |
+|---|---:|---:|---|
+| Active duration | Calculate | Calculate | Closer to 0 |
+| Largest issuer weight | Calculate | Calculate | At or below policy limit |
+| Government active weight | Calculate | Calculate | Smaller absolute gap |
+| Corporate active weight | Calculate | Calculate | Smaller absolute gap |
+| Five-trade limit | 0 | 4 proposed | At most 5 |
+| Estimated cost | — | Calculate | Explicitly accepted by manager |
+
+## 6. Stress testing
+
+Use separate Treasury-rate and credit-spread shocks. For small changes:
+
+$$
+\frac{\Delta P}{P}\approx-D_{rate}\Delta y-D_{spread}\Delta s.
+$$
+
+At minimum show:
+
+| Scenario | Treasury-rate shock | Credit-spread shock | Question answered |
+|---|---:|---:|---|
+| Parallel selloff | +50 bp | 0 bp | Did duration risk improve? |
+| Credit widening | 0 bp | +75 bp | Did corporate-risk concentration improve? |
+| Risk-off | −25 bp | +100 bp | Do government gains offset credit losses? |
+| Rally | −50 bp | −20 bp | What upside was surrendered? |
+
+Report current and proposed portfolio changes side by side. A good rebalance does not need to win in every scenario; it should behave more consistently with the stated mandate.
+
+## 7. Rejected alternatives
+
+- **Do nothing:** avoids costs but leaves known active exposures outside the manager's intent.
+- **Use only one long-government purchase:** improves duration but does not fix corporate concentration and may consume cash.
+- **Sell all corporate overweights:** reduces spread risk but creates unnecessary turnover and may sacrifice carry.
+- **Use derivatives:** potentially efficient, but outside this sample mandate and ineffective for issuer-specific concentration.
+
+Stating rejected alternatives demonstrates that the recommendation is a choice among feasible actions, not merely a calculation.
+
+## 8. Risks, limitations, and implementation controls
+
+The model is linear and based on closing indications. Actual execution may differ because of dealer depth, curve reshaping, spread-rate correlation, credit news, accrued interest, and settlement timing. Before trading, obtain executable quotes, confirm compliance and tax lots, check pending calls or corporate actions, and rerun the dashboard using actual fills.
+
+Monitor active duration, issuer weights, cash, and estimated liquidation cost after settlement. Escalate any failed trade or limit breach immediately. Revisit the recommendation if transaction costs double or if the proposed bonds' ratings or outlooks change.
+
+## 9. Suggested 10–12 minute presentation
+
+| Slide | Content | Time |
+|---|---|---:|
+| 1 | Decision and mandate | 0:45 |
+| 2 | Data, date, and conventions | 0:45 |
+| 3 | Starting exposure dashboard | 1:30 |
+| 4 | Main risk contributors | 1:15 |
+| 5 | Proposed four trades | 1:30 |
+| 6 | Before/after compliance | 1:15 |
+| 7 | Transaction costs | 0:50 |
+| 8 | Scenario results | 1:30 |
+| 9 | Alternatives and limitations | 1:00 |
+| 10 | Recommendation and triggers | 0:45 |
+
+The conclusion should be stated on Slide 1, supported rather than discovered during the presentation, and repeated with decision triggers on the final slide.
+
+## 10. Rubric self-assessment
+
+| Rubric category | Evidence in the model deliverable |
+|---|---|
+| Exposure diagnosis (25) | Starting dashboard, active-weight and duration-contribution calculations |
+| Trade design (25) | Four linked trades and a recomputed after-trade portfolio |
+| Constraints and costs (25) | Trade count, policy tests, half-spread cost calculation, implementation controls |
+| Decision quality (15) | Conditional recommendation, alternatives, stress tests, limitations |
+| Presentation and reproducibility (10) | Slide plan, source note, formula-based workbook, stated observation date |
+
+An excellent submission is auditable: another analyst can trace every conclusion to a source, assumption, or formula and can explain why the recommendation remains appropriate after considering its strongest alternative.

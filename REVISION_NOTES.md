@@ -127,6 +127,12 @@ index, and the team-project bank.
   notes so projects remain feasible when live data are inaccessible or inconsistent.
 - Created local worked instructor solutions for all 34 projects. The solutions
   directory is ignored by Git and is neither published nor pushed.
+- Added a repository-visible sample project with a complete model deliverable,
+  including data conventions, formulas, required exhibits, implementation costs,
+  stress tests, alternatives, limitations, a slide plan, and rubric self-assessment.
+- Expanded every private instructor solution with the full model-submission
+  standard and project-specific exhibits, control checks, decision evidence, and
+  presentation expectations.
 
 Final publication QA completed successfully:
 

@@ -51,7 +51,7 @@ format:
 **Semester:** Fall 2026\
 **Email:** [aboloorf@sfu.ca](mailto:aboloorf@sfu.ca)\
 **LMS:** [Canvas](https://canvas.sfu.ca/); [course website](https://aliboloor.github.io/BUS411/)\
-**Lectures:** Fridays, 9:30 a.m. –12:20 p.m.\
+**Lectures:** Fridays, 9:30 a.m.–12:20 p.m.\
 **Office hours:** Fridays, 12:30–1:20 p.m. (by appointment only)\
 **Office:** WMC 3328
 

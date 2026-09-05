@@ -48,12 +48,12 @@ format:
 # Course Information
 
 **Instructor:** Ali Boloor\
-**Semester:** Summer 2026\
+**Semester:** Fall 2026\
 **Email:** [aboloorf@sfu.ca](mailto:aboloorf@sfu.ca)\
 **LMS:** [Canvas](https://canvas.sfu.ca/); [course website](https://aliboloor.github.io/BUS411/)\
-**Lectures:** Tuesdays, 2:30–5:20 p.m.\
-**Office hours:** Tuesdays, 1:30–2:20 p.m. (by appointment only)\
-**Office:** WMC 4394
+**Lectures:** Fridays, 9:30 a.m. –12:20 p.m.\
+**Office hours:** Fridays, 12:30–1:20 p.m. (by appointment only)\
+**Office:** WMC 3328
 
 # Course Description
 
@@ -73,20 +73,19 @@ Classes are primarily lecture-based; discussion is encouraged. Materials include
 
 | Component | Weight |
 |:----------|-------:|
-| Exam 1 | TBD |
-| Exam 2 | TBD |
-| Assignment 1 | TBD |
-| Assignment 2 | TBD |
-| Team project | TBD |
+| Exam 1 | 35% |
+| Exam 2 | 45% |
+| Assignment 1 | 10% |
+| Assignment 2 | 10% |
 
 # Important Dates
 | Item                | Date           |
 |---------------------|---------------|
-| Exam 1                    | TBD |
+| Exam 1                    | Oct. 23 |
 | Exam 2                    | TBD |
-| Assignment 1 Due          | TBD |
-| Assignment 2 Due          | TBD |
-| Team Project Presentation | TBD |
+| Assignment 1 Due          | Oct. 23 |
+| Assignment 2 Due          | Dec. 04 |
+
 
 # Topics
 

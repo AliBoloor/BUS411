@@ -45,7 +45,7 @@ The maturity date is the date when the principal is repaid.  Traditional fixed�
 
 ::: {.callout-note title="Worked Example 1 – Coupon calculation"}
 
-Suppose a bond has a principal of \$1 000 and a coupon rate of 5 %.  The annual coupon payment is simply \(0.05 \times 1{,}000 = 50\).  If coupons are paid semiannually, the investor receives \$25 every six months.  This illustrates how the coupon rate and principal determine the bond’s cash flow pattern.
+Suppose a bond has a principal of \$1 000 and a coupon rate of 5 %.  The annual coupon payment is simply $5\% \times 1{,}000 = 50$.  If coupons are paid semiannually, the investor receives \$25 every six months.  This illustrates how the coupon rate and principal determine the bond’s cash flow pattern.
 :::
 
 ## Term to maturity
@@ -70,7 +70,7 @@ LIBOR is no longer the standard benchmark for newly issued floating‑rate instr
 
 A **repurchase agreement**, or **repo**, is a short‑term secured loan.  One party sells a security, often a U.S. Treasury, for cash and agrees to buy it back later at a slightly higher price.  Economically, the security seller is borrowing cash and pledging the security as collateral; the difference between the sale price and repurchase price implies the **repo rate**.  Because SOFR is based on overnight Treasury repo transactions, it reflects the cost of borrowing cash secured by Treasury collateral rather than unsecured bank borrowing.
 
-![Diagram](lec1_files/figure-latex/mermaid-figure-1.png){fig-align="center"}
+![Repo market: exchange of cash and collateral](images/lec1-repo-market.png){fig-align="center" width="600"}
 
 In a **reverse repo**, the same transaction is viewed from the cash lender's side: the lender provides cash, receives collateral and later returns the collateral when repaid.
 :::
@@ -177,6 +177,64 @@ With hundreds of thousands of bonds outstanding, securities need unique identifi
 ## Financial innovation
 
 Beginning in the early 1980s a wide range of new bond structures was introduced.  The residential mortgage market saw the development of **mortgage pass‑through securities**, where pools of individual mortgages are securitized and cash flows are passed through to investors.  From these basic instruments issuers created derivative securities such as **collateralized mortgage obligations (CMOs)** and **stripped mortgage‑backed securities** to meet the investment needs of a broader range of institutional investors.
+
+**Securitization** turns a pool of loans or other income-producing assets into securities that investors can buy.  The basic idea is to connect borrowers who need financing with investors who want the cash flows from those loans.  Instead of buying an individual mortgage, an investor buys a claim on payments from a pool of mortgages.
+
+At a broad level, the process has four steps:
+
+1. **Originate and pool the loans.** A lender makes loans to many borrowers, then groups loans with suitable characteristics into a pool.
+2. **Transfer the pool and issue securities.** The loans are typically sold to a separate trust or special-purpose vehicle (SPV), which issues securities backed by the pool.  Investors pay for those securities; the proceeds finance the purchase of the loans from the lender.  The lender can then use the cash to make new loans.
+3. **Collect borrower payments.** A loan servicer collects interest and principal from borrowers and handles the administration of the loans.  The original lender may continue to perform this role even after selling the loans.
+4. **Distribute the cash flows.** After servicing fees and other expenses, the cash collected is paid to investors according to the rules of the securities.  The pool's cash flows are the main source of investor payments; any guarantees or other credit protection depend on the particular structure.
+
+### What problem does securitization solve?
+
+Individual loans can be difficult to sell: each has its own borrower, payment history and contract terms.  A lender that holds every loan until repayment also has funds tied up for years.  Securitization provides a way to finance a pool through capital-market investors, giving the lender cash that can support further lending.  Investors gain access to loan cash flows without having to originate and administer each loan themselves.
+
+The diagram separates **funding at issuance** from **payments over time**.  The trust sits between the lender and investors: it owns the pool and issues claims on the pool's cash flows.
+
+```{mermaid}
+%%| label: fig-lec1-securitization
+%%| fig-width: 6
+%%| fig-height: 8
+%%| fig-align: center
+%%{init: {'theme': 'default', 'flowchart': {'htmlLabels': false}}}%%
+flowchart TB
+  subgraph funding["Funding at issuance"]
+    direction TB
+    I["Investors"] -->|"Cash to buy securities"| T["Trust or SPV"]
+    T -->|"Cash to buy the loan pool"| L["Lender"]
+    L -->|"Transfers existing loans"| T
+    T -->|"Issues securities backed by the pool"| I
+  end
+  subgraph payments["Payments over time"]
+    direction TB
+    B["Borrowers"] -->|"Interest and principal"| S["Loan servicer"]
+    S -->|"Collections after fees"| P["Trust distributes pool cash flows"]
+    P -->|"Payments under the security terms"| H["Investors holding the securities"]
+  end
+  funding ~~~ payments
+  classDef participant fill:#EDE9FE,stroke:#8B5CF6,color:#202124,stroke-width:1.5px;
+  classDef intermediary fill:#DBEAFE,stroke:#3B82F6,color:#202124,stroke-width:1.5px;
+  class I,L,B,H participant;
+  class T,S,P intermediary;
+  style funding fill:#FFFDE7,stroke:#B8B84A,color:#202124
+  style payments fill:#FFFDE7,stroke:#B8B84A,color:#202124
+```
+
+**What is the new asset?** The loans already exist; the newly issued securities are tradable claims on their cash flows.  Pooling can reduce exposure to any one borrower, while structuring can allocate payment timing and risk to different investor groups.  Neither step creates extra borrower income or removes common risks such as a widespread rise in defaults.
+
+In a **mortgage pass-through**, investors generally receive a proportional share of the pool's available principal and interest payments.  More elaborate structures redistribute those same underlying cash flows:
+
+- **CMOs** divide payments among classes called **tranches**.  For example, one tranche may receive principal repayments before another, creating securities with different expected lives and sensitivity to early repayment.  Some securitizations also give classes different priority in absorbing credit losses.
+- **Stripped mortgage-backed securities** separate the cash flows into **interest-only (IO)** and **principal-only (PO)** claims.  Investors can therefore hold different exposures to the interest and principal generated by the same mortgage pool.
+
+::: {.callout-note title="Example: From mortgage payments to investor cash flows"}
+
+Suppose a trust holds 100 mortgages.  During one month, borrowers pay a total of \$60,000: \$40,000 of interest and \$20,000 of principal.  If servicing fees and other expenses are \$2,000, the pool has \$58,000 available for investors.  An investor owning 10% of a simple pass-through receives \$5,800, assuming no payment shortfalls or other deductions.  Part of that payment is a return of principal, so it is not all investment income.
+
+If borrowers repay their mortgages early, investors receive principal sooner and must reinvest it.  If borrowers miss payments, cash available to investors may fall unless a guarantee or other protection covers the shortfall.  Securitization reorganizes cash flows and allocates risks among investors; it does not eliminate the risks of the underlying loans.
+:::
 
 ## Sectors of the U.S. bond market
 

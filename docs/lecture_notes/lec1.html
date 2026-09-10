@@ -72,6 +72,9 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
+<script src="../site_libs/quarto-diagram/mermaid.min.js"></script>
+<script src="../site_libs/quarto-diagram/mermaid-init.js"></script>
+<link href="../site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
@@ -418,7 +421,10 @@ window.Quarto = {
   </ul></li>
   <li><a href="#innovation-and-sectors-of-the-bond-market" id="toc-innovation-and-sectors-of-the-bond-market" class="nav-link" data-scroll-target="#innovation-and-sectors-of-the-bond-market"><span class="header-section-number">2</span> Innovation and sectors of the bond market</a>
   <ul class="collapse">
-  <li><a href="#financial-innovation" id="toc-financial-innovation" class="nav-link" data-scroll-target="#financial-innovation"><span class="header-section-number">2.1</span> Financial innovation</a></li>
+  <li><a href="#financial-innovation" id="toc-financial-innovation" class="nav-link" data-scroll-target="#financial-innovation"><span class="header-section-number">2.1</span> Financial innovation</a>
+  <ul class="collapse">
+  <li><a href="#what-problem-does-securitization-solve" id="toc-what-problem-does-securitization-solve" class="nav-link" data-scroll-target="#what-problem-does-securitization-solve">What problem does securitization solve?</a></li>
+  </ul></li>
   <li><a href="#sectors-of-the-u.s.-bond-market" id="toc-sectors-of-the-u.s.-bond-market" class="nav-link" data-scroll-target="#sectors-of-the-u.s.-bond-market"><span class="header-section-number">2.2</span> Sectors of the U.S. bond market</a>
   <ul class="collapse">
   <li><a href="#assetbacked-and-mortgagebacked-markets" id="toc-assetbacked-and-mortgagebacked-markets" class="nav-link" data-scroll-target="#assetbacked-and-mortgagebacked-markets">Asset‑backed and mortgage‑backed markets</a></li>
@@ -512,7 +518,7 @@ window.Quarto = {
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Suppose a bond has a principal of $1 000 and a coupon rate of 5 %. The annual coupon payment is simply (0.05 000 = 50). If coupons are paid semiannually, the investor receives $25 every six months. This illustrates how the coupon rate and principal determine the bond’s cash flow pattern.</p>
+<p>Suppose a bond has a principal of $1 000 and a coupon rate of 5 %. The annual coupon payment is simply <span class="math inline">\(5\% \times 1{,}000 = 50\)</span>. If coupons are paid semiannually, the investor receives $25 every six months. This illustrates how the coupon rate and principal determine the bond’s cash flow pattern.</p>
 </div>
 </div>
 </section>
@@ -554,8 +560,8 @@ window.Quarto = {
 <p>A <strong>repurchase agreement</strong>, or <strong>repo</strong>, is a short‑term secured loan. One party sells a security, often a U.S. Treasury, for cash and agrees to buy it back later at a slightly higher price. Economically, the security seller is borrowing cash and pledging the security as collateral; the difference between the sale price and repurchase price implies the <strong>repo rate</strong>. Because SOFR is based on overnight Treasury repo transactions, it reflects the cost of borrowing cash secured by Treasury collateral rather than unsecured bank borrowing.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="lec1_files/figure-latex/mermaid-figure-1.png" class="img-fluid figure-img"></p>
-<figcaption>Diagram</figcaption>
+<p><img src="images/lec1-repo-market.png" class="img-fluid figure-img" width="600"></p>
+<figcaption>Repo market: exchange of cash and collateral</figcaption>
 </figure>
 </div>
 <p>In a <strong>reverse repo</strong>, the same transaction is viewed from the cash lender’s side: the lender provides cash, receives collateral and later returns the collateral when repaid.</p>
@@ -696,6 +702,77 @@ Do not pay cash interest; instead, accrued interest is added to the principal, i
 <section id="financial-innovation" class="level2" data-number="2.1">
 <h2 data-number="2.1" class="anchored" data-anchor-id="financial-innovation"><span class="header-section-number">2.1</span> Financial innovation</h2>
 <p>Beginning in the early 1980s a wide range of new bond structures was introduced. The residential mortgage market saw the development of <strong>mortgage pass‑through securities</strong>, where pools of individual mortgages are securitized and cash flows are passed through to investors. From these basic instruments issuers created derivative securities such as <strong>collateralized mortgage obligations (CMOs)</strong> and <strong>stripped mortgage‑backed securities</strong> to meet the investment needs of a broader range of institutional investors.</p>
+<p><strong>Securitization</strong> turns a pool of loans or other income-producing assets into securities that investors can buy. The basic idea is to connect borrowers who need financing with investors who want the cash flows from those loans. Instead of buying an individual mortgage, an investor buys a claim on payments from a pool of mortgages.</p>
+<p>At a broad level, the process has four steps:</p>
+<ol type="1">
+<li><strong>Originate and pool the loans.</strong> A lender makes loans to many borrowers, then groups loans with suitable characteristics into a pool.</li>
+<li><strong>Transfer the pool and issue securities.</strong> The loans are typically sold to a separate trust or special-purpose vehicle (SPV), which issues securities backed by the pool. Investors pay for those securities; the proceeds finance the purchase of the loans from the lender. The lender can then use the cash to make new loans.</li>
+<li><strong>Collect borrower payments.</strong> A loan servicer collects interest and principal from borrowers and handles the administration of the loans. The original lender may continue to perform this role even after selling the loans.</li>
+<li><strong>Distribute the cash flows.</strong> After servicing fees and other expenses, the cash collected is paid to investors according to the rules of the securities. The pool’s cash flows are the main source of investor payments; any guarantees or other credit protection depend on the particular structure.</li>
+</ol>
+<section id="what-problem-does-securitization-solve" class="level3">
+<h3 class="anchored" data-anchor-id="what-problem-does-securitization-solve">What problem does securitization solve?</h3>
+<p>Individual loans can be difficult to sell: each has its own borrower, payment history and contract terms. A lender that holds every loan until repayment also has funds tied up for years. Securitization provides a way to finance a pool through capital-market investors, giving the lender cash that can support further lending. Investors gain access to loan cash flows without having to originate and administer each loan themselves.</p>
+<p>The diagram separates <strong>funding at issuance</strong> from <strong>payments over time</strong>. The trust sits between the lender and investors: it owns the pool and issues claims on the pool’s cash flows.</p>
+<div class="cell" data-fig-width="6" data-fig-height="8" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-lec1-securitization" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-lec1-securitization-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div>
+<pre class="mermaid mermaid-js" data-label="fig-lec1-securitization">%%{init: {'theme': 'default', 'flowchart': {'htmlLabels': false}}}%%
+flowchart TB
+  subgraph funding["Funding at issuance"]
+    direction TB
+    I["Investors"] --&gt;|"Cash to buy securities"| T["Trust or SPV"]
+    T --&gt;|"Cash to buy the loan pool"| L["Lender"]
+    L --&gt;|"Transfers existing loans"| T
+    T --&gt;|"Issues securities backed by the pool"| I
+  end
+  subgraph payments["Payments over time"]
+    direction TB
+    B["Borrowers"] --&gt;|"Interest and principal"| S["Loan servicer"]
+    S --&gt;|"Collections after fees"| P["Trust distributes pool cash flows"]
+    P --&gt;|"Payments under the security terms"| H["Investors holding the securities"]
+  end
+  funding ~~~ payments
+  classDef participant fill:#EDE9FE,stroke:#8B5CF6,color:#202124,stroke-width:1.5px;
+  classDef intermediary fill:#DBEAFE,stroke:#3B82F6,color:#202124,stroke-width:1.5px;
+  class I,L,B,H participant;
+  class T,S,P intermediary;
+  style funding fill:#FFFDE7,stroke:#B8B84A,color:#202124
+  style payments fill:#FFFDE7,stroke:#B8B84A,color:#202124
+</pre>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-lec1-securitization-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>What is the new asset?</strong> The loans already exist; the newly issued securities are tradable claims on their cash flows. Pooling can reduce exposure to any one borrower, while structuring can allocate payment timing and risk to different investor groups. Neither step creates extra borrower income or removes common risks such as a widespread rise in defaults.</p>
+<p>In a <strong>mortgage pass-through</strong>, investors generally receive a proportional share of the pool’s available principal and interest payments. More elaborate structures redistribute those same underlying cash flows:</p>
+<ul>
+<li><strong>CMOs</strong> divide payments among classes called <strong>tranches</strong>. For example, one tranche may receive principal repayments before another, creating securities with different expected lives and sensitivity to early repayment. Some securitizations also give classes different priority in absorbing credit losses.</li>
+<li><strong>Stripped mortgage-backed securities</strong> separate the cash flows into <strong>interest-only (IO)</strong> and <strong>principal-only (PO)</strong> claims. Investors can therefore hold different exposures to the interest and principal generated by the same mortgage pool.</li>
+</ul>
+<div class="callout callout-style-default callout-note callout-titled" title="Example: From mortgage payments to investor cash flows">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Example: From mortgage payments to investor cash flows
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Suppose a trust holds 100 mortgages. During one month, borrowers pay a total of $60,000: $40,000 of interest and $20,000 of principal. If servicing fees and other expenses are $2,000, the pool has $58,000 available for investors. An investor owning 10% of a simple pass-through receives $5,800, assuming no payment shortfalls or other deductions. Part of that payment is a return of principal, so it is not all investment income.</p>
+<p>If borrowers repay their mortgages early, investors receive principal sooner and must reinvest it. If borrowers miss payments, cash available to investors may fall unless a guarantee or other protection covers the shortfall. Securitization reorganizes cash flows and allocates risks among investors; it does not eliminate the risks of the underlying loans.</p>
+</div>
+</div>
+</section>
 </section>
 <section id="sectors-of-the-u.s.-bond-market" class="level2" data-number="2.2">
 <h2 data-number="2.2" class="anchored" data-anchor-id="sectors-of-the-u.s.-bond-market"><span class="header-section-number">2.2</span> Sectors of the U.S. bond market</h2>

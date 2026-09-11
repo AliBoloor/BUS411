@@ -12,6 +12,7 @@ format:
 <div class="home-masthead">
   <div class="home-heading"><p class="course-code">BUS 411</p><h1>Fixed Income Security<br class="wide-break"> Analysis and Valuation</h1></div>
   <div class="curve-emblem">
+    <button id="curve-motion" type="button" aria-label="Pause yield curve animation">
     <svg id="home-yield-emblem" viewBox="0 0 250 160" role="img" aria-labelledby="curve-title curve-desc">
       <title id="curve-title">Changing yield curve</title>
       <desc id="curve-desc">An illustrative yield curve shifts between upward-sloping, flat and inverted shapes. This is not live market data.</desc>
@@ -20,9 +21,8 @@ format:
       <path class="curve-line" d="M30 115C80 65 150 40 230 30" fill="none">
         <animate attributeName="d" dur="12s" repeatCount="indefinite" values="M30 115C80 65 150 40 230 30;M30 70C80 68 150 66 230 65;M30 45C90 55 160 85 230 100;M30 115C80 65 150 40 230 30"/>
       </path>
-      <text x="28" y="12">Yield</text><text x="235" y="150" text-anchor="end">Maturity</text>
     </svg>
-    <div class="curve-caption"><span>Illustrative yield curve</span><button id="curve-motion" type="button" aria-label="Pause yield curve animation">Pause</button></div>
+    </button>
   </div>
 </div>
 <script>
@@ -32,7 +32,6 @@ format:
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
   function setPaused(paused) {
     if (paused) svg.pauseAnimations(); else svg.unpauseAnimations();
-    button.textContent = paused ? 'Play' : 'Pause';
     button.setAttribute('aria-label', (paused ? 'Play' : 'Pause') + ' yield curve animation');
   }
   setPaused(reduced.matches);

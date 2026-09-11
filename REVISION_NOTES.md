@@ -6,6 +6,15 @@ not listed individually unless they affect interpretation.
 
 ## Preservation and working method
 
+### Lecture One market roadmap (September 10, 2026)
+
+- Preserved the starting commit on local branch `backup/lec1-market-map-20260910`.
+- Added a concise market orientation immediately after Lecture One's learning objectives.
+- Added a shared, editable market diagram with curly-brace topic annotations covering markets, valuation, sensitivity and exposure management across Lectures 1–11.
+- Added the diagram and a short introductory slide to the Lecture One deck, retaining its existing Quarto reveal.js format.
+- Kept the repo-market and securitization graphics unchanged. This batch is for local render and commit only, without a push.
+- Rendered Lecture One in HTML and PDF and the slides in reveal.js. Visually checked the PDF introduction and both new slides for annotation overlap and clipping.
+
 - Untouched baseline commit: `42e3d2a` (`end of summer 2026`)
 - Backup branch: `backup/bus411-pre-v2-20260813`
 - Revision branch: `bus411-v2`

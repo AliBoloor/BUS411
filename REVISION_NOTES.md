@@ -177,3 +177,10 @@ Final publication QA completed successfully:
   11 lecture-specific project pages, and both cumulative practice sets.
 - Source whitespace checks, internal-path checks, executable-cell-label checks, and
   private-material ignore checks passed.
+
+## September 10, 2026: Forest slide theme
+
+- Applied the selected parchment, forest-green and brass palette through the shared slide theme and topic navigation for all eleven decks.
+- Added consistent left-aligned editorial covers and restored Lecture One's cover.
+- Renamed Lecture One's opening diagram slide to “The course in a nutshell.”
+- Preserved lecture content, diagrams and private teaching materials. Baseline retained on `backup/pre-forest-theme-20260910`.

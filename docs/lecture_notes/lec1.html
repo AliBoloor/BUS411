@@ -72,9 +72,6 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
-<script src="../site_libs/quarto-diagram/mermaid.min.js"></script>
-<script src="../site_libs/quarto-diagram/mermaid-init.js"></script>
-<link href="../site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
@@ -494,7 +491,6 @@ window.Quarto = {
 <li><strong>Recognize the spectrum of risks faced by fixed‑income investors.</strong></li>
 <li><strong>Describe the role and functioning of the secondary bond market.</strong></li>
 </ul>
-<p>These objectives come directly from the first chapter of Fabozzi’s text and frame the topics covered in this lecture.</p>
 </section>
 <section id="the-fixed-income-market-a-course-roadmap" class="level2 unnumbered">
 <h2 class="unnumbered anchored" data-anchor-id="the-fixed-income-market-a-course-roadmap">The fixed-income market: a course roadmap</h2>
@@ -509,9 +505,25 @@ Figure&nbsp;1: The fixed-income market and associated course topics. Braces iden
 </figcaption>
 </figure>
 </div>
-<p><strong>Read the map from the top down.</strong> Primary markets raise new funding; secondary markets let investors trade existing claims without providing new money to the original borrower. Dealers, trading platforms and settlement infrastructure support these connections. News about monetary policy, inflation and borrower health changes expectations, affecting prices and yields. Those changes feed back into investors’ portfolio values and borrowers’ costs of new financing or refinancing.</p>
-<p><strong>Fixed payments do not imply fixed value.</strong> We study prices, yields and the yield curve, then measure sensitivity using duration, the dollar value of a one-basis-point yield change (DV01), and convexity. Later lectures add interest-rate models, credit risk and embedded options. The braces provide a roadmap, not prerequisites for this introductory lecture.</p>
-<p><strong>Exposure can be chosen and reshaped.</strong> Bond selection, portfolio weights and derivatives can offset an existing risk or express a market view. An appropriately sized short position in bond futures can reduce the rate exposure of a bond portfolio. Buying a conventional fixed-rate bond in anticipation of falling yields instead adds directional exposure, holding other factors constant. Whether a position hedges or speculates depends on the entire balance sheet. Imperfect offsets, leverage and funding needs mean that transferring risk does not eliminate it.</p>
+<p><strong>Read the map from the top down.</strong></p>
+<ul>
+<li><strong>Connect funding needs.</strong> Borrowers receive money today in exchange for promised future payments. Investors choose contracts that fit their payment horizons and liquidity needs.</li>
+<li><strong>Distinguish issuance from trading.</strong> Primary markets raise new funding. Secondary markets transfer existing claims between investors without providing new money to the original borrower. Dealers, platforms and settlement infrastructure support both activities.</li>
+<li><strong>Follow information into prices.</strong> Monetary policy, inflation and borrower health change expectations about future payments and discount rates. Market prices respond, changing investors’ portfolio values and borrowers’ costs of new financing or refinancing.</li>
+</ul>
+<p><strong>Fixed payments do not imply fixed value.</strong></p>
+<ul>
+<li><strong>Value the payments.</strong> Prices and yields express how the market values a cash-flow stream. The yield curve compares rates across maturities and helps us understand the value of payments at different dates.</li>
+<li><strong>Measure sensitivity.</strong> Duration and the dollar value of a one-basis-point yield change (DV01) describe how prices respond to small yield changes. Convexity captures curvature in that relationship. Later topics include nonparallel curve movements, credit spreads and embedded options.</li>
+<li><strong>Build the tools gradually.</strong> The brace annotations identify where these ideas appear in the course. They are a roadmap, not knowledge required before this introductory lecture.</li>
+</ul>
+<p><strong>Exposure can be constructed and reshaped.</strong></p>
+<ul>
+<li><strong>Choose the exposure.</strong> Bond selection, portfolio weights and derivatives determine which market changes affect an investor or borrower, and by how much.</li>
+<li><strong>Hedge an existing risk.</strong> An appropriately sized short position in bond futures can offset some of a bond portfolio’s losses when yields rise. The hedge must match the exposure, rather than simply match the face value of the bonds.</li>
+<li><strong>Express a market view.</strong> Buying a conventional fixed-rate bond in anticipation of falling yields adds directional exposure, holding other factors constant. The same instrument can serve as a hedge or a speculative position depending on the rest of the balance sheet.</li>
+<li><strong>Recognize residual risk.</strong> Imperfect offsets, leverage and funding needs remain important. Transferring risk does not eliminate it.</li>
+</ul>
 <hr>
 </section>
 <section id="what-is-a-bond" class="level1" data-number="1">
@@ -634,7 +646,7 @@ Do not pay cash interest; instead, accrued interest is added to the principal, i
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Suppose an investor purchases a <strong>5-year amortizing bond</strong> with a principal of $1,000 and equal annual payments of principal and interest. Unlike a non-amortizing bond—which pays all principal at maturity—this bond returns part of the principal each year along with interest.</p>
+<p>Suppose an investor purchases a <strong>5-year amortizing bond</strong> with a principal of $1,000 and equal annual repayments of principal, with interest paid separately on the outstanding balance. Unlike a non-amortizing bond—which pays all principal at maturity—this bond returns part of the principal each year along with interest.</p>
 <table class="caption-top table">
 <thead>
 <tr class="header">
@@ -732,43 +744,15 @@ Do not pay cash interest; instead, accrued interest is added to the principal, i
 <h3 class="anchored" data-anchor-id="what-problem-does-securitization-solve">What problem does securitization solve?</h3>
 <p>Individual loans can be difficult to sell: each has its own borrower, payment history and contract terms. A lender that holds every loan until repayment also has funds tied up for years. Securitization provides a way to finance a pool through capital-market investors, giving the lender cash that can support further lending. Investors gain access to loan cash flows without having to originate and administer each loan themselves.</p>
 <p>The diagram separates <strong>funding at issuance</strong> from <strong>payments over time</strong>. The trust sits between the lender and investors: it owns the pool and issues claims on the pool’s cash flows.</p>
-<div class="cell" data-fig-width="6" data-fig-height="8" data-layout-align="center">
-<div class="cell-output-display">
-<div id="fig-lec1-securitization" class="quarto-float quarto-figure quarto-figure-center anchored">
+<div id="fig-lec1-securitization" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-lec1-securitization-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div>
-<pre class="mermaid mermaid-js" data-label="fig-lec1-securitization">%%{init: {'theme': 'default', 'flowchart': {'htmlLabels': false}}}%%
-flowchart TB
-  subgraph funding["Funding at issuance"]
-    direction TB
-    I["Investors"] --&gt;|"Cash to buy securities"| T["Trust or SPV"]
-    T --&gt;|"Cash to buy the loan pool"| L["Lender"]
-    L --&gt;|"Transfers existing loans"| T
-    T --&gt;|"Issues securities backed by the pool"| I
-  end
-  subgraph payments["Payments over time"]
-    direction TB
-    B["Borrowers"] --&gt;|"Interest and principal"| S["Loan servicer"]
-    S --&gt;|"Collections after fees"| P["Trust distributes pool cash flows"]
-    P --&gt;|"Payments under the security terms"| H["Investors holding the securities"]
-  end
-  funding ~~~ payments
-  classDef participant fill:#EDE9FE,stroke:#8B5CF6,color:#202124,stroke-width:1.5px;
-  classDef intermediary fill:#DBEAFE,stroke:#3B82F6,color:#202124,stroke-width:1.5px;
-  class I,L,B,H participant;
-  class T,S,P intermediary;
-  style funding fill:#FFFDE7,stroke:#B8B84A,color:#202124
-  style payments fill:#FFFDE7,stroke:#B8B84A,color:#202124
-</pre>
+<img src="images/lec1-securitization.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:100.0%">
 </div>
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-lec1-securitization-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;2
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-lec1-securitization-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Securitization separates funding at issuance from payments over time. SPV means special-purpose vehicle.
 </figcaption>
 </figure>
-</div>
-</div>
 </div>
 <p><strong>What is the new asset?</strong> The loans already exist; the newly issued securities are tradable claims on their cash flows. Pooling can reduce exposure to any one borrower, while structuring can allocate payment timing and risk to different investor groups. Neither step creates extra borrower income or removes common risks such as a widespread rise in defaults.</p>
 <p>In a <strong>mortgage pass-through</strong>, investors generally receive a proportional share of the pool’s available principal and interest payments. More elaborate structures redistribute those same underlying cash flows:</p>

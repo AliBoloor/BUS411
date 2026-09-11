@@ -1,107 +1,131 @@
 ---
-title: "Lecture 1: Introduction"
-subtitle: "The contracts, markets, and risks behind fixed income"
-author: "BUS 411"
+title: ""
+pagetitle: "BUS 411 — Lecture 1: Introduction"
 ---
 
 ## The fixed-income market and our course {.market-roadmap}
 
-![](../lecture_notes/images/lec1-market-roadmap.svg){fig-alt="Investors and borrowers connect through market structure. Information affects prices and risk, with feedback to investment value and financing costs. Sensitivity measurement leads to hedging or speculation. Braces map these stages to course topics." width="1480" height="810"}
+![](../lecture_notes/images/lec1-market-roadmap.svg){fig-alt="Course roadmap: market participants, valuation, sensitivity and constructing or reshaping exposure. Dotted lines connect each block to the course topics in the right-hand column." width="1480" height="775"}
 
 ::: {.notes}
-Follow the funding and payment arrows across the top. Secondary trades transfer existing claims rather than providing new money to the borrower. Move down to information, prices and sensitivity, then exposure choices. The braces preview topics students will meet later in the course.
+Borrowers need funding today; investors need future payments. Explain the primary and secondary markets, follow information into prices, then discuss measuring and constructing exposure. Braces preview later course topics. Colors distinguish boxes without grouping their functions.
 :::
 
-## Funding, valuation and exposure
+## What is a bond?
 
-- Borrowers need funding today. Investors seek payments that fit their future needs.
-- Issuance and trading connect them. Information changes prices, portfolio values and financing costs.
-- We study prices and yields, measure duration and convexity, then construct portfolios and hedges.
-- A hedge offsets an existing exposure. A speculative position deliberately takes a market view.
+A **bond** is a debt contract: the issuer borrows today and promises future payments.
 
-<div class="takeaway">Fixed payments do not imply fixed value. Risk depends on the whole position.</div>
+- **Issuer:** the borrower responsible for the contractual payments.
+- **Investor:** the holder of the claim on those payments.
+- **Cash flows:** typically coupon payments plus repayment of principal.
 
-```{=html}
-<style>
-.reveal .market-roadmap h2 { font-size: 1.15em; margin-bottom: .15em; }
-.reveal .market-roadmap p { margin: 0; }
-.reveal .market-roadmap img { width: 100%; height: auto; max-height: 790px; object-fit: contain; margin: 0; }
-</style>
-```
+Default and embedded options can change the payments actually received.
 
-## A bond is a contract for future cash flows
+## Principal and coupon payments
 
-> The investor supplies capital today; the issuer promises coupons and principal later.
+- **Principal (face or par value):** the amount the issuer must repay.
+- **Coupon rate:** annual interest stated as a percentage of principal.
+- **Coupon payment:** the amount of interest paid on each payment date.
+
+For a \$1,000 bond with a 5% annual coupon rate:
 
 $$
-\text{Bond cash flows}=\text{coupon payments}+\text{principal repayment}
+\text{Annual coupon}=0.05\times \$1{,}000=\$50
 $$
 
-The promise is contractual, but default and embedded options can change what the investor ultimately receives.
+With two equal payments per year, each semiannual coupon is **\$25**.
 
-## Two terms define the basic cash-flow pattern
+## Term to maturity
 
-| Contract term | Meaning | Example |
-|---|---|---|
-| Principal | Amount repaid at maturity | \$1,000 |
-| Coupon rate | Annual interest as a percentage of principal | 6% |
-| Coupon payment | Coupon rate × principal | \$60 per year |
+**Term to maturity** is the time remaining until the final contractual repayment.
 
-For semiannual coupons, the \$60 annual payment becomes two \$30 payments.
+- **Short-term bonds:** approximately 1–5 years.
+- **Intermediate-term bonds:** approximately 5–12 years.
+- **Long-term bonds:** more than 12 years.
 
-## Maturity changes both timing and risk
+These are the lecture’s descriptive conventions, not universal boundaries.
 
-- **Short term:** principal returns sooner.
-- **Long term:** more value depends on distant cash flows.
-- Longer-maturity prices generally move more when yields change, all else equal.
+More distant payments generally make a conventional bond’s price more sensitive to yield changes, other factors equal.
 
-<div class="takeaway">Maturity is a contractual date and a central source of interest-rate exposure.</div>
+## The yield curve
 
-## Coupon structures redistribute rate exposure
+The **yield curve** relates yields to maturities for a comparable set of securities at a given date.
 
-| Structure | Coupon behavior | Main exposure |
-|---|---|---|
-| Fixed rate | Constant | Market yield changes |
-| Floating rate | Reference rate + margin | Reference and credit spread |
-| Inverse floater | Falls as reference rate rises | Leveraged rate sensitivity |
+![](../lecture_notes/images/lec1-yield-curve.svg){fig-alt="Hypothetical upward-sloping yield curve with maturity in years and annual yield in percent." height="460"}
 
-$$\text{Inverse coupon}_t=a-b r_t$$
+Curves can slope upward, slope downward, or be relatively flat. Lecture 4 distinguishes par, spot and forward rates.
 
-## Reference rates moved beyond LIBOR
+## Principal and coupon types
 
-- U.S. dollar markets increasingly use **SOFR**.
-- Canadian markets transitioned from **CDOR** to **CORRA**.
-- SONIA, €STR, SARON, and TONA serve other major currencies.
+- **Fixed-rate bond:** the coupon rate remains unchanged.
+- **Zero-coupon bond:** no periodic coupons, with the return arising from the purchase price relative to the maturity payment.
+- **Floating-rate bond:** the coupon resets using a reference rate plus a contractual margin.
+- **Inverse floater:** the coupon moves opposite to its reference rate.
 
-SOFR reflects overnight borrowing secured by U.S. Treasury collateral.
+Principal may return entirely at maturity or gradually through amortization.
 
-## A repo is economically a secured loan
+## Floating-rate bonds and reference rates
 
-1. A security is sold for cash.
-2. The seller agrees to repurchase it later.
-3. The price difference implies the repo rate.
+$$
+\text{Coupon rate}=\text{reference rate}+\text{quoted margin}
+$$
 
-From the cash lender's perspective, the same transaction is a **reverse repo**.
+Illustration: a contractual SOFR-based rate of 3.75% plus 150 basis points gives a **5.25% annualized coupon rate**.
 
-## Deferred coupons conserve near-term cash
+::: {.callout-note title="U.S. and Canadian benchmarks"}
+**SOFR:** Secured Overnight Financing Rate, based on overnight borrowing secured by U.S. Treasury securities.
 
-- **Deferred interest:** no coupons initially; regular coupons begin later.
-- **Step-up:** coupon rates increase over time.
-- **Payment in kind:** interest is added to principal instead of paid in cash.
+**CORRA:** Canadian Overnight Repo Rate Average, based on overnight repo transactions collateralized by Government of Canada securities.
+:::
 
-The issuer gains near-term liquidity, while the investor generally accepts greater credit exposure.
+The contract specifies averaging or compounding, reset timing and day-count conventions.
 
-## Inflation-linked bonds protect purchasing power
+## The repo market
 
-- U.S. **TIPS** adjust principal with CPI.
-- Canadian **Real Return Bonds** provide similar inflation linkage.
-- Coupon dollars rise when the inflation-adjusted principal rises.
+![](../lecture_notes/images/lec1-repo-market.png){fig-alt="Repo transaction: cash and securities exchange initially and reverse at repurchase." height="430"}
 
-TIPS repay at least the original principal at maturity, even after cumulative deflation.
+- A **repo** is economically a secured loan: sell securities for cash and agree to repurchase them later.
+- The repurchase-price difference determines the financing cost.
+- The cash lender views the transaction as a **reverse repo**.
 
-## Amortization brings principal home earlier
+## Inverse floaters: two channels of rate exposure
 
-| Year | Principal repaid | Principal remaining |
+$$
+\text{Coupon rate}_t=a-b r_t,\qquad b>0
+$$
+
+When the reference rate and market discount rates rise together:
+
+- **Cash-flow effect:** the coupon falls.
+- **Discounting effect:** higher discount rates reduce present value.
+
+Falling rates can work in the opposite direction. “Two channels” does **not** mean exactly twice the price sensitivity.
+
+Example: if the coupon is $10\%-2r_t$, a rise in $r_t$ from 3% to 4% lowers the coupon from 4% to 2%, before any contractual floor.
+
+## Deferred-coupon structures
+
+- **Deferred-interest bonds:** postpone interest payments initially, then begin regular payments according to the contract.
+- **Step-up bonds:** increase the coupon rate on a specified schedule.
+- **Payment-in-kind (PIK) bonds:** pay interest by adding debt rather than distributing cash.
+
+These structures reduce near-term cash demands on the issuer. Investors must assess the resulting repayment burden and credit exposure.
+
+## Inflation-linked bonds
+
+- **TIPS:** U.S. Treasury Inflation-Protected Securities adjust principal with U.S. CPI.
+- **Linkers:** the general name for inflation-linked bonds. Canadian Real Return Bonds link payments to Canadian CPI.
+- A fixed coupon rate applied to adjusted principal changes the coupon amount as the price index changes.
+
+For example, 2% indexation increases a \$1,000 principal amount to \$1,020. A 1% annual coupon rate then implies **\$10.20** in annual coupon payments.
+
+TIPS repay at least original principal at maturity. Their market prices can still fall when real yields rise.
+
+## Amortization and weighted average life
+
+An **amortizing bond** returns principal gradually. A **bullet bond** returns principal at maturity.
+
+| Year | Principal repaid | Remaining principal |
 |---:|---:|---:|
 | 1 | \$200 | \$800 |
 | 2 | \$200 | \$600 |
@@ -109,97 +133,92 @@ TIPS repay at least the original principal at maturity, even after cumulative de
 | 4 | \$200 | \$200 |
 | 5 | \$200 | \$0 |
 
-## Weighted average life captures repayment timing
+Interest is separate from these equal principal repayments.
 
 $$
-\text{WAL}=\frac{\sum_{t=1}^{N}P_t t}{\text{Total principal}}
+\text{WAL}=\frac{\sum_t P_t t}{\text{total principal}}
+=\frac{200(1+2+3+4+5)}{1{,}000}=3\text{ years}
 $$
 
-For five equal annual repayments of \$200:
+Final maturity is five years, but the average principal dollar returns after three.
 
-$$\text{WAL}=\frac{200(1+2+3+4+5)}{1{,}000}=3\text{ years}$$
+## Embedded options
 
-Final maturity is 5 years, but the average principal dollar returns after 3.
+- **Call option:** the issuer can redeem early under specified terms, often to refinance.
+- **Put option:** the investor can require early repayment on specified dates and terms.
+- **Conversion option:** the investor can exchange the bond for shares.
+- **Currency-choice option:** the contract gives a specified party a choice of payment currency.
 
-## Embedded options reallocate economic rights
+A **convertible** exchanges into the issuer’s shares. An **exchangeable** exchanges into another company’s shares.
 
-| Option | Decision maker | Protection or benefit |
-|---|---|---|
-| Call | Issuer | Refinance when rates fall |
-| Put | Investor | Exit at specified dates |
-| Convert | Investor | Exchange into issuer shares |
-| Currency choice | Contract-specific | Choose payment currency |
+The party controlling an option can change the other party’s cash flows or exposure.
 
-Options make cash-flow timing contingent on future market conditions.
+## Financial innovation and securitization
 
-A **convertible** exchanges into the issuer's shares; an **exchangeable** converts into shares of another company.
+**Securitization** creates tradable claims backed by a pool of loans or other receivables.
 
-## Callable bonds cap the investor's upside
+- A lender originates loans and transfers a pool to a trust or special-purpose vehicle (SPV).
+- The trust issues securities to investors and uses the proceeds to buy the pool.
+- A servicer collects borrower payments for distribution under the security terms.
 
-Suppose a bond can be called at \$1,050.
+The lender can free up funding, while investors obtain access to loan cash flows without originating each loan.
 
-- If falling rates lift the equivalent noncallable value to \$1,100, the issuer is likely to call.
-- The investor receives \$1,050 and must reinvest at lower rates.
+## Securitization: funding and payments {.securitization-diagram}
 
-<div class="takeaway">Call risk combines uncertain timing, reinvestment risk, and limited price appreciation.</div>
+![](../lecture_notes/images/lec1-securitization.svg){fig-alt="Two side-by-side diagrams: funding at issuance and borrower payments distributed over time." height="690"}
 
-## Six sectors organize the U.S. bond market
+The new securities are claims on existing cash flows. Pooling and structuring redistribute risk.
 
-| Government-linked | Private and structured |
-|---|---|
-| U.S. Treasury | Corporate |
-| Agency | Asset-backed securities |
-| Municipal | Mortgage-backed securities |
+## Different structures for different investor needs
 
-Each sector differs in credit support, liquidity, cash-flow structure, and tax treatment.
+- **Mortgage pass-through:** distributes a proportional share of available pool payments.
+- **Collateralized mortgage obligation (CMO):** allocates payments among tranches with different repayment priorities and expected lives.
+- **Interest-only (IO) claim:** receives designated interest cash flows.
+- **Principal-only (PO) claim:** receives designated principal cash flows.
 
-## Securitization turns loans into tradable claims
+Different investors can choose different timing and prepayment exposures. Structuring does not create additional borrower income or remove common default risk.
 
-- ABS pools can contain auto loans, receivables, or other contractual payments.
-- MBS pools contain residential or commercial mortgages.
-- Agency and non-agency MBS differ in backing and credit exposure.
+## Six sectors of the U.S. bond market
 
-Pooling diversifies individual loans but introduces structural and prepayment complexity.
+- **U.S. Treasury:** federal government bills, notes and bonds that provide benchmark rates.
+- **Agency:** debt of federally related institutions and government-sponsored enterprises, with credit support varying by issuer.
+- **Municipal:** state and local government debt supported by taxes or specified project revenues.
+- **Corporate:** debt issued by businesses, with differing credit quality and contractual protections.
+- **Asset-backed securities (ABS):** claims backed by pools of nonmortgage loans or receivables.
+- **Mortgage:** residential and commercial mortgage debt, including agency and non-agency mortgage-backed securities.
 
-## Bond investors face more than rate risk
+## Bond risks: rates, cash flows and purchasing power
 
-| Risk | What can go wrong? |
-|---|---|
-| Interest rate | Market yields rise |
-| Reinvestment | Coupons earn less than expected |
-| Credit | Default, downgrade, or wider spread |
-| Liquidity | Sale requires a price concession |
-| Inflation / FX | Purchasing power or home-currency value falls |
+- **Interest-rate risk:** changes in market yields change the bond’s price.
+- **Reinvestment risk:** coupons or returned principal may earn a lower rate when reinvested.
+- **Call risk:** early redemption can limit price appreciation and return money when reinvestment rates are low.
+- **Inflation risk:** rising prices erode the purchasing power of nominal payments.
+- **Exchange-rate risk:** currency movements change the value of foreign-currency payments in the investor’s home currency.
 
-## Currency can dominate a foreign bond's return
+## Bond risks: credit, trading and complexity
 
-A yen-funded investor buys a U.S. bond yielding about 5%.
+- **Credit risk:** the borrower may fail to deliver the promised payments.
+  - **Default risk:** missed interest or principal.
+  - **Credit spread risk:** a widening required spread lowers price.
+  - **Downgrade risk:** a lower credit rating can reduce value.
+- **Counterparty risk:** the other party to a transaction may fail to perform.
+- **Liquidity risk:** selling promptly may require a price concession.
+- **Volatility risk:** changes in expected rate volatility alter embedded-option values.
+- **Risk risk:** the investor misunderstands the security’s risks or structure.
 
-If USD/JPY falls from 140 to 120, the dollar loses about 14% against the yen—more than enough to erase the bond's yield advantage.
+## Secondary market for bonds
 
-$$\text{Home-currency return}\approx\text{bond return}+\text{currency effect}$$
+- Investors trade **existing securities**, allowing them to adjust portfolios before maturity.
+- Secondary transactions generally provide no new funding to the original issuer.
+- Trading supports **liquidity and price discovery**, but activity varies across issues and sectors.
 
-## Credit spread is compensation—and a risk factor
+Treasuries generally trade more actively than many individual municipal or corporate issues.
 
-$$
-\text{Credit spread}=\text{corporate yield}-\text{Treasury yield}
-$$
-
-If a corporate yields 5% and a comparable Treasury yields 3%, the spread is 200 basis points. If the spread widens, the corporate bond price falls, even if Treasury yields do not move.
-
-## Secondary markets create liquidity and price discovery
-
-- Primary markets bring new issues to investors.
-- Secondary markets allow existing bonds to change hands.
-- Active trading supports observable prices and portfolio valuation.
-
-Treasuries may trade continuously; some municipal and high-yield issues trade infrequently.
-
-## Read every bond as a package of choices and risks
-
-1. Map the promised coupons and principal.
-2. Identify what can alter those cash flows.
-3. Locate the bond within its market sector.
-4. Ask which risks drive value and realized return.
-
-<div class="takeaway">The contract tells us what is promised; valuation asks what those promises are worth.</div>
+```{=html}
+<style>
+.reveal .market-roadmap h2 { font-size: 1.15em; margin-bottom: .15em; }
+.reveal .market-roadmap p { margin: 0; }
+.reveal .market-roadmap img { width: 100%; height: auto; max-height: 790px; object-fit: contain; margin: 0; }
+.reveal .securitization-diagram img { max-height: 650px; width: auto; margin: 0; }
+</style>
+```

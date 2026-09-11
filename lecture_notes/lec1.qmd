@@ -26,19 +26,30 @@ After reading this lecture you should be able to:
 - **Recognize the spectrum of risks faced by fixed‑income investors.**
 - **Describe the role and functioning of the secondary bond market.**
 
-These objectives come directly from the first chapter of Fabozzi’s text and frame the topics covered in this lecture.
-
 ## The fixed-income market: a course roadmap {.unnumbered}
 
 Fixed-income markets connect **borrowers who need funding today** with **investors who need future payments**. A city financing a transit line and a pension fund investing for retirement payments illustrate these complementary needs. Investors differ in their horizons, liquidity needs and willingness to bear risk.
 
 ![The fixed-income market and associated course topics. Braces identify later lectures; dashed arrows show valuation feedback.](images/lec1-market-roadmap.png){#fig-lec1-market-roadmap fig-align="center" width="100%"}
 
-**Read the map from the top down.** Primary markets raise new funding; secondary markets let investors trade existing claims without providing new money to the original borrower. Dealers, trading platforms and settlement infrastructure support these connections. News about monetary policy, inflation and borrower health changes expectations, affecting prices and yields. Those changes feed back into investors’ portfolio values and borrowers’ costs of new financing or refinancing.
+**Read the map from the top down.**
 
-**Fixed payments do not imply fixed value.** We study prices, yields and the yield curve, then measure sensitivity using duration, the dollar value of a one-basis-point yield change (DV01), and convexity. Later lectures add interest-rate models, credit risk and embedded options. The braces provide a roadmap, not prerequisites for this introductory lecture.
+- **Connect funding needs.** Borrowers receive money today in exchange for promised future payments. Investors choose contracts that fit their payment horizons and liquidity needs.
+- **Distinguish issuance from trading.** Primary markets raise new funding. Secondary markets transfer existing claims between investors without providing new money to the original borrower. Dealers, platforms and settlement infrastructure support both activities.
+- **Follow information into prices.** Monetary policy, inflation and borrower health change expectations about future payments and discount rates. Market prices respond, changing investors’ portfolio values and borrowers’ costs of new financing or refinancing.
 
-**Exposure can be chosen and reshaped.** Bond selection, portfolio weights and derivatives can offset an existing risk or express a market view. An appropriately sized short position in bond futures can reduce the rate exposure of a bond portfolio. Buying a conventional fixed-rate bond in anticipation of falling yields instead adds directional exposure, holding other factors constant. Whether a position hedges or speculates depends on the entire balance sheet. Imperfect offsets, leverage and funding needs mean that transferring risk does not eliminate it.
+**Fixed payments do not imply fixed value.**
+
+- **Value the payments.** Prices and yields express how the market values a cash-flow stream. The yield curve compares rates across maturities and helps us understand the value of payments at different dates.
+- **Measure sensitivity.** Duration and the dollar value of a one-basis-point yield change (DV01) describe how prices respond to small yield changes. Convexity captures curvature in that relationship. Later topics include nonparallel curve movements, credit spreads and embedded options.
+- **Build the tools gradually.** The brace annotations identify where these ideas appear in the course. They are a roadmap, not knowledge required before this introductory lecture.
+
+**Exposure can be constructed and reshaped.**
+
+- **Choose the exposure.** Bond selection, portfolio weights and derivatives determine which market changes affect an investor or borrower, and by how much.
+- **Hedge an existing risk.** An appropriately sized short position in bond futures can offset some of a bond portfolio’s losses when yields rise. The hedge must match the exposure, rather than simply match the face value of the bonds.
+- **Express a market view.** Buying a conventional fixed-rate bond in anticipation of falling yields adds directional exposure, holding other factors constant. The same instrument can serve as a hedge or a speculative position depending on the rest of the balance sheet.
+- **Recognize residual risk.** Imperfect offsets, leverage and funding needs remain important. Transferring risk does not eliminate it.
 
 ---
 
@@ -131,7 +142,7 @@ In a **non‑amortizing bond** the entire principal is repaid at maturity.  **Am
 
 ::: {.callout-note title="Example: Amortizing Bond and Weighted Average Life"}
 
-Suppose an investor purchases a **5-year amortizing bond** with a principal of \$1,000 and equal annual payments of principal and interest. Unlike a non-amortizing bond—which pays all principal at maturity—this bond returns part of the principal each year along with interest.
+Suppose an investor purchases a **5-year amortizing bond** with a principal of \$1,000 and equal annual repayments of principal, with interest paid separately on the outstanding balance. Unlike a non-amortizing bond—which pays all principal at maturity—this bond returns part of the principal each year along with interest.
 
 | Year | Principal Repaid | Remaining Principal | 
 |------|------------------|--------------------|
@@ -205,34 +216,7 @@ Individual loans can be difficult to sell: each has its own borrower, payment hi
 
 The diagram separates **funding at issuance** from **payments over time**.  The trust sits between the lender and investors: it owns the pool and issues claims on the pool's cash flows.
 
-```{mermaid}
-%%| label: fig-lec1-securitization
-%%| fig-width: 6
-%%| fig-height: 8
-%%| fig-align: center
-%%{init: {'theme': 'default', 'flowchart': {'htmlLabels': false}}}%%
-flowchart TB
-  subgraph funding["Funding at issuance"]
-    direction TB
-    I["Investors"] -->|"Cash to buy securities"| T["Trust or SPV"]
-    T -->|"Cash to buy the loan pool"| L["Lender"]
-    L -->|"Transfers existing loans"| T
-    T -->|"Issues securities backed by the pool"| I
-  end
-  subgraph payments["Payments over time"]
-    direction TB
-    B["Borrowers"] -->|"Interest and principal"| S["Loan servicer"]
-    S -->|"Collections after fees"| P["Trust distributes pool cash flows"]
-    P -->|"Payments under the security terms"| H["Investors holding the securities"]
-  end
-  funding ~~~ payments
-  classDef participant fill:#EDE9FE,stroke:#8B5CF6,color:#202124,stroke-width:1.5px;
-  classDef intermediary fill:#DBEAFE,stroke:#3B82F6,color:#202124,stroke-width:1.5px;
-  class I,L,B,H participant;
-  class T,S,P intermediary;
-  style funding fill:#FFFDE7,stroke:#B8B84A,color:#202124
-  style payments fill:#FFFDE7,stroke:#B8B84A,color:#202124
-```
+![Securitization separates funding at issuance from payments over time. SPV means special-purpose vehicle.](images/lec1-securitization.png){#fig-lec1-securitization fig-align="center" width="100%"}
 
 **What is the new asset?** The loans already exist; the newly issued securities are tradable claims on their cash flows.  Pooling can reduce exposure to any one borrower, while structuring can allocate payment timing and risk to different investor groups.  Neither step creates extra borrower income or removes common risks such as a widespread rise in defaults.
 

@@ -180,6 +180,8 @@ Final publication QA completed successfully:
 
 ## September 10, 2026: Forest slide theme
 
+The matching forest website palette is shared across HTML pages through `forest-site.css`. Existing wording, page-specific layouts and dark-mode support are preserved; the homepage retains its simpler materials layout.
+
 - Applied the selected parchment, forest-green and brass palette through the shared slide theme and topic navigation for all eleven decks.
 - Added consistent left-aligned editorial covers and restored Lecture One's cover.
 - Renamed Lecture One's opening diagram slide to “The course in a nutshell.”

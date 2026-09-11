@@ -6,6 +6,21 @@ not listed individually unless they affect interpretation.
 
 ## Preservation and working method
 
+### Shared slide design across Lectures 1–11 (September 10, 2026)
+
+- Added a shared left-hand topic navigator with clickable slide headings, current-topic highlighting, a progress count and a hide/show control. On narrow screens the navigator becomes a dismissible overlay; it is excluded from printing.
+- Refined the common theme with consistent heading rules, centered figures, quieter alternating table rows, and coordinated equation and takeaway styling. All decks retain their existing content and self-contained reveal.js output.
+- Lecture One now has 19 slides following the requested removal. Other lecture slide sources remain unchanged and inherit the shared design through `slides/_metadata.yml`.
+- Validated all 269 rendered slides for image loading, active-topic state and content overflow; tested topic clicks and collapse controls in every deck and the narrow-screen overlay behavior. Inspected representative slides from all eleven decks.
+
+### Lecture One presentation polish (September 10, 2026)
+
+- Centered and redesigned the illustrative yield curve with a thick teal line, large gold maturity markers and explicit hypothetical yields at 1, 5, 10, 20 and 30 years.
+- Centered the securitization slide and assigned distinct colors to every box in the shared lecture/slide diagram, retaining its white background.
+- Removed the maturity-conventions sentence, the "Different structures for different investor needs" slide, and "risk risk" from both lecture and slides, including the lecture summary and obsolete risk count.
+- Made both channels in the inverse-floater example explicit and corrected the lecture's inline benchmark-rate subscript to Quarto math syntax.
+- User subsequently authorized commit and push for this batch.
+
 ### Lecture One teaching-flow refinement (September 10, 2026)
 
 - Aligned all roadmap topic annotations in one right-hand column, added thin dotted guide lines, gave every box a distinct nonwhite fill, and renamed the exposure block to "Construct / reshape exposure."

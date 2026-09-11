@@ -8,13 +8,43 @@ format:
     page-layout: full
 ---
 
-## Course Overview
+```{=html}
+<div class="home-masthead">
+  <div class="home-heading"><p class="course-code">BUS 411</p><h1>Fixed Income Security<br class="wide-break"> Analysis and Valuation</h1></div>
+  <div class="curve-emblem">
+    <svg id="home-yield-emblem" viewBox="0 0 250 160" role="img" aria-labelledby="curve-title curve-desc">
+      <title id="curve-title">Changing yield curve</title>
+      <desc id="curve-desc">An illustrative yield curve shifts between upward-sloping, flat and inverted shapes. This is not live market data.</desc>
+      <path class="curve-axis" d="M25 15V130H235" fill="none"/>
+      <path class="curve-guide" d="M30 115C80 65 150 40 230 30 M30 45C90 55 160 85 230 100" fill="none"/>
+      <path class="curve-line" d="M30 115C80 65 150 40 230 30" fill="none">
+        <animate attributeName="d" dur="12s" repeatCount="indefinite" values="M30 115C80 65 150 40 230 30;M30 70C80 68 150 66 230 65;M30 45C90 55 160 85 230 100;M30 115C80 65 150 40 230 30"/>
+      </path>
+      <text x="28" y="12">Yield</text><text x="235" y="150" text-anchor="end">Maturity</text>
+    </svg>
+    <div class="curve-caption"><span>Illustrative yield curve</span><button id="curve-motion" type="button" aria-label="Pause yield curve animation">Pause</button></div>
+  </div>
+</div>
+<script>
+(() => {
+  const svg = document.getElementById('home-yield-emblem');
+  const button = document.getElementById('curve-motion');
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+  function setPaused(paused) {
+    if (paused) svg.pauseAnimations(); else svg.unpauseAnimations();
+    button.textContent = paused ? 'Play' : 'Pause';
+    button.setAttribute('aria-label', (paused ? 'Play' : 'Pause') + ' yield curve animation');
+  }
+  setPaused(reduced.matches);
+  reduced.addEventListener('change', event => setPaused(event.matches));
+  button.addEventListener('click', () => setPaused(!svg.animationsPaused()));
+})();
+</script>
+```
 
-Welcome to **BUS 411: Fixed Income Security Analysis and Valuation**.
+::: {.home-reading}
 
-This course introduces the market valuation of fixed-income securities. Topics include the history of fixed-income markets; valuation methods for fixed and variable annuities, government and corporate bonds, defined benefit pension plans, bonds with contingencies, and fixed-income derivatives; and fixed-income risk management using duration and convexity measures.
-
-**Prerequisite:** BUS 315 and BUS 360W, both with a minimum grade of C-; 60 units.
+::: {.home-index role="navigation" aria-label="Course materials"}
 
 ## Course Materials
 
@@ -25,11 +55,23 @@ This course introduces the market valuation of fixed-income securities. Topics i
 - **[Course Topics](Topics.md)**
 - **[Assignments](assignments/index.qmd)**
 
-## Getting Started
+:::
 
-Browse the [Lecture Notes](lecture_notes/index.qmd) to access all course content. Each lecture is available in HTML on this site and can also be rendered to PDF for download.
+::: {.home-overview}
+
+## Course Overview
+
+Welcome to **BUS 411: Fixed Income Security Analysis and Valuation**.
+
+This course examines how fixed-income markets operate, how securities are valued, and how investors construct and manage risk exposures. Beginning with market participants and bond features, it develops the foundations of pricing, yield measurement, and the term structure of interest rates. Duration and convexity connect valuation to portfolio construction and hedging. The course then extends these tools to interest-rate models, securities with embedded options, credit risk, and interest-rate futures and options. Practical applications link the analysis to yield-curve construction, model calibration, and investment decisions.
+
+**Prerequisite:** BUS 315 and BUS 360W, both with a minimum grade of C-; 60 units.
 
 ::: {.callout-note}
 ## Materials Update
 Course materials will be updated over the course of the semester. Please check back regularly for the latest content.
+:::
+
+:::
+
 :::

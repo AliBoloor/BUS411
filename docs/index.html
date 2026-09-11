@@ -316,13 +316,39 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="course-overview" class="level2">
-<h2 class="anchored" data-anchor-id="course-overview">Course Overview</h2>
-<p>Welcome to <strong>BUS 411: Fixed Income Security Analysis and Valuation</strong>.</p>
-<p>This course introduces the market valuation of fixed-income securities. Topics include the history of fixed-income markets; valuation methods for fixed and variable annuities, government and corporate bonds, defined benefit pension plans, bonds with contingencies, and fixed-income derivatives; and fixed-income risk management using duration and convexity measures.</p>
-<p><strong>Prerequisite:</strong> BUS 315 and BUS 360W, both with a minimum grade of C-; 60 units.</p>
-</section>
-<section id="course-materials" class="level2">
+<div class="home-masthead">
+  <div class="home-heading"><p class="course-code">BUS 411</p><h1>Fixed Income Security<br class="wide-break"> Analysis and Valuation</h1></div>
+  <div class="curve-emblem">
+    <svg id="home-yield-emblem" viewbox="0 0 250 160" role="img" aria-labelledby="curve-title curve-desc">
+      <title id="curve-title">Changing yield curve</title>
+      <desc id="curve-desc">An illustrative yield curve shifts between upward-sloping, flat and inverted shapes. This is not live market data.</desc>
+      <path class="curve-axis" d="M25 15V130H235" fill="none"></path>
+      <path class="curve-guide" d="M30 115C80 65 150 40 230 30 M30 45C90 55 160 85 230 100" fill="none"></path>
+      <path class="curve-line" d="M30 115C80 65 150 40 230 30" fill="none">
+        <animate attributename="d" dur="12s" repeatcount="indefinite" values="M30 115C80 65 150 40 230 30;M30 70C80 68 150 66 230 65;M30 45C90 55 160 85 230 100;M30 115C80 65 150 40 230 30"></animate>
+      </path>
+      <text x="28" y="12">Yield</text><text x="235" y="150" text-anchor="end">Maturity</text>
+    </svg>
+    <div class="curve-caption"><span>Illustrative yield curve</span><button id="curve-motion" type="button" aria-label="Pause yield curve animation">Pause</button></div>
+  </div>
+</div>
+<script>
+(() => {
+  const svg = document.getElementById('home-yield-emblem');
+  const button = document.getElementById('curve-motion');
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+  function setPaused(paused) {
+    if (paused) svg.pauseAnimations(); else svg.unpauseAnimations();
+    button.textContent = paused ? 'Play' : 'Pause';
+    button.setAttribute('aria-label', (paused ? 'Play' : 'Pause') + ' yield curve animation');
+  }
+  setPaused(reduced.matches);
+  reduced.addEventListener('change', event => setPaused(event.matches));
+  button.addEventListener('click', () => setPaused(!svg.animationsPaused()));
+})();
+</script>
+<div class="home-reading">
+<section id="course-materials" class="level2 home-index" role="navigation" aria-label="Course materials">
 <h2 class="anchored" data-anchor-id="course-materials">Course Materials</h2>
 <ul>
 <li><strong><a href="./course_outline/course-outline.html">Syllabus</a></strong></li>
@@ -333,9 +359,11 @@ ul.task-list li input[type="checkbox"] {
 <li><strong><a href="./assignments/index.html">Assignments</a></strong></li>
 </ul>
 </section>
-<section id="getting-started" class="level2">
-<h2 class="anchored" data-anchor-id="getting-started">Getting Started</h2>
-<p>Browse the <a href="./lecture_notes/index.html">Lecture Notes</a> to access all course content. Each lecture is available in HTML on this site and can also be rendered to PDF for download.</p>
+<section id="course-overview" class="level2 home-overview">
+<h2 class="anchored" data-anchor-id="course-overview">Course Overview</h2>
+<p>Welcome to <strong>BUS 411: Fixed Income Security Analysis and Valuation</strong>.</p>
+<p>This course examines how fixed-income markets operate, how securities are valued, and how investors construct and manage risk exposures. Beginning with market participants and bond features, it develops the foundations of pricing, yield measurement, and the term structure of interest rates. Duration and convexity connect valuation to portfolio construction and hedging. The course then extends these tools to interest-rate models, securities with embedded options, credit risk, and interest-rate futures and options. Practical applications link the analysis to yield-curve construction, model calibration, and investment decisions.</p>
+<p><strong>Prerequisite:</strong> BUS 315 and BUS 360W, both with a minimum grade of C-; 60 units.</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -349,9 +377,10 @@ ul.task-list li input[type="checkbox"] {
 <p>Course materials will be updated over the course of the semester. Please check back regularly for the latest content.</p>
 </div>
 </div>
-
-
 </section>
+</div>
+
+
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

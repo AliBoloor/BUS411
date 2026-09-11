@@ -180,6 +180,8 @@ Final publication QA completed successfully:
 
 ## September 10, 2026: Forest slide theme
 
+Homepage follow-up: adopted the reading layout with a materials side index, emphasized the full course title, and added a pauseable illustrative yield-curve emblem with reduced-motion support. Rewrote the overview to match course coverage while preserving prerequisites. Removed Getting Started and retained the materials-update notice.
+
 The matching forest website palette is shared across HTML pages through `forest-site.css`. Existing wording, page-specific layouts and dark-mode support are preserved; the homepage retains its simpler materials layout.
 
 - Applied the selected parchment, forest-green and brass palette through the shared slide theme and topic navigation for all eleven decks.

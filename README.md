@@ -75,3 +75,5 @@ LC_ALL=C LANG=C quarto render --to pdf --no-clean
 
 After rendering, inspect the changed HTML/PDF files, confirm ignored private material
 is absent from the staged changes, and commit source and `docs/` output together.
+
+Original course materials: © 2026 Ali Boloor · [CC BY 4.0](LICENSE.md). Third-party materials retain their own terms.

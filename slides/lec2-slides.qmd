@@ -1,197 +1,1127 @@
 ---
 title: "Lecture 2: Bond Pricing and Yield Measures"
-subtitle: "Turning promised cash flows into prices and returns"
+subtitle: "Cash flows, prices, yields and realized returns"
+pagetitle: "BUS 411 — Lecture 2: Bond Pricing and Yield Measures"
+format:
+  revealjs:
+    css: lec2-slides.css
+    html-math-method: mathml
+    include-in-header:
+      text: |
+        <script src="lec2-visuals.js" defer></script>
 ---
 
-## Time value is the foundation of bond valuation
 
-> A dollar today is worth more than a dollar later because today's dollar can earn interest.
 
-Bond pricing translates future coupons and principal into today's dollars.
+## The time value of money
 
-## Compounding moves value forward in time
+> What is the present value of a set of future cash flows?
 
-$$FV_n=P_0(1+r)^n$$
+<div class="flow"><span><b>Today</b>Investor pays the price</span><i>→</i><span><b>Future dates</b>Issuer pays coupons and principal</span></div>
 
-- $P_0$: amount invested today
-- $r$: rate per period
-- $n$: number of periods
+A dollar today can earn interest. To compare payments at different dates, move them to a **common valuation date**.
 
-Rate and time must use the same period convention.
+## Future value: compounding
 
-## An annuity accumulates repeated payments
+<div class="cash-timeline" data-times='["Today","Period 1","Period 2","Period n"]' data-flows='["P₀","P₀(1+r)","P₀(1+r)²","P₀(1+r)ⁿ"]' data-label="Investment compounds forward from P zero to P zero times one plus r to power n"></div>
 
-For equal end-of-period payments $C$:
+$$P_1=P_0(1+r),\qquad P_2=P_0(1+r)^2,\qquad P_n=P_0(1+r)^n.$$
 
-$$FV_n=C\left[\frac{(1+r)^n-1}{r}\right]$$
+**Compound interest:** reinvested interest earns interest in later periods.
 
-Coupon reinvestment is an annuity problem: early coupons compound for longer than later coupons.
+$r$ is a rate **per period**; $n$ counts those same periods.
 
-## Discounting brings value back to today
+## Pension fund: annual versus semiannual compounding
 
-$$PV=\frac{F}{(1+r)^n}$$
+**Setup:** invest \$10 million for 6 years at a stated annual rate of 9.2%.
 
-At a 5% discount rate, \$1,000 received in three years is worth:
+::: {.columns}
+::: {.column width="50%"}
+### Annual
 
-$$\frac{1{,}000}{1.05^3}=\$863.84$$
+$$10{,}000{,}000(1.092)^6$$
 
-## A bond is an annuity plus principal
+$$=\$16{,}956{,}485$$
 
-$$
-P=\sum_{t=1}^{n}\frac{C}{(1+r)^t}+\frac{F}{(1+r)^n}
-$$
+6 periods at **9.2%** each.
+:::
+::: {.column width="50%"}
+### Semiannual
 
-Every coupon and the maturity payment contributes separately to value.
+$$10{,}000{,}000(1.046)^{12}$$
 
-## Worked price: a 5% bond required to yield 6%
+$$=\$17{,}154{,}585$$
 
-For annual coupons, $C=50$, $F=1{,}000$, and $n=3$:
+12 periods at **4.6%** each.
+:::
+:::
 
-$$
-P=\frac{50}{1.06}+\frac{50}{1.06^2}+\frac{1{,}050}{1.06^3}=\$973.30
-$$
+$$P_T=P_0\left(1+\frac{r}{m}\right)^{mT}$$
 
-Required yield exceeds the coupon rate, so the bond trades below par.
+More frequent compounding adds about **\$198,100** because interest is reinvested sooner.
 
-## Coupon and yield locate the price relative to par
+::: {.notes}
+Notes section: Future Value. Annual result recomputed as $16,956,485.01; the notes' $16,956,500 is a coarse approximation. Semiannual result is $17,154,584.93. Both use a stated nominal rate, not an effective annual rate.
+:::
 
-| Comparison | Price |
+## Ordinary annuity: when each payment compounds
+
+Equal payments $C$ arrive at the **end** of each period.
+
+| Payment received | Periods until $n$ | Value at time $n$ |
+|---|---:|---:|
+| Time 1 | $n-1$ | $C(1+r)^{n-1}$ |
+| Time 2 | $n-2$ | $C(1+r)^{n-2}$ |
+| $\vdots$ | $\vdots$ | $\vdots$ |
+| Time $n$ | 0 | $C$ |
+
+The last payment earns **no additional interest** by the horizon.
+
+## Future value of an annuity: derivation
+
+Add every payment's value at the same final date:
+
+$$FV=C\left[(1+r)^{n-1}+(1+r)^{n-2}+\cdots+1\right].$$
+
+This geometric series has **$n$ terms** and common ratio **$1+r$**.
+
+$$\boxed{FV=C\frac{(1+r)^n-1}{r}}$$
+
+Both the number of coupons and their reinvestment rate determine terminal wealth.
+
+## Coupon reinvestment: 15-year bond setup
+
+**\$20 million par · 10% annual coupon · coupons reinvested at 8%**
+
+$$C=0.10\times20{,}000{,}000=\$2{,}000{,}000\text{ per year}$$
+
+<div class="cash-timeline" data-times='["Year 0","Year 1","Year 2","…","Year 15"]' data-flows='["Purchase","$2m","$2m","$2m","$2m + $20m"]' data-label="Annual coupons of two million dollars and twenty million principal at year fifteen" data-caption="Accumulate all 15 coupons to year 15 at 8%"></div>
+
+The \$20 million principal is repaid separately at maturity.
+
+## Coupon reinvestment: calculation
+
+$$FV_{\text{coupons}}=2{,}000{,}000\frac{(1.08)^{15}-1}{0.08}$$
+
+$$=2{,}000{,}000\times27.152114=\$54{,}304{,}228$$
+
+| Component | Calculation | Dollars |
+|---|---|---:|
+| Coupon cash received | $15\times2{,}000{,}000$ | 30,000,000 |
+| Reinvestment income | $54{,}304{,}228-30{,}000{,}000$ | 24,304,228 |
+| Principal | Returned at maturity | 20,000,000 |
+| **Total wealth** | Coupons + reinvestment + principal | **74,304,228** |
+
+::: {.notes}
+Notes section: Future Value of an Ordinary Annuity, 15-year example. Full-precision annuity factor is 27.1521139275; the notes' 27.152125 and $54,304,250 differ slightly. Preserve all inputs; round only final displayed dollars.
+:::
+
+## Terminal wealth: the role of reinvestment
+
+<div class="lec2-chart" data-kind="wealth" data-values='[20,30,24.304227855]' data-names='["Principal","Coupons","Reinvestment income"]' data-label="Terminal wealth of 74.30 million dollars decomposed into principal 20 million, coupons 30 million and reinvestment income 24.30 million"></div>
+
+About **\$24.30 million** comes from interest earned on coupons.
+
+That component depends on the rates available when coupons are received: **reinvestment risk**.
+
+## Present value: discounting
+
+<div class="cash-timeline" data-times='["Today","Year 1","Year 2","Year 3"]' data-flows='["$863.84","","","$1,000"]' data-label="One thousand dollars at year three discounted to 863 dollars and 84 cents today" data-caption="Discount backward three years at 5%"></div>
+
+$$PV=\frac{F}{(1+r)^n}=\frac{1{,}000}{(1.05)^3}=\$863.84$$
+
+The **discount rate** is the required return for the timing and risk of the payment.
+
+## Present value of multiple cash flows
+
+<div class="cash-timeline" data-times='["Today","Year 1","Year 2","Year 3"]' data-flows='["P = ?","$60","$60","$1,060"]' data-label="Three annual cash flows of 60, 60 and 1060 dollars"></div>
+
+$$PV=\sum_{t=1}^{n}\frac{CF_t}{(1+r)^t}$$
+
+$$P=\frac{60}{1.05}+\frac{60}{1.05^2}+\frac{1{,}060}{1.05^3}=\boxed{\$1{,}027.23}$$
+
+Discount each payment to today, then add. 
+
+::: {.notes}
+Notes section: Present Value of a Series of Future Cash Flows. The notes state $1,026.71. Their stated cash flows discounted at 5% give $1,027.232480, used here.
+:::
+
+## Present value of an ordinary annuity
+
+$$PV=\frac{C}{1+r}+\frac{C}{(1+r)^2}+\cdots+\frac{C}{(1+r)^n}$$
+
+| Geometric-series ingredient | Value |
 |---|---|
-| Coupon rate = yield | At par |
-| Coupon rate > yield | Premium |
-| Coupon rate < yield | Discount |
+| First term $a$ | $C/(1+r)$ |
+| Common ratio $q$ | $1/(1+r)$ |
+| Number of payments | $n$ |
 
-The comparison works because the coupon fixes cash flows while the yield sets their market value.
+$$S_n=a\frac{1-q^n}{1-q}$$
 
-## Price and yield move in opposite directions
+Each coupon is discounted for its own waiting time.
 
-- Higher yield → heavier discounting → lower price.
-- Lower yield → lighter discounting → higher price.
+## Present value annuity: simplification
 
-The relationship is curved, not linear: equal yield moves do not produce equal and opposite price moves.
+$$PV=\frac{C}{1+r}\frac{1-(1+r)^{-n}}{1-\frac{1}{1+r}}$$
 
-## Convexity favors the bondholder
+Since $1-\frac{1}{1+r}=\frac{r}{1+r}$, the factors $1+r$ cancel:
 
-For an option-free bond:
+$$\boxed{PV=C\frac{1-(1+r)^{-n}}{r}}$$
 
-- The gain from a yield decline exceeds the loss from an equal yield increase.
-- Longer maturities and lower coupons generally create more curvature.
+An annuity formula is a compact way to add the discounted coupons; it does not change the valuation principle.
 
-Convexity becomes especially important for larger yield moves.
+## More than one payment per year
 
-## Pull to par is the passage of time at work
-
-If yield remains unchanged:
-
-- A discount bond rises toward par.
-- A premium bond falls toward par.
-- A par bond remains near par.
-
-At maturity, the issuer repays face value regardless of the bond's earlier premium or discount.
-
-## Accrued interest separates quoted and invoice price
-
-$$\text{Dirty price}=\text{Clean price}+\text{Accrued interest}$$
-
-Clean price supports comparison across bonds. Dirty price is the amount the buyer actually pays between coupon dates.
-
-$$\text{Accrued interest}=C\left(\frac{\text{days since last coupon}}{\text{days in coupon period}}\right)$$
-
-## Yield is an internal rate of return
-
-Yield solves:
-
-$$P=\sum_{t=1}^{n}\frac{CF_t}{(1+y)^t}$$
-
-With multiple cash flows, the yield usually requires a numerical solution.
-
-## Current yield ignores timing and capital gain
-
-$$\text{Current yield}=\frac{\text{annual coupon}}{\text{market price}}$$
-
-It measures coupon income relative to price, but ignores:
-
-- time value,
-- reinvestment income,
-- gain or loss as price moves toward redemption value.
-
-## YTM is promised—not necessarily realized
-
-Yield to maturity assumes:
-
-1. the issuer makes all promised payments,
-2. the investor holds to maturity, and
-3. coupons are reinvested at the YTM.
-
-Break any assumption and realized return can differ.
-
-## Embedded options create alternative yields
-
-| Measure | Assumed redemption event |
+| Annual input | Consistent periodic input |
 |---|---|
-| Yield to call | Issuer calls |
-| Yield to put | Investor puts |
-| Yield to sinker | Principal retires through sinking fund |
-| Yield to worst | Lowest relevant conventionally calculated yield |
+| Nominal annual yield $r$ | Rate per period $r/m$ |
+| Maturity $n$ years | $nm$ periods |
+| Annual coupon dollars | Coupon per period = annual coupon / $m$ |
 
-The relevant horizon changes the cash-flow stream used in the IRR.
+$$PV=\sum_{t=1}^{nm}\frac{CF_t}{(1+r/m)^t}$$
 
-## Floaters require a discount margin
+For semiannual, quarterly and monthly payments, $m=2,4,12$ respectively.
 
-The coupon uses the **quoted margin**:
+## Semiannual bond: setup and timeline
+
+**\$1,000 face · \$80 annual coupons · 5 years · 6% nominal annual yield**
+
+$$C=80/2=\$40,\qquad r_{\text{period}}=6\%/2=3\%,\qquad N=5\times2=10$$
+
+<div class="cash-timeline" data-times='["Today","0.5 years","1 year","…","5 years"]' data-flows='["P = ?","$40","$40","$40","$1,040"]' data-label="Ten semiannual coupons of forty dollars with principal at year five" data-caption="Discount each half-year payment at 3% per period"></div>
+
+## Semiannual bond: two present-value components
+
+$$P=\underbrace{40\frac{1-(1.03)^{-10}}{0.03}}_{\text{coupon annuity}}+\underbrace{\frac{1{,}000}{(1.03)^{10}}}_{\text{principal}}$$
+
+$$P=341.21+744.09=\boxed{\$1{,}085.30}$$
+
+> A fixed income security is worth the present value of its expected future cash flows at an appropriate discount rate.
+
+## Pricing a bond
+
+$$\boxed{P=\sum_{t=1}^{n}\frac{C}{(1+r)^t}+\frac{F}{(1+r)^n}}$$
+
+<div class="flow"><span><b>Coupon annuity</b>Periodic income $C$</span><i>+</i><span><b>Principal</b>Face value $F$ at maturity</span><i>=</i><span><b>Price today</b>Discount both at $r$</span></div>
+
+$n$ is the number of coupon periods. Required yield reflects market rates, credit risk, liquidity and other factors.
+
+## Bond pricing example: the cash flows
+
+**Face \$1,000 · annual coupon \$50 · maturity 3 years · required yield 6%**
+
+<div class="cash-timeline" data-times='["Today","Year 1","Year 2","Year 3"]' data-flows='["P = ?","$50","$50","$50 + $1,000"]' data-label="Three-year five percent coupon bond cash flows"></div>
+
+$$P=\frac{50}{1.06}+\frac{50}{1.06^2}+\frac{50}{1.06^3}+\frac{1{,}000}{1.06^3}$$
+
+## Bond pricing example: discount each payment
+
+| Cash flow | Discount divisor | Present value |
+|---|---:|---:|
+| Year 1 coupon: \$50 | 1.06 | \$47.17 |
+| Year 2 coupon: \$50 | 1.1236 | \$44.50 |
+| Year 3 coupon: \$50 | 1.191016 | \$41.98 |
+| Year 3 principal: \$1,000 | 1.191016 | \$839.62 |
+| **Total** | | **\$973.27** |
+
+Required yield **6%** exceeds coupon rate **5%**: the bond trades below par.
+
+::: {.notes}
+Notes section: Pricing a Bond. Corrected the notes' individual PVs (44.51 and 42.00) and total 973.30 to 44.499822, 41.980964 and 973.269881. Inputs, sequence and interpretation are unchanged.
+:::
+
+## Pricing zero-coupon bonds
+
+<div class="cash-timeline" data-times='["Today","Period 1","…","Maturity n"]' data-flows='["P","$0","$0","F"]' data-label="Zero-coupon bond with only face value paid at maturity"></div>
+
+$$\boxed{P=\frac{F}{(1+r)^n}}$$
+
+No coupon annuity: just one future payment. This isolates the effect of discounting on price.
+
+## Price–yield relationship
+
+<div class="lec2-chart" data-kind="convexity" data-label="Convex price-yield curve for a twenty-year one-percent coupon bond, with tangents at yields 2.5, 7 and 11 percent"></div>
+
+**Fixed cash flows + higher required yield → lower present value.**
+
+The curve bows above its dashed tangents: the relationship is **convex**, not linear.
+
+::: {.notes}
+Notes section: Price–Yield Relationship. Reproduces the source figure's $1,000 face, $10 annual coupon, 20 years, 1–12% yield range and three tangents at 2.5%, 7% and 11%. Tangent slopes use a centered numerical derivative. Option-free positive cash flows are assumed.
+:::
+
+## Convexity: equal yield changes, unequal price moves
+
+For the same **20-year, 1% annual coupon bond**:
+
+| Required yield | Bond price | Change from 7% yield |
+|---|---:|---:|
+| 6% | \$426.50 | +\$62.14 |
+| 7% | \$364.36 | — |
+| 8% | \$312.73 | −\$51.63 |
+
+A 1 percentage-point decline creates a larger gain than the loss from a 1 percentage-point increase.
+
+Longer maturities and lower coupons generally create greater curvature. Convexity and the slope of the curve describe different features.
+
+## Coupon rate, required yield and price
+
+| Coupon rate versus yield | Trading status | Intuition |
+|---|---|---|
+| Coupon = yield | **Par:** $P=F$ | Coupon matches the required income rate |
+| Coupon > yield | **Premium:** $P>F$ | Investors pay extra for above-market coupons |
+| Coupon < yield | **Discount:** $P<F$ | A lower price compensates for below-market coupons |
+
+Compare rates using the **same payment and compounding convention**.
+
+## Bond price over time: pull to par
+
+<div class="lec2-chart" data-kind="pull" data-label="Prices of a twenty-year ten-percent coupon bond converge to one thousand dollars at unchanged yields of eight, ten and twelve percent"></div>
+
+At an unchanged yield, premium falls, discount rises and par stays at par.
+
+As maturity nears, the discounting gap between principal’s present value and face value shrinks.
+
+::: {.notes}
+Notes section: Relationship Between Bond Price and Time if Interest Rates Are Unchanged. Retains the 20-year 10% annual coupon bond, $1,000 face, 8% premium and 12% discount paths; adds a 10% par path and the maturity endpoint. Prices are immediately after coupon payments; at maturity the endpoint is the principal repayment. Between coupon dates dirty prices also accrue interest.
+:::
+
+## Reasons bond prices change
+
+| What changes? | How it affects valuation |
+|---|---|
+| Market interest rates | Changes the base discount rate |
+| Issuer credit risk | Changes required compensation and expected payments |
+| Liquidity | Changes the return investors demand to hold the bond |
+| Tax treatment | Changes the attractiveness of after-tax cash flows |
+| Inflation expectations | Changes required nominal compensation |
+| Economic conditions | Influences rates, credit quality and investor demand |
+
+Bond prices can change even when the general level of interest rates is constant.
+
+## Between coupon dates: fractional periods
+
+<div class="cash-timeline" data-positions='[0,0.5,1,2]' data-times='["Last coupon","Settlement","Next coupon","Following coupon"]' data-flows='["C","Pay dirty price","C","C"]' data-label="Settlement occurs between coupon dates; the next payment is v periods away" data-caption="Settlement → next coupon: v periods; settlement → following coupon: 1 + v"></div>
+
+$$v=\frac{\text{days from settlement to next coupon}}{\text{days in coupon period}}$$
+
+The next payment is **less than one full period away**.
+
+## Full price and accrued interest
+
+$$P_{\text{dirty}}=\sum_{t=1}^{n}\frac{C}{(1+r)^{t-1+v}}+\frac{M}{(1+r)^{n-1+v}}$$
+
+$C$: coupon per period; $M$: face value; $r$: periodic yield; $n$: remaining coupons.
+
+$$AI=C\frac{\text{days since last coupon}}{\text{days in coupon period}}$$
+
+$$\boxed{P_{\text{clean}}=P_{\text{dirty}}-AI}$$
+
+Use the bond's day-count convention consistently for both fractions.
+
+## Cash flows may not be known
+
+| Security | What can change the payments? |
+|---|---|
+| Callable bond | Issuer may redeem early |
+| Putable bond | Investor may sell back early |
+| Mortgage-backed security | Borrowers may prepay |
+| Floating-rate security | Reference rates change future coupons |
+
+<div class="flow"><span><b>Future rates / behavior</b>Determine the cash-flow path</span><i>→</i><span><b>Expected cash flows</b>Become the inputs to valuation</span></div>
+
+## Choosing the required yield
+
+The discount rate must reflect the cash flow's **timing and risk**.
+
+| Market starting point | Bond-specific considerations |
+|---|---|
+| Risk-free rate at the relevant maturity | Credit risk |
+| Time to maturity | Liquidity risk |
+| | Tax treatment |
+
+Identifying the right discount rate is often harder than evaluating the present-value formula.
+
+## One discount rate for every cash flow?
+
+::: {.columns}
+::: {.column width="50%"}
+### Basic pricing / yield summary
+
+$$P=\sum_t\frac{CF_t}{(1+y)^t}$$
+
+One yield summarizes the full stream.
+:::
+::: {.column width="50%"}
+### Maturity-specific discounting
+
+$$P=\sum_t\frac{CF_t}{(1+s_t)^t}$$
+
+Each date can have its own spot rate $s_t$.
+:::
+:::
+
+The **term structure of interest rates** describes how rates differ across maturities. It is developed later in the course.
+
+## Floating-rate notes: coupon resets
 
 $$\text{Coupon rate}=\text{reference rate}+\text{quoted margin}$$
 
-The **discount margin** is the spread that makes the discounted expected cash flows equal the observed price.
+<div class="flow"><span><b>Reset date</b>Observe the reference rate</span><i>→</i><span><b>Next coupon</b>Add the contractual margin</span><i>→</i><span><b>Next reset</b>Repeat with a new reference rate</span></div>
 
-## Portfolio and amortizing yields use aggregate cash flows
+References include Treasury bill rates, SOFR and historically LIBOR. Contracts may specify **caps and floors**.
 
-- **Portfolio yield:** the IRR that equates total portfolio market value to the present value of all portfolio cash flows.
-- **Cash-flow yield:** the IRR based on expected cash flows from an amortizing security, including projected principal and prepayments.
+Coupon dollars use par value and the contractual day-count fraction.
 
-Neither measure is generally the simple average of individual bond yields.
+## Floaters: borrowers, investors and price
 
-## Dollar return has three sources
+| Participant | Reason to use a floater |
+|---|---|
+| Corporate, bank or government issuer | Funding costs move with short rates |
+| Money manager or corporate treasury | Income resets with money-market conditions |
+| Bank treasury or liability-driven investor | Short-duration credit or liquidity exposure |
 
-1. Coupon income
-2. Interest earned by reinvesting coupons
-3. Capital gain or loss
+After a reset, a plain floater often trades **near par** when its contractual margin matches the required margin and credit risk is unchanged.
 
-For a bond held to maturity, the capital component is redemption value minus purchase price.
+The new coupon aligns with current rates; an old fixed coupon does not.
 
-## A consistent reinvestment example
+## Floaters: what moves the price?
 
-A 15-year, 7% coupon bond priced at \$769.40 yields 10% with semiannual compounding.
+| Driver | Implication |
+|---|---|
+| Required credit spread widens | Price falls, even with an unchanged reference rate |
+| Time to the next reset | Current coupon may lag new market rates |
+| Expected path of short rates | Changes future coupon projections |
+| Liquidity | Changes required compensation |
+| Caps, floors and calls | Limit or alter the cash-flow response |
 
-- Coupon income: $30\times\$35=\$1{,}050$
-- Reinvestment income at 5% per half-year: \$1,275.36
-- Capital gain: \$230.60
+Between resets, the fixed current coupon, accrued interest and discounting affect the full price. Clean price excludes accrued interest.
 
-**Total dollar return: \$2,555.96**
+::: {.notes}
+Notes section: Floating-rate notes. Clarifies the source's accrued-value wording: accrued interest belongs in dirty price, not clean price. Clean-price deviations can reflect the current coupon's mismatch with market rates and required spreads.
+:::
 
-## Total return is a horizon analysis
+## Quarterly reset: the floater example
 
-1. Reinvest coupons to the horizon.
-2. Estimate the sale price at the horizon.
-3. Add all horizon dollars.
-4. Solve the return that grows purchase price to that total.
+**Contract:** 3-month SOFR + 0.40% (40 bp), paid quarterly.
 
-This approach can reflect the investor's own rate and reinvestment scenarios.
+| Reset | SOFR | Quoted margin | Annualized coupon |
+|---|---:|---:|---:|
+| Current | 5.00% | 0.40% | **5.40%** |
+| Next | 5.50% | 0.40% | **5.90%** |
 
-## Yield changes are usually quoted in basis points
+$$\text{Payment}=F\times\text{annualized coupon rate}\times\text{day-count fraction}$$
 
-$$1\%=100\text{ basis points}$$
+Cash income rises with the reference rate **without selling the bond**. The margin itself stays fixed.
 
-A move from 4.45% to 5.11% is:
+## Inverse floaters: the coupon formula
 
-$$5.11\%-4.45\%=0.66\%=66\text{ bps}$$
+$$\text{Coupon rate}=K-a\times\text{reference rate},\qquad a>0$$
 
-Direction matters for risk; absolute magnitude is useful for comparing move sizes.
+| Feature | Meaning |
+|---|---|
+| Fixed base $K$ | Starting coupon level before subtracting the index |
+| Leverage $a$ | Size of the coupon response to the reference rate |
+| Floor (often 0%) / cap | Bounds the coupon |
+| Direct or synthetic structure | Issued directly or created from fixed bonds and floaters |
 
-## Price, yield, and return answer different questions
+When the reference rate rises, the coupon **falls**.
 
-- **Price:** What are the cash flows worth today?
-- **Yield:** What single IRR is implied by price?
-- **Total return:** What return follows from a stated horizon scenario?
+## Inverse floaters: purpose and rate exposure
 
-<div class="takeaway">A yield is a compact summary; valuation and realized return still depend on cash-flow timing and assumptions.</div>
+**Users:** sophisticated institutions taking a view on falling rates or reallocating rate risk within structured products.
+
+<div class="flow"><span><b>Rates rise</b>Coupon income falls</span><i>+</i><span><b>Discount rates rise</b>Present value falls</span><i>→</i><span><b>Amplified exposure</b>Price and income can both fall</span></div>
+
+Higher initial income can come with concentrated rate risk. Rate declines can improve both coupon income and price.
+
+::: {.notes}
+Notes section: Inverse floating-rate bonds. Retains purpose, users, synthetic origin and amplified rate exposure. The notes mention negative duration. That is not a general consequence of an inverse coupon: in the simple structure with reference and discount rates moving together, both effects normally imply positive and often large duration. More complex effective sensitivity and convexity depend on the full structure and rate path; avoid teaching negative duration as a generic property.
+:::
+
+## Inverse floaters: pricing and risk drivers
+
+$$P=PV(\text{expected rate-dependent coupons and principal})$$
+
+| Driver | Why it matters |
+|---|---|
+| Level and expected path of the reference rate | Determines future coupons |
+| Rate volatility | Affects embedded floors and caps |
+| Leverage $a$ | Magnifies the coupon response |
+| Time to reset | Controls when changes reach cash income |
+| Credit spread and liquidity | Affect required discount rates |
+
+Effective duration and convexity depend on the structure. Price volatility can be much greater than for a fixed-rate bond of the same maturity.
+
+## Simple inverse coupon example
+
+**$K=12\%$, $a=1$, reference = 3-month SOFR; 0% floor.**
+
+| SOFR | Calculation | Annualized coupon |
+|---|---|---:|
+| 3% | $12\%-3\%$ | **9%** |
+| 7% | $12\%-7\%$ | **5%** |
+| 12% or more | $\max(12\%-\text{SOFR},0)$ | **0%** |
+
+A floor prevents negative coupons; it does **not** eliminate price risk.
+
+
+## Floaters and inverse floaters: shared collateral
+
+A standalone corporate or sovereign floater is a direct issuer promise.
+
+In a structured deal, a fixed-rate pool can supply **one stream of interest** to two tranches:
+
+<div class="flow"><span><b>Fixed collateral interest</b>Loans or bonds in a common pool</span><i>→</i><span><b>Floater tranche F</b>Reference + margin</span><i>+</i><span><b>Inverse tranche I</b>Residual interest after F and fees</span></div>
+
+The two tranches are **complementary claims on the same cash flows**.
+
+## Repackaging: setup and residual formula
+
+**Collateral:** \$100m at a fixed 6% → **\$6m annual interest**, before fees.
+
+| Tranche | Face value | Interest allocation |
+|---|---:|---|
+| Floater $F$ | \$60m | $(s+0.005)\times60\text{m}$ |
+| Inverse $I$ | \$40m | $6\text{m}-(s+0.005)\times60\text{m}$ |
+
+$$\text{Inverse coupon}=\frac{6-60(s+0.005)}{40}=0.1425-1.5s$$
+
+Here $s$ is SOFR in decimal form; ignore fees, defaults, prepayments and coupon limits for this calculation.
+
+## Repackaging: the same interest, different shares
+
+<div class="lec2-chart" data-kind="collateral" data-label="Six million dollars of collateral interest split into 3.3 and 2.7 million at five percent SOFR, then 4.5 and 1.5 million at seven percent SOFR"></div>
+
+| SOFR | Floater payment | Inverse residual | Inverse coupon on \$40m |
+|---|---:|---:|---:|
+| 5% | $0.055\times60m=3.30m$ | $6m-3.30m=2.70m$ | **6.75%** |
+| 7% | $0.075\times60m=4.50m$ | $6m-4.50m=1.50m$ | **3.75%** |
+
+## Repackaging: who holds each piece?
+
+| Floater investors | Inverse investors |
+|---|---|
+| Seek income tied to money-market rates | Seek higher potential income when rates fall |
+| Prefer a known spread over the index | Accept concentrated rate and income volatility |
+
+**Rate-risk allocation** is distinct from **credit / prepayment-risk allocation** under the deal waterfall.
+
+Real CMOs add caps, floors, prepayment uncertainty, servicing fees and credit enhancement. The collateral still supplies the cash to be divided.
+
+## Price quotes
+
+A quote of **98.50** means **98.50% of par**.
+
+$$\text{Clean dollar price}=\frac{98.50}{100}\times\$1{,}000=\$985$$
+
+<div class="flow"><span><b>Quoted price</b>Percentage of face value</span><i>→</i><span><b>Clean dollar price</b>Exclude accrued interest</span><i>→</i><span><b>Settlement payment</b>Add accrued interest</span></div>
+
+## Accrued interest: the settlement bridge
+
+$$AI=C\frac{\text{days since last coupon}}{\text{days in coupon period}}$$
+
+$$\boxed{\text{Dirty price}=\text{Clean price}+AI}$$
+
+The buyer receives the next full coupon, so compensates the seller for the elapsed part of the coupon period.
+
+**Illustration of the formula:** \$40 semiannual coupon; 60 of 180 days elapsed.
+
+$$AI=40\times\frac{60}{180}=\$13.33,\qquad P_{\text{dirty}}=985+13.33=\$998.33$$
+
+::: {.notes}
+Notes section: Price Quotes and Accrued Interest. The 98.50 quote is from the notes. The $40 / 60-of-180-day illustration is added solely to show the notes' accrued-interest formula; these are illustrative day-count inputs, not assumed actual calendar dates.
+:::
+
+## Computing yield: the internal rate of return
+
+$$\boxed{P=\sum_{t=1}^{n}\frac{CF_t}{(1+y)^t}}$$
+
+<div class="flow"><span><b>Pricing</b>Known yield → solve for price</span><i>⇄</i><span><b>Yield / IRR</b>Known price → solve for yield</span></div>
+
+Multiple cash flows generally require a numerical solver or financial calculator.
+
+IRR equates present values. Realizing that rate as a compound wealth return also depends on payments, holding period and reinvestment.
+
+## Yield with one future cash flow
+
+For a zero-coupon bond:
+
+$$P=\frac{F}{(1+y)^n}\quad\Longrightarrow\quad(1+y)^n=\frac{F}{P}$$
+
+$$\boxed{y=\left(\frac{F}{P}\right)^{1/n}-1}$$
+
+There is only **one unknown rate and one terminal cash flow**, so the yield has a direct algebraic solution.
+
+The period used for $n$ determines the period of $y$.
+
+## Annualizing yields
+
+For nominal annual yield $r$ and $m$ compounding periods per year:
+
+$$\text{Effective annual yield}=\left(1+\frac{r}{m}\right)^m-1$$
+
+**Example:** 3% each six months → nominal annual yield $2\times3\%=6\%$.
+
+<div class="cash-timeline" data-times='["Today","6 months","1 year"]' data-flows='["$1,000","$1,030","$1,060.90"]' data-label="One thousand dollars compounds twice at three percent to 1060 dollars and 90 cents"></div>
+
+$$1.03^2-1=0.0609=\boxed{6.09\%\text{ effective annual yield}}$$
+
+## Conventional yields: current yield
+
+$$\text{Current yield}=\frac{\text{annual coupon dollars}}{\text{bond price}}$$
+
+| Captures | Leaves out |
+|---|---|
+| Coupon income relative to price | Timing / time value of money |
+| | Reinvestment income |
+| | Capital gain or loss on redemption |
+
+Current yield is an **income measure**, not a complete return measure.
+
+## Yield to maturity
+
+YTM is the IRR of the bond's promised payments through maturity.
+
+<div class="flow"><span><b>Promised payments</b>Issuer pays in full and on time</span><i>+</i><span><b>Hold to maturity</b>No earlier sale</span><i>+</i><span><b>Reinvest at YTM</b>Coupons compound at the quoted yield</span></div>
+
+Under these conditions, the compound realized return matches YTM.
+
+Otherwise, a commonly quoted YTM need not equal the investor's actual return.
+
+## Bond price calculator
+
+**Change the required yield and observe the price.** Regular coupons; settlement on a coupon date.
+
+```{=html}
+<form class="calc-form" data-mode="price">
+<label>Face value ($)<input name="face" type="number" value="1000" min="1"></label>
+<label>Annual coupon (%)<input name="coupon" type="number" value="5" min="0" step="0.1"></label>
+<label>Nominal annual yield (%)<input name="yield" type="number" value="4" step="0.1"></label>
+<label>Years to maturity<input name="years" type="number" value="5" min="0.1" step="0.5"></label>
+<label>Payments per year<input name="freq" type="number" value="2" min="1" step="1"></label>
+<output aria-live="polite"></output>
+</form>
+```
+
+$$C=Fc/m,\qquad r=y/m,\qquad N=mT,\qquad P=C\frac{1-(1+r)^{-N}}{r}+F(1+r)^{-N}$$
+
+## Yield to maturity calculator
+
+**Change price and solve for the implied yield.** Regular coupons; settlement on a coupon date.
+
+```{=html}
+<form class="calc-form" data-mode="yield">
+<label>Face value ($)<input name="face" type="number" value="1000" min="1"></label>
+<label>Annual coupon (%)<input name="coupon" type="number" value="5" min="0" step="0.1"></label>
+<label>Bond price ($)<input name="price" type="number" value="1045" min="0.01" step="0.01"></label>
+<label>Years to maturity<input name="years" type="number" value="5" min="0.1" step="0.5"></label>
+<label>Payments per year<input name="freq" type="number" value="2" min="1" step="1"></label>
+<output aria-live="polite"></output>
+</form>
+```
+
+The solver finds the periodic rate making **PV of payments = observed price**, then annualizes it.
+
+## Yield to call
+
+An issuer may redeem a callable bond before maturity and refinance at a lower rate.
+
+$$P=\sum_{t=1}^{n}\frac{C}{(1+y_c)^t}+\frac{F_{\text{call}}}{(1+y_c)^n}$$
+
+| YTM input | YTC replacement |
+|---|---|
+| Maturity date | First or specified call date |
+| Face value | Call price |
+
+Assume coupons arrive until the call date and redemption occurs at the call price. Realizing YTC as a compound return also assumes coupon reinvestment at YTC.
+
+## Yield to call: example setup
+
+**Price \$1,080 · face \$1,000 · annual coupon 8% · first call in 4 years at \$1,040**
+
+<div class="cash-timeline" data-times='["Today","Year 1","Year 2","Year 3","Year 4"]' data-flows='["−$1,080","$80","$80","$80","$80 + $1,040"]' data-label="Callable bond: price 1080 today, four annual coupons of eighty and call redemption of 1040"></div>
+
+$$1{,}080=\frac{80}{1+y_c}+\frac{80}{(1+y_c)^2}+\frac{80}{(1+y_c)^3}+\frac{1{,}120}{(1+y_c)^4}$$
+
+## Yield to call: trial rates and solution
+
+| Trial yield | PV of call cash flows | Adjustment |
+|---|---:|---|
+| 6.00% | \$1,100.99 | PV too high → raise yield |
+| 6.50% | \$1,082.48 | Still above \$1,080 → raise slightly |
+| **6.5679%** | **\$1,080.00** | **Matches market price** |
+
+$$\boxed{y_c\approx6.568\%\text{ per year}}$$
+
+This is the IRR **if called in year 4 at \$1,040**; it is not a forecast that the call will occur.
+
+::: {.notes}
+Notes section: Yield to Call. Source trial PVs 1100.96 and 1080.51 are inaccurate; exact values are 1100.985859 and 1082.479903. The stated cash flows imply 6.5678719%, not approximately 6.5% at the precision shown in the notes.
+:::
+
+## Yield to sinker: projected retirement schedule
+
+**Face \$1,000 · price \$980 · 7% annual coupon · \$200 principal retired in years 3–7**
+
+::: {.compact}
+| Year | Coupon in the stated schedule | Principal repaid | Total |
+|---|---:|---:|---:|
+| 1 | \$70 | — | \$70 |
+| 2 | \$70 | — | \$70 |
+| 3 | \$70 | \$200 | \$270 |
+| 4 | \$70 | \$200 | \$270 |
+| 5 | \$70 | \$200 | \$270 |
+| 6 | \$70 | \$200 | \$270 |
+| 7 | \$70 | \$200 | \$270 |
+:::
+
+**Explicit assumption:** this schedule keeps the coupon at \$70 despite partial principal repayments.
+
+## Yield to sinker: cash-flow IRR
+
+$$980=\frac{70}{1+y_s}+\frac{70}{(1+y_s)^2}+\sum_{t=3}^{7}\frac{270}{(1+y_s)^t}$$
+
+$$\boxed{y_s=9.676\%\quad\text{for the stated cash-flow table}}$$
+
+If the 7% coupon instead accrues on **outstanding principal**, years 4–7 coupons decline to **\$56, \$42, \$28, \$14**, and the IRR is **7.500%**.
+
+The retirement allocation and coupon terms determine the cash flows.
+
+::: {.notes}
+Notes section: Yield to Sinker. Retains every row of the notes' schedule, but its claimed 7.4% does not solve that schedule; IRR is 9.6757702%. The alternative is included only to explain the inconsistency: [70,70,270,256,242,228,214] yields 7.5003505%. Actual sinking-fund bonds may retire selected whole bonds; the presented example is a simplified projected allocation and should not be confused with a guaranteed pro-rata repayment of one bond.
+:::
+
+## Yield to put: investor-controlled redemption
+
+**Buy at par \$1,000 · 6% annual coupon · 10-year maturity · put at par after 5 years**
+
+If yields rise, the investor may choose to return the bond to the issuer at the put price.
+
+<div class="cash-timeline" data-times='["Today","Year 1","Year 2","Year 3","Year 4","Year 5"]' data-flows='["−$1,000","$60","$60","$60","$60","$1,060"]' data-label="Five years of sixty dollar coupons followed by par repayment on exercise of the put"></div>
+
+Each of years 1–4 has \$60 coupon and no principal; year 5 has \$60 plus \$1,000 principal.
+
+## Yield to put: calculation
+
+$$1{,}000=\sum_{t=1}^{5}\frac{60}{(1+y_p)^t}+\frac{1{,}000}{(1+y_p)^5}$$
+
+At $y_p=6\%$:
+
+$$60\frac{1-(1.06)^{-5}}{0.06}+1{,}000(1.06)^{-5}=1{,}000$$
+
+$$\boxed{y_p=6\%\text{ per year}}$$
+
+The yield uses the **chosen put date and price**. Its relationship to YTM depends on purchase price, coupon and redemption terms.
+
+## Yield to worst
+
+Compute the relevant contractual redemption scenarios, then take the lowest applicable yield.
+
+$$YTW=\min\{\text{relevant scenario yields}\}$$
+
+| Scenario to examine | Contract input |
+|---|---|
+| Maturity | Final maturity and face value |
+| Call / sinking fund | Applicable dates and redemption terms |
+| Put | Investor's exercise right and applicable quoting convention |
+
+A conservative **contractual yield comparison**, not a guaranteed floor on realized return or a default-loss estimate.
+
+::: {.notes}
+Notes section: Yield to Worst. The notes list YTM, YTC and YTP. Keep those scenario comparisons, but clarify that an investor-controlled put is not automatically an issuer-imposed worst outcome; market conventions determine the relevant set. Reinvestment and credit losses can make actual return lower.
+:::
+
+## Cash-flow yield: an amortizing ABS
+
+**Purchase price \$5,000.** Projected payments include principal amortization and prepayments.
+
+<div class="cash-timeline" data-times='["Today","Year 1","Year 2","Year 3","Year 4","Year 5"]' data-flows='["−$5,000","$1,200","$1,400","$1,100","$800","$700"]' data-label="Asset-backed security expected payments of 1200, 1400, 1100, 800 and 700 dollars"></div>
+
+These are **expected total cash flows**, which can differ from originally promised payments.
+
+## Cash-flow yield: solve the expected-payment IRR
+
+::: {.equation-small}
+$$5{,}000=\frac{1{,}200}{1+y_{cf}}+\frac{1{,}400}{(1+y_{cf})^2}+\frac{1{,}100}{(1+y_{cf})^3}+\frac{800}{(1+y_{cf})^4}+\frac{700}{(1+y_{cf})^5}$$
+:::
+
+$$\boxed{y_{cf}=1.475\%\text{ per year}}$$
+
+Payments sum to **\$5,200**, only \$200 above the purchase price, spread over five years.
+
+The yield depends on **both timing and amounts**, including the assumed prepayment pattern.
+
+::: {.notes}
+Notes section: Cash Flow Yield. The notes' 6.2% does not solve the supplied cash flows. Exact IRR is 1.474644287%. Preserve the $5,000 purchase and all five projected payments.
+:::
+
+## Portfolio yield: aggregate the cash flows
+
+| Bond | Market value | Year 1 | Year 2 |
+|---|---:|---:|---:|
+| A | \$950 | \$60 | \$1,060 |
+| B | \$980 | \$50 | \$1,050 |
+| **Portfolio** | **\$1,930** | **\$110** | **\$2,110** |
+
+$$MV_{\text{portfolio}}=\sum_{t=1}^{n}\frac{CF_{\text{portfolio},t}}{(1+y)^t}$$
+
+Treat the portfolio as **one combined stream**, aligning cash flows by date.
+
+## Portfolio yield: trial rates and solution
+
+$$1{,}930=\frac{110}{1+y}+\frac{2{,}110}{(1+y)^2}$$
+
+| Trial yield | Present value | Interpretation |
+|---|---:|---|
+| 6% | \$1,981.67 | Too high → raise yield |
+| 8% | \$1,910.84 | Too low → lower yield |
+| 7% | \$1,945.76 | Still too high → raise yield |
+| **7.4478%** | **\$1,930.00** | Matches market value |
+
+Portfolio IRR is generally **not a simple average** of individual bond yields.
+
+::: {.notes}
+Notes section: Yield (Internal Rate of Return) for a Portfolio. Source trial values 1981.11, 1910.30, 1946.48 and approximate 7% are corrected to 1981.666073, 1910.836763, 1945.759455 and 7.44784565%. All initial values and cash flows are unchanged.
+:::
+
+## Floaters: quoted margin versus discount margin
+
+| Quoted margin $q$ | Discount margin $DM$ |
+|---|---|
+| Contractual spread | Spread inferred from market price |
+| Sets the coupon: reference + $q$ | Sets discount rate: reference + $DM$ |
+| Does not change merely because price changes | Changes with required compensation and price |
+
+For this conventional calculation, hold the reference rate **constant at its current level**.
+
+The margin used to **generate cash flows** need not equal the margin used to **discount them**.
+
+## Discount margin: FRN setup and coupon
+
+**\$1,000 face · quarterly coupons · SOFR + 1.20% · price \$1,002 · 90 days to next reset**
+
+Current SOFR = **4.60%**; quoted margin = **1.20% = 120 bp**.
+
+$$\text{Next annualized coupon rate}=4.60\%+1.20\%=5.80\%$$
+
+$$C=1{,}000\times\frac{0.058}{4}=\boxed{\$14.50}$$
+
+Use equal quarterly periods, as in the example. Assume valuation at reset / coupon date for the full-period formula.
+
+## Discount margin: valuation and interpretation
+
+With $n$ remaining quarterly payments:
+
+$$1{,}002=\sum_{t=1}^{n}\frac{14.50}{\left(1+\frac{0.046+DM}{4}\right)^t}+\frac{1{,}000}{\left(1+\frac{0.046+DM}{4}\right)^n}$$
+
+At $DM=1.20\%$, the discount rate equals the coupon rate and the price is **\$1,000**.
+
+To obtain the observed **\$1,002**, discount less heavily:
+
+$$\boxed{DM<1.20\%}$$
+
+**Maturity is not supplied**, so a unique numerical discount margin cannot be calculated. Solve numerically once $n$ is known.
+
+## Potential sources of a bond's dollar return
+
+<div class="flow"><span><b>Coupon income</b>Payments received</span><i>+</i><span><b>Reinvestment income</b>Interest on those payments</span><i>+</i><span><b>Capital gain / loss</b>Sale or redemption − purchase</span></div>
+
+$$\text{Dollar return}=\text{terminal wealth}-\text{initial investment}$$
+
+Principal repayment is part of terminal wealth; only the excess over purchase price contributes to the capital gain.
+
+## Yield measures and return assumptions
+
+| Measure | Return components / assumptions |
+|---|---|
+| Current yield | Coupon income only; omits reinvestment and capital effects |
+| YTM | Maturity redemption; reinvest coupons at YTM to realize that compound return |
+| YTC | Specified call redemption; reinvest coupons at YTC |
+| Cash-flow yield | Expected payments and prepayments occur; reinvest returned principal as well as coupons |
+
+All promised payments must also be made. An IRR is a cash-flow summary; the realized wealth return depends on what actually happens.
+
+## Interest-on-interest
+
+A coupon $C$ reinvested for $k$ periods becomes $C(1+r)^k$.
+
+$$\text{Interest-on-interest}=C(1+r)^k-C$$
+
+For the full coupon stream, accumulated to period $n$:
+
+$$\boxed{\text{Total interest-on-interest}=\sum_{t=1}^{n}\left[C(1+r)^{n-t}-C\right]}$$
+
+Early coupons have **more periods to compound** than late coupons.
+
+## Interest-on-interest: three annual coupons
+
+**\$80 per year for 3 years · reinvest at 5% to year 3**
+
+| Coupon received | Accumulation to year 3 | Final value |
+|---|---|---:|
+| Year 1 | $80(1.05)^2$ | \$88.20 |
+| Year 2 | $80(1.05)$ | \$84.00 |
+| Year 3 | $80$ | \$80.00 |
+| **Total** | | **\$252.20** |
+
+$$\text{Coupons}=3\times80=\$240$$
+
+$$\text{Interest-on-interest}=252.20-240=\boxed{\$12.20}$$
+
+## YTM and reinvestment risk: 15-year example
+
+**Price \$769.40 · face \$1,000 · annual coupon 7% · YTM 10% nominal**
+
+$$C=\$35\text{ every six months},\qquad n=30,\qquad r=5\%\text{ per half-year}$$
+
+<div class="cash-timeline" data-times='["Today","Half-year 1","Half-year 2","…","Half-year 30"]' data-flows='["−$769.40","$35","$35","$35","$1,035"]' data-label="Fifteen-year seven-percent bond purchased at 769 dollars and forty cents with thirty semiannual coupons"></div>
+
+Assume maturity holding and reinvestment of every coupon at **5% per half-year**.
+
+## 15-year example: coupon accumulation
+
+$$FV_{\text{coupons}}=35\frac{(1.05)^{30}-1}{0.05}=\$2{,}325.36$$
+
+| Component | Calculation | Amount |
+|---|---|---:|
+| Coupons received | $30\times35$ | \$1,050.00 |
+| Interest-on-interest | $2{,}325.36-1{,}050$ | \$1,275.36 |
+| Capital gain | $1{,}000-769.40$ | \$230.60 |
+
+$$\text{Dollar return}=1{,}050+1{,}275.36+230.60=\boxed{\$2{,}555.96}$$
+
+## 15-year example: wealth consistency
+
+$$\text{Ending wealth}=2{,}325.36+1{,}000=\$3{,}325.36$$
+
+$$769.40(1.05)^{30}=\$3{,}325.30$$
+
+If actual reinvestment rates are below YTM, coupon wealth and realized return are lower—even if the issuer pays in full.
+
+## Reinvestment risk and bond characteristics
+
+| Bond feature | Reinvestment exposure |
+|---|---|
+| Longer maturity | More time for interest-on-interest to matter |
+| Higher coupon | More cash must be reinvested before maturity |
+| Premium / high-coupon bond | Greater dependence on coupon reinvestment, other things equal |
+| Zero-coupon bond held to maturity | No interim coupons to reinvest |
+
+For a zero-coupon bond paid in full at maturity, realized return equals purchase YTM. This does not eliminate credit risk or price risk before maturity.
+
+## Total return: explicit horizon assumptions
+
+YTM assumes maturity holding and reinvestment at YTM. Investors may sell earlier and face different reinvestment rates.
+
+| Choose an assumption | What it determines |
+|---|---|
+| Investment horizon | Which coupons are received before sale |
+| Coupon reinvestment rate | Value accumulated from those coupons |
+| Yield at the horizon | Sale price of remaining cash flows |
+
+A projected total return is **conditional on these assumptions**; it is realized only if the assumed outcomes occur.
+
+## Computing total return
+
+<div class="flow"><span><b>1 · Accumulate</b>Coupons + interest-on-interest</span><i>+</i><span><b>2 · Value</b>Projected sale price</span><i>=</i><span><b>3 · Total</b>Future dollars at the horizon</span></div>
+
+**4 · Solve the growth rate.** For $h$ semiannual periods:
+
+$$r_H=\left(\frac{\text{total future dollars}}{\text{purchase price}}\right)^{1/h}-1$$
+
+$$\text{Nominal annual return}=2r_H,\qquad\text{effective annual return}=(1+r_H)^2-1$$
+
+The lecture's $2r_H$ convention is a **nominal annualized rate**, not an effective annual return.
+
+## Total return example 1: setup
+
+**3-year horizon · 20-year 8% bond · price \$828.40 · purchase YTM 10%**
+
+| Input | Semiannual convention |
+|---|---|
+| Coupon | \$40 each half-year |
+| Reinvestment rate | 6% annual → 3% per period |
+| Expected sale yield | 7% annual → 3.5% per period |
+| Horizon | 3 years → 6 periods |
+| Remaining maturity at sale | 17 years → 34 periods |
+
+Sale is immediately **after receipt of the sixth coupon**.
+
+## Example 1: accumulated coupons and sale price
+
+### 1 · Accumulate six coupons at 3%
+
+$$FV_C=40\frac{(1.03)^6-1}{0.03}=40(6.468410)=\$258.7364$$
+
+### 2 · Price the 34 remaining payments at 3.5%
+
+$$P_H=40\frac{1-(1.035)^{-34}}{0.035}+\frac{1{,}000}{(1.035)^{34}}=\$1{,}098.5034$$
+
+The yield decline raises the sale price above par; coupons accumulate at a separate rate.
+
+## Example 1: total future dollars and return
+
+$$W_H=258.7364+1{,}098.5034=\$1{,}357.2398$$
+
+$$r_H=\left(\frac{1{,}357.2398}{828.40}\right)^{1/6}-1=8.5766\%$$
+
+| Annualization | Result |
+|---|---:|
+| Nominal: $2r_H$ | **17.1531% ≈ 17.15%** |
+| Effective: $(1+r_H)^2-1$ | **17.8887% ≈ 17.89%** |
+
+## Total return example 2: changing reinvestment rates
+
+**6-year horizon · 13-year 9% bond bought at par \$1,000 · \$45 semiannual coupons**
+
+<div class="cash-timeline" data-times='["Purchase","Year 2 / period 4","Year 6 / period 12","Year 13"]' data-flows='["−$1,000","First 4 coupons","Next 8 coupons + sale","Maturity"]' data-label="Six-year holding period with first four coupons at four-percent reinvestment, then eight periods at five percent" data-caption="Reinvest at 4% per half-year through period 4; then at 5% through period 12"></div>
+
+Expected sale yield = **10.6% annual = 5.3% per half-year**.
+
+The bond has **7 years / 14 periods** left at sale.
+
+## Example 2: first four coupons
+
+Accumulate the first four \$45 payments to the end of year 2 at **4%**:
+
+$$FV_4=45\frac{(1.04)^4-1}{0.04}=\$191.09088$$
+
+Then carry this balance through eight more half-years at **5%**:
+
+$$FV_{\text{first four at horizon}}=191.09088(1.05)^8=\boxed{\$282.3283}$$
+
+The rate changes at period 4 for the **accumulated balance**, as well as for later coupons.
+
+## Example 2: remaining coupons and sale price
+
+### Remaining eight coupons, accumulated at 5%
+
+$$FV_{\text{last eight}}=45\frac{(1.05)^8-1}{0.05}=\$429.7099$$
+
+$$FV_C=282.3283+429.7099=\$712.0382$$
+
+### Sale price: 14 payments discounted at 5.3%
+
+$$P_H=45\frac{1-(1.053)^{-14}}{0.053}+\frac{1{,}000}{(1.053)^{14}}=\$922.3082$$
+
+## Example 2: horizon wealth and return
+
+$$W_H=712.0382+922.3082=\$1{,}634.3463$$
+
+$$r_H=\left(\frac{1{,}634.3463}{1{,}000}\right)^{1/12}-1=4.1786\%$$
+
+$$\boxed{\text{Nominal annual return}=2r_H=8.3573\%\approx8.36\%}$$
+
+Higher later reinvestment rates help coupon wealth, but the higher sale yield reduces the sale price below par.
+
+::: {.notes}
+Notes section: Total Return, Worked Example 2. Retains all assumptions and the notes' 8.36% nominal annual conclusion. Carries full precision through intermediate calculations: 282.328261, 429.709899, 712.038160, 922.308171, 1634.346331. Differences of one or two cents from notes follow rounding there.
+:::
+
+## Total return: three interacting assumptions
+
+<div class="flow"><span><b>Reinvestment rate</b>Changes accumulated coupons</span><i>+</i><span><b>Horizon yield</b>Changes sale price</span><i>+</i><span><b>Holding period</b>Changes both cash-flow sets</span></div>
+
+Use the same horizon and scenario assumptions to compare bonds with different maturities and coupon rates.
+
+Higher rates can help **reinvestment** while hurting **sale price**; total return combines both effects.
+
+## Applications: horizon analysis
+
+Portfolio managers estimate returns over a **specific investment horizon**, including sale before maturity.
+
+| Change the scenario | Recalculate |
+|---|---|
+| Market yields rise or fall | Horizon sale price |
+| Reinvestment opportunities change | Accumulated coupon income |
+| Planned sale date changes | Coupons received and remaining maturity |
+
+Horizon analysis applies the total-return framework to the investor's actual decision period.
+
+## Horizon example: sell after two years
+
+**3-year bond · \$1,000 face · 6% annual coupon · purchase YTM 6% → price \$1,000**
+
+Assume sale after **2 years** at a **5% yield**, with coupons reinvested at **5%**.
+
+<div class="cash-timeline" data-times='["Purchase","Year 1","Year 2 · sale","Year 3"]' data-flows='["−$1,000","$60","$60 + P₂","$1,060 to buyer"]' data-label="Two-year horizon for a three-year bond: collect two coupons and sell the remaining year of cash flows"></div>
+
+At sale, **one year** remains to maturity. Do not count the year-3 cash flow again after including the sale price.
+
+## Horizon example: sale proceeds and coupon wealth
+
+### Sale just after the second coupon
+
+$$P_2=\frac{60}{1.05}+\frac{1{,}000}{1.05}=57.14+952.38=\$1{,}009.52$$
+
+### Accumulate received coupons to year 2
+
+$$60(1.05)+60=63+60=\$123$$
+
+### Total wealth at the horizon
+
+$$W_2=1{,}009.52+123=\boxed{\$1{,}132.52}$$
+
+## Horizon example: holding-period and annual return
+
+$$\text{Two-year return}=\frac{1{,}132.52-1{,}000}{1{,}000}=13.25\%$$
+
+$$\text{Annual compound return}=\left(\frac{1{,}132.52}{1{,}000}\right)^{1/2}-1\approx\boxed{6.42\%}$$
+
+| Return source | Dollars |
+|---|---:|
+| Coupon income | 120.00 |
+| Reinvestment income | 3.00 |
+| Capital gain | 9.52 |
+| **Total gain** | **132.52** |
+
+The yield decline from 6% to 5% creates a capital gain, lifting this scenario return above purchase YTM.
+
+## Calculating yield changes
+
+<div class="cash-timeline" data-times='["Month 1","Month 2","Month 3"]' data-flows='["4.45%","5.11%","4.82%"]' data-label="Yield rises from 4.45 to 5.11 percent and then declines to 4.82 percent"></div>
+
+| Absolute change | Relative change |
+|---|---|
+| Difference in yield levels | Change relative to the starting yield |
+| Usually expressed in basis points | Here measured using natural logarithms |
+
+These describe **changes in yields**, not percentage changes in bond prices.
+
+## Absolute yield change: basis points
+
+$$1\text{ percentage point}=100\text{ bp};\qquad1\text{ bp}=0.01\text{ percentage point}$$
+
+With yields written as percentage numbers (4.45, not 0.0445):
+
+$$\text{Magnitude in bp}=100\left|y_{\text{new}}-y_{\text{old}}\right|$$
+
+| Move | Magnitude | Signed change |
+|---|---:|---:|
+| 4.45% → 5.11% | $100|5.11-4.45|=66$ bp | **+66 bp** |
+| 5.11% → 4.82% | $100|4.82-5.11|=29$ bp | **−29 bp** |
+
+With decimal yields, multiply the difference by **10,000**, not 100.
+
+## Relative yield change: logarithms
+
+$$\text{Relative log change}=100\ln\left(\frac{y_{\text{new}}}{y_{\text{old}}}\right)$$
+
+$$100\ln\left(\frac{5.11}{4.45}\right)=\boxed{13.83\%}$$
+
+$$100\ln\left(\frac{4.82}{5.11}\right)=\boxed{-5.84\%}$$
+
+Log changes are **additive over time**. Both yields must be positive for this real-valued log convention.
+
+This is a log percentage change; the simple percentage change uses $100(y_{\text{new}}/y_{\text{old}}-1)$ instead.
+
+## When to use each measure
+
+| Measure | Typical use | What the number says |
+|---|---|---|
+| Basis-point change | Trading, bond risk, duration / convexity | How far the yield level moved |
+| Relative log change | Modeling, statistics, econometrics | Proportional change relative to the initial level |
+
+Keep the **sign** when direction matters. Use absolute magnitude when comparing move sizes.
+

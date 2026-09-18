@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.27">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Sample Project and Complete Model Deliverable</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="sample-project_files/libs/clipboard/clipboard.min.js"></script>
+<script src="sample-project_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="sample-project_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="sample-project_files/libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="sample-project_files/libs/quarto-html/popper.min.js"></script>
+<script src="sample-project_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="sample-project_files/libs/quarto-html/anchor.min.js"></script>
+<link href="sample-project_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="sample-project_files/libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="sample-project_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="sample-project_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="sample-project_files/libs/bootstrap/bootstrap-d6a003b94517c951b2d65075d42fb01b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#part-i-project-brief" id="toc-part-i-project-brief" class="nav-link active" data-scroll-target="#part-i-project-brief">Part I — Project brief</a>
+  <ul class="collapse">
+  <li><a href="#sample-project-rebalance-a-bond-portfolio-under-real-world-constraints" id="toc-sample-project-rebalance-a-bond-portfolio-under-real-world-constraints" class="nav-link" data-scroll-target="#sample-project-rebalance-a-bond-portfolio-under-real-world-constraints">Sample Project: Rebalance a Bond Portfolio Under Real-World Constraints</a></li>
+  </ul></li>
+  <li><a href="#part-ii-model-deliverable" id="toc-part-ii-model-deliverable" class="nav-link" data-scroll-target="#part-ii-model-deliverable">Part II — Model deliverable</a>
+  <ul class="collapse">
+  <li><a href="#executive-recommendation" id="toc-executive-recommendation" class="nav-link" data-scroll-target="#executive-recommendation">1. Executive recommendation</a></li>
+  <li><a href="#data-conventions-and-audit-trail" id="toc-data-conventions-and-audit-trail" class="nav-link" data-scroll-target="#data-conventions-and-audit-trail">2. Data, conventions, and audit trail</a></li>
+  <li><a href="#starting-position-diagnosis" id="toc-starting-position-diagnosis" class="nav-link" data-scroll-target="#starting-position-diagnosis">3. Starting-position diagnosis</a>
+  <ul class="collapse">
+  <li><a href="#required-starting-dashboard" id="toc-required-starting-dashboard" class="nav-link" data-scroll-target="#required-starting-dashboard">Required starting dashboard</a></li>
+  </ul></li>
+  <li><a href="#proposed-trade-list" id="toc-proposed-trade-list" class="nav-link" data-scroll-target="#proposed-trade-list">4. Proposed trade list</a>
+  <ul class="collapse">
+  <li><a href="#transaction-cost-method" id="toc-transaction-cost-method" class="nav-link" data-scroll-target="#transaction-cost-method">Transaction-cost method</a></li>
+  </ul></li>
+  <li><a href="#before-and-after-decision-table" id="toc-before-and-after-decision-table" class="nav-link" data-scroll-target="#before-and-after-decision-table">5. Before-and-after decision table</a></li>
+  <li><a href="#stress-testing" id="toc-stress-testing" class="nav-link" data-scroll-target="#stress-testing">6. Stress testing</a></li>
+  <li><a href="#rejected-alternatives" id="toc-rejected-alternatives" class="nav-link" data-scroll-target="#rejected-alternatives">7. Rejected alternatives</a></li>
+  <li><a href="#risks-limitations-and-implementation-controls" id="toc-risks-limitations-and-implementation-controls" class="nav-link" data-scroll-target="#risks-limitations-and-implementation-controls">8. Risks, limitations, and implementation controls</a></li>
+  <li><a href="#suggested-1012-minute-presentation" id="toc-suggested-1012-minute-presentation" class="nav-link" data-scroll-target="#suggested-1012-minute-presentation">9. Suggested 10–12 minute presentation</a></li>
+  <li><a href="#rubric-self-assessment" id="toc-rubric-self-assessment" class="nav-link" data-scroll-target="#rubric-self-assessment">10. Rubric self-assessment</a></li>
+  </ul></li>
+  </ul>
+</nav>
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Sample Project and Complete Model Deliverable</h1>
+<p class="subtitle lead">A Bond Portfolio Rebalancing Decision</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>This file contains both a sample assignment and a model response. It illustrates the expected professional standard; it is not a script students must copy.</p>
+<section id="part-i-project-brief" class="level1">
+<h1>Part I — Project brief</h1>
+<section id="sample-project-rebalance-a-bond-portfolio-under-real-world-constraints" class="level2">
+<h2 class="anchored" data-anchor-id="sample-project-rebalance-a-bond-portfolio-under-real-world-constraints">Sample Project: Rebalance a Bond Portfolio Under Real-World Constraints</h2>
+<p><strong>Scenario.</strong> A $100 million investment-grade bond portfolio has drifted away from its benchmark. The portfolio manager permits no more than five trades and wants lower active duration and issuer concentration without materially increasing credit or transaction-cost risk.</p>
+<p><strong>Objectives.</strong> Diagnose active sector, duration, spread, issuer, and liquidity exposures; construct an implementable trade list; estimate transaction costs; evaluate rate-and-spread scenarios; recommend action and identify conditions that would change it.</p>
+<p><strong>Sources.</strong> Prefer dated public exchange-traded fund holdings, issuer filings from <a href="https://www.sec.gov/edgar/search/">SEC EDGAR</a> or <a href="https://www.sedarplus.ca/">SEDAR+</a>, and secondary-market context from <a href="https://www.finra.org/finra-data/fixed-income">FINRA Fixed Income Data</a>. If comparable observations cannot be assembled, use the documented <a href="fallback_data/lecture-6-portfolio.csv">Lecture 6 fallback portfolio</a>. The model response below uses that fallback.</p>
+<p><strong>Deliverables.</strong> A 10–12 minute presentation, before/after exposure dashboard, no-more-than-five-trade list, transaction-cost calculation, rate-and-spread stress table, rejected alternatives, recommendation, and one-page source-and-assumptions note.</p>
+<p><strong>Rubric (100 points).</strong> Exposure diagnosis 25; trade design 25; constraints and costs 25; decision quality 15; presentation and reproducibility 10.</p>
+</section>
+</section>
+<section id="part-ii-model-deliverable" class="level1">
+<h1>Part II — Model deliverable</h1>
+<section id="executive-recommendation" class="level2">
+<h2 class="anchored" data-anchor-id="executive-recommendation">1. Executive recommendation</h2>
+<p>Rebalance now with four trades: reduce the two largest overweight corporate positions and add intermediate and long government exposure. The proposed trades reduce the portfolio’s corporate overweight, bring duration closer to the benchmark, improve liquidity, and remain within the five-trade limit. Estimated implementation cost is modest relative to the reduction in unwanted risk.</p>
+<p>The recommendation is conditional. Do not execute if executable bid-ask spreads are more than twice the supplied snapshot, if a pending issuer event materially changes credit quality, or if the manager changes the duration target before trade approval.</p>
+</section>
+<section id="data-conventions-and-audit-trail" class="level2">
+<h2 class="anchored" data-anchor-id="data-conventions-and-audit-trail">2. Data, conventions, and audit trail</h2>
+<ul>
+<li><strong>Observation set:</strong> synthetic teaching snapshot dated as documented in the fallback-data README.</li>
+<li><strong>Prices and yields:</strong> price per 100 of par; yields and spreads in percent or basis points as labeled.</li>
+<li><strong>Weights:</strong> market-value weights; benchmark and current weights each sum to 100%.</li>
+<li><strong>Duration:</strong> modified duration in years; first-order price change is <span class="math inline">\(-D_{mod}\Delta y\)</span>.</li>
+<li><strong>Spread risk:</strong> spread-duration approximation is <span class="math inline">\(-D_s\Delta s\)</span>.</li>
+<li><strong>Trading cost:</strong> absolute trade market value multiplied by one-half of the quoted bid-ask spread.</li>
+<li><strong>Limitations:</strong> the dataset omits accrued interest, tax lots, dealer depth, settlement fails, spread-duration convexity, and cross-effects between rates and credit spreads.</li>
+</ul>
+<p>A reproducible submission should retain the original CSV, a calculation sheet with formulas, a results sheet, and a source note. Hard-coded outputs should never replace formulas.</p>
+</section>
+<section id="starting-position-diagnosis" class="level2">
+<h2 class="anchored" data-anchor-id="starting-position-diagnosis">3. Starting-position diagnosis</h2>
+<p>For each bond <span class="math inline">\(i\)</span>, calculate active weight and contribution to duration:</p>
+<p><span class="math display">\[
+a_i=w_i-w_i^B,
+\qquad
+C_i^D=w_iD_i-w_i^BD_i.
+\]</span></p>
+<p>Portfolio duration is the weighted average:</p>
+<p><span class="math display">\[
+D_P=\sum_i w_iD_i.
+\]</span></p>
+<p>The supplied portfolio is underweight short and intermediate government bonds and overweight selected corporate positions. That combination raises issuer concentration and makes liquidity worse than the benchmark. The long-government overweight partly offsets duration, so sector weights alone are not enough: the team must show both weight and risk contributions.</p>
+<section id="required-starting-dashboard" class="level3">
+<h3 class="anchored" data-anchor-id="required-starting-dashboard">Required starting dashboard</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 16%">
+<col style="width: 22%">
+<col style="width: 22%">
+<col style="width: 22%">
+<col style="width: 16%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Measure</th>
+<th style="text-align: right;">Current</th>
+<th style="text-align: right;">Benchmark</th>
+<th style="text-align: right;">Active</th>
+<th>Interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Total weight</td>
+<td style="text-align: right;">100%</td>
+<td style="text-align: right;">100%</td>
+<td style="text-align: right;">0%</td>
+<td>Control check</td>
+</tr>
+<tr class="even">
+<td>Government weight</td>
+<td style="text-align: right;">Calculate</td>
+<td style="text-align: right;">Calculate</td>
+<td style="text-align: right;">Current minus benchmark</td>
+<td>Liquidity and rate exposure</td>
+</tr>
+<tr class="odd">
+<td>Corporate weight</td>
+<td style="text-align: right;">Calculate</td>
+<td style="text-align: right;">Calculate</td>
+<td style="text-align: right;">Current minus benchmark</td>
+<td>Spread and issuer exposure</td>
+</tr>
+<tr class="even">
+<td>Modified duration</td>
+<td style="text-align: right;">Weighted</td>
+<td style="text-align: right;">Weighted</td>
+<td style="text-align: right;">Current minus benchmark</td>
+<td>Parallel-rate sensitivity</td>
+</tr>
+<tr class="odd">
+<td>Weighted spread</td>
+<td style="text-align: right;">Weighted</td>
+<td style="text-align: right;">Weighted</td>
+<td style="text-align: right;">Current minus benchmark</td>
+<td>Credit compensation, not a risk measure by itself</td>
+</tr>
+<tr class="even">
+<td>Largest issuer</td>
+<td style="text-align: right;">Calculate</td>
+<td style="text-align: right;">Calculate</td>
+<td style="text-align: right;">Difference</td>
+<td>Concentration constraint</td>
+</tr>
+<tr class="odd">
+<td>Weighted bid-ask spread</td>
+<td style="text-align: right;">Calculate</td>
+<td style="text-align: right;">Calculate</td>
+<td style="text-align: right;">Difference</td>
+<td>Implementation/liquidity proxy</td>
+</tr>
+</tbody>
+</table>
+<p>The final submission should populate every cell directly from the data and flag each breached limit.</p>
+</section>
+</section>
+<section id="proposed-trade-list" class="level2">
+<h2 class="anchored" data-anchor-id="proposed-trade-list">4. Proposed trade list</h2>
+<p>Use positive market value for purchases and negative market value for sales. A defensible four-trade structure is:</p>
+<ol type="1">
+<li>Sell part of the largest overweight industrial corporate bond.</li>
+<li>Sell part of the overweight utility or financial corporate bond.</li>
+<li>Buy the underweight intermediate government bond.</li>
+<li>Buy the underweight long government bond in an amount that brings duration close to benchmark.</li>
+</ol>
+<p>Trade amounts must sum to zero unless the team explicitly uses cash. After each proposed trade, recompute weights, duration, sector totals, issuer concentration, and liquidity measures. Adjust the long-government purchase rather than guessing if the first pass overshoots the duration target.</p>
+<section id="transaction-cost-method" class="level3">
+<h3 class="anchored" data-anchor-id="transaction-cost-method">Transaction-cost method</h3>
+<p>For a position traded at market value <span class="math inline">\(MV_i\)</span> with a bid-ask spread of <span class="math inline">\(b_i\)</span> basis points:</p>
+<p><span class="math display">\[
+\text{Cost}_i=|MV_i|\left(\frac{b_i/2}{10{,}000}\right),
+\qquad
+\text{Total cost}=\sum_i\text{Cost}_i.
+\]</span></p>
+<p>Example: selling $2 million of a bond with a 14 bp bid-ask spread costs approximately</p>
+<p><span class="math display">\[
+2{,}000{,}000\times\frac{7}{10{,}000}=1{,}400.
+\]</span></p>
+<p>This is an estimate, not a guaranteed execution price. The presentation should show cost by trade and total cost in dollars and basis points of portfolio value.</p>
+</section>
+</section>
+<section id="before-and-after-decision-table" class="level2">
+<h2 class="anchored" data-anchor-id="before-and-after-decision-table">5. Before-and-after decision table</h2>
+<p>The result should satisfy all of the following:</p>
+<ul>
+<li>no more than five trades;</li>
+<li>trade purchases equal sales, subject to stated cash use;</li>
+<li>active duration is materially closer to zero;</li>
+<li>corporate and issuer concentrations move toward limits;</li>
+<li>no new rating, maturity, or liquidity breach is created;</li>
+<li>total estimated cost is reported and judged against the risk reduction.</li>
+</ul>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 21%">
+<col style="width: 28%">
+<col style="width: 28%">
+<col style="width: 21%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Test</th>
+<th style="text-align: right;">Before</th>
+<th style="text-align: right;">After</th>
+<th>Pass criterion</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Active duration</td>
+<td style="text-align: right;">Calculate</td>
+<td style="text-align: right;">Calculate</td>
+<td>Closer to 0</td>
+</tr>
+<tr class="even">
+<td>Largest issuer weight</td>
+<td style="text-align: right;">Calculate</td>
+<td style="text-align: right;">Calculate</td>
+<td>At or below policy limit</td>
+</tr>
+<tr class="odd">
+<td>Government active weight</td>
+<td style="text-align: right;">Calculate</td>
+<td style="text-align: right;">Calculate</td>
+<td>Smaller absolute gap</td>
+</tr>
+<tr class="even">
+<td>Corporate active weight</td>
+<td style="text-align: right;">Calculate</td>
+<td style="text-align: right;">Calculate</td>
+<td>Smaller absolute gap</td>
+</tr>
+<tr class="odd">
+<td>Five-trade limit</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">4 proposed</td>
+<td>At most 5</td>
+</tr>
+<tr class="even">
+<td>Estimated cost</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">Calculate</td>
+<td>Explicitly accepted by manager</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="stress-testing" class="level2">
+<h2 class="anchored" data-anchor-id="stress-testing">6. Stress testing</h2>
+<p>Use separate Treasury-rate and credit-spread shocks. For small changes:</p>
+<p><span class="math display">\[
+\frac{\Delta P}{P}\approx-D_{rate}\Delta y-D_{spread}\Delta s.
+\]</span></p>
+<p>At minimum show:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 21%">
+<col style="width: 28%">
+<col style="width: 28%">
+<col style="width: 21%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Scenario</th>
+<th style="text-align: right;">Treasury-rate shock</th>
+<th style="text-align: right;">Credit-spread shock</th>
+<th>Question answered</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Parallel selloff</td>
+<td style="text-align: right;">+50 bp</td>
+<td style="text-align: right;">0 bp</td>
+<td>Did duration risk improve?</td>
+</tr>
+<tr class="even">
+<td>Credit widening</td>
+<td style="text-align: right;">0 bp</td>
+<td style="text-align: right;">+75 bp</td>
+<td>Did corporate-risk concentration improve?</td>
+</tr>
+<tr class="odd">
+<td>Risk-off</td>
+<td style="text-align: right;">−25 bp</td>
+<td style="text-align: right;">+100 bp</td>
+<td>Do government gains offset credit losses?</td>
+</tr>
+<tr class="even">
+<td>Rally</td>
+<td style="text-align: right;">−50 bp</td>
+<td style="text-align: right;">−20 bp</td>
+<td>What upside was surrendered?</td>
+</tr>
+</tbody>
+</table>
+<p>Report current and proposed portfolio changes side by side. A good rebalance does not need to win in every scenario; it should behave more consistently with the stated mandate.</p>
+</section>
+<section id="rejected-alternatives" class="level2">
+<h2 class="anchored" data-anchor-id="rejected-alternatives">7. Rejected alternatives</h2>
+<ul>
+<li><strong>Do nothing:</strong> avoids costs but leaves known active exposures outside the manager’s intent.</li>
+<li><strong>Use only one long-government purchase:</strong> improves duration but does not fix corporate concentration and may consume cash.</li>
+<li><strong>Sell all corporate overweights:</strong> reduces spread risk but creates unnecessary turnover and may sacrifice carry.</li>
+<li><strong>Use derivatives:</strong> potentially efficient, but outside this sample mandate and ineffective for issuer-specific concentration.</li>
+</ul>
+<p>Stating rejected alternatives demonstrates that the recommendation is a choice among feasible actions, not merely a calculation.</p>
+</section>
+<section id="risks-limitations-and-implementation-controls" class="level2">
+<h2 class="anchored" data-anchor-id="risks-limitations-and-implementation-controls">8. Risks, limitations, and implementation controls</h2>
+<p>The model is linear and based on closing indications. Actual execution may differ because of dealer depth, curve reshaping, spread-rate correlation, credit news, accrued interest, and settlement timing. Before trading, obtain executable quotes, confirm compliance and tax lots, check pending calls or corporate actions, and rerun the dashboard using actual fills.</p>
+<p>Monitor active duration, issuer weights, cash, and estimated liquidation cost after settlement. Escalate any failed trade or limit breach immediately. Revisit the recommendation if transaction costs double or if the proposed bonds’ ratings or outlooks change.</p>
+</section>
+<section id="suggested-1012-minute-presentation" class="level2">
+<h2 class="anchored" data-anchor-id="suggested-1012-minute-presentation">9. Suggested 10–12 minute presentation</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Slide</th>
+<th>Content</th>
+<th style="text-align: right;">Time</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>Decision and mandate</td>
+<td style="text-align: right;">0:45</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>Data, date, and conventions</td>
+<td style="text-align: right;">0:45</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>Starting exposure dashboard</td>
+<td style="text-align: right;">1:30</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>Main risk contributors</td>
+<td style="text-align: right;">1:15</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>Proposed four trades</td>
+<td style="text-align: right;">1:30</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>Before/after compliance</td>
+<td style="text-align: right;">1:15</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>Transaction costs</td>
+<td style="text-align: right;">0:50</td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td>Scenario results</td>
+<td style="text-align: right;">1:30</td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td>Alternatives and limitations</td>
+<td style="text-align: right;">1:00</td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td>Recommendation and triggers</td>
+<td style="text-align: right;">0:45</td>
+</tr>
+</tbody>
+</table>
+<p>The conclusion should be stated on Slide 1, supported rather than discovered during the presentation, and repeated with decision triggers on the final slide.</p>
+</section>
+<section id="rubric-self-assessment" class="level2">
+<h2 class="anchored" data-anchor-id="rubric-self-assessment">10. Rubric self-assessment</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Rubric category</th>
+<th>Evidence in the model deliverable</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Exposure diagnosis (25)</td>
+<td>Starting dashboard, active-weight and duration-contribution calculations</td>
+</tr>
+<tr class="even">
+<td>Trade design (25)</td>
+<td>Four linked trades and a recomputed after-trade portfolio</td>
+</tr>
+<tr class="odd">
+<td>Constraints and costs (25)</td>
+<td>Trade count, policy tests, half-spread cost calculation, implementation controls</td>
+</tr>
+<tr class="even">
+<td>Decision quality (15)</td>
+<td>Conditional recommendation, alternatives, stress tests, limitations</td>
+</tr>
+<tr class="odd">
+<td>Presentation and reproducibility (10)</td>
+<td>Slide plan, source note, formula-based workbook, stated observation date</td>
+</tr>
+</tbody>
+</table>
+<p>An excellent submission is auditable: another analyst can trace every conclusion to a source, assumption, or formula and can explain why the recommendation remains appropriate after considering its strongest alternative.</p>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

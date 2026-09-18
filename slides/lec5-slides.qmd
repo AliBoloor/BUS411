@@ -1,216 +1,779 @@
 ---
 title: "Lecture 5: Treasury, Agency, and Corporate Debt"
-subtitle: "How issuers, structures, and credit shape fixed-income instruments"
+subtitle: "Cash-flow design, market structure, and creditor risk"
+format:
+  revealjs:
+    css: lec3-11-slides.css
+    html-math-method: mathml
+    include-in-header:
+      text: |
+        <script src="lec3-11-visuals.js" defer></script>
 ---
 
-## The issuer determines the starting risk question
+## Treasuries define the dollar base curve
 
-- **Treasury:** sovereign borrowing and benchmark rates
-- **Agency:** government-linked institutions with distinct guarantees
-- **Corporate:** contractual priority, credit risk, and covenants
+<div class="flow"><span><b>Treasury benchmark</b>Price of time in nominal dollars</span><i>→</i><span><b>Agency and corporate debt</b>Add credit, liquidity, options, and structure</span></div>
 
-Instrument design determines how those issuer risks reach investors.
+Standardized securities, broad maturity coverage, deep secondary trading, and simple cash flows support the benchmark role.
 
-## Treasury securities span several cash-flow structures
+Nominal default-risk treatment does not remove duration, reinvestment, inflation, liquidity, or tax considerations.
 
-| Security | Maturity | Cash flow |
+## Market snapshot stated in the notes
+
+| Indicator | Value | Source date in notes |
+|---|---:|---|
+| 10Y Treasury yield | 4.46% | June 2, 2026 |
+| 10Y breakeven inflation | 2.38% | June 3, 2026 |
+| Broad corporate OAS | 0.74% | June 2, 2026 |
+| High-yield OAS | 2.71% | June 2, 2026 |
+
+Historical FRED snapshot quoted by the notes; the two Treasury measures use different dates.
+
+## The Treasury benchmark supports several markets
+
+| Instrument | Connection to the Treasury base |
+|---|---|
+| Agency debt | Treasury plus agency and liquidity compensation |
+| Investment-grade corporate | Treasury plus credit and liquidity compensation |
+| High-yield bonds and loans | Treasury or SOFR plus larger credit exposure |
+| TIPS | Real yield plus realized inflation adjustment |
+| STRIPS | Individual zero-coupon Treasury cash flows |
+
+## Cash-flow design explains the security menu
+
+| Security | Dominant exposure | Financing or investment purpose |
 |---|---|---|
-| Bill | One year or less | Discount instrument |
-| Note / bond | 2–30 years | Semiannual fixed coupons |
-| FRN | 2 years | Quarterly floating coupons |
-| TIPS | 5–30 years | Inflation-adjusted principal |
+| Bill | Short rate and reinvestment | Short-term cash funding |
+| Note | Nominal duration | Benchmark funding across the curve |
+| Bond | Long nominal duration | Long-term funding and liabilities |
+| FRN | Short-rate reset | Treasury quality with lower duration |
+| TIPS | Real rate and CPI | Purchasing-power protection |
+| STRIP | Pure zero-coupon duration | Exact dated cash-flow matching |
 
-## Bills earn interest through a discount
+The lecture focuses on marketable securities traded in the secondary market.
 
-A Treasury bill pays face value at maturity and no coupon.
+## Fixed-principal Treasury instruments
 
-$$P=\frac{F}{1+yT}$$
+| Security | Original maturity | Coupon? | Main use |
+|---|---:|---|---|
+| Treasury bills | 1 year or less | No coupon; sold at discount | Cash management, money-market investment |
+| Treasury notes | More than 1 year through 10 years | Semiannual fixed coupons; FRNs pay quarterly floating coupons | Benchmark rates, duration exposure |
+| Treasury bonds | More than 10 years | Semiannual fixed coupons | Long-duration investing and liability matching |
 
-Money-market quotations may use bank discount, bond-equivalent, or investment yields. Always identify the convention before comparing rates.
+Noncallability removes issuer call risk. Bills have short duration but frequent reinvestment. Long bonds concentrate exposure in distant payments. Floating coupons make income uncertain.
 
-## Bill quotation conventions use different denominators
+## Bill, coupon bond, and floater cash flows
 
-For price $P$, face value $F$, and $d$ days to maturity:
+<div class="flow"><span><b>Bill</b>Pay a discounted price; receive par once</span><i>→</i><span><b>Note or bond</b>Pay clean plus accrued; receive coupons and final principal</span><i>→</i><span><b>FRN</b>Floating coupons; principal at maturity</span></div>
 
-$$y_{BD}=\frac{F-P}{F}\frac{360}{d}$$
+FRN coupons use a Treasury-bill reference plus the auction spread and are paid quarterly.
 
-$$y_{BE}=\frac{F-P}{P}\frac{365}{d}$$
+<div class="source-issue">Instructor review: The source diagram describes quarterly resets. Payment frequency and reference-rate reset frequency should be distinguished; this slide preserves the quarterly payment convention.</div>
 
-Bank discount yield uses face value and 360 days; bond-equivalent yield uses purchase price and 365 days.
+## Treasury bill example: one future payment
 
-## Coupon Treasuries are the market's benchmark bonds
+<div class="cash-timeline" data-times='["Today", "91 days"]' data-flows='["\u2212Price", "+$10,000"]'></div>
 
-- Notes and bonds pay semiannual coupons.
-- Principal is repaid at maturity.
-- Prices are quoted per \$100 par in points and fractions.
+13-week bill; discount yield $r_d=4.75\%$.
 
-A quote of 99-16 means $99+16/32=99.50$ per \$100 par.
+$$
+P=F\left(1-r_d\frac{t}{360}\right)
+$$
 
-## TIPS separate real return from realized inflation
+## Treasury bill example: the discount
 
-$$\text{Coupon payment}=\text{fixed coupon rate}\times\text{inflation-adjusted principal}$$
+$$
+P=10{,}000\left(1-0.0475\frac{91}{360}\right)\approx9{,}879.93
+$$
 
-The principal index ratio follows CPI with a lag. At maturity, TIPS protect the original principal floor.
 
-## Breakeven inflation links nominal and real yields
 
-$$\text{Breakeven inflation}\approx y_{nominal}-y_{TIPS}$$
+$$
+F-P\approx120.07
+$$
 
-If realized inflation exceeds breakeven, TIPS tend to outperform the comparable nominal Treasury; if it falls short, nominal Treasuries tend to outperform.
+The source example pays about \$9,879.93 now and receives \$10,000 at maturity.
 
-The difference also embeds inflation-risk and liquidity premiums.
 
-## Treasury FRNs exchange duration for income uncertainty
+## TIPS separate real return from inflation
 
-- The coupon resets quarterly from a Treasury-bill reference rate plus a spread.
-- Frequent resets usually keep price closer to par.
-- Future coupon income is not locked in.
+<div class="flow"><span><b>CPI-U, with a lag</b>Adjusts principal</span><i>→</i><span><b>Fixed coupon rate</b>Applied to adjusted principal</span><i>→</i><span><b>Maturity payment</b>Greater of adjusted and original principal</span></div>
 
-FRNs retain Treasury credit quality while reducing fixed-rate duration exposure.
+TIPS shift realized CPI inflation exposure to the issuer. Before maturity, rising real yields can still reduce market price.
 
-## Treasury auctions discover the issue yield
+## Breakeven inflation compares nominal and real yields
 
-1. Treasury announces the security and terms.
-2. Investors submit competitive or noncompetitive bids.
-3. Competitive bids are ranked by yield.
-4. Accepted bidders receive the stop-out yield.
+$$
+\text{Breakeven inflation}\approx y_{\text{nominal}}-y_{\text{TIPS real}}
+$$
 
-The single-price format gives successful bidders the same auction yield.
+<div class="comparison"><div><h3>Inflation above breakeven</h3><p>TIPS tend to outperform comparable nominal Treasuries.</p></div><div><h3>Inflation below breakeven</h3><p>Nominal Treasuries tend to outperform TIPS.</p></div></div>
 
-## Primary and secondary markets play different roles
+Breakeven also reflects liquidity, inflation-risk premiums, taxes, and supply-demand effects. It is not a pure forecast.
 
-- The auction funds the government and creates the issue.
-- Dealer markets provide continuous secondary trading.
-- On-the-run issues usually have the strongest liquidity.
+## TIPS example: adjusted principal and coupon
 
-Liquidity differences can make nearby Treasury issues trade at different yields.
+Original principal \$1,000; annual coupon 3%; first six months’ CPI increase 1%.
 
-**Reopenings** add supply to an existing CUSIP; **when-issued trading** begins before settlement and helps reveal the expected auction yield.
+$$
+F_{\text{adjusted}}=1000(1.01)=1010
+$$
 
-## STRIPS turn one coupon bond into many zeros
 
-A Treasury's coupons and principal can trade as separate claims.
 
-- Each STRIP has one payment date.
-- Its price directly reveals a maturity-specific discount factor.
-- Coupon and principal STRIPS can be reassembled into the original security.
+$$
+\text{Semiannual coupon}=\frac{0.03}{2}(1010)=15.15
+$$
+
+Cumulative inflation of 3% makes maturity principal \$1,030. Cumulative deflation cannot reduce the maturity payment below the original \$1,000 floor.
+
+## Purchasing power and dollar certainty
+
+<div class="comparison"><div><h3>Nominal Treasury</h3><p>Simpler match for a fixed dollar payment. Investor bears inflation risk.</p></div><div><h3>TIPS</h3><p>Closer match for CPI purchasing power. Investor retains real-yield price risk.</p></div></div>
+
+Introduced in 1997, TIPS became especially useful in discussions of the 2008 crisis and the 2021–2022 inflation surge.
+
+## Nominal yields and inflation compensation
+
+![](lec3-11-assets/lec5-archived-rates.png){.figure}
+
+Archived chart from the course notes: FRED DGS10 and T10YIE. Data snapshot is preserved, not refreshed or independently verified.
+
+## Reading the real-yield gap
+
+$$
+y_{\text{real}}\approx y_{\text{nominal}}-\text{breakeven inflation}
+$$
+
+| Nominal yield relative to breakeven | Approximate implied real yield |
+|---|---|
+| Above | Positive |
+| Equal | Near zero |
+| Below | Negative |
+
+The gap is interpreted before liquidity, risk-premium, tax, and other frictions.
+
+## Treasury auctions allocate a fixed supply
+
+<div class="flow"><span><b>Announcement</b>Amount, type, term, date, rules</span><i>→</i><span><b>Noncompetitive tenders</b>Quantity only; accept auction yield</span><i>→</i><span><b>Competitive tenders</b>Quantity and desired yield</span></div>
+
+Auctions are sealed-bid. A reopening adds supply to the existing CUSIP.
+
+<div class="source-issue">Instructor review: The notes state a $5m noncompetitive limit and a general 1 p.m. deadline. Treat these as source claims requiring current auction-rule verification.</div>
+
+## The bid stack determines the stop-out yield
+
+<div class="flow"><span><b>Available competitive amount</b>Offering less noncompetitive and nonpublic purchases</span><i>→</i><span><b>Rank bids</b>Lowest yield / highest price first</span><i>→</i><span><b>Stop-out yield</b>Highest yield needed to fill supply</span></div>
+
+Bids above the stop-out receive nothing. Bids at it may be prorated. All successful bidders receive the same stop-out yield.
+
+## Auction example: the competitive allocation
+
+Offering: **\$20bn**; noncompetitive: **\$4bn**; competitive amount: **\$16bn**.
+
+| Bidder | Bid yield | Amount bid | Cumulative accepted amount | Result |
+|---|---:|---:|---:|---|
+| A | 4.20% | \$5 billion | \$5 billion | Filled |
+| B | 4.23% | \$6 billion | \$11 billion | Filled |
+| C | 4.25% | \$7 billion | \$16 billion target reached | Partially filled |
+| D | 4.28% | \$4 billion | Above target | Not filled |
+| E | 4.30% | \$3 billion | Above target | Not filled |
+
+The stop-out is **4.25%**. Bidder C receives the remaining \$5bn of its \$7bn bid.
+
+## Proration applies only at the stop-out
+
+$$
+\text{Allocation fraction}=\frac{\$1\text{bn remaining}}{\$2\text{bn bid}}=50\%
+$$
+
+| Bidder's tender at stop-out yield | Awarded amount |
+|---:|---:|
+| \$5 million | \$2.5 million |
+| \$20 million | \$10 million |
+| \$100 million | \$50 million |
+
+Bids below the stop-out are fully filled; higher-yield bids receive nothing.
+
+## Single-price awards and auction results
+
+Successful bidders receive the same yield, including those who bid lower. This reduces the penalty for aggressive accepted bids.
+
+The notes describe a coupon in **1/8 percentage-point increments**, chosen to price near par without exceeding it at the awarded yield.
+
+Results report the high yield, price, stop-out allotment percentage, noncompetitive tenders, median bid, bid-to-cover, and coupon. Announcement and timing rules depend on the auction.
+
+## Secondary trading turns issues into benchmarks
+
+| Market term | Meaning |
+|---|---|
+| On-the-run | Newest benchmark issue; usually most liquid |
+| Off-the-run | Older issue; can be cheaper or less financeable |
+| When-issued | Trading after announcement and before issuance |
+
+Dealers, brokers, and electronic platforms support OTC trading. Nearby issues can differ because of liquidity and repo specialness.
+
+## A Treasury spread can reflect liquidity
+
+On-the-run 10Y yield: **4.45%**. Similar-duration off-the-run: **4.50%**.
+
+$$
+4.50\%-4.45\%=5\text{ bp}
+$$
+
+This difference is mainly liquidity, benchmark demand, financing value, and scarcity rather than issuer credit. These traded issues anchor the curves used in later valuation.
+
+## Bill yields use different denominators
+
+$$
+r_d=\frac{F-P}{F}\frac{360}{t},\qquad P=F\left(1-r_d\frac{t}{360}\right)
+$$
+
+
+
+$$
+BEY=\frac{F-P}{P}\frac{365}{t}
+$$
+
+Bank discount yield uses face value and 360 days. BEY uses the amount invested and 365 days. The historical quoting convention simplifies money-market arithmetic.
+
+## Discount yield versus BEY: a 100-day bill
+
+Face value \$100,000; price \$99,100; discount \$900.
+
+$$
+r_d=\frac{900}{100{,}000}\frac{360}{100}=3.24\%
+$$
+
+
+
+$$
+BEY=\frac{900}{99{,}100}\frac{365}{100}=3.32\%
+$$
+
+The higher BEY reflects both the smaller denominator and the longer annualization basis.
+
+## Coupon Treasury prices use points and 32nds
+
+$$
+96\text{-}14=96+14/32=96.4375
+$$
+
+
+
+$$
+\$1000\text{ par}\times0.964375=\$964.375
+$$
+
+One point is \$1 per \$100 par. A plus sign adds half a 32nd; a trailing digit adds eighths of a 32nd.
+
+When-issued coupon Treasuries trade in yield because the coupon has not yet been set.
+
+## Fractional quotation examples
+
+$$
+96\text{-}14+=96+14/32+1/64=96.453125
+$$
+
+
+
+$$
+96\text{-}142=96+14/32+2/256=96.4453125
+$$
+
+| Quote | Calculation | Price per 100 par |
+|---|---:|---:|
+| `91-19` | 91 + 19/32 | 91.59375 |
+| `107-22` | 107 + 22/32 | 107.68750 |
+| `109-06` | 109 + 6/32 | 109.18750 |
+
+## Smaller increments in Treasury quotes
+
+| Quote | Calculation | Price per 100 par |
+|---|---:|---:|
+| `91-19+` | 91 + 19/32 + 1/64 | 91.609375 |
+| `107-222` | 107 + 22/32 + 2/256 | 107.6953125 |
+| `109-066` | 109 + 6/32 + 6/256 | 109.2109375 |
+
+The trailing digit changes the fraction; it is not a decimal extension of the 32nds quote.
+
+## Settlement adds accrued interest
+
+$$
+AI=\frac{\text{annual dollar coupon}}2\frac{\text{actual days accrued}}{\text{actual days in coupon period}}
+$$
+
+
+
+$$
+P_{\text{dirty}}=P_{\text{clean}}+AI
+$$
+
+Actual/actual includes the previous coupon date and excludes settlement. The notes use next-business-day settlement. Clean quotes separate rate-driven price changes from the coupon calendar.
+
+## Accrued interest: the timeline
+
+<div class="cash-timeline" data-times='["May 15", "September 10", "November 15"]' data-flows='["Previous coupon", "Settlement", "Next coupon"]'></div>
+
+Annual coupon \$8 per \$100; semiannual coupon \$4.
+
+| Period | Days counted |
+|---|---:|
+| May 15 to May 31 | 17 |
+| June | 30 |
+| July | 31 |
+| August | 31 |
+| September 1 to September 10 | 9 |
+| **Accrued interest period** | **118** |
+| **Full coupon period: May 15 to November 15** | **184** |
+
+## Accrued interest: the invoice amount
+
+$$
+AI=4\frac{118}{184}=2.5652
+$$
+
+The buyer pays **\$2.5652 per \$100 par** in addition to clean price.
+
+Accrued interest builds between coupon dates and drops when the coupon is paid. Clean-price quoting keeps this calendar effect separate.
+
+## STRIPS separate the dated claims
+
+<div class="flow"><span><b>10-year coupon Treasury</b>20 remaining semiannual coupons</span><i>→</i><span><b>Strip in book-entry system</b>Separate coupon and principal claims</span><i>→</i><span><b>21 securities</b>20 coupon STRIPS + 1 principal STRIP</span></div>
+
+Stripping creates no new Treasury borrowing. Each piece is a zero-coupon cash flow that can support spot valuation or dated liability matching.
+
+## A STRIP exposes one payment date
+
+$$
+P_{\text{STRIP}}=\frac{F}{(1+z_T)^T}
+$$
+
+
+
+$$
+z_{10}=\left(\frac{100}{62}\right)^{1/10}-1\approx4.90\%
+$$
+
+A 12-year liability can be matched with a 12-year payment without reinvesting interim coupons.
+
 
 ## STRIPS create tax income before cash arrives
 
-In taxable accounts, the annual increase in a STRIP's value is generally treated as interest income even though cash arrives only at maturity.
+<div class="comparison"><div><h3>Cash flow</h3><p>No coupon cash before maturity.</p></div><div><h3>Taxable income</h3><p>Imputed interest may be recognized annually as phantom income.</p></div></div>
 
-This “phantom income” makes tax-deferred accounts a natural home for many STRIP investors.
+Tax-deferred accounts, pensions, insurers, and liability-matching investors are often better able to tolerate this cash/tax timing difference.
 
-## Treasury settlement adds accrued interest
+## Reconstitution links the bond and its pieces
 
-$$AI=C\left(\frac{\text{actual days accrued}}{\text{actual days in coupon period}}\right)$$
+<div class="comparison"><div><h3>Coupon bond is cheap</h3><p>Buy the bond, strip it, and sell the more expensive components.</p></div><div><h3>STRIPS are cheap</h3><p>Buy the complete set, reconstitute, and sell the more expensive coupon bond.</p></div></div>
 
-Treasury coupon securities use actual/actual day count. The quoted clean price excludes accrued interest; the invoice price includes it.
+Equal dated Treasury cash flows should have similar prices. Liquidity, taxes, and financing costs create limits to the arbitrage.
 
-## Agency status is not a single guarantee
+## Agency status is not one guarantee
 
-| Issuer type | Examples | Credit support |
+$$
+y_{\text{agency}}=y_{\text{Treasury}}+s_{\text{agency}}
+$$
+
+Specialized institutions fund housing, agriculture, member-bank liquidity, and power infrastructure.
+
+Some obligations have explicit federal backing; GSE support is not the same legal promise as a Treasury. Spreads reflect support structure, liquidity, sector risk, and options.
+
+## Fannie Mae and Freddie Mac
+
+<div class="flow"><span><b>Mortgage market</b>Buy mortgages and support liquidity</span><i>→</i><span><b>Capital markets</b>Guarantee MBS and issue debt</span><i>→</i><span><b>Investor exposure</b>Support policy, mortgage stress, prepayment and spread liquidity</span></div>
+
+Debt programs include benchmark, discount, callable, structured, and global notes. In 2008, FHFA conservatorship and Treasury support agreements illustrated the importance of expected government support.
+
+## Farm Credit and Farmer Mac
+
+<div class="comparison"><div><h3>Farm Credit Bank System</h3><p>Funds agricultural lenders through consolidated obligations, discount notes, designated bonds, and structured notes. Investors assess sector concentration, system support, and liquidity.</p></div><div><h3>Farmer Mac</h3><p>Supports agricultural real estate and rural utilities through guarantees, discount notes, and MTNs. Smaller scale can mean less liquidity and different spreads.</p></div></div>
+
+## FHLB and TVA
+
+<div class="comparison"><div><h3>Federal Home Loan Banks</h3><p>Issue consolidated obligations to fund collateralized advances. Investors assess collateral, joint-and-several structure, banking stress, and liquidity.</p></div><div><h3>Tennessee Valley Authority</h3><p>Federal corporate agency created in 1933. Debt funds public power and infrastructure. Investors assess power demand, rate-setting, capex, project cash flows, and liquidity.</p></div></div>
+
+Both differ from direct Treasury obligations.
+
+## Corporate debt finances business needs
+
+Operations, acquisitions, capital expenditure, repurchases, and refinancing can be funded with debt.
+
+$$
+y_{\text{corporate}}=y_{\text{base}}+s_{\text{credit}}
+$$
+
+Debt can be cheaper and less dilutive than equity. Creditors receive contractual priority but limited upside, so downside protection, asset coverage, and risk-shifting restrictions matter.
+
+## Corporate funding spans different contracts
+
+| Financing need | Instrument |
+|---|---|
+| Short-term working capital | Commercial paper |
+| Flexible committed liquidity | Bank loan or revolver |
+| Tailored maturity or payoff | Medium-term note |
+| Broad long-term public funding | Corporate bond |
+| Speculative-grade financing | High-yield bond or leveraged loan |
+
+Spreads also price recovery, liquidity, covenants, seniority, options, taxes, demand, and risk appetite.
+
+## Priority allocates recovery in distress
+
+| Priority, stronger to weaker | Claim |
+|---|---|
+| Senior secured debt | First claim on pledged collateral |
+| Senior unsecured debt | General claim after secured claims |
+| Senior subordinated debt | Below senior claims |
+| Subordinated debt | Junior contractual claim |
+| Preferred equity | Above common equity |
+| Common equity | Residual claim |
+
+Seniority mainly affects recovery; it does not remove issuer default risk.
+
+## Same default probability, different loss
+
+$$
+EL=PD(1-R)
+$$
+
+
+
+$$
+\text{Senior secured}:6\%(1-65\%)=2.1\%
+$$
+
+
+
+$$
+\text{Subordinated}:6\%(1-25\%)=4.5\%
+$$
+
+Junior capital absorbs losses sooner, supporting lower spreads for senior claims. Default frequency and loss given default are different inputs.
+
+## Liquidation and reorganization
+
+<div class="comparison"><div><h3>Chapter 7</h3><p>Sell assets and distribute proceeds by priority.</p></div><div><h3>Chapter 11</h3><p>Continue operations while negotiating reorganization; debtor-in-possession financing can provide operating cash.</p></div></div>
+
+The absolute priority rule places senior creditors ahead of junior claims. Negotiated plans may allocate junior value to preserve going-concern value or avoid litigation.
+
+## Why creditors may prefer reorganization
+
+| Retailer example | Value |
+|---|---:|
+| Debt outstanding | \$900m |
+| Liquidation proceeds | \$500m |
+| Reorganized going concern | \$750m |
+
+Court supervision can prevent a destructive rush for collateral. New DIP lenders may receive senior priority because otherwise they would not fund a bankrupt borrower.
+
+## Ratings define an important market boundary
+
+Moody’s, S&P, and Fitch provide a common language for credit risk. NRSRO means nationally recognized statistical rating organization.
+
+<div class="flow"><span><b>Investment grade</b>BBB− / Baa3 and above</span><i>→</i><span><b>Boundary downgrade</b>Potential forced selling</span><i>→</i><span><b>High yield</b>Below BBB− / Baa3</span></div>
+
+Ratings are opinions, may lag spreads, and are ordinal rather than precise default probabilities.
+
+## The rating ladder in the notes
+
+| Credit quality | Moody's | S&P / Fitch | Common label |
+|---|---|---|---|
+| Highest quality | Aaa | AAA | Prime |
+| Very high quality | Aa | AA | High grade |
+| Upper-medium quality | A | A | Investment grade |
+| Medium quality | Baa | BBB | Lowest investment grade |
+| Speculative | Ba | BB | High yield |
+| Highly speculative | B | B | High yield |
+| Substantial risk | Caa/Ca/C | CCC/CC/C | Distressed or near default |
+| Default | D | D | Default |
+
+<div class="source-issue">Instructor review: The source table lists Moody’s “D” for default. Moody’s long-term scale generally ends at C; verify this source row before teaching it as an agency mapping.</div>
+
+## Corporate bonds trade flexibility for creditor control
+
+Corporate bonds can be fixed/floating, secured/unsecured, senior/subordinated, callable/noncallable, public/private, and investment-grade/high-yield.
+
+Two issues from the same borrower can trade differently because of maturity, coupon, covenants, call protection, collateral, and index eligibility.
+
+Public bonds provide scalable capital and tradability; lenders generally receive less direct control than under a bank loan.
+
+## Early redemption changes cash-flow timing
+
+<div class="flow"><span><b>Traditional call</b>Issuer can redeem after protection expires</span><i>→</i><span><b>Make-whole call</b>Price reflects remaining payment value</span><i>→</i><span><b>Sinking fund</b>Requires gradual debt retirement</span></div>
+
+Issuers value refinancing and balance-sheet flexibility. Investors value predictable cash flows. Contract terms set the price of flexibility.
+
+## Callability and refunding are different
+
+<div class="comparison"><div><h3>Callable</h3><p>Can be redeemed under the specified call terms.</p></div><div><h3>Refundable</h3><p>Can be retired using proceeds of a replacement debt issue.</p></div></div>
+
+A bond can be callable but temporarily nonrefundable. Falling rates or spreads make refinancing attractive; investors face capped upside and reinvestment risk. Effective convexity can become low or negative near the call price.
+
+## Make-whole calls preserve more investor value
+
+$$
+\text{Make-whole price}\approx PV(\text{remaining payments};\ \text{Treasury rate + stated spread})
+$$
+
+If remaining-payment PV is **\$105**, a par call at **\$100** transfers about **\$5** to the issuer. A make-whole call instead requires a price near \$105.
+
+Calling becomes more expensive when rates fall; the provision supports mergers, asset sales, and capital-structure changes.
+
+## Sinking funds reduce the maturity wall
+
+<div class="comparison"><div><h3>Credit benefit</h3><p>Gradually reduce debt and reliance on one large refinancing date.</p></div><div><h3>Investor cost</h3><p>Principal may return early; which holders are retired and when can be uncertain.</p></div></div>
+
+A sinking fund controls the path of leverage but creates reinvestment exposure.
+
+## Covenants constrain transfers away from creditors
+
+| Affirmative duties | Negative restrictions |
+|---|---|
+| Pay interest and principal | Additional debt |
+| Maintain insurance | Dividends and buybacks |
+| Supply financial statements | Asset sales |
+| Comply with laws | New liens and unprotected mergers |
+
+Indentures and credit agreements limit shareholder actions that increase equity upside at creditors’ expense.
+
+## The covenant follows the potential harm
+
+<div class="flow"><span><b>More leverage</b>Debt-incurrence covenant</span><i>→</i><span><b>Cash leaves</b>Restricted payments</span><i>→</i><span><b>Assets leave</b>Asset-sale covenant</span></div>
+
+<div class="flow"><span><b>Collateral pledged</b>Lien covenant</span><i>→</i><span><b>Business changes</b>Merger protection</span></div>
+
+Protections can materially affect recovery in high-yield bonds and leveraged loans.
+
+## Two routes into high yield
+
+<div class="comparison"><div><h3>Original-issue high yield</h3><p>Below investment grade from issuance.</p></div><div><h3>Fallen angel</h3><p>Originally investment grade; downgraded after weaker credit, leverage, an LBO, or recapitalization.</p></div></div>
+
+Modern LBO and recapitalization structures may conserve cash now while shifting obligations into the future.
+
+## Deferred coupons conserve cash, not obligations
+
+| Structure | Payment design |
+|---|---|
+| Deferred interest | Deep discount; no cash interest initially, often 3–7 years |
+| Step-up | Low initial coupon; higher later coupon |
+| PIK | Interest paid with additional debt for a period |
+| Extendable reset | Coupon resets to target a price, usually par |
+
+Unlike a simple floater reset, an extendable reset can reflect both rates and required credit spreads. Delayed cash payments can increase leverage.
+
+## Corporate settlement: clean plus accrued
+
+6% annual coupon, semiannual payments, \$100,000 par. Coupon payment: \$3,000; settlement 80 days into a 180-day period.
+
+$$
+AI=\frac{80}{180}(3000)=1333.33
+$$
+
+
+
+$$
+\text{Clean}=102.25\%\times100{,}000=102{,}250
+$$
+
+
+
+$$
+\text{Dirty}=102{,}250+1333.33=103{,}583.33
+$$
+
+Use the day-count convention specified in the bond documents.
+
+## Corporate secondary-market liquidity is fragmented
+
+One company may have dozens of bonds with different contracts. OTC liquidity is strongest in large, recent benchmark issues and weaker in small, old, distressed, or complex issues.
+
+Assess issue size, dealer inventory, index eligibility, TRACE prints, order size, and executable prices. An attractive screen spread may not be available for the intended trade.
+
+## Private placements exchange liquidity for customization
+
+<div class="comparison"><div><h3>Borrower</h3><p>Negotiates with a limited institutional group instead of issuing a large public benchmark bond.</p></div><div><h3>Investor</h3><p>May obtain stronger covenants, information rights, amortization, and spread compensation, with less secondary liquidity.</p></div></div>
+
+Insurers with long holding horizons can value bespoke protection and direct borrower relationships.
+
+## Medium-term notes offer repeat issuance
+
+A shelf program permits repeated issuance without a full public deal each time. Despite the name, maturities range from under one year to decades.
+
+<div class="flow"><span><b>Issuer funding need</b>Timing and size vary</span><i>→</i><span><b>MTN program</b>Customize currency, maturity, coupon, options, principal</span><i>→</i><span><b>Investor match</b>For example, a 9-year or floating-rate exposure</span></div>
+
+## A structured note contains debt and derivatives
+
+<div class="flow"><span><b>Bank zero-coupon bond</b>Principal repayment subject to bank credit</span><i>→</i><span><b>Index call option</b>70% participation in S&P 500 upside</span><i>→</i><span><b>Five-year note</b>Market exposure plus issuer credit exposure</span></div>
+
+Other links include commodities, rates, or FX. Evaluate embedded derivatives, liquidity, fees, and secondary pricing separately.
+
+## Commercial paper depends on rollover access
+
+Short-term unsecured borrowing, usually under 270 days, funds receivables, inventory, and working capital. Eligible short-term issuance can use a registration exemption.
+
+<div class="flow"><span><b>Maturing CP</b>Cash must be repaid</span><i>→</i><span><b>New issuance</b>Requires market confidence</span><i>→</i><span><b>Backup bank line</b>Alternative liquidity if the market closes</span></div>
+
+The 2008 funding disruption illustrates why short maturity does not eliminate risk.
+
+## Commercial paper example: 60-day funding
+
+$$
+P=F\left(1-r_d\frac{t}{360}\right)
+$$
+
+
+
+$$
+P=5{,}000{,}000\left(1-0.0540\frac{60}{360}\right)=4{,}955{,}000
+$$
+
+<div class="cash-timeline" data-times='["Today", "60 days"]' data-flows='["Issuer receives $4.955m", "Issuer repays $5m"]'></div>
+
+Interest cost: **\$45,000**.
+
+## Commercial paper distribution and credit tiers
+
+<div class="comparison"><div><h3>Direct placement</h3><p>Frequent large issuers maintain investor relationships and reduce distribution costs.</p></div><div><h3>Dealer placement</h3><p>A bank or securities dealer places paper on a best-efforts basis, broadening access.</p></div></div>
+
+The notes distinguish higher-quality Tier 1 and lower-quality Tier 2 paper and describe tighter investor constraints after a downgrade.
+
+<div class="source-issue">Instructor review: The notes’ Tier-2 eligibility statement is a regulatory claim that requires current-rule review.</div>
+
+## Bank loans provide negotiated funding
+
+A **credit agreement** governs a private loan. Loans support working capital, acquisitions, refinancing, LBOs, and backup liquidity.
+
+Senior secured, floating-rate loans often have lower rate duration and stronger recovery prospects than unsecured high-yield bonds. Credit, collateral, liquidity, weak covenants, and refinancing risks remain.
+
+## Revolvers, term loans, and leveraged loans
+
+| Type | What it is | What it is good for | Main investor issue |
+|---|---|---|---|
+| Revolving credit facility | A committed line of credit the borrower can draw and repay | Backup liquidity and working capital | Borrower liquidity and covenant compliance |
+| Term loan | A funded loan with scheduled maturity | Acquisition financing, refinancing, and capital structure funding | Credit quality, collateral, amortization, and repayment capacity |
+| Leveraged loan | A loan to a below-investment-grade or highly levered borrower | Financing LBOs, recapitalizations, and speculative-grade companies | Default risk, covenant protection, collateral value, and refinancing risk |
+
+## Syndication, participation, and assignment
+
+| Type | What it is | What it is good for | Main investor issue |
+|---|---|---|---|
+| Syndicated loan | A loan shared by a group of lenders, usually arranged by a lead bank | Large borrowings that are too big for one lender | Agent-bank process, transferability, and lender rights |
+| Loan participation | Exposure purchased through another lender rather than direct lender status | Indirect access to loan exposure | Counterparty risk to the selling lender |
+| Loan assignment | Loan ownership transferred so the buyer becomes lender of record | Cleaner secondary-market transfer of lender rights | Documentation, settlement time, and borrower/agent consent |
+
+## High-yield bonds versus leveraged loans
+
+| Feature | High-yield bond | Leveraged loan |
 |---|---|---|
-| Federally related | TVA | Specific statutory structure |
-| GSE | Fannie Mae, Freddie Mac, FHLBanks | Not generally full faith and credit |
-| Farm credit | FFCB, Farmer Mac | Mission-linked funding structure |
+| Coupon | Usually fixed | Usually floating |
+| Seniority | Often unsecured or subordinated | Usually senior secured |
+| Interest-rate duration | Higher | Lower because coupons reset |
+| Covenants | Often incurrence-based | Historically maintenance-based, though covenant-lite loans are common |
+| Call protection | Often noncallable for several years | Often callable/prepayable with limited protection |
+| Recovery in default | Often lower | Often higher due to senior secured claim |
 
-Investors must verify the legal backing of each issuer and issue.
+Choose between fixed income and call protection versus seniority and floating income, considering credit, liquidity, and covenants.
 
-## Corporate debt sits in a priority ladder
+## CLOs redistribute a leveraged-loan pool
 
-From stronger to weaker claim:
+<div class="flow"><span><b>Leveraged loans</b>Below-investment-grade borrowers</span><i>→</i><span><b>CLO vehicle</b>Collects loan cash flows</span><i>→</i><span><b>Debt tranches</b>Senior, mezzanine, then junior</span><i>→</i><span><b>Equity</b>Residual income and first loss</span></div>
 
-1. Secured debt
-2. Senior unsecured debt
-3. Subordinated debt
-4. Preferred equity
-5. Common equity
+Senior tranches can be investment grade despite risky collateral. Payment priority runs from senior to equity; losses run in the reverse direction.
 
-Priority affects expected recovery—not the probability that distress occurs.
+## Credit risk can appear before default
 
-## Bankruptcy replaces promised value with recovery value
+<div class="flow"><span><b>Spread widening</b>Market compensation increases</span><i>→</i><span><b>Downgrade</b>Ratings constraints can force selling</span><i>→</i><span><b>Default</b>Loss depends on eventual recovery</span></div>
 
-When a firm cannot meet obligations, creditor outcomes depend on:
+A complete analysis asks how likely default is, when it could occur, what can be recovered, and how much interim spread volatility the investor can tolerate.
 
-- collateral value,
-- contractual seniority,
-- legal process and bargaining,
-- enterprise value after restructuring.
+## Annual and cumulative default probabilities
 
-$$\text{Credit loss}=\text{exposure}\times(1-\text{recovery rate})$$
+$$
+PD_{5y}=1-(1-0.02)^5=9.6\%
+$$
 
-## Ratings summarize relative default risk
+A constant 2% annual conditional default rate produces about 9.6% cumulative default over five years.
 
-Moody's, S&P, and Fitch classify corporate obligations from investment grade to speculative grade.
+Actual defaults cluster when earnings weaken and refinancing closes. The constant-rate illustration is not a full economic-cycle model.
 
-Ratings are opinions, not guarantees. Market spreads can change before or without a rating action.
+## Recovery completes the expected-loss calculation
 
-## Redemption provisions change the expected life
+$$
+\text{Default loss rate}=PD(1-R)
+$$
 
-- **Call:** issuer redeems early.
-- **Put:** investor sells back early.
-- **Sinking fund:** scheduled principal retirement.
-- **Tender offer:** issuer repurchases in the market.
 
-Yield comparisons must reflect the relevant redemption path.
 
-## Covenants constrain actions that could harm creditors
+$$
+0.04(1-0.40)=0.024=2.4\%
+$$
 
-- Limits on additional debt or liens
-- Restrictions on asset sales or dividends
-- Reporting and coverage requirements
-- Change-of-control protection
+Collateral, seniority, enterprise value, asset specificity, and legal process affect recovery. Spreads must also compensate for uncertainty, liquidity, downgrades, and bad-state losses.
 
-Covenants trade issuer flexibility for investor protection.
+## Default frequency differs from recovery severity
 
-## High-yield structures often defer or reshape cash
+![](lec3-11-assets/lec5-default-recovery.svg){.figure}
 
-- Step-up coupons
-- Payment-in-kind interest
-- Deferred coupons
-- Equity-linked or contingent features
+Illustrative arrays from the lecture notes, not estimated historical default forecasts.
 
-Cash-flow relief can improve near-term liquidity while increasing leverage and later payment burden.
+## Downgrades can trigger repricing and forced selling
 
-## Short-term corporate funding uses commercial paper
+Investment-grade mandates, money-market credit limits, and collateral terms can tighten after a downgrade. A fallen angel may face selling before high-yield investors absorb the supply.
 
-- Unsecured promissory notes with short maturities
-- Directly placed or sold through dealers
-- Tier distinctions reflect credit quality
+$$
+\Delta P/P\approx-D_s\Delta s=-6(0.0080)=-4.8\%
+$$
 
-Commercial paper depends on market access; backup bank lines help manage rollover risk.
+Spread duration 6 and an 80 bp widening imply an approximate 4.8% price loss without actual default.
 
-## Leveraged loans differ from high-yield bonds
+## Spread is compensation for more than expected loss
 
-| Feature | Leveraged loan | High-yield bond |
-|---|---|---|
-| Coupon | Usually floating | Usually fixed |
-| Security | Often secured | Often unsecured |
-| Seniority | Usually senior | Often junior |
-| Investor vehicle | CLOs, funds, banks | Funds, insurers, institutions |
+$$
+s\approx\text{expected default loss}+\text{credit risk premium}
+$$
 
-## CLOs redistribute a loan pool's risk
 
-A collateralized loan obligation finances a pool of leveraged loans with tranches.
 
-- Senior tranches receive cash first and absorb losses last.
-- Equity receives residual cash and absorbs first loss.
-- Structure changes who bears risk; it does not eliminate underlying loan risk.
+$$
+\phantom{s\approx{}}+\text{liquidity premium}+\text{tax, technical, option effects}
+$$
 
-## Default rate and recovery answer different questions
+Spreads generally narrow with strong growth and risk appetite and widen with recession risk, illiquidity, or demand for safety.
 
-- **Default rate:** How often do issuers fail?
-- **Recovery rate:** How much value remains after default?
-- **Downgrade risk:** How can repricing occur before default?
-- **Spread risk:** How can required compensation change with no rating action?
+## Corporate and high-yield spread cycles
 
-## Analyze corporate debt as a contract in a capital structure
+![](lec3-11-assets/lec5-archived-spreads.png){.figure}
 
-1. Identify issuer and legal entity.
-2. Locate priority and collateral.
-3. Map coupons, maturity, and redemption provisions.
-4. Read covenants.
-5. Stress default probability, recovery, and spread.
+Archived course-note chart: FRED / ICE BofA OAS series. Snapshot preserved, not refreshed. Spread spikes show how credit stress can dominate Treasury-rate gains.
 
-<div class="takeaway">The coupon is only the surface; creditor rights determine the bond beneath it.</div>
+## Treasury and spread moves can offset each other
+
+Treasury duration 7; spread duration 6. Treasury yields fall 40 bp while credit spread widens 90 bp.
+
+$$
+\Delta P/P\approx-7(-0.0040)-6(0.0090)
+$$
+
+
+
+$$
+=2.8\%-5.4\%=-2.6\%
+$$
+
+The corporate bond loses value despite the Treasury rally. Measure rate and spread risks separately.
+
+## The contract determines the risk
+
+<div class="flow"><span><b>Treasury design</b>Bills, coupons, resets, inflation, stripping</span><i>→</i><span><b>Agency support</b>Mission, structure, liquidity</span><i>→</i><span><b>Corporate contract</b>Priority, covenants, options, recovery</span></div>
+
+A coupon is only part of the analysis. Cash-flow timing, financing access, legal claims, and changing required spreads determine investor outcomes.
+
+## Readings and market resources
+
+Fabozzi: **Chapter 6, Treasury and Federal Agency Securities**; **Chapter 7, Corporate Debt Instruments**.
+
+- [TreasuryDirect auction results](https://www.treasurydirect.gov/auctions/auction-query/)
+- [FINRA fixed-income data](https://www.finra.org/finra-data/fixed-income)
+- [SEC EDGAR issuer filings](https://www.sec.gov/search-filings)
+- [Federal Reserve commercial paper data](https://www.federalreserve.gov/releases/cp/)

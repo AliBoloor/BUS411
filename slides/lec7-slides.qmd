@@ -1,208 +1,488 @@
 ---
 title: "Lecture 7: Interest-Rate Models and Option Pricing"
 subtitle: "From stochastic short rates to trees and backward induction"
+format:
+  revealjs:
+    css: lec3-11-slides.css
+    html-math-method: mathml
+    include-in-header:
+      text: |
+        <script src="lec3-11-visuals.js" defer></script>
 ---
 
-## Models answer questions that discounting alone cannot
+## A model is a simplified answer to a specific question
 
-Today's curve prices fixed cash flows. A model becomes essential when value depends on **future rates**, **future curves**, or **exercise decisions**.
+<div class="flow"><span><b>Reality</b>Many economic relationships</span><i>→</i><span><b>Model</b>Selected equations, assumptions, parameters</span><i>→</i><span><b>Decision</b>Value, compare, predict, or manage risk</span></div>
 
-Examples include callable bonds, mortgage prepayments, caps, floors, and swaptions.
+A useful model captures the features that matter for the decision. It need not reproduce every detail or predict the exact future path.
 
-## A useful model is a disciplined simplification
+## Fixed-income modeling begins with discounting
 
-- State variables summarize the market.
-- Dynamics describe how those variables evolve.
-- Calibration connects the model to observed prices.
-- Pricing converts future states into today's value.
+$$
+P=\sum_iCF_iP(0,t_i)
+$$
 
-The model should be as simple as possible—but rich enough for the payoff.
+Known payments and a discount curve can be enough to value a plain bond. Models also support duration, convexity, spreads, scenarios, stress tests, and relative value.
 
-## Short-rate models begin with a stochastic process
+Callable bonds, MBS, caps, floors, swaptions, and structured notes need future states because payments or exercise can change.
 
-$$dr_t=\mu(r_t,t)dt+\sigma(r_t,t)dW_t$$
+## An interest-rate model adds a rule for future movement
 
-- Drift $\mu$ describes the expected local direction.
-- Volatility $\sigma$ controls uncertainty.
-- Brownian increment $dW_t$ has mean 0 and variance $dt$.
+$$
+dr_t=b\,dt+\sigma\,dz_t
+$$
 
-## Brownian shocks scale with the square root of time
+<div class="flow"><span><b>Short rate rₜ</b>Chosen state variable</span><i>→</i><span><b>Drift b dt</b>Expected local movement</span><i>→</i><span><b>Shock σ dzₜ</b>Unexpected movement</span></div>
 
-$$dW_t=\sqrt{dt}\,z,\qquad z\sim N(0,1)$$
+Possible paths inform future yield curves, portfolio gains/losses, calls, option values, and volatility effects.
 
-Therefore:
+## A snapshot and a process serve different purposes
 
-$$E[dW_t]=0,\qquad Var(dW_t)=dt$$
+<div class="comparison"><div><h3>Yield curve</h3><p>Today’s discount factors summarize current market prices.</p></div><div><h3>Interest-rate model</h3><p>A probabilistic rule generates possible future rates and curves.</p></div></div>
 
-Halving the time step does not halve shock size; it multiplies it by $\sqrt{1/2}$.
+Known cash flows often need only the snapshot; rate-dependent cash flows need dynamics.
 
-## Drift and volatility encode different economic beliefs
+## One-factor dynamics use one Brownian source
 
-- Constant drift allows rates to wander systematically.
-- Mean reversion pulls rates toward a long-run level.
-- Constant volatility permits negative rates.
-- Level-dependent volatility can keep rates nonnegative.
+$$
+dr_t=b\,dt+\sigma\,dz_t
+$$
 
-No specification is universally best.
 
-## Vasicek adds mean reversion
 
-$$dr_t=a(b-r_t)dt+\sigma dW_t$$
+$$
+\mathbb E[dz_t]=0,\qquad\operatorname{Var}(dz_t)=dt
+$$
 
-- $a$: speed of mean reversion
-- $b$: long-run mean
-- $\sigma$: short-rate volatility
+In the simplest normal model, b and σ are constants. With b = 0, the expected change is zero and variance over horizon T is σ²T.
 
-When $r_t>b$, expected drift is downward; when $r_t<b$, it is upward.
+## Random shocks scale with the square root of time
 
-## Mean reversion limits long-horizon dispersion
+$$
+\Delta z_t\approx\sqrt{\Delta t}\,\varepsilon,\qquad\varepsilon\sim N(0,1)
+$$
 
-The conditional mean is:
 
-$$E_t[r_T]=b+(r_t-b)e^{-a(T-t)}$$
 
-The influence of today's rate decays at speed $a$. A larger $a$ means faster return toward $b$.
+$$
+\Delta r_t\approx b\Delta t+\sigma\sqrt{\Delta t}\,\varepsilon
+$$
 
-## Equilibrium and no-arbitrage models solve different problems
+Halving the time step multiplies shock size by √(1/2), not 1/2. Drift scales with time; random dispersion scales with its square root.
 
-| Model type | Primary goal |
+## Drift defines the center, volatility the dispersion
+
+Source simulation: r₀ = **4%**, b = **0.4 percentage points/year**, σ = **1.5 percentage points/√year**, T = **5 years**, daily steps, **8 paths**.
+
+$$
+r_t\sim N(r_0+bt,\sigma^2t)
+$$
+
+At three years, expected rate = **5.2%** and standard deviation = **1.5%√3 ≈ 2.60 percentage points**.
+
+## Possible paths wander around the drift path
+
+![](lec3-11-assets/lec7-fig-drift-and-random-shocks.svg){.figure}
+
+Simulated source paths with seed 7. The bell curve at year 3 illustrates the cross-sectional distribution at a fixed date.
+
+## An Itô process allows state- and time-dependent dynamics
+
+$$
+dr_t=b(r_t,t)\,dt+\sigma(r_t,t)\,dz_t
+$$
+
+Drift and volatility can depend on the current rate and on time. These functions are the building blocks of one-factor term-structure models.
+
+## Mean reversion pulls toward a long-run level
+
+$$
+b(r_t,t)=-\alpha(r_t-\bar r),\qquad\alpha>0
+$$
+
+<div class="comparison"><div><h3>Rate above the mean</h3><p>Negative drift pulls downward.</p></div><div><h3>Rate below the mean</h3><p>Positive drift pulls upward.</p></div></div>
+
+Larger α means a faster pull toward the mean; it does not eliminate random shocks.
+
+## Compare slow and fast mean reversion
+
+Common inputs: r₀ = **7.5%**, long-run mean **4%**, σ = **1.2%**, horizon **6 years**, daily steps, **6 paths**.
+
+The same random shocks are used for α = **0.15** and α = **1.25**.
+
+$$
+\mathbb E_t[r_T]=\bar r+(r_t-\bar r)e^{-\alpha(T-t)}
+$$
+
+The initial rate’s influence decays more quickly at higher α. This conditional-mean formula is retained from the existing deck.
+
+## Higher mean reversion shortens the return toward the mean
+
+![](lec3-11-assets/lec7-fig-mean-reversion-speed.svg){.figure}
+
+Source simulation, seed 12; both panels use the same shock matrix.
+
+## CEV specifies how volatility changes with the rate
+
+$$
+\sigma(r_t,t)=\sigma_0r_t^\gamma
+$$
+
+| γ | Volatility | Model family named in notes |
+|---:|---|---|
+| 0 | Constant | Vasicek / normal |
+| 1 | Proportional to rate | Dothan / lognormal |
+| ½ | Proportional to √rate | CIR / square-root |
+
+These are volatility specifications; the full named model also requires its drift specification.
+
+## Square-root volatility and mean reversion work together
+
+$$
+dr_t=-\alpha(r_t-\bar r)\,dt+\sigma_0\sqrt{r_t}\,dz_t
+$$
+
+The shock term vanishes as r approaches zero. With appropriate parameters, the continuous-time CIR process stays nonnegative. Strict positivity needs stronger restrictions than nonnegativity.
+
+Constant-volatility normal models can cross zero; positive-rate lognormal models cannot.
+
+## Ornstein–Uhlenbeck / Vasicek simulation: the setup
+
+$$
+\Delta r=-\alpha(r-\bar r)\Delta t+\sigma_0\sqrt{\Delta t}\,\varepsilon
+$$
+
+| Parameter | Source value |
+|---|---:|
+| Mean-reversion speed α | 0.5 |
+| Long-run rate | 5% |
+| Volatility σ₀ | 2% |
+| Initial rate | 4% |
+| Horizon / time step | 5 years / 1/252 year |
+| Paths | 5 |
+
+## OU paths combine a restoring drift with random shocks
+
+![](lec3-11-assets/lec7-fig-ou-simulation.svg){.figure}
+
+Rates on this source plot use decimal units: 0.05 means 5%. Simulated paths illustrate uncertainty, not forecasts.
+
+## No-arbitrage models begin with observed prices
+
+<div class="flow"><span><b>Benchmark instruments</b>Treasuries, swaps, and other liquid prices</span><i>→</i><span><b>Calibrate</b>Fit the initial term structure</span><i>→</i><span><b>Value targets</b>Price consistently with fitted benchmarks</span></div>
+
+The model imposes internally consistent no-arbitrage pricing. Calibration quality depends on instruments, conventions, and numerical implementation.
+
+## Normal and lognormal no-arbitrage models
+
+| Model | Type | Key features |
+|------|------|--------------|
+| **Ho–Lee** | Normal | Constant volatility; no mean reversion. Produces normally distributed rate changes. |
+| **Hull–White** | Normal | Adds mean reversion to the Ho–Lee model. Useful for pricing callable bonds. |
+| **Kalotay–Williams–Fabozzi (KWF)** | Lognormal | Models the logarithm of the short rate; no mean reversion. |
+
+## Mean reversion and forward-rate model families
+
+| Model | Type | Key features |
+|------|------|--------------|
+| **Black–Karasinski** | Lognormal | Lognormal model with mean reversion. |
+| **Black–Derman–Toy** | Lognormal | Lognormal with endogenous mean reversion; calibrates to caps and floors. |
+| **Heath–Jarrow–Morton (HJM)** | General | Multi‑factor model specifying the volatility structure of forward rates. Many models (Ho–Lee, Hull–White, KWF, etc.) are special cases. |
+
+## Equilibrium models begin with economic assumptions
+
+<div class="comparison"><div><h3>Equilibrium</h3><p>Economic fundamentals and investor preferences motivate dynamics; historical estimation need not fit today’s entire curve.</p></div><div><h3>No-arbitrage</h3><p>Fit observed market prices, then price other claims consistently.</p></div></div>
+
+Vasicek and CIR are one-factor examples; Brennan–Schwartz and Longstaff–Schwartz use two factors. Equilibrium models provide economic intuition; market calibration is especially useful for derivatives.
+
+## Use a stochastic rate model when the payoff requires it
+
+$$
+P=\sum_iCF_iP(0,t_i)
+$$
+
+P(0,tᵢ) is today’s price of a unit payment at tᵢ. Bootstrap discount factors from benchmark instruments.
+
+A Hull–White model fitted to the same curve reproduces the same time-0 plain-bond value. That checks consistency but adds little to fixed-payment discounting.
+
+## Cash-flow dependence determines the valuation method
+
+| Feature | Plain fixed‑rate bond | Callable bond or rate derivative |
+|---|---|---|
+| Cash flows | Fixed or mostly fixed | State‑dependent cash flows |
+| Main valuation input | Today's bootstrapped discount curve | Future yield curves generated by a model |
+| Typical method | Discounted cash flow | Backward induction, lattice, or simulation |
+| Exercise decision | None | Compare continuation value with exercise value |
+| Examples | Treasury bond, fixed‑rate corporate bond | Callable bond, MBS, cap, floor, swaption |
+
+Callable/putable bonds, MBS, caps, floors, swaptions, and structured notes depend on future rates or exercise.
+
+## A path implies a discount factor
+
+$$
+D(0,T;\text{path})=\exp\left(-\int_0^Tr_s\,ds\right)
+$$
+
+
+
+$$
+P(0,T)=\mathbb E^{\mathbb Q}\left[\exp\left(-\int_0^Tr_s\,ds\right)\right]
+$$
+
+Average discounted payoffs under the risk-neutral measure Q. A single realized path discount factor is different from the bond price, which averages over paths.
+
+## Bond prices imply continuously compounded zero rates
+
+$$
+y(0,T)=-\frac{\log P(0,T)}T
+$$
+
+<div class="flow"><span><b>Short-rate process</b>Generates paths</span><i>→</i><span><b>Path discounting</b>Integrate rates</span><i>→</i><span><b>Risk-neutral expectation</b>Zero-coupon prices</span><i>→</i><span><b>Log transform</b>Yield curve</span></div>
+
+## Future nodes imply future curves
+
+$$
+P(t,T)=\mathbb E_t^{\mathbb Q}\left[\exp\left(-\int_t^Tr_s\,ds\right)\right],\qquad T>t
+$$
+
+<div class="comparison"><div><h3>P(0,T)</h3><p>Observed or calibrated today.</p></div><div><h3>P(t,T), t > 0</h3><p>Generated by the model at a future state.</p></div></div>
+
+In one-factor Hull–White, time and the short-rate state determine the full future curve. Each future node supplies discount factors for remaining payments.
+
+## A tree organizes the future states
+
+![](lec3-11-assets/lec7-fig-short-rate-tree.svg){.figure}
+
+Branches represent possible future rates. Recombination merges paths reaching the same state; exercise is checked at eligible future nodes.
+
+## Hull–White extends Vasicek to fit today’s curve
+
+$$
+dr_t=[\theta(t)-ar_t]dt+\sigma dW_t
+$$
+
+| Input | Role |
 |---|---|
-| Equilibrium | Explain rates from assumed economic dynamics |
-| No-arbitrage | Fit today's term structure and price consistently |
+| a | Speed of mean reversion |
+| σ | Short-rate volatility |
+| θ(t) | Time-dependent drift function |
+| Wₜ under Q | Risk-neutral Brownian motion |
 
-Vasicek is an equilibrium model; Hull–White adapts its structure to the observed curve.
+## The curve fit comes from a function, not two scalars
 
-## A curve and a short-rate model are not substitutes
+<div class="comparison"><div><h3>θ(t)</h3><p>An entire function of time chosen to fit the initial discount curve.</p></div><div><h3>a and σ</h3><p>Control future dynamics and are often calibrated to liquid rate-option prices.</p></div></div>
 
-- The **yield curve** gives today's discount factors $P(0,T)$.
-- A **short-rate model** generates future $r_t$ and future discount factors $P(t,T)$.
+Two scalar parameters could not generally fit an arbitrary observed curve. Hull–White adds market-consistent future scenarios and curves for contingent cash flows.
 
-Plain fixed cash flows need the first. Rate-dependent cash flows need both.
+## Initial-curve fit: the source schematic
 
-## A short-rate path generates discount factors
+![](lec3-11-assets/lec7-fig-hull-white-fit.svg){.figure}
 
-For continuously compounded short rates:
+Illustrative input curve, not live market data. The source plot deliberately offsets the fitted points by up to 1 bp; it illustrates a near fit rather than a numerical calibration result.
 
-$$P(t,T)=E_t^Q\left[\exp\left(-\int_t^T r_sds\right)\right]$$
+## Calibration separates current prices from future dynamics
 
-Risk-neutral expectation $Q$ links simulated future rates to no-arbitrage prices.
+<div class="flow"><span><b>1 Bootstrap</b>Infer market discount factors</span><i>→</i><span><b>2 Fit θ(t)</b>Match zero-coupon prices</span><i>→</i><span><b>3 Fit a and σ</b>Use caps, floors, swaptions</span></div>
 
-## A recombining tree organizes future states
+4. Price the target with a lattice, finite differences, or simulation.
 
-At each step, rates move up or down. Paths that reach the same state merge.
+Plain fixed cash flows often need step 1; future-rate-dependent claims need the additional steps.
 
-Recombination reduces the number of nodes from exponential growth to a manageable triangular lattice.
+## Pricing workflow: generate future decision states
 
-## Hull–White fits today's curve and models tomorrow
+<div class="flow"><span><b>Observed curve</b>P(0,T)</span><i>→</i><span><b>Calibrate Hull–White</b>Initial curve and option prices</span><i>→</i><span><b>Generate rₜ</b>Trees or paths</span><i>→</i><span><b>Generate P(t,T)</b>Future discount factors</span></div>
 
-$$dr_t=[\theta(t)-ar_t]dt+\sigma dW_t$$
+## Pricing workflow: exercise and discount backward
 
-- $\theta(t)$ is a time-dependent function chosen to fit today's term structure.
-- $a$ controls mean reversion.
-- $\sigma$ controls volatility.
+<div class="flow"><span><b>Remaining payments</b>Value at the future curve</span><i>→</i><span><b>Exercise decision</b>Compare continuation and exercise</span><i>→</i><span><b>Discount backward</b>Recover today’s value</span></div>
 
-## Calibration separates curve fit from dynamics
+Complexity enters through optionality, prepayments, changing cash flows, portfolio risk, and credit/liquidity/spread modeling.
 
-1. Bootstrap market discount factors.
-2. Choose $\theta(t)$ to match $P(0,T)$.
-3. Calibrate $a$ and $\sigma$ to rate options when needed.
-4. Use the calibrated model to value the target instrument.
+## Historical evidence is regime dependent
 
-Plain bonds mostly need step 1; embedded options need the full workflow.
+The notes describe Treasury evidence from the late 1970s to the 2000s: volatility rose with rate levels above roughly 10%, but the link weakened in lower-rate regimes.
 
-## The Hull–White workflow turns states into exercise values
+<div class="comparison"><div><h3>Normal specification</h3><p>Constant absolute volatility can be useful in lower-rate regimes.</p></div><div><h3>Level-dependent specification</h3><p>Square-root or proportional volatility can capture a stronger rate-level link.</p></div></div>
 
-Observed curve → calibrated model → future short rates → future discount factors → remaining cash-flow values → exercise decisions → present value
+The 10% division is a historical description in the notes, not a universal model-selection threshold.
 
-<div class="takeaway">Calibration preserves today's market; dynamics determine tomorrow's decision states.</div>
+## Negative rates test the model’s support
 
-## The practical demo makes calibration choices visible
+<div class="comparison"><div><h3>Normal models</h3><p>Allow negative rates.</p></div><div><h3>Positive-rate lognormal models</h3><p>Exclude negative rates by construction.</p></div></div>
 
-The course demo `demo_interest_rate_models.qmd` walks through:
+The notes cite U.S. Great Depression Treasury bills and late-1990s yen deposits.
 
-- observed versus illustrative inputs,
-- Vasicek estimation intuition,
-- Hull–White term-structure fitting,
-- path simulation and model comparison.
+<div class="source-issue">Instructor review: The notes’ claim that negative rates are rare and pricing effects are small is parameter- and regime-dependent. It should not be taught as a general guarantee.</div>
 
-Use the demo to separate what is estimated historically from what is calibrated to market prices.
+## Select the model for the payoff, data, and computation
 
-## Historical volatility describes the past
+| Criterion | Decision |
+|---|---|
+| Purpose | Market-consistent valuation or economic insight? |
+| Volatility and support | Constant, square-root, or proportional; can rates be negative? |
+| Tractability | Calibration speed, lattice/simulation cost, transparency |
+| Data | Reliable current prices or long historical series? |
 
-For rate changes $\Delta r_t$:
+Use sufficient factors and volatility structure for the payoff. The simplest robust model is often preferable.
 
-$$\hat\sigma_{annual}=sd(\Delta r_t)\sqrt{N}$$
+## Historical volatility starts with changes, not levels
 
-$N$ is the number of observations per year. Window, frequency, and regime materially affect the estimate.
+$$
+\Delta r_t=r_t-r_{t-1},\qquad\hat\sigma_{annual}=s(\Delta r_t)\sqrt N
+$$
 
-## Implied volatility is the market's pricing input
+Weekly observations use N = 52. The notes mention 250 or 260 trading days for daily data; simulations earlier use 252. State the chosen convention.
 
-Implied volatility is the value of $\sigma$ that makes a model price equal an observed option price.
+Sampling frequency, estimation window, and market regime change the estimate.
 
-Historical volatility asks “what happened?” Implied volatility asks “what volatility is priced now?”
+## Ten weekly rates produce nine changes
 
-## Model selection follows the payoff and market regime
+| Week | Rate (%) | Weekly change ($\Delta r_t$, bps) |
+|----|------|------------------|
+| 1  | 2.00 | – |
+| 2  | 2.05 | +5 |
+| 3  | 2.04 | −1 |
+| 4  | 2.08 | +4 |
+| 5  | 2.02 | −6 |
+| 6  | 2.10 | +8 |
+| 7  | 2.09 | −1 |
+| 8  | 2.12 | +3 |
+| 9  | 2.15 | +3 |
+| 10 | 2.14 | −1 |
 
-Consider:
+All data are artificial. A 5 bp change is 0.0005 in decimal rate units.
 
-- need to fit today's curve,
-- possibility of negative rates,
-- mean reversion,
-- volatility smile or term structure,
-- number of risk factors,
-- computational cost and transparency.
+## Volatility calculation: center and square the changes
 
-## A one-period option has two future values
+$$
+\bar{\Delta r}=14/9=1.556\text{ bp}
+$$
 
-Let the option be worth $C_u$ in the up state and $C_d$ in the down state.
 
-Under risk-neutral probability $q$:
 
-$$C_0=\frac{qC_u+(1-q)C_d}{1+r}$$
+$$
+s^2=\frac1{9-1}\sum_{i=1}^9(\Delta r_i-\bar{\Delta r})^2
+$$
 
-Pricing discounts the risk-neutral expected payoff—not the investor's subjective forecast.
+The notes print squared-deviation sum **94.22**, sample variance **11.78 bp²**, weekly SD **3.43 bp**, and annual SD **24.7 bp**.
 
-## Risk-neutral probability enforces no arbitrage
+<div class="source-issue">Instructor review: There are nine changes, not eight. The listed data give squared-deviation sum 140.22, variance 17.53 bp², weekly SD 4.19 bp, and annual SD 30.19 bp.</div>
 
-In a simple stock-style binomial model:
+## Annualize the reproducible calculation
 
-$$q=\frac{(1+r)-d}{u-d}$$
+$$
+\sum(\Delta r_i-\bar{\Delta r})^2=140.2222\text{ bp}^2
+$$
 
-$q$ is a pricing device that makes the expected return equal the risk-free rate within the model.
 
-## Backward induction solves decisions from the end
 
-1. Calculate terminal payoffs.
-2. Move one step backward.
-3. Take the risk-neutral expected next value.
-4. Discount at the node rate.
-5. Apply any exercise decision.
-6. Repeat to time 0.
+$$
+s_{weekly}=\sqrt{140.2222/8}=4.1866\text{ bp}
+$$
 
-## Fixed-income options combine rates and exercise
 
-At every node, the model must determine:
 
-- the discount rate,
-- the value of remaining cash flows,
-- whether call, put, or prepayment is optimal.
+$$
+s_{annual}=4.1866\sqrt{52}=30.1901\text{ bp}
+$$
 
-This is why a tree is more than a forecast: it is a state-by-state valuation engine.
+These calculations use the exact nine changes shown on the preceding slides; source values remain visible for instructor review.
 
-## The next step is pricing optionality inside the bond
+## Implied volatility inverts a pricing model
 
-Lecture 8 applies trees to callable bonds:
+<div class="flow"><span><b>Observed option price</b>Cap, floor, or swaption</span><i>→</i><span><b>Chosen pricing model</b>Price as a function of volatility</span><i>→</i><span><b>Solve for σ</b>Volatility priced by that model</span></div>
 
-$$V_{callable}=V_{option\text{-}free}-V_{issuer\ call}$$
+<div class="comparison"><div><h3>Historical</h3><p>Describes past rate changes.</p></div><div><h3>Implied</h3><p>Reflects current option pricing, expectations, and risk premiums.</p></div></div>
 
-The model converts future refinancing opportunities into today's option cost and OAS.
+## The existing course demo supports the distinction
 
-## Keep the hierarchy of questions clear
+`demo_interest_rate_models.qmd` illustrates observed versus synthetic inputs, Vasicek estimation, Hull–White fitting, path simulation, and model comparison.
 
-1. What does today's curve price?
-2. Which future state variable drives the payoff?
-3. How should that variable evolve?
-4. How is the model calibrated?
-5. What decision occurs at each node?
+Use it to separate historical estimation from market calibration. The deck’s simulations are reproducible source illustrations, not estimated forecasts.
 
-<div class="takeaway">A model is valuable when it connects observable markets to contingent future cash flows.</div>
+## An option is a right, not an obligation
+
+Fixed-income underlyings can be bonds, future bond prices, short rates, yield curves, swap rates, or mortgage pools.
+
+Future states determine the payoff. Today’s price must account for several possible outcomes.
+
+## A one-period call has a payoff in each state
+
+$$
+C_u=\max(B_u-K,0),\qquad C_d=\max(B_d-K,0)
+$$
+
+B₀ is today’s bond value; Bᵤ and B_d are possible future values; K is the exercise price.
+
+## The option tree maps states to payoffs
+
+![](lec3-11-assets/lec7-fig-one-period-option-tree.svg){.figure}
+
+q and 1−q are pricing probabilities. They are not predictions of the physical frequency of up and down moves.
+
+## Discount the risk-neutral expected payoff
+
+$$
+C_0=\frac{qC_u+(1-q)C_d}{1+r}
+$$
+
+
+
+$$
+q=\frac{(1+r)-d}{u-d}
+$$
+
+The second formula is the existing deck’s simple stock-style binomial case: Bᵤ = uB₀, B_d = dB₀, no interim payment, and d < 1+r < u. It is not a universal bond-tree probability formula.
+
+## Backward induction works from the final nodes
+
+<div class="flow"><span><b>Terminal states</b>Compute final payoffs</span><i>→</i><span><b>One step earlier</b>Expected value, then discount</span><i>→</i><span><b>Exercise date?</b>Compare continuation and exercise</span><i>→</i><span><b>Repeat</b>Work back to time zero</span></div>
+
+At multiple exercise dates, the decision is checked at every eligible node.
+
+## Future curves value the remaining payments
+
+$$
+V_{continue}(t)=\sum_iCF_iP(t,t_i)
+$$
+
+For a callable bond, the issuer owns the exercise right. The future curve determines how expensive it is to leave the old coupon bond outstanding.
+
+## Issuer control creates a minimum for the bondholder
+
+$$
+V(t)=\min\{V_{continue}(t),\ \text{call price}\}
+$$
+
+<div class="comparison"><div><h3>Rates fall</h3><p>Remaining high coupons become valuable; if continuation exceeds call price, the issuer calls.</p></div><div><h3>Rates rise</h3><p>Continuation usually falls below call price; the issuer leaves the bond outstanding.</p></div></div>
+
+Apply consistent coupon timing at the exercise date.
+
+## The callable-bond decision is a branch
+
+<div class="flow"><span><b>Future curve</b>Discount remaining cash flows</span><i>→</i><span><b>Continuation value</b>Compare with call price</span></div>
+
+<div class="comparison"><div><h3>Continuation > call price</h3><p>Call: bondholder receives the call price.</p></div><div><h3>Continuation < call price</h3><p>Do not call: bondholder keeps the continuation claim.</p></div></div>
+
+## From models to embedded-option valuation
+
+$$
+V_{callable}=V_{option\text{-}free}-V_{issuer\ call}
+$$
+
+Lecture 8 applies the same chain: future states → remaining values → exercise rule → backward induction. The rate model supplies the future decision states.
+
+## Keep the modeling questions in order
+
+<div class="flow"><span><b>Today</b>What does the observed curve price?</span><i>→</i><span><b>Dynamics</b>Which state variable and volatility law?</span><i>→</i><span><b>Calibration</b>Which data fit the model?</span><i>→</i><span><b>Decision</b>What payoff or exercise rule applies?</span></div>
+
+Drift, volatility, and mean reversion determine dynamics. Calibration anchors current prices; future cash-flow contingencies determine how much model complexity is useful.
+
+## Readings and official data
+
+Fabozzi, **Chapter 17**.
+
+- [Treasury daily par curves](https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve)
+- [New York Fed reference rates](https://www.newyorkfed.org/markets/reference-rates)
+- [FRED effective federal funds rate](https://fred.stlouisfed.org/series/DFF)
+- [Federal Reserve H.15](https://www.federalreserve.gov/releases/h15/)

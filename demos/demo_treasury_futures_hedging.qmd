@@ -6,13 +6,40 @@ format:
     toc-location: left
     number-sections: true
     code-fold: true
+    code-summary: "Show calculation"
+    fig-align: center
+    fig-dpi: 160
     code-tools: true
+    include-in-header:
+      text: |
+        <style>
+        main.content, .cell, .cell-output-display { min-width: 0; }
+        .cell-output-display { overflow-x: auto; max-width: 100%; }
+        .cell-output-display img { max-width: 100%; height: auto; }
+        .demo-lab table { width: 100%; font-size: .95rem; }
+        .demo-lab th, .demo-lab td { text-align: left; padding: .35rem .65rem .35rem 0; }
+        .demo-lab th { border-bottom: 1px solid #b6bdb2; }
+        .demo-lab input { accent-color: #214b3e; }
+        .demo-lab button { border: 1px solid #214b3e; border-radius: 3px;
+          color: #214b3e; background: transparent; padding: .2rem .7rem; }
+        details.code-fold { margin: .8rem 0; }
+        mjx-container[display="true"] { display: block; max-width: 100%;
+          overflow-x: auto; overflow-y: hidden; padding-block: .35em; }
+        </style>
+  pdf:
+    execute:
+      echo: false
 jupyter: python3
 execute:
   echo: true
   warning: false
   message: false
 ---
+
+::: {.content-visible when-format="pdf"}
+This reading copy shows the calculations' results and figures. The HTML demo
+contains the full code in folded blocks and interactive scenario controls.
+:::
 
 ## Learning Objectives {.unnumbered}
 
@@ -25,6 +52,12 @@ After completing this demo you should be able to:
 - identify residual basis, spread, curve, rounding, and CTD risks.
 
 ## Market Inputs Versus Illustrative Inputs
+
+**The desk request:** reduce the portfolio's parallel Treasury-rate risk without
+selling its corporate bonds. The workflow is **holdings → Treasury DV01 → CTD
+mapping → integer hedge → residual P&L**. Equal face amounts do not imply equal
+exposures. The hedge is judged against the specified risk, not against whether
+the entire portfolio avoids a loss.
 
 The workflow resembles a daily risk-management task, but every number below is illustrative rather than live market data. A live hedge would use current positions, clean prices, accrued interest, key-rate durations, deliverable-basket data, conversion factors, CTD candidates, financing rates, and exchange contract specifications.
 
@@ -60,6 +93,129 @@ $$
 DV01_i^{\text{Treasury}}
 =DV01_i\times\beta_i.
 $$
+
+
+```{python}
+#| label: reader-tools
+#| include: false
+import json
+import html
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from IPython.display import HTML, display
+from cycler import cycler
+
+plt.rcParams.update({
+    "figure.figsize": (8, 4.5), "figure.dpi": 140,
+    "axes.spines.top": False, "axes.spines.right": False,
+    "axes.grid": True, "axes.axisbelow": True, "grid.alpha": 0.20,
+    "axes.titleweight": "bold", "font.size": 11,
+    "lines.linewidth": 2.2, "lines.markersize": 6,
+    "axes.prop_cycle": cycler(color=["#214b3e", "#936724", "#486d8c", "#865c76"]),
+})
+
+
+# Keep every field, but split wide tables into readable panels for HTML and PDF.
+def readable_table(frame):
+    frame = frame.copy()
+    if len(frame.columns) and frame.iloc[:, 0].dtype == object:
+        frame = frame.set_index(frame.columns[0])
+    if len(frame.columns) > 6 and len(frame) <= 4:
+        frame = frame.T
+    panels = []
+    for start in range(0, len(frame.columns), 3):
+        part = frame.iloc[:, start:start+3]
+        markup = part.to_html(border=0, na_rep="", float_format=lambda v: f"{v:,.4f}".rstrip("0").rstrip("."))
+        widths = [40] + [60 / max(1, len(part.columns))] * len(part.columns)
+        cols = "<colgroup>" + "".join(f'<col style="width:{w}%">' for w in widths) + "</colgroup>"
+        end = markup.index(">") + 1
+        panels.append(markup[:end] + cols + markup[end:])
+    return "\n".join(panels)
+
+get_ipython().display_formatter.formatters["text/html"].for_type(pd.DataFrame, readable_table)
+
+def demo_explorer(x, series, x_label, y_label, initial=0):
+    """Show precomputed notebook results; the slider selects an exact grid row."""
+    x = np.asarray(x, dtype=float)
+    values = {name: np.asarray(y, dtype=float).tolist() for name, y in series.items()}
+    assert len(x) > 1 and np.all(np.diff(x) > 0)
+    assert all(len(y) == len(x) and np.isfinite(y).all() for y in values.values())
+    payload = json.dumps({"x": x.tolist(), "series": values,
+                          "xLabel": x_label, "yLabel": y_label,
+                          "initial": int(initial)}, allow_nan=False).replace("<", "\\u003c")
+    markup = """
+<div class="demo-lab" style="border-left:4px solid #936724;padding:1rem;margin:1rem 0">
+  <label for="demo-control"><strong>__XLABEL__</strong></label>
+  <input id="demo-control" type="range" min="0" max="__MAX__" value="__INITIAL__" step="1"
+         style="display:block;width:100%;margin:.8rem 0">
+  <button id="demo-reset" type="button">Reset</button>
+  <p id="demo-selection" aria-live="polite"></p>
+  <svg id="demo-plot" viewBox="0 0 760 350" role="img"
+       aria-label="__YLABEL__ as __XLABEL__ changes" style="width:100%;height:auto"></svg>
+  <div style="overflow-x:auto"><table><thead><tr><th>Model output</th><th>__YLABEL__</th></tr></thead>
+  <tbody id="demo-values"></tbody></table></div>
+  <small>The control selects computed scenario points, not live market observations.</small>
+</div>
+<script>
+(() => {
+const d = __DATA__, slider = document.getElementById('demo-control');
+const svg = document.getElementById('demo-plot'), ns = 'http://www.w3.org/2000/svg';
+const colors = ['#214b3e','#936724','#486d8c','#865c76'];
+const dash = ['', '8 4', '3 3', '10 3 2 3'];
+const all = Object.values(d.series).flat(), lo = Math.min(...all), hi = Math.max(...all);
+const pad = Math.max((hi-lo)*.12, .01), ymin = lo-pad, ymax = hi+pad;
+let width=760;
+const X = v => 70 + (width-100)*(v-d.x[0])/(d.x[d.x.length-1]-d.x[0]);
+const Y = v => 275 - 240*(v-ymin)/(ymax-ymin);
+const add = (name, attrs, content='') => {
+  const e=document.createElementNS(ns,name);
+  Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,v));
+  if(content) e.textContent=content; svg.appendChild(e); return e;
+};
+const fmt = v => v.toLocaleString('en-US',{maximumFractionDigits:3});
+const render = () => {
+  const i=Number(slider.value); svg.replaceChildren();
+  width=Math.max(340, Math.min(760, svg.clientWidth));
+  svg.setAttribute('viewBox','0 0 '+width+' 350');
+  add('rect',{x:0,y:0,width:width,height:350,fill:'#ffffff'});
+  for(let j=0;j<5;j++){
+    const v=ymin+(ymax-ymin)*j/4, y=Y(v);
+    add('line',{x1:70,y1:y,x2:width-30,y2:y,stroke:'#e0e3df'});
+    add('text',{x:62,y:y+4,'text-anchor':'end',fill:'#333','font-size':12},fmt(v));
+  }
+  for(let j=0;j<3;j++){
+    const v=d.x[0]+(d.x[d.x.length-1]-d.x[0])*j/2;
+    add('text',{x:X(v),y:299,'text-anchor':'middle',fill:'#333','font-size':12},fmt(v));
+  }
+  add('text',{x:70,y:19,fill:'#333','font-size':13},d.yLabel);
+  add('text',{x:width/2,y:333,'text-anchor':'middle',fill:'#333','font-size':13},d.xLabel);
+  add('line',{x1:X(d.x[i]),y1:35,x2:X(d.x[i]),y2:275,stroke:'#666','stroke-dasharray':'4 4'});
+  const tbody=document.getElementById('demo-values'); tbody.replaceChildren();
+  Object.entries(d.series).forEach(([name,y],j)=>{
+    add('polyline',{points:d.x.map((v,k)=>X(v)+','+Y(y[k])).join(' '),fill:'none',
+                   stroke:colors[j%4],'stroke-width':2.5,'stroke-dasharray':dash[j%4]});
+    add('circle',{cx:X(d.x[i]),cy:Y(y[i]),r:5,fill:colors[j%4],stroke:'white'});
+    const tr=document.createElement('tr');
+    const label=document.createElement('td'), value=document.createElement('td');
+    label.textContent=name; label.style.color=colors[j%4]; value.textContent=fmt(y[i]);
+    tr.append(label,value); tbody.appendChild(tr);
+  });
+  document.getElementById('demo-selection').textContent=d.xLabel+': '+fmt(d.x[i]);
+  slider.setAttribute('aria-valuetext',fmt(d.x[i])+' '+d.xLabel);
+};
+window.addEventListener('resize',render);
+slider.addEventListener('input',render);
+document.getElementById('demo-reset').addEventListener('click',()=>{slider.value=d.initial;render();});
+render();
+})();
+</script>
+"""
+    return HTML(markup.replace("__DATA__", payload)
+                .replace("__XLABEL__", html.escape(x_label))
+                .replace("__YLABEL__", html.escape(y_label))
+                .replace("__MAX__", str(len(x)-1)).replace("__INITIAL__", str(initial)))
+```
 
 ```{python}
 #| label: portfolio-risk
@@ -163,6 +319,16 @@ pd.Series({
 The futures contract does not have a true bond duration. Its practical sensitivity is inherited from the current CTD bond and scaled by the conversion factor.
 
 ## Size and Round the Hedge
+
+::: {.callout-note}
+## One contract, with units
+
+The CTD's market value is $100,000 × 101.75 / 100 = $101,750.
+Multiplying by 7.35 years and 0.0001 gives about **$74.79 per bp**.
+Dividing by the 0.9275 conversion factor gives about **$80.63 per bp per
+futures contract**. Portfolio dollars per bp divided by contract dollars per bp
+therefore gives a number of contracts—not a dollar notional.
+:::
 
 The portfolio is long bonds and loses when rates rise, so the hedge shorts Treasury futures. The exact contract count is
 
@@ -270,6 +436,39 @@ plt.show()
 
 ## Validation Checks
 
+### Reconcile what the hedge actually removed
+
+```{python}
+#| label: fig-hedge-reconciliation
+#| fig-cap: "The rate loss and futures gain largely offset; the corporate-spread loss remains."
+#| fig-alt: "Bars display the Treasury loss, futures gain, spread loss and combined hedged P&L in thousands of dollars."
+components = pd.Series({
+    "Treasury loss": portfolio["Treasury P&L ($)"].sum(),
+    "Futures gain": futures_pnl,
+    "Spread loss": spread_pnl,
+    "Combined P&L": hedged_pnl,
+}) / 1000
+fig, ax = plt.subplots(figsize=(8, 4))
+bars = ax.barh(components.index, components.values,
+               color=["#214b3e", "#936724", "#214b3e", "#444444"])
+ax.bar_label(bars, fmt="%.1f", padding=4)
+ax.axvline(0, color="#333333", linewidth=1)
+ax.margins(x=0.20)
+ax.set(xlabel="P&L ($ thousands)")
+plt.tight_layout()
+plt.show()
+```
+
+::: {.callout-tip}
+## Change the hedge objective
+
+Before rerunning, predict the result of hedging only 50% of Treasury DV01.
+Replace the numerator of the contract-count calculation with half the exposure.
+The spread loss should stay unchanged; the rate loss should be roughly halved.
+Then increase the assumed futures DV01 by 10% to represent a different CTD
+mapping. Keeping the old contract count would overhedge.
+:::
+
 ```{python}
 #| label: hedge-validation
 assert ctd_dv01 > 0 and futures_dv01 > 0
@@ -313,3 +512,37 @@ A Treasury futures hedge is a risk-matching exercise, not a notional-matching ex
 5. test the combined position under rate, spread, curve, and basis scenarios.
 
 The hedge is successful here because it neutralizes the stated parallel Treasury-rate exposure. The remaining loss is economically meaningful: it is primarily credit spread risk, which was never within the hedge's scope.
+
+### Market handoff
+
+[CME's Treasury hedging guide](https://www.cmegroup.com/education/courses/introduction-to-treasuries/treasuries-hedging-and-risk-management)
+explains CTD-based sensitivity matching. For a live case, record the exact delivery
+month, eligible basket, CTD assumption, conversion factor, and observation time.
+The embedded positions and CTD are a complete illustrative fallback, not downloaded
+quotes. The separate spread shock here is the **residual** spread move beyond any
+co-movement already represented by the assumed yield beta; otherwise the scenario
+could count that co-movement twice.
+
+**Your deliverable:** a hedge ticket stating direction, integer contracts,
+residual DV01, stress P&L, and the unhedged risk that matters most.
+
+
+## Guided explorer
+
+Choose how much of Treasury DV01 to hedge in the +35 bp scenario. Contract counts are rounded at every setting. At 100%, spread losses remain. Above 100%, the position becomes net short the modeled Treasury exposure; it is no longer simply reducing that exposure.
+
+The HTML control selects a precomputed scenario. In the PDF, use the preceding
+figures and tables and rerun the displayed notebook inputs to explore other values.
+
+::: {.content-visible when-format="html"}
+```{python}
+#| label: guided-explorer
+hedge_targets = np.arange(0, 126, 5)
+contract_grid = np.rint(treasury_dv01*hedge_targets/100/futures_dv01).astype(int)
+remaining_rate_pnl = (-treasury_dv01 + contract_grid*futures_dv01)*treasury_shock_bp
+display(demo_explorer(hedge_targets, {
+    "Rate P&L after hedge": remaining_rate_pnl/1000,
+    "Combined P&L including spread": (remaining_rate_pnl+spread_pnl)/1000,
+}, "Target Treasury DV01 hedged (%)", "Scenario P&L ($ thousands)", 20))
+```
+:::

@@ -7,14 +7,43 @@ format:
     toc-location: left
     number-sections: true
     code-fold: true
+    code-summary: "Show calculation"
+    fig-align: center
+    fig-dpi: 160
     code-tools: true
+    include-in-header:
+      text: |
+        <style>
+        main.content, .cell, .cell-output-display { min-width: 0; }
+        .cell-output-display { overflow-x: auto; max-width: 100%; }
+        .cell-output-display img { max-width: 100%; height: auto; }
+        .demo-lab table { width: 100%; font-size: .95rem; }
+        .demo-lab th, .demo-lab td { text-align: left; padding: .35rem .65rem .35rem 0; }
+        .demo-lab th { border-bottom: 1px solid #b6bdb2; }
+        .demo-lab input { accent-color: #214b3e; }
+        .demo-lab button { border: 1px solid #214b3e; border-radius: 3px;
+          color: #214b3e; background: transparent; padding: .2rem .7rem; }
+        details.code-fold { margin: .8rem 0; }
+        main table { table-layout: fixed; width: 100%; }
+        main th, main td { overflow-wrap: anywhere; }
+        mjx-container[display="true"] { display: block; max-width: 100%;
+          overflow-x: auto; overflow-y: hidden; padding-block: .35em; }
+        </style>
     embed-resources: true
+  pdf:
+    execute:
+      echo: false
 jupyter: python3
 execute:
   echo: true
   warning: false
   message: false
 ---
+
+::: {.content-visible when-format="pdf"}
+This reading copy shows the calculations' results and figures. The HTML demo
+contains the full code in folded blocks and interactive scenario controls.
+:::
 
 ## Goal
 
@@ -46,8 +75,142 @@ describe *future* curves. Calibration makes those two statements consistent.
 
 ## Setup
 
+### Read the workflow in two layers
+
+**Valuation today:** observed par yields → teaching coupon bonds → discount
+factors → present value. **Uncertainty tomorrow:** supplied option premiums →
+fitted dynamics → future short-rate state → future curve → remaining bond value.
+The second layer must preserve the first. A complicated model is not allowed to
+change today's price of fixed cash flows once the discount curve is fixed.
+
+Open **Show calculation** to inspect each step. The final state explorer changes
+the future state while holding the calibrated parameters and initial curve fixed.
+
 We only need NumPy, pandas, and Matplotlib. The functions below use explicit inputs
 and return ordinary arrays or data frames so that each step is easy to inspect.
+
+
+```{python}
+#| label: reader-tools
+#| include: false
+import json
+import html
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from IPython.display import HTML, display
+from cycler import cycler
+
+plt.rcParams.update({
+    "figure.figsize": (8, 4.5), "figure.dpi": 140,
+    "axes.spines.top": False, "axes.spines.right": False,
+    "axes.grid": True, "axes.axisbelow": True, "grid.alpha": 0.20,
+    "axes.titleweight": "bold", "font.size": 11,
+    "lines.linewidth": 2.2, "lines.markersize": 6,
+    "axes.prop_cycle": cycler(color=["#214b3e", "#936724", "#486d8c", "#865c76"]),
+})
+
+
+# Keep every field, but split wide tables into readable panels for HTML and PDF.
+def readable_table(frame):
+    frame = frame.copy()
+    if len(frame.columns) and frame.iloc[:, 0].dtype == object:
+        frame = frame.set_index(frame.columns[0])
+    if len(frame.columns) > 6 and len(frame) <= 4:
+        frame = frame.T
+    panels = []
+    for start in range(0, len(frame.columns), 3):
+        part = frame.iloc[:, start:start+3]
+        markup = part.to_html(border=0, na_rep="", float_format=lambda v: f"{v:,.4f}".rstrip("0").rstrip("."))
+        widths = [40] + [60 / max(1, len(part.columns))] * len(part.columns)
+        cols = "<colgroup>" + "".join(f'<col style="width:{w}%">' for w in widths) + "</colgroup>"
+        end = markup.index(">") + 1
+        panels.append(markup[:end] + cols + markup[end:])
+    return "\n".join(panels)
+
+get_ipython().display_formatter.formatters["text/html"].for_type(pd.DataFrame, readable_table)
+
+def demo_explorer(x, series, x_label, y_label, initial=0):
+    """Show precomputed notebook results; the slider selects an exact grid row."""
+    x = np.asarray(x, dtype=float)
+    values = {name: np.asarray(y, dtype=float).tolist() for name, y in series.items()}
+    assert len(x) > 1 and np.all(np.diff(x) > 0)
+    assert all(len(y) == len(x) and np.isfinite(y).all() for y in values.values())
+    payload = json.dumps({"x": x.tolist(), "series": values,
+                          "xLabel": x_label, "yLabel": y_label,
+                          "initial": int(initial)}, allow_nan=False).replace("<", "\\u003c")
+    markup = """
+<div class="demo-lab" style="border-left:4px solid #936724;padding:1rem;margin:1rem 0">
+  <label for="demo-control"><strong>__XLABEL__</strong></label>
+  <input id="demo-control" type="range" min="0" max="__MAX__" value="__INITIAL__" step="1"
+         style="display:block;width:100%;margin:.8rem 0">
+  <button id="demo-reset" type="button">Reset</button>
+  <p id="demo-selection" aria-live="polite"></p>
+  <svg id="demo-plot" viewBox="0 0 760 350" role="img"
+       aria-label="__YLABEL__ as __XLABEL__ changes" style="width:100%;height:auto"></svg>
+  <div style="overflow-x:auto"><table><thead><tr><th>Model output</th><th>__YLABEL__</th></tr></thead>
+  <tbody id="demo-values"></tbody></table></div>
+  <small>The control selects computed scenario points, not live market observations.</small>
+</div>
+<script>
+(() => {
+const d = __DATA__, slider = document.getElementById('demo-control');
+const svg = document.getElementById('demo-plot'), ns = 'http://www.w3.org/2000/svg';
+const colors = ['#214b3e','#936724','#486d8c','#865c76'];
+const dash = ['', '8 4', '3 3', '10 3 2 3'];
+const all = Object.values(d.series).flat(), lo = Math.min(...all), hi = Math.max(...all);
+const pad = Math.max((hi-lo)*.12, .01), ymin = lo-pad, ymax = hi+pad;
+let width=760;
+const X = v => 70 + (width-100)*(v-d.x[0])/(d.x[d.x.length-1]-d.x[0]);
+const Y = v => 275 - 240*(v-ymin)/(ymax-ymin);
+const add = (name, attrs, content='') => {
+  const e=document.createElementNS(ns,name);
+  Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,v));
+  if(content) e.textContent=content; svg.appendChild(e); return e;
+};
+const fmt = v => v.toLocaleString('en-US',{maximumFractionDigits:3});
+const render = () => {
+  const i=Number(slider.value); svg.replaceChildren();
+  width=Math.max(340, Math.min(760, svg.clientWidth));
+  svg.setAttribute('viewBox','0 0 '+width+' 350');
+  add('rect',{x:0,y:0,width:width,height:350,fill:'#ffffff'});
+  for(let j=0;j<5;j++){
+    const v=ymin+(ymax-ymin)*j/4, y=Y(v);
+    add('line',{x1:70,y1:y,x2:width-30,y2:y,stroke:'#e0e3df'});
+    add('text',{x:62,y:y+4,'text-anchor':'end',fill:'#333','font-size':12},fmt(v));
+  }
+  for(let j=0;j<3;j++){
+    const v=d.x[0]+(d.x[d.x.length-1]-d.x[0])*j/2;
+    add('text',{x:X(v),y:299,'text-anchor':'middle',fill:'#333','font-size':12},fmt(v));
+  }
+  add('text',{x:70,y:19,fill:'#333','font-size':13},d.yLabel);
+  add('text',{x:width/2,y:333,'text-anchor':'middle',fill:'#333','font-size':13},d.xLabel);
+  add('line',{x1:X(d.x[i]),y1:35,x2:X(d.x[i]),y2:275,stroke:'#666','stroke-dasharray':'4 4'});
+  const tbody=document.getElementById('demo-values'); tbody.replaceChildren();
+  Object.entries(d.series).forEach(([name,y],j)=>{
+    add('polyline',{points:d.x.map((v,k)=>X(v)+','+Y(y[k])).join(' '),fill:'none',
+                   stroke:colors[j%4],'stroke-width':2.5,'stroke-dasharray':dash[j%4]});
+    add('circle',{cx:X(d.x[i]),cy:Y(y[i]),r:5,fill:colors[j%4],stroke:'white'});
+    const tr=document.createElement('tr');
+    const label=document.createElement('td'), value=document.createElement('td');
+    label.textContent=name; label.style.color=colors[j%4]; value.textContent=fmt(y[i]);
+    tr.append(label,value); tbody.appendChild(tr);
+  });
+  document.getElementById('demo-selection').textContent=d.xLabel+': '+fmt(d.x[i]);
+  slider.setAttribute('aria-valuetext',fmt(d.x[i])+' '+d.xLabel);
+};
+window.addEventListener('resize',render);
+slider.addEventListener('input',render);
+document.getElementById('demo-reset').addEventListener('click',()=>{slider.value=d.initial;render();});
+render();
+})();
+</script>
+"""
+    return HTML(markup.replace("__DATA__", payload)
+                .replace("__XLABEL__", html.escape(x_label))
+                .replace("__YLABEL__", html.escape(y_label))
+                .replace("__MAX__", str(len(x)-1)).replace("__INITIAL__", str(initial)))
+```
 
 ```{python}
 #| label: setup
@@ -61,10 +224,10 @@ from IPython.display import display
 np.random.seed(411)
 
 # A restrained, consistent plotting style.
-BLUE = "#2C6EAA"
-GOLD = "#D4A72C"
+BLUE = "#214b3e"
+GOLD = "#936724"
 INK = "#263238"
-LIGHT_BLUE = "#B9D6EC"
+LIGHT_BLUE = "#b7c7b4"
 GRID = "#D9E1E8"
 
 plt.rcParams.update({
@@ -240,6 +403,16 @@ print(f"Largest absolute repricing error: "
 ```
 
 ## Step 3: Make the initial curve usable at any maturity
+
+::: {.callout-note}
+## Bootstrap two maturities by hand
+
+Under the annual-pay teaching convention, the 1-year discount factor is
+$P(0,1)=100/104.17$. The 2-year coupon is 4.25, so
+$P(0,2)=[100-4.25P(0,1)]/104.25$. We remove the present value of the earlier
+coupon before solving for the final payment's discount factor. Using
+$1/(1+4.25\%)^2$ instead would confuse the par yield with a zero yield.
+:::
 
 Hull–White formulas require $P(0,T)$ and the instantaneous forward rate
 $f(0,t)$. We use linear interpolation of the continuously compounded zero rate.
@@ -457,12 +630,12 @@ display(option_fit.round(6))
 #| label: fig-option-fit
 #| fig-cap: "Observed artificial option premiums and calibrated Hull–White prices"
 plt.plot(option_expiries, observed_option_prices, "o-", color=BLUE,
-         label="Observed option premiums")
+         label="Supplied synthetic premiums")
 plt.plot(option_expiries, fitted_option_prices, "s--", color=GOLD,
          label="Hull–White fitted premiums")
 plt.xlabel("Option expiry (years)")
 plt.ylabel("Option price per 100 face")
-plt.title("Fit to the option market")
+plt.title("Fit to the synthetic option snapshot")
 plt.legend()
 plt.show()
 ```
@@ -506,7 +679,7 @@ theta_values = theta(theta_times, calibrated_a, calibrated_sigma)
 
 plt.plot(theta_times, 100 * theta_values, color=BLUE)
 plt.xlabel("Time (years)")
-plt.ylabel("$\theta(t)$ (% per year²)")
+plt.ylabel(r"$\theta(t)$ (percentage points per year)")
 plt.title("Time-dependent drift required by today's market curve")
 plt.show()
 ```
@@ -594,6 +767,10 @@ $$y(2,T)=-\frac{\log P(2,T)}{T-2}.$$
 
 We show three possible states around the model's central short-rate level. They are
 scenarios, not point forecasts.
+
+The center below is the initial instantaneous forward rate at year 2, chosen as
+a reference. It is not claimed to be the physical forecast or even the exact
+risk-neutral expected short rate; the latter also contains a volatility adjustment.
 
 ```{python}
 #| label: future-curves
@@ -795,6 +972,22 @@ assert all(checks.values())
 
 ## Takeaways
 
+::: {.callout-tip}
+## Separate calibration from a scenario
+
+First compare observed and interpolated nodes. Then inspect the option-fit error:
+an exact fit to today's curve does not guarantee an exact fit to every option.
+Finally change only the future short-rate state. Today's curve stays unchanged,
+but the future bond value changes. Explain why the year-2 value excludes coupons
+already paid and is not a two-year holding-period total return.
+:::
+
+**Market handoff:** the embedded Treasury observations are a reproducible dated
+snapshot, not today's curve. Replace the entire dated node table together, retain
+the observed/interpolated labels, and rerun every check. Keep the supplied synthetic
+option prices if a permitted option dataset is unavailable; do not label recovered
+parameters as empirically calibrated market dynamics.
+
 - Market bond prices can be converted into discount factors by bootstrapping.
 - Hull–White does not fit a whole curve using only two constants. The function
   $\theta(t)$ fits today's term structure; $a$ and $\sigma$ describe future dynamics.
@@ -812,4 +1005,24 @@ assert all(checks.values())
 Real desks use multiple instrument types, day-count conventions, accrued interest,
 bid/ask spreads, smooth curve interpolation, and robust numerical optimizers. The
 demo deliberately removes those layers so the economic logic stays visible.
+:::
+
+
+## Guided explorer
+
+Change the year-2 short rate relative to the reference forward rate. Keep today's Treasury curve and the fitted option parameters unchanged. The output is the ex-coupon value at year 2 of the remaining payments, not today's price or a holding-period return.
+
+The HTML control selects a precomputed scenario. In the PDF, use the preceding
+figures and tables and rerun the displayed notebook inputs to explore other values.
+
+::: {.content-visible when-format="html"}
+```{python}
+#| label: guided-explorer
+state_shocks = np.arange(-200, 201, 5)
+state_values = [price_bond_at_time(future_time, payment_times, remaining_cash_flows,
+                central_short_rate+bp/10000, calibrated_a, calibrated_sigma)
+                for bp in state_shocks]
+display(demo_explorer(state_shocks, {"Remaining bond value": state_values},
+                      "Year-2 short-rate deviation (bp)", "Year-2 value per 100 face", 40))
+```
 :::

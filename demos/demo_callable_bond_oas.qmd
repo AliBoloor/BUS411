@@ -6,13 +6,40 @@ format:
     toc-location: left
     number-sections: true
     code-fold: true
+    code-summary: "Show calculation"
+    fig-align: center
+    fig-dpi: 160
     code-tools: true
+    include-in-header:
+      text: |
+        <style>
+        main.content, .cell, .cell-output-display { min-width: 0; }
+        .cell-output-display { overflow-x: auto; max-width: 100%; }
+        .cell-output-display img { max-width: 100%; height: auto; }
+        .demo-lab table { width: 100%; font-size: .95rem; }
+        .demo-lab th, .demo-lab td { text-align: left; padding: .35rem .65rem .35rem 0; }
+        .demo-lab th { border-bottom: 1px solid #b6bdb2; }
+        .demo-lab input { accent-color: #214b3e; }
+        .demo-lab button { border: 1px solid #214b3e; border-radius: 3px;
+          color: #214b3e; background: transparent; padding: .2rem .7rem; }
+        details.code-fold { margin: .8rem 0; }
+        mjx-container[display="true"] { display: block; max-width: 100%;
+          overflow-x: auto; overflow-y: hidden; padding-block: .35em; }
+        </style>
+  pdf:
+    execute:
+      echo: false
 jupyter: python3
 execute:
   echo: true
   warning: false
   message: false
 ---
+
+::: {.content-visible when-format="pdf"}
+This reading copy shows the calculations' results and figures. The HTML demo
+contains the full code in folded blocks and interactive scenario controls.
+:::
 
 ## Learning Objectives {.unnumbered}
 
@@ -25,6 +52,12 @@ After completing this demo you should be able to:
 - calculate effective duration and effective convexity by repricing the bond.
 
 ## Market Inputs Versus Illustrative Inputs
+
+**The analyst's question:** a callable bond offers more yield than a straight
+bond. How much is compensation for surrendering refinancing upside? Follow
+**cash flows → rate states → issuer exercise → fitted spread → risk**.
+At every node, think from the issuer's perspective: the investor does not get
+to choose the more valuable outcome.
 
 This is a transparent teaching workflow, not a live security valuation. A production model would calibrate an arbitrage-free tree to a current benchmark curve and an option-volatility surface.
 
@@ -59,6 +92,129 @@ r_{t,j}=m_t\exp\left[(2j-t)\sigma\right],
 $$
 
 where $m_t$ is the median-rate path and $\sigma$ controls annual volatility. Moving up increases $j$ by one; moving down leaves $j$ unchanged. Because the same number of up moves leads to the same node, the tree recombines.
+
+
+```{python}
+#| label: reader-tools
+#| include: false
+import json
+import html
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from IPython.display import HTML, display
+from cycler import cycler
+
+plt.rcParams.update({
+    "figure.figsize": (8, 4.5), "figure.dpi": 140,
+    "axes.spines.top": False, "axes.spines.right": False,
+    "axes.grid": True, "axes.axisbelow": True, "grid.alpha": 0.20,
+    "axes.titleweight": "bold", "font.size": 11,
+    "lines.linewidth": 2.2, "lines.markersize": 6,
+    "axes.prop_cycle": cycler(color=["#214b3e", "#936724", "#486d8c", "#865c76"]),
+})
+
+
+# Keep every field, but split wide tables into readable panels for HTML and PDF.
+def readable_table(frame):
+    frame = frame.copy()
+    if len(frame.columns) and frame.iloc[:, 0].dtype == object:
+        frame = frame.set_index(frame.columns[0])
+    if len(frame.columns) > 6 and len(frame) <= 4:
+        frame = frame.T
+    panels = []
+    for start in range(0, len(frame.columns), 3):
+        part = frame.iloc[:, start:start+3]
+        markup = part.to_html(border=0, na_rep="", float_format=lambda v: f"{v:,.4f}".rstrip("0").rstrip("."))
+        widths = [40] + [60 / max(1, len(part.columns))] * len(part.columns)
+        cols = "<colgroup>" + "".join(f'<col style="width:{w}%">' for w in widths) + "</colgroup>"
+        end = markup.index(">") + 1
+        panels.append(markup[:end] + cols + markup[end:])
+    return "\n".join(panels)
+
+get_ipython().display_formatter.formatters["text/html"].for_type(pd.DataFrame, readable_table)
+
+def demo_explorer(x, series, x_label, y_label, initial=0):
+    """Show precomputed notebook results; the slider selects an exact grid row."""
+    x = np.asarray(x, dtype=float)
+    values = {name: np.asarray(y, dtype=float).tolist() for name, y in series.items()}
+    assert len(x) > 1 and np.all(np.diff(x) > 0)
+    assert all(len(y) == len(x) and np.isfinite(y).all() for y in values.values())
+    payload = json.dumps({"x": x.tolist(), "series": values,
+                          "xLabel": x_label, "yLabel": y_label,
+                          "initial": int(initial)}, allow_nan=False).replace("<", "\\u003c")
+    markup = """
+<div class="demo-lab" style="border-left:4px solid #936724;padding:1rem;margin:1rem 0">
+  <label for="demo-control"><strong>__XLABEL__</strong></label>
+  <input id="demo-control" type="range" min="0" max="__MAX__" value="__INITIAL__" step="1"
+         style="display:block;width:100%;margin:.8rem 0">
+  <button id="demo-reset" type="button">Reset</button>
+  <p id="demo-selection" aria-live="polite"></p>
+  <svg id="demo-plot" viewBox="0 0 760 350" role="img"
+       aria-label="__YLABEL__ as __XLABEL__ changes" style="width:100%;height:auto"></svg>
+  <div style="overflow-x:auto"><table><thead><tr><th>Model output</th><th>__YLABEL__</th></tr></thead>
+  <tbody id="demo-values"></tbody></table></div>
+  <small>The control selects computed scenario points, not live market observations.</small>
+</div>
+<script>
+(() => {
+const d = __DATA__, slider = document.getElementById('demo-control');
+const svg = document.getElementById('demo-plot'), ns = 'http://www.w3.org/2000/svg';
+const colors = ['#214b3e','#936724','#486d8c','#865c76'];
+const dash = ['', '8 4', '3 3', '10 3 2 3'];
+const all = Object.values(d.series).flat(), lo = Math.min(...all), hi = Math.max(...all);
+const pad = Math.max((hi-lo)*.12, .01), ymin = lo-pad, ymax = hi+pad;
+let width=760;
+const X = v => 70 + (width-100)*(v-d.x[0])/(d.x[d.x.length-1]-d.x[0]);
+const Y = v => 275 - 240*(v-ymin)/(ymax-ymin);
+const add = (name, attrs, content='') => {
+  const e=document.createElementNS(ns,name);
+  Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,v));
+  if(content) e.textContent=content; svg.appendChild(e); return e;
+};
+const fmt = v => v.toLocaleString('en-US',{maximumFractionDigits:3});
+const render = () => {
+  const i=Number(slider.value); svg.replaceChildren();
+  width=Math.max(340, Math.min(760, svg.clientWidth));
+  svg.setAttribute('viewBox','0 0 '+width+' 350');
+  add('rect',{x:0,y:0,width:width,height:350,fill:'#ffffff'});
+  for(let j=0;j<5;j++){
+    const v=ymin+(ymax-ymin)*j/4, y=Y(v);
+    add('line',{x1:70,y1:y,x2:width-30,y2:y,stroke:'#e0e3df'});
+    add('text',{x:62,y:y+4,'text-anchor':'end',fill:'#333','font-size':12},fmt(v));
+  }
+  for(let j=0;j<3;j++){
+    const v=d.x[0]+(d.x[d.x.length-1]-d.x[0])*j/2;
+    add('text',{x:X(v),y:299,'text-anchor':'middle',fill:'#333','font-size':12},fmt(v));
+  }
+  add('text',{x:70,y:19,fill:'#333','font-size':13},d.yLabel);
+  add('text',{x:width/2,y:333,'text-anchor':'middle',fill:'#333','font-size':13},d.xLabel);
+  add('line',{x1:X(d.x[i]),y1:35,x2:X(d.x[i]),y2:275,stroke:'#666','stroke-dasharray':'4 4'});
+  const tbody=document.getElementById('demo-values'); tbody.replaceChildren();
+  Object.entries(d.series).forEach(([name,y],j)=>{
+    add('polyline',{points:d.x.map((v,k)=>X(v)+','+Y(y[k])).join(' '),fill:'none',
+                   stroke:colors[j%4],'stroke-width':2.5,'stroke-dasharray':dash[j%4]});
+    add('circle',{cx:X(d.x[i]),cy:Y(y[i]),r:5,fill:colors[j%4],stroke:'white'});
+    const tr=document.createElement('tr');
+    const label=document.createElement('td'), value=document.createElement('td');
+    label.textContent=name; label.style.color=colors[j%4]; value.textContent=fmt(y[i]);
+    tr.append(label,value); tbody.appendChild(tr);
+  });
+  document.getElementById('demo-selection').textContent=d.xLabel+': '+fmt(d.x[i]);
+  slider.setAttribute('aria-valuetext',fmt(d.x[i])+' '+d.xLabel);
+};
+window.addEventListener('resize',render);
+slider.addEventListener('input',render);
+document.getElementById('demo-reset').addEventListener('click',()=>{slider.value=d.initial;render();});
+render();
+})();
+</script>
+"""
+    return HTML(markup.replace("__DATA__", payload)
+                .replace("__XLABEL__", html.escape(x_label))
+                .replace("__YLABEL__", html.escape(y_label))
+                .replace("__MAX__", str(len(x)-1)).replace("__INITIAL__", str(initial)))
+```
 
 ```{python}
 #| label: build-rate-tree
@@ -184,6 +340,32 @@ The option cost is positive because the issuer owns the call. It is largest when
 
 ## Illustrate and Solve for OAS
 
+### See where the issuer calls
+
+At year 3, compare the ex-coupon continuation value with the 101.50 call price.
+If continuation is worth more than 101.50 to the investor, the issuer can retire
+that liability for 101.50 instead. The coupon due at that date has already been
+paid under our timing convention; do not add it to the call price again.
+
+```{python}
+#| label: fig-call-decision
+#| fig-cap: "Year-3 exercise decision at zero spread: the investor receives the lesser of continuation and the call price."
+#| fig-alt: "Continuation values and callable values by short-rate node, with the call price shown as a horizontal line."
+_, callable_values = price_bond(rate_tree, callable_bond=True, return_tree=True)
+call_year = 3
+next_values = callable_values[call_year + 1]
+continuation = (coupon + (1-up_probability)*next_values[:-1]
+                + up_probability*next_values[1:]) / (1 + rate_tree[call_year])
+fig, ax = plt.subplots(figsize=(8, 4))
+ax.plot(100 * rate_tree[call_year], continuation, "o--", label="Continue (later calls retained)")
+ax.plot(100 * rate_tree[call_year], callable_values[call_year], "s-", label="After issuer choice")
+ax.axhline(call_schedule[call_year], color="#333333", linestyle=":", label="Call price")
+ax.set(xlabel="Year-3 short rate (%)", ylabel="Ex-coupon value per 100 face")
+ax.legend()
+plt.tight_layout()
+plt.show()
+```
+
 To make the exercise reproducible, suppose the callable bond trades at the model value generated by an 85-basis-point spread. We then hide that spread and recover it from the price. In practice, the price would come from the market.
 
 ```{python}
@@ -245,6 +427,31 @@ pd.Series({
 ```
 
 ## Effective Duration and Effective Convexity
+
+```{python}
+#| label: fig-oas-root
+#| fig-cap: "Solving OAS means moving along the callable-price curve until model and supplied price agree."
+#| fig-alt: "Callable price declines as spread increases; the target price intersects at the recovered OAS."
+spread_grid = np.linspace(0, 0.025, 101)
+oas_prices = [price_bond(rate_tree, s, True) for s in spread_grid]
+fig, ax = plt.subplots(figsize=(8, 4))
+ax.plot(10000 * spread_grid, oas_prices, color="#214b3e")
+ax.axhline(market_price, color="#333333", linestyle="--", label="Supplied illustrative price")
+ax.scatter([solved_oas*10000], [market_price], s=65, color="#936724", label="Solved OAS", zorder=3)
+ax.set(xlabel="OAS (bp)", ylabel="Price per 100 face")
+ax.legend()
+plt.tight_layout()
+plt.show()
+```
+
+::: {.callout-tip}
+## Predict before repricing
+
+If the target price falls while the tree and contract stay fixed, should the
+solved spread rise or fall? Use the figure to explain the bisection direction.
+For a rate shock, hold OAS fixed: re-solving OAS to the old price would erase
+the very price sensitivity you are trying to measure.
+:::
 
 Modified duration is not sufficient because the call decision changes across rate paths. Hold OAS fixed, shift the entire benchmark tree by $\pm\Delta y$, and fully reprice:
 
@@ -338,3 +545,37 @@ This workflow separates three ideas that a yield-to-maturity comparison mixes to
 3. OAS measures the constant spread that remains after the call option has been modeled.
 
 The outputs are model-dependent. A different benchmark curve, volatility, call behavior, or tree calibration can materially change the option value, OAS, effective duration, and effective convexity.
+
+### Market handoff
+
+Inspect a callable issue's terms and recent trades using
+[FINRA Fixed Income Data](https://www.finra.org/finra-data/fixed-income), then
+verify the complete call schedule and notice provisions in the offering document.
+Use a dirty price consistently with the valuation date. This notebook's generated
+price and median-rate tree are the offline teaching case, **not a calibration to
+an observed security**. The [curve-building demo](demo_interest_rate_models.qmd)
+shows the separate benchmark-curve calibration step.
+
+**Your deliverable:** price, OAS, call-option cost, effective duration, and a
+two-sentence explanation of which inputs must be refreshed before trading.
+
+
+## Guided explorer
+
+Move the benchmark tree while holding the recovered OAS fixed. Compare the callable and option-free bonds. In falling-rate states the issuer takes away part of the upside. This is a parallel shift of the teaching tree, not a recalibration of a market yield curve.
+
+The HTML control selects a precomputed scenario. In the PDF, use the preceding
+figures and tables and rerun the displayed notebook inputs to explore other values.
+
+::: {.content-visible when-format="html"}
+```{python}
+#| label: guided-explorer
+explorer_bp = np.arange(-150, 151, 5)
+display(demo_explorer(explorer_bp, {
+    "Option-free": [price_bond(build_rate_tree(median_rates, rate_volatility, bp/10000),
+                               solved_oas, False) for bp in explorer_bp],
+    "Callable": [price_bond(build_rate_tree(median_rates, rate_volatility, bp/10000),
+                            solved_oas, True) for bp in explorer_bp],
+}, "Parallel tree-rate shock (bp)", "Price per 100 face", 30))
+```
+:::

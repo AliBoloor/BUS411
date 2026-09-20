@@ -6,13 +6,40 @@ format:
     toc: true
     number-sections: true
     code-fold: true
+    code-summary: "Show calculation"
+    fig-align: center
+    fig-dpi: 160
     code-tools: true
+    include-in-header:
+      text: |
+        <style>
+        main.content, .cell, .cell-output-display { min-width: 0; }
+        .cell-output-display { overflow-x: auto; max-width: 100%; }
+        .cell-output-display img { max-width: 100%; height: auto; }
+        .demo-lab table { width: 100%; font-size: .95rem; }
+        .demo-lab th, .demo-lab td { text-align: left; padding: .35rem .65rem .35rem 0; }
+        .demo-lab th { border-bottom: 1px solid #b6bdb2; }
+        .demo-lab input { accent-color: #214b3e; }
+        .demo-lab button { border: 1px solid #214b3e; border-radius: 3px;
+          color: #214b3e; background: transparent; padding: .2rem .7rem; }
+        details.code-fold { margin: .8rem 0; }
+        mjx-container[display="true"] { display: block; max-width: 100%;
+          overflow-x: auto; overflow-y: hidden; padding-block: .35em; }
+        </style>
+  pdf:
+    execute:
+      echo: false
 jupyter: python3
 execute:
   echo: true
   warning: false
   message: false
 ---
+
+::: {.content-visible when-format="pdf"}
+This reading copy shows the calculations' results and figures. The HTML demo
+contains the full code in folded blocks and interactive scenario controls.
+:::
 
 ## Goal and Decision {.unnumbered}
 
@@ -21,8 +48,8 @@ more carry than a broad bond benchmark without taking an unintended duration,
 curve, sector, issuer, or liquidity bet. This demo turns that mandate into an
 auditable portfolio and an implementable trade list.
 
-The security descriptions and market analytics are a **dated, market-like teaching
-snapshot**, not executable quotes. In practice, the same table would come from a
+The security descriptions and market analytics are an **illustrative teaching
+universe**, not dated observations or executable quotes. In practice, the same table would come from a
 portfolio system, evaluated pricing service, dealer runs, and reference-data checks.
 
 | Workflow stage | In this case |
@@ -32,13 +59,136 @@ portfolio system, evaluated pricing service, dealer runs, and reference-data che
 | Diagnosed | Factor mismatches, tracking error, concentration, turnover, and transaction cost |
 | Used for | Trade sizing, scenario P&L, and a portfolio recommendation |
 
-## 1. Define the Mandate
+## Define the Mandate
 
 The optimized portfolio must be fully invested, hold no more than 18% in one
 security, keep at least 25% in Treasuries, cap corporate exposure at 45%, and
 stay within 0.05 years of benchmark duration. These are teaching constraints;
 an actual mandate would also specify ratings, currencies, derivatives, cash,
 tax, ESG, and counterparty rules.
+
+
+```{python}
+#| label: reader-tools
+#| include: false
+import json
+import html
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from IPython.display import HTML, display
+from cycler import cycler
+
+plt.rcParams.update({
+    "figure.figsize": (8, 4.5), "figure.dpi": 140,
+    "axes.spines.top": False, "axes.spines.right": False,
+    "axes.grid": True, "axes.axisbelow": True, "grid.alpha": 0.20,
+    "axes.titleweight": "bold", "font.size": 11,
+    "lines.linewidth": 2.2, "lines.markersize": 6,
+    "axes.prop_cycle": cycler(color=["#214b3e", "#936724", "#486d8c", "#865c76"]),
+})
+
+
+# Keep every field, but split wide tables into readable panels for HTML and PDF.
+def readable_table(frame):
+    frame = frame.copy()
+    if len(frame.columns) and frame.iloc[:, 0].dtype == object:
+        frame = frame.set_index(frame.columns[0])
+    if len(frame.columns) > 6 and len(frame) <= 4:
+        frame = frame.T
+    panels = []
+    for start in range(0, len(frame.columns), 3):
+        part = frame.iloc[:, start:start+3]
+        markup = part.to_html(border=0, na_rep="", float_format=lambda v: f"{v:,.4f}".rstrip("0").rstrip("."))
+        widths = [40] + [60 / max(1, len(part.columns))] * len(part.columns)
+        cols = "<colgroup>" + "".join(f'<col style="width:{w}%">' for w in widths) + "</colgroup>"
+        end = markup.index(">") + 1
+        panels.append(markup[:end] + cols + markup[end:])
+    return "\n".join(panels)
+
+get_ipython().display_formatter.formatters["text/html"].for_type(pd.DataFrame, readable_table)
+
+def demo_explorer(x, series, x_label, y_label, initial=0):
+    """Show precomputed notebook results; the slider selects an exact grid row."""
+    x = np.asarray(x, dtype=float)
+    values = {name: np.asarray(y, dtype=float).tolist() for name, y in series.items()}
+    assert len(x) > 1 and np.all(np.diff(x) > 0)
+    assert all(len(y) == len(x) and np.isfinite(y).all() for y in values.values())
+    payload = json.dumps({"x": x.tolist(), "series": values,
+                          "xLabel": x_label, "yLabel": y_label,
+                          "initial": int(initial)}, allow_nan=False).replace("<", "\\u003c")
+    markup = """
+<div class="demo-lab" style="border-left:4px solid #936724;padding:1rem;margin:1rem 0">
+  <label for="demo-control"><strong>__XLABEL__</strong></label>
+  <input id="demo-control" type="range" min="0" max="__MAX__" value="__INITIAL__" step="1"
+         style="display:block;width:100%;margin:.8rem 0">
+  <button id="demo-reset" type="button">Reset</button>
+  <p id="demo-selection" aria-live="polite"></p>
+  <svg id="demo-plot" viewBox="0 0 760 350" role="img"
+       aria-label="__YLABEL__ as __XLABEL__ changes" style="width:100%;height:auto"></svg>
+  <div style="overflow-x:auto"><table><thead><tr><th>Model output</th><th>__YLABEL__</th></tr></thead>
+  <tbody id="demo-values"></tbody></table></div>
+  <small>The control selects computed scenario points, not live market observations.</small>
+</div>
+<script>
+(() => {
+const d = __DATA__, slider = document.getElementById('demo-control');
+const svg = document.getElementById('demo-plot'), ns = 'http://www.w3.org/2000/svg';
+const colors = ['#214b3e','#936724','#486d8c','#865c76'];
+const dash = ['', '8 4', '3 3', '10 3 2 3'];
+const all = Object.values(d.series).flat(), lo = Math.min(...all), hi = Math.max(...all);
+const pad = Math.max((hi-lo)*.12, .01), ymin = lo-pad, ymax = hi+pad;
+let width=760;
+const X = v => 70 + (width-100)*(v-d.x[0])/(d.x[d.x.length-1]-d.x[0]);
+const Y = v => 275 - 240*(v-ymin)/(ymax-ymin);
+const add = (name, attrs, content='') => {
+  const e=document.createElementNS(ns,name);
+  Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,v));
+  if(content) e.textContent=content; svg.appendChild(e); return e;
+};
+const fmt = v => v.toLocaleString('en-US',{maximumFractionDigits:3});
+const render = () => {
+  const i=Number(slider.value); svg.replaceChildren();
+  width=Math.max(340, Math.min(760, svg.clientWidth));
+  svg.setAttribute('viewBox','0 0 '+width+' 350');
+  add('rect',{x:0,y:0,width:width,height:350,fill:'#ffffff'});
+  for(let j=0;j<5;j++){
+    const v=ymin+(ymax-ymin)*j/4, y=Y(v);
+    add('line',{x1:70,y1:y,x2:width-30,y2:y,stroke:'#e0e3df'});
+    add('text',{x:62,y:y+4,'text-anchor':'end',fill:'#333','font-size':12},fmt(v));
+  }
+  for(let j=0;j<3;j++){
+    const v=d.x[0]+(d.x[d.x.length-1]-d.x[0])*j/2;
+    add('text',{x:X(v),y:299,'text-anchor':'middle',fill:'#333','font-size':12},fmt(v));
+  }
+  add('text',{x:70,y:19,fill:'#333','font-size':13},d.yLabel);
+  add('text',{x:width/2,y:333,'text-anchor':'middle',fill:'#333','font-size':13},d.xLabel);
+  add('line',{x1:X(d.x[i]),y1:35,x2:X(d.x[i]),y2:275,stroke:'#666','stroke-dasharray':'4 4'});
+  const tbody=document.getElementById('demo-values'); tbody.replaceChildren();
+  Object.entries(d.series).forEach(([name,y],j)=>{
+    add('polyline',{points:d.x.map((v,k)=>X(v)+','+Y(y[k])).join(' '),fill:'none',
+                   stroke:colors[j%4],'stroke-width':2.5,'stroke-dasharray':dash[j%4]});
+    add('circle',{cx:X(d.x[i]),cy:Y(y[i]),r:5,fill:colors[j%4],stroke:'white'});
+    const tr=document.createElement('tr');
+    const label=document.createElement('td'), value=document.createElement('td');
+    label.textContent=name; label.style.color=colors[j%4]; value.textContent=fmt(y[i]);
+    tr.append(label,value); tbody.appendChild(tr);
+  });
+  document.getElementById('demo-selection').textContent=d.xLabel+': '+fmt(d.x[i]);
+  slider.setAttribute('aria-valuetext',fmt(d.x[i])+' '+d.xLabel);
+};
+window.addEventListener('resize',render);
+slider.addEventListener('input',render);
+document.getElementById('demo-reset').addEventListener('click',()=>{slider.value=d.initial;render();});
+render();
+})();
+</script>
+"""
+    return HTML(markup.replace("__DATA__", payload)
+                .replace("__XLABEL__", html.escape(x_label))
+                .replace("__YLABEL__", html.escape(y_label))
+                .replace("__MAX__", str(len(x)-1)).replace("__INITIAL__", str(initial)))
+```
 
 ```{python}
 #| label: setup
@@ -54,7 +204,7 @@ corporate_cap = 0.45
 duration_tolerance = 0.05
 ```
 
-## 2. Assemble the Investable Universe
+## Assemble the Investable Universe
 
 Yield and spread are annual percentages expressed as decimals. Duration and
 spread duration are in years; transaction cost is a one-way estimate in basis
@@ -97,7 +247,18 @@ universe[["Bond", "Sector", "Cell", "Yield", "Spread (bp)", "Duration",
           "Spread duration", "Trading cost (bp)", "Benchmark weight"]]
 ```
 
-## 3. Translate Holdings into Portfolio Exposures
+## Translate Holdings into Portfolio Exposures
+
+::: {.callout-note}
+## Read one row before constructing weights
+
+Putting 10% of $50 million in the UST 5Y means $5 million of market value.
+Its 4.45-year duration contributes $5,000,000 × 4.45 × 0.0001 = **$2,225 per bp**.
+Its contribution to portfolio duration is 0.10 × 4.45 = 0.445 years.
+Dollar exposure adds across positions; security duration must first be weighted.
+The weighted average of individual yields is a carry proxy, not the portfolio's
+cash-flow internal rate of return.
+:::
 
 For weights $w_i$ and security exposure $x_{ik}$, portfolio exposure to factor
 $k$ is $x_{P,k}=\sum_i w_i x_{ik}$. Dollar value of one basis point is
@@ -127,7 +288,7 @@ current_weights = universe["Current weight"].to_numpy()
 portfolio_summary(benchmark_weights).round(3)
 ```
 
-## 4. Build a Transparent Cell-Sampled Portfolio
+## Build a Transparent Cell-Sampled Portfolio
 
 Cell sampling first matches broad sector/maturity buckets, then chooses a
 representative liquid bond in each cell. It is easy to explain, but matching
@@ -150,7 +311,7 @@ sampled_table = pd.DataFrame({"Benchmark": benchmark_weights,
 sampled_table.loc[sampled_table.sum(axis=1).gt(0)].round(3)
 ```
 
-## 5. Construct a Constrained Active Portfolio
+## Construct a Constrained Active Portfolio
 
 Let $a=w-w_B$ be active weights and $B$ the factor-exposure matrix. A compact
 factor-risk approximation is
@@ -210,7 +371,12 @@ assert solution.success, solution.message
 optimized_weights = solution.x
 ```
 
-## 6. Compare the Alternatives
+## Compare the Alternatives
+
+Check constraints before comparing yield. The cell sample is deliberately
+transparent, not constrained: putting a whole cell into one representative can
+breach the 18% security limit. The optimizer searches among feasible portfolios;
+it does not turn a higher assumed yield into a free excess return.
 
 ```{python}
 #| label: portfolio-comparison
@@ -244,7 +410,22 @@ plt.tight_layout()
 plt.show()
 ```
 
-## 7. Turn Weights into Trades
+## Turn Weights into Trades
+
+```{python}
+#| label: fig-portfolio-weights
+#| fig-cap: "Security weights reveal concentration that an aggregate duration can hide."
+#| fig-alt: "Horizontal grouped bars show benchmark, cell-sampled and optimized security weights against the 18 percent cap."
+weight_view = pd.DataFrame({"Benchmark": benchmark_weights,
+                           "Cell sampled": sampled_weights,
+                           "Optimized": optimized_weights}, index=universe["Bond"]) * 100
+ax = weight_view.plot.barh(figsize=(8, 6.5), color=["#666666", "#936724", "#214b3e"])
+ax.axvline(100 * position_cap, color="#333333", linestyle="--", label="Security cap")
+ax.set(xlabel="Portfolio weight (%)", ylabel="")
+ax.legend()
+plt.tight_layout()
+plt.show()
+```
 
 Trades below are dollar market values. A real order list would convert market
 value to face amount using clean price, accrued interest, minimum denominations,
@@ -260,7 +441,7 @@ trade_list["Estimated cost ($)"] = portfolio_value * np.abs(optimized_weights - 
 trade_list.loc[trade_list["Trade ($mm)"].abs().gt(0.025)].round(3)
 ```
 
-## 8. Stress-Test the Decision
+## Stress-Test the Decision
 
 For Treasury yield shift $\Delta y_i$ and spread change $\Delta s_i$,
 
@@ -277,13 +458,18 @@ scenarios = {
 }
 
 def scenario_return(weights, scenario):
-    rate_shock = np.where(universe["Duration"].lt(3.5), scenario["short"],
-                 np.where(universe["Duration"].lt(6.5), scenario["intermediate"], scenario["long"])) / 10_000
+    key_shocks = np.array([scenario["short"], scenario["intermediate"], scenario["long"]]) / 10_000
+    key_exposures = universe[["KRD 2", "KRD 5", "KRD 10"]].to_numpy()
+    rate_effect = key_exposures @ key_shocks
+    # Parallel convexity does not identify cross-key-rate curvature. Use the
+    # second-order correction only for a parallel shock, where it is defined.
+    convexity_effect = (0.5 * universe["Convexity"].to_numpy() * key_shocks[0]**2
+                        if np.allclose(key_shocks, key_shocks[0]) else np.zeros(len(universe)))
     spread_shock = np.where(universe["Sector"].eq("Corporate"), scenario["spread"],
                            np.where(universe["Sector"].eq("Agency"), scenario["spread"] * 0.25, 0)) / 10_000
-    security_return = (-universe["Duration"].to_numpy() * rate_shock
+    security_return = (-rate_effect
                        - universe["Spread duration"].to_numpy() * spread_shock
-                       + 0.5 * universe["Convexity"].to_numpy() * rate_shock**2)
+                       + convexity_effect)
     return weights @ security_return
 
 scenario_results = pd.DataFrame({
@@ -296,14 +482,20 @@ scenario_results.round(3)
 
 ### Explore rate and spread shocks (HTML)
 
+The nonparallel scenarios use each bond's three key-rate exposures, rather than
+assigning one maturity bucket to the entire bond. Parallel scenarios include
+convexity; twists use first-order key-rate risk because a full cross-key-rate
+convexity matrix is not supplied. Agency spreads move by one quarter of the
+corporate spread shock in both the scenario table and the explorer.
+
 The table above is the static PDF fallback. In HTML, change the parallel
 Treasury-rate and corporate-spread shocks to stress the optimized portfolio.
 
 ::: {.content-visible when-format="html"}
 <div id="construction-explorer" style="padding:1rem;border:1px solid #d9e1e8;border-radius:.4rem">
-  <label><strong>Treasury-rate shock:</strong> <output id="rate-label">+50 bp</output></label><br>
+  <label for="rate-shock"><strong>Treasury-rate shock:</strong> <output id="rate-label">+50 bp</output></label><br>
   <input id="rate-shock" type="range" min="-150" max="150" step="5" value="50" style="width:70%"><br>
-  <label><strong>Corporate-spread shock:</strong> <output id="spread-label">+25 bp</output></label><br>
+  <label for="spread-shock"><strong>Corporate-spread shock:</strong> <output id="spread-label">+25 bp</output></label><br>
   <input id="spread-shock" type="range" min="-50" max="200" step="5" value="25" style="width:70%">
   <p id="construction-result" aria-live="polite"></p>
 </div>
@@ -312,24 +504,38 @@ Treasury-rate and corporate-spread shocks to stress the optimized portfolio.
   const rate = document.getElementById('rate-shock'), spread = document.getElementById('spread-shock');
   const rateLabel = document.getElementById('rate-label'), spreadLabel = document.getElementById('spread-label');
   const result = document.getElementById('construction-result');
-  const duration = `{python} float(optimized_weights @ universe["Duration"])`;
-  const convexity = `{python} float(optimized_weights @ universe["Convexity"])`;
-  const spreadDuration = `{python} float(optimized_weights @ universe["Spread duration"])`;
-  const corporateWeight = `{python} float(100 * optimized_weights[corporate_mask].sum())`;
+  const duration = Number(`{python} float(optimized_weights @ universe["Duration"])`);
+  const convexity = Number(`{python} float(optimized_weights @ universe["Convexity"])`);
+  const spreadDuration = Number(`{python} float(optimized_weights @ (universe["Spread duration"] * np.where(corporate_mask, 1.0, np.where(universe["Sector"].eq("Agency"), 0.25, 0.0))))`);
+  const corporateWeight = Number(`{python} float(100 * optimized_weights[corporate_mask].sum())`);
   const value = 50000000, signed = x => `${x > 0 ? '+' : ''}${x} bp`;
   const update = () => {
     const r = Number(rate.value), s = Number(spread.value), dy = r / 10000, ds = s / 10000;
     const pct = -duration * dy + 0.5 * convexity * dy * dy - spreadDuration * ds;
     rateLabel.value = signed(r); spreadLabel.value = signed(s);
     result.textContent = `Approximate optimized-portfolio P&L: $${(value * pct / 1e6).toFixed(3)} million (${(100 * pct).toFixed(2)}%). ` +
-      `Spread duration reflects the portfolio's ${corporateWeight.toFixed(1)}% corporate allocation.`;
+      `Corporate allocation: ${corporateWeight.toFixed(1)}%; agency spreads move by one quarter of the corporate shock.`;
   };
   rate.addEventListener('input', update); spread.addEventListener('input', update); update();
 })();
 </script>
 :::
 
-## 9. Validation and Recommendation
+## Validation and Recommendation
+
+```{python}
+#| label: fig-portfolio-stresses
+#| fig-cap: "Compare stress losses before approving the trade list; these are scenarios, not return forecasts."
+#| fig-alt: "Grouped bars compare current, cell-sampled and optimized portfolio P&L in four rate and credit scenarios."
+ax = scenario_results[["Current", "Cell sampled", "Optimized"]].plot.barh(
+    figsize=(8, 5), color=["#666666", "#936724", "#214b3e"])
+ax.axvline(0, color="#333333", linewidth=1)
+ax.set(xlabel="Scenario P&L ($ millions)", ylabel="")
+plt.tight_layout()
+plt.show()
+assert np.allclose(universe[["KRD 2", "KRD 5", "KRD 10"]].sum(axis=1), universe["Duration"])
+assert np.linalg.eigvalsh(factor_covariance).min() > 0
+```
 
 ```{python}
 #| label: validation
@@ -359,7 +565,43 @@ transaction costs and operational complexity.
 
 ## Instructor Extension
 
+::: {.callout-tip}
+## Make a recommendation, not just a weight vector
+
+Lower the corporate cap from 45% to 35%, rerun from the top, and compare yield,
+trading cost, tracking error, and the credit-selloff outcome. Explain which
+constraint forced the trades. Would the improvement justify the transaction cost?
+Keep the covariance matrix fixed so the comparison isolates the mandate change.
+:::
+
+For a market-based extension, inspect bond terms and trade histories through
+[FINRA Fixed Income Data](https://www.finra.org/finra-data/fixed-income).
+Record identifiers, observation dates, price type and data permissions. Do not
+replace estimated risk exposures with unverified numbers. The embedded universe
+is the full fallback if an institutionally licensed inventory is unavailable.
+
 Replace the embedded universe with a permitted bond inventory or evaluated-price
 snapshot. Add clean price and accrued interest, convert target market values to
 face amounts, impose issuer-level limits, and compare predicted tracking error
 with realized active returns over the next month.
+
+
+## Guided explorer
+
+Keep Treasury yields unchanged and move corporate spreads; agencies move by one quarter as much. Compare the three candidate portfolios before recommending a trade. These are instantaneous mark-to-market scenarios, excluding carry and transaction costs.
+
+The HTML control selects a precomputed scenario. In the PDF, use the preceding
+figures and tables and rerun the displayed notebook inputs to explore other values.
+
+::: {.content-visible when-format="html"}
+```{python}
+#| label: guided-explorer
+credit_shocks = np.arange(-50, 201, 5)
+display(demo_explorer(credit_shocks, {
+    name: [portfolio_value*scenario_return(weights,
+            {"short":0, "intermediate":0, "long":0, "spread":bp})/1e6
+           for bp in credit_shocks]
+    for name, weights in portfolios.items() if name != "Benchmark"
+}, "Corporate spread shock (bp)", "Portfolio P&L ($ millions)", 10))
+```
+:::

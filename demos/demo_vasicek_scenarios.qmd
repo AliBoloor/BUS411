@@ -5,13 +5,40 @@ format:
     toc: true
     number-sections: true
     code-fold: true
+    code-summary: "Show calculation"
+    fig-align: center
+    fig-dpi: 160
     code-tools: true
+    include-in-header:
+      text: |
+        <style>
+        main.content, .cell, .cell-output-display { min-width: 0; }
+        .cell-output-display { overflow-x: auto; max-width: 100%; }
+        .cell-output-display img { max-width: 100%; height: auto; }
+        .demo-lab table { width: 100%; font-size: .95rem; }
+        .demo-lab th, .demo-lab td { text-align: left; padding: .35rem .65rem .35rem 0; }
+        .demo-lab th { border-bottom: 1px solid #b6bdb2; }
+        .demo-lab input { accent-color: #214b3e; }
+        .demo-lab button { border: 1px solid #214b3e; border-radius: 3px;
+          color: #214b3e; background: transparent; padding: .2rem .7rem; }
+        details.code-fold { margin: .8rem 0; }
+        mjx-container[display="true"] { display: block; max-width: 100%;
+          overflow-x: auto; overflow-y: hidden; padding-block: .35em; }
+        </style>
+  pdf:
+    execute:
+      echo: false
 jupyter: python3
 execute:
   echo: true
   warning: false
   message: false
 ---
+
+::: {.content-visible when-format="pdf"}
+This reading copy shows the calculations' results and figures. The HTML demo
+contains the full code in folded blocks and interactive scenario controls.
+:::
 
 ## Purpose and Assumptions {.unnumbered}
 
@@ -32,6 +59,134 @@ are ignored. This short sample is pedagogical and should not be treated as a rob
 trading calibration.
 
 ## Step 1: Record the observed rate history
+
+**The treasury team's question:** how uncertain is next year's floating interest
+expense? We will first fit historical persistence, then simulate monthly resets,
+then turn those resets into dollars. A good fit to history is not evidence that
+the next policy regime will behave the same way.
+
+
+```{python}
+#| label: reader-tools
+#| include: false
+import json
+import html
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from IPython.display import HTML, display
+from cycler import cycler
+
+plt.rcParams.update({
+    "figure.figsize": (8, 4.5), "figure.dpi": 140,
+    "axes.spines.top": False, "axes.spines.right": False,
+    "axes.grid": True, "axes.axisbelow": True, "grid.alpha": 0.20,
+    "axes.titleweight": "bold", "font.size": 11,
+    "lines.linewidth": 2.2, "lines.markersize": 6,
+    "axes.prop_cycle": cycler(color=["#214b3e", "#936724", "#486d8c", "#865c76"]),
+})
+
+
+# Keep every field, but split wide tables into readable panels for HTML and PDF.
+def readable_table(frame):
+    frame = frame.copy()
+    if len(frame.columns) and frame.iloc[:, 0].dtype == object:
+        frame = frame.set_index(frame.columns[0])
+    if len(frame.columns) > 6 and len(frame) <= 4:
+        frame = frame.T
+    panels = []
+    for start in range(0, len(frame.columns), 3):
+        part = frame.iloc[:, start:start+3]
+        markup = part.to_html(border=0, na_rep="", float_format=lambda v: f"{v:,.4f}".rstrip("0").rstrip("."))
+        widths = [40] + [60 / max(1, len(part.columns))] * len(part.columns)
+        cols = "<colgroup>" + "".join(f'<col style="width:{w}%">' for w in widths) + "</colgroup>"
+        end = markup.index(">") + 1
+        panels.append(markup[:end] + cols + markup[end:])
+    return "\n".join(panels)
+
+get_ipython().display_formatter.formatters["text/html"].for_type(pd.DataFrame, readable_table)
+
+def demo_explorer(x, series, x_label, y_label, initial=0):
+    """Show precomputed notebook results; the slider selects an exact grid row."""
+    x = np.asarray(x, dtype=float)
+    values = {name: np.asarray(y, dtype=float).tolist() for name, y in series.items()}
+    assert len(x) > 1 and np.all(np.diff(x) > 0)
+    assert all(len(y) == len(x) and np.isfinite(y).all() for y in values.values())
+    payload = json.dumps({"x": x.tolist(), "series": values,
+                          "xLabel": x_label, "yLabel": y_label,
+                          "initial": int(initial)}, allow_nan=False).replace("<", "\\u003c")
+    markup = """
+<div class="demo-lab" style="border-left:4px solid #936724;padding:1rem;margin:1rem 0">
+  <label for="demo-control"><strong>__XLABEL__</strong></label>
+  <input id="demo-control" type="range" min="0" max="__MAX__" value="__INITIAL__" step="1"
+         style="display:block;width:100%;margin:.8rem 0">
+  <button id="demo-reset" type="button">Reset</button>
+  <p id="demo-selection" aria-live="polite"></p>
+  <svg id="demo-plot" viewBox="0 0 760 350" role="img"
+       aria-label="__YLABEL__ as __XLABEL__ changes" style="width:100%;height:auto"></svg>
+  <div style="overflow-x:auto"><table><thead><tr><th>Model output</th><th>__YLABEL__</th></tr></thead>
+  <tbody id="demo-values"></tbody></table></div>
+  <small>The control selects computed scenario points, not live market observations.</small>
+</div>
+<script>
+(() => {
+const d = __DATA__, slider = document.getElementById('demo-control');
+const svg = document.getElementById('demo-plot'), ns = 'http://www.w3.org/2000/svg';
+const colors = ['#214b3e','#936724','#486d8c','#865c76'];
+const dash = ['', '8 4', '3 3', '10 3 2 3'];
+const all = Object.values(d.series).flat(), lo = Math.min(...all), hi = Math.max(...all);
+const pad = Math.max((hi-lo)*.12, .01), ymin = lo-pad, ymax = hi+pad;
+let width=760;
+const X = v => 70 + (width-100)*(v-d.x[0])/(d.x[d.x.length-1]-d.x[0]);
+const Y = v => 275 - 240*(v-ymin)/(ymax-ymin);
+const add = (name, attrs, content='') => {
+  const e=document.createElementNS(ns,name);
+  Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,v));
+  if(content) e.textContent=content; svg.appendChild(e); return e;
+};
+const fmt = v => v.toLocaleString('en-US',{maximumFractionDigits:3});
+const render = () => {
+  const i=Number(slider.value); svg.replaceChildren();
+  width=Math.max(340, Math.min(760, svg.clientWidth));
+  svg.setAttribute('viewBox','0 0 '+width+' 350');
+  add('rect',{x:0,y:0,width:width,height:350,fill:'#ffffff'});
+  for(let j=0;j<5;j++){
+    const v=ymin+(ymax-ymin)*j/4, y=Y(v);
+    add('line',{x1:70,y1:y,x2:width-30,y2:y,stroke:'#e0e3df'});
+    add('text',{x:62,y:y+4,'text-anchor':'end',fill:'#333','font-size':12},fmt(v));
+  }
+  for(let j=0;j<3;j++){
+    const v=d.x[0]+(d.x[d.x.length-1]-d.x[0])*j/2;
+    add('text',{x:X(v),y:299,'text-anchor':'middle',fill:'#333','font-size':12},fmt(v));
+  }
+  add('text',{x:70,y:19,fill:'#333','font-size':13},d.yLabel);
+  add('text',{x:width/2,y:333,'text-anchor':'middle',fill:'#333','font-size':13},d.xLabel);
+  add('line',{x1:X(d.x[i]),y1:35,x2:X(d.x[i]),y2:275,stroke:'#666','stroke-dasharray':'4 4'});
+  const tbody=document.getElementById('demo-values'); tbody.replaceChildren();
+  Object.entries(d.series).forEach(([name,y],j)=>{
+    add('polyline',{points:d.x.map((v,k)=>X(v)+','+Y(y[k])).join(' '),fill:'none',
+                   stroke:colors[j%4],'stroke-width':2.5,'stroke-dasharray':dash[j%4]});
+    add('circle',{cx:X(d.x[i]),cy:Y(y[i]),r:5,fill:colors[j%4],stroke:'white'});
+    const tr=document.createElement('tr');
+    const label=document.createElement('td'), value=document.createElement('td');
+    label.textContent=name; label.style.color=colors[j%4]; value.textContent=fmt(y[i]);
+    tr.append(label,value); tbody.appendChild(tr);
+  });
+  document.getElementById('demo-selection').textContent=d.xLabel+': '+fmt(d.x[i]);
+  slider.setAttribute('aria-valuetext',fmt(d.x[i])+' '+d.xLabel);
+};
+window.addEventListener('resize',render);
+slider.addEventListener('input',render);
+document.getElementById('demo-reset').addEventListener('click',()=>{slider.value=d.initial;render();});
+render();
+})();
+</script>
+"""
+    return HTML(markup.replace("__DATA__", payload)
+                .replace("__XLABEL__", html.escape(x_label))
+                .replace("__YLABEL__", html.escape(y_label))
+                .replace("__MAX__", str(len(x)-1)).replace("__INITIAL__", str(initial)))
+```
 
 ```{python}
 #| label: history
@@ -56,6 +211,18 @@ and policy-driven for a robust structural calibration, but it lets us show the
 entire estimation workflow without hiding the model's limitations.
 
 ## Step 2: Estimate Vasicek parameters
+
+```{python}
+#| label: fig-observed-history
+#| fig-cap: "Monthly effective federal funds rates, January 2023–June 2025; the calibration sample is short and policy-driven."
+#| fig-alt: "Historical monthly rates rise toward 5.33 percent, plateau, and decline to 4.33 percent."
+fig, ax = plt.subplots(figsize=(8, 4))
+ax.plot(history.index, 100 * history, "o-", color="#214b3e", markersize=4)
+ax.set(ylabel="Monthly average rate (%)", xlabel="Observation month")
+fig.autofmt_xdate(rotation=30)
+plt.tight_layout()
+plt.show()
+```
 
 The exact monthly transition can be written as an AR(1):
 
@@ -114,6 +281,32 @@ pd.Series({
 
 ## Simulate Monthly Paths
 
+::: {.callout-note}
+## What the regression does—and does not—fit
+
+Each row asks whether a high rate this month tends to remain high next month.
+The slope $\phi$ measures persistence; $\phi$ near one means slow mean reversion.
+The residual is the part not explained by that straight line. Inspect it before
+accepting the normal, independent-shock assumption. Monthly average FEDFUNDS is
+a proxy for a short rate, not an observed continuously evolving spot rate.
+:::
+
+```{python}
+#| label: fig-fit-diagnostics
+#| fig-cap: "AR(1) fit and residuals, using 29 monthly transitions. Residual patterns challenge the constant-parameter assumption."
+#| fig-alt: "Scatter of consecutive monthly rates with fitted line, followed by residuals over time."
+fig, axes = plt.subplots(2, 1, figsize=(8, 6.5))
+axes[0].scatter(100 * x, 100 * y, color="#214b3e", s=40)
+ordered = np.sort(x)
+axes[0].plot(100 * ordered, 100 * (alpha_hat + phi_hat * ordered), color="#936724")
+axes[0].set(xlabel="This month's rate (%)", ylabel="Next month's rate (%)")
+axes[1].plot(history.index[1:], residuals * 10000, "o-", color="#214b3e")
+axes[1].axhline(0, color="#333333", linewidth=1)
+axes[1].set(ylabel="Residual (bp)", xlabel="Next observation month")
+plt.tight_layout()
+plt.show()
+```
+
 The exact Vasicek transition is normal:
 
 $$
@@ -147,7 +340,7 @@ time = np.arange(paths.shape[0]) * dt
 #| fig-cap: "Vasicek paths fluctuate randomly but revert toward the long-run mean"
 fig, ax = plt.subplots(figsize=(7.5, 4.1))
 for i in range(30):
-    ax.plot(time, 100 * paths[:, i], alpha=0.28, linewidth=0.8)
+    ax.plot(time, 100 * paths[:, i], color="#214b3e", alpha=0.20, linewidth=0.8)
 ax.plot(time, 100 * paths.mean(axis=1), color="black", linewidth=2.2, label="Simulation mean")
 ax.axhline(100 * theta, color="#F58518", linestyle="--", label="Long-run mean")
 ax.set(xlabel="Years", ylabel="Short rate (%)", title="Illustrative Vasicek scenarios")
@@ -202,6 +395,59 @@ regime changes should be added as separate stresses.
 
 ## Model Scenario Versus a Historical Shock
 
+### Translate the path into an interest-expense budget
+
+The year-end rate is a **reset-rate** scenario, not the year's total interest
+expense. A $10 million borrowing with monthly resets pays interest throughout
+the year. For a constant 100 bp loan margin, the simplified annual cash cost is
+
+$$\text{Interest}=10{,}000{,}000\sum_{k=0}^{11}(r_{k/12}+0.01)/12.$$
+
+We use the rate at the start of each monthly period, an equal-month accrual
+convention, and no compounding of unpaid interest. The loan is illustrative;
+the historical FEDFUNDS sample supplies the fitted dynamics.
+
+```{python}
+#| label: funding-cash-budget
+funding_paths = simulate_vasicek(r0, years=1, paths=50_000,
+                               rng=np.random.default_rng(415))
+loan_notional, loan_margin = 10_000_000, 0.01
+interest_cost = loan_notional * np.sum((funding_paths[:-1] + loan_margin) * dt, axis=0)
+flat_rate_budget = loan_notional * (r0 + loan_margin)
+funding_budget = pd.Series({
+    "Flat current-rate budget ($)": flat_rate_budget,
+    "Simulated median expense ($)": np.median(interest_cost),
+    "95th-percentile expense ($)": np.quantile(interest_cost, 0.95),
+    "Probability expense exceeds flat budget": np.mean(interest_cost > flat_rate_budget),
+})
+funding_budget.round(2)
+```
+
+```{python}
+#| label: fig-funding-budget
+#| fig-cap: "Simulated annual interest expense, not a confidence interval or a guaranteed maximum."
+#| fig-alt: "Histogram of annual interest costs with current-rate budget and simulated 95th percentile marked."
+fig, ax = plt.subplots(figsize=(8, 4))
+ax.hist(interest_cost / 1000, bins=45, color="#214b3e", alpha=0.8)
+ax.axvline(flat_rate_budget / 1000, color="#333333", linestyle="--", label="Flat-rate budget")
+ax.axvline(np.quantile(interest_cost, .95) / 1000, color="#936724", linestyle="-.", label="95th percentile")
+ax.set(xlabel="Annual interest expense ($ thousands)", ylabel="Simulated paths")
+ax.legend()
+plt.tight_layout()
+plt.show()
+assert funding_paths.shape == (13, 50_000)
+assert np.isfinite(interest_cost).all()
+```
+
+::: {.callout-tip}
+## Try a treasury decision
+
+Double the notional, then raise the loan margin by 50 bp. The first change
+scales the entire expense distribution; the second adds $50,000 for the original
+$10 million loan. Neither changes the fitted rate process. Recommend a cash buffer,
+then explain why a policy-regime stress should accompany it.
+:::
+
 Use the largest one-month decline in the compact history as a simple historical shock, and compare it with the model's one-month distribution.
 
 ```{python}
@@ -255,3 +501,25 @@ pd.Series({
 ## Financial Interpretation
 
 Mean reversion makes the expected rate move toward $\theta$, while volatility keeps future rates dispersed. $\kappa$ determines how quickly today's rate loses influence; $\sigma$ determines scenario width. The model is a disciplined scenario generator, not a forecast guarantee. Calibration window, probability measure, structural breaks, and the normal model's negative-rate tail all affect how its output should be used.
+
+
+## Guided explorer
+
+Change the forecast horizon, keeping the historical fit fixed. The mean moves toward the estimated long-run rate while dispersion approaches a limit. The 5th–95th percentile band is conditional model uncertainty, not parameter uncertainty and not a confidence interval for the mean.
+
+The HTML control selects a precomputed scenario. In the PDF, use the preceding
+figures and tables and rerun the displayed notebook inputs to explore other values.
+
+::: {.content-visible when-format="html"}
+```{python}
+#| label: guided-explorer
+horizons = np.arange(.25, 5.01, .25)
+conditional_mean = theta + (r0-theta)*np.exp(-kappa*horizons)
+conditional_std = sigma*np.sqrt(-np.expm1(-2*kappa*horizons)/(2*kappa))
+display(demo_explorer(horizons, {
+    "Conditional mean": 100*conditional_mean,
+    "5th percentile": 100*(conditional_mean-1.644853626951*conditional_std),
+    "95th percentile": 100*(conditional_mean+1.644853626951*conditional_std),
+}, "Horizon (years)", "Short rate (%)", 3))
+```
+:::

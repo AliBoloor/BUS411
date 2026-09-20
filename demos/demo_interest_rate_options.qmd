@@ -6,7 +6,29 @@ format:
     toc-location: left
     number-sections: true
     code-fold: true
+    code-summary: "Show calculation"
+    fig-align: center
+    fig-dpi: 160
     code-tools: true
+    include-in-header:
+      text: |
+        <style>
+        main.content, .cell, .cell-output-display { min-width: 0; }
+        .cell-output-display { overflow-x: auto; max-width: 100%; }
+        .cell-output-display img { max-width: 100%; height: auto; }
+        .demo-lab table { width: 100%; font-size: .95rem; }
+        .demo-lab th, .demo-lab td { text-align: left; padding: .35rem .65rem .35rem 0; }
+        .demo-lab th { border-bottom: 1px solid #b6bdb2; }
+        .demo-lab input { accent-color: #214b3e; }
+        .demo-lab button { border: 1px solid #214b3e; border-radius: 3px;
+          color: #214b3e; background: transparent; padding: .2rem .7rem; }
+        details.code-fold { margin: .8rem 0; }
+        mjx-container[display="true"] { display: block; max-width: 100%;
+          overflow-x: auto; overflow-y: hidden; padding-block: .35em; }
+        </style>
+  pdf:
+    execute:
+      echo: false
 jupyter: python3
 execute:
   echo: true
@@ -14,11 +36,21 @@ execute:
   message: false
 ---
 
+::: {.content-visible when-format="pdf"}
+This reading copy shows the calculations' results and figures. The HTML demo
+contains the full code in folded blocks and interactive scenario controls.
+:::
+
 ## Learning Objectives {.unnumbered}
 
 After completing this demo you should be able to read a Treasury futures option quote, separate intrinsic value from time value, calculate a Black futures-option benchmark, size a protective-put overlay with DV01, compare its scenario P&L with a linear futures hedge, and explain basis, volatility, and time-decay risks.
 
 ## Inputs and Assumptions
+
+**The decision:** insure a bond portfolio against rising yields without giving
+up all gains if yields fall. Follow **quote → model premium → implied volatility
+→ hedge size → expiration payoff**. A put on Treasury futures protects against
+falling futures prices; that is the direction normally associated with rising yields.
 
 All inputs are **illustrative, market-like inputs**, not live quotes. The option is treated as European for Black-model transparency; actual contract exercise and margin conventions must be checked. The bond portfolio is mapped to one Treasury futures contract with DV01; the CTD, conversion factor, basis, convexity, transaction costs, margin cash flows, and early exercise are held fixed or ignored.
 
@@ -28,6 +60,129 @@ All inputs are **illustrative, market-like inputs**, not live quotes. The option
 | Estimated | Black benchmark value and futures-equivalent exposure |
 | Diagnosed | Quote-versus-model gap, intrinsic value, and time value |
 | Used for | Choosing between a linear hedge and asymmetric protection |
+
+
+```{python}
+#| label: reader-tools
+#| include: false
+import json
+import html
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from IPython.display import HTML, display
+from cycler import cycler
+
+plt.rcParams.update({
+    "figure.figsize": (8, 4.5), "figure.dpi": 140,
+    "axes.spines.top": False, "axes.spines.right": False,
+    "axes.grid": True, "axes.axisbelow": True, "grid.alpha": 0.20,
+    "axes.titleweight": "bold", "font.size": 11,
+    "lines.linewidth": 2.2, "lines.markersize": 6,
+    "axes.prop_cycle": cycler(color=["#214b3e", "#936724", "#486d8c", "#865c76"]),
+})
+
+
+# Keep every field, but split wide tables into readable panels for HTML and PDF.
+def readable_table(frame):
+    frame = frame.copy()
+    if len(frame.columns) and frame.iloc[:, 0].dtype == object:
+        frame = frame.set_index(frame.columns[0])
+    if len(frame.columns) > 6 and len(frame) <= 4:
+        frame = frame.T
+    panels = []
+    for start in range(0, len(frame.columns), 3):
+        part = frame.iloc[:, start:start+3]
+        markup = part.to_html(border=0, na_rep="", float_format=lambda v: f"{v:,.4f}".rstrip("0").rstrip("."))
+        widths = [40] + [60 / max(1, len(part.columns))] * len(part.columns)
+        cols = "<colgroup>" + "".join(f'<col style="width:{w}%">' for w in widths) + "</colgroup>"
+        end = markup.index(">") + 1
+        panels.append(markup[:end] + cols + markup[end:])
+    return "\n".join(panels)
+
+get_ipython().display_formatter.formatters["text/html"].for_type(pd.DataFrame, readable_table)
+
+def demo_explorer(x, series, x_label, y_label, initial=0):
+    """Show precomputed notebook results; the slider selects an exact grid row."""
+    x = np.asarray(x, dtype=float)
+    values = {name: np.asarray(y, dtype=float).tolist() for name, y in series.items()}
+    assert len(x) > 1 and np.all(np.diff(x) > 0)
+    assert all(len(y) == len(x) and np.isfinite(y).all() for y in values.values())
+    payload = json.dumps({"x": x.tolist(), "series": values,
+                          "xLabel": x_label, "yLabel": y_label,
+                          "initial": int(initial)}, allow_nan=False).replace("<", "\\u003c")
+    markup = """
+<div class="demo-lab" style="border-left:4px solid #936724;padding:1rem;margin:1rem 0">
+  <label for="demo-control"><strong>__XLABEL__</strong></label>
+  <input id="demo-control" type="range" min="0" max="__MAX__" value="__INITIAL__" step="1"
+         style="display:block;width:100%;margin:.8rem 0">
+  <button id="demo-reset" type="button">Reset</button>
+  <p id="demo-selection" aria-live="polite"></p>
+  <svg id="demo-plot" viewBox="0 0 760 350" role="img"
+       aria-label="__YLABEL__ as __XLABEL__ changes" style="width:100%;height:auto"></svg>
+  <div style="overflow-x:auto"><table><thead><tr><th>Model output</th><th>__YLABEL__</th></tr></thead>
+  <tbody id="demo-values"></tbody></table></div>
+  <small>The control selects computed scenario points, not live market observations.</small>
+</div>
+<script>
+(() => {
+const d = __DATA__, slider = document.getElementById('demo-control');
+const svg = document.getElementById('demo-plot'), ns = 'http://www.w3.org/2000/svg';
+const colors = ['#214b3e','#936724','#486d8c','#865c76'];
+const dash = ['', '8 4', '3 3', '10 3 2 3'];
+const all = Object.values(d.series).flat(), lo = Math.min(...all), hi = Math.max(...all);
+const pad = Math.max((hi-lo)*.12, .01), ymin = lo-pad, ymax = hi+pad;
+let width=760;
+const X = v => 70 + (width-100)*(v-d.x[0])/(d.x[d.x.length-1]-d.x[0]);
+const Y = v => 275 - 240*(v-ymin)/(ymax-ymin);
+const add = (name, attrs, content='') => {
+  const e=document.createElementNS(ns,name);
+  Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,v));
+  if(content) e.textContent=content; svg.appendChild(e); return e;
+};
+const fmt = v => v.toLocaleString('en-US',{maximumFractionDigits:3});
+const render = () => {
+  const i=Number(slider.value); svg.replaceChildren();
+  width=Math.max(340, Math.min(760, svg.clientWidth));
+  svg.setAttribute('viewBox','0 0 '+width+' 350');
+  add('rect',{x:0,y:0,width:width,height:350,fill:'#ffffff'});
+  for(let j=0;j<5;j++){
+    const v=ymin+(ymax-ymin)*j/4, y=Y(v);
+    add('line',{x1:70,y1:y,x2:width-30,y2:y,stroke:'#e0e3df'});
+    add('text',{x:62,y:y+4,'text-anchor':'end',fill:'#333','font-size':12},fmt(v));
+  }
+  for(let j=0;j<3;j++){
+    const v=d.x[0]+(d.x[d.x.length-1]-d.x[0])*j/2;
+    add('text',{x:X(v),y:299,'text-anchor':'middle',fill:'#333','font-size':12},fmt(v));
+  }
+  add('text',{x:70,y:19,fill:'#333','font-size':13},d.yLabel);
+  add('text',{x:width/2,y:333,'text-anchor':'middle',fill:'#333','font-size':13},d.xLabel);
+  add('line',{x1:X(d.x[i]),y1:35,x2:X(d.x[i]),y2:275,stroke:'#666','stroke-dasharray':'4 4'});
+  const tbody=document.getElementById('demo-values'); tbody.replaceChildren();
+  Object.entries(d.series).forEach(([name,y],j)=>{
+    add('polyline',{points:d.x.map((v,k)=>X(v)+','+Y(y[k])).join(' '),fill:'none',
+                   stroke:colors[j%4],'stroke-width':2.5,'stroke-dasharray':dash[j%4]});
+    add('circle',{cx:X(d.x[i]),cy:Y(y[i]),r:5,fill:colors[j%4],stroke:'white'});
+    const tr=document.createElement('tr');
+    const label=document.createElement('td'), value=document.createElement('td');
+    label.textContent=name; label.style.color=colors[j%4]; value.textContent=fmt(y[i]);
+    tr.append(label,value); tbody.appendChild(tr);
+  });
+  document.getElementById('demo-selection').textContent=d.xLabel+': '+fmt(d.x[i]);
+  slider.setAttribute('aria-valuetext',fmt(d.x[i])+' '+d.xLabel);
+};
+window.addEventListener('resize',render);
+slider.addEventListener('input',render);
+document.getElementById('demo-reset').addEventListener('click',()=>{slider.value=d.initial;render();});
+render();
+})();
+</script>
+"""
+    return HTML(markup.replace("__DATA__", payload)
+                .replace("__XLABEL__", html.escape(x_label))
+                .replace("__YLABEL__", html.escape(y_label))
+                .replace("__MAX__", str(len(x)-1)).replace("__INITIAL__", str(initial)))
+```
 
 ```{python}
 #| label: inputs
@@ -107,6 +262,49 @@ pd.Series({
 The quoted premium and model value need not match. A trader can interpret their difference as a signal to investigate volatility, exercise style, liquidity, model inputs, and bid-ask effects—not as an automatic arbitrage.
 
 ## Size the Protective Put Overlay
+
+### Fit the quote, then use the fitted model
+
+Instead of treating 7.5% volatility as the answer, invert the Black formula:
+find the volatility whose model premium equals the supplied 1.84375-point quote.
+This is an **implied** volatility under a European model, not a forecast of
+realized volatility. The quote remains illustrative.
+
+```{python}
+#| label: implied-volatility
+lower_vol, upper_vol = 0.0001, 1.0
+assert black_futures_put(futures_price, strike, time_to_expiry, risk_free_rate, lower_vol) < quoted_points
+assert black_futures_put(futures_price, strike, time_to_expiry, risk_free_rate, upper_vol) > quoted_points
+for _ in range(80):
+    midpoint = (lower_vol + upper_vol) / 2
+    trial_price = float(black_futures_put(futures_price, strike, time_to_expiry, risk_free_rate, midpoint))
+    if trial_price < quoted_points:
+        lower_vol = midpoint
+    else:
+        upper_vol = midpoint
+implied_vol = (lower_vol + upper_vol) / 2
+fitted_premium = float(black_futures_put(futures_price, strike, time_to_expiry, risk_free_rate, implied_vol))
+assert abs(fitted_premium - quoted_points) < 1e-10
+pd.Series({"Implied volatility (%)": 100 * implied_vol,
+           "Repriced quote (points)": fitted_premium,
+           "Repricing error (points)": fitted_premium - quoted_points}).round(6)
+```
+
+```{python}
+#| label: fig-option-time-value
+#| fig-cap: "Before expiry the fitted model includes remaining optionality; at expiry only intrinsic payoff remains."
+#| fig-alt: "Put prices at six and three months compared with expiry payoff across futures prices."
+futures_grid = np.linspace(100, 122, 111)
+fig, ax = plt.subplots(figsize=(8, 4.5))
+for expiry, style in [(0.5, "-"), (0.25, "--")]:
+    ax.plot(futures_grid, black_futures_put(futures_grid, strike, expiry, risk_free_rate, implied_vol),
+            linestyle=style, label=f"{12*expiry:.0f} months remaining")
+ax.plot(futures_grid, np.maximum(strike-futures_grid, 0), ":", color="#333333", label="Expiry payoff")
+ax.set(xlabel="Futures price (points)", ylabel="Put value (points)")
+ax.legend()
+plt.tight_layout()
+plt.show()
+```
 
 First map the portfolio into futures-equivalent contracts:
 
@@ -189,6 +387,17 @@ plt.show()
 
 ## Risks the Simple Comparison Omits
 
+::: {.callout-tip}
+## Read the protection, not just the payoff
+
+At an unchanged futures price, the out-of-the-money put expires worthless and
+the combined position loses the premium. When futures fall below 111, protection
+starts to offset further mapped bond losses. The floor is below zero because the
+manager bears both the move from 112 to 111 and the premium. A static expiry
+floor is not today's delta-neutral hedge, nor is it a guarantee for the actual
+bond portfolio if the futures mapping breaks down.
+:::
+
 - **Basis risk:** the bond portfolio and Treasury futures may move differently.
 - **Curve risk:** a single contract cannot hedge every maturity exposure.
 - **Volatility risk:** option value changes when implied volatility changes.
@@ -219,3 +428,36 @@ pd.Series({
 ## Financial Interpretation
 
 Contract selection begins with the risk, not the forecast. A short futures hedge is appropriate when the objective is to remove exposure linearly. A protective put is appropriate when the manager wants a loss floor while retaining favorable bond-price gains. That asymmetry is valuable, but its premium, volatility exposure, time decay, basis, and expiration must be budgeted explicitly.
+
+### Market handoff
+
+Use [CME's Treasury options guide](https://www.cmegroup.com/content/dam/cmegroup/education/files/treasury-options-for-fixed-income-asset-managers.pdf)
+to connect the case to listed contracts. Before replacing the supplied quote,
+record contract month, option expiry, strike, bid/ask, quotation unit, exercise
+style, and timestamp. Different contracts can use different tick conventions.
+Keep the embedded quote if comparable licensed data are unavailable. It is not
+a current exchange observation.
+
+**Your deliverable:** compare premium paid, loss under a +75 bp yield shock,
+upside retained under -75 bp, and one reason the fitted European model may not
+match a listed option's valuation.
+
+
+## Guided explorer
+
+Change volatility while holding futures price, strike and interest rate fixed. Higher volatility makes the protection more expensive. Compare remaining maturities, then return to the fitted volatility reported above. The slider does not change the fixed premium already paid in the expiration-P&L example.
+
+The HTML control selects a precomputed scenario. In the PDF, use the preceding
+figures and tables and rerun the displayed notebook inputs to explore other values.
+
+::: {.content-visible when-format="html"}
+```{python}
+#| label: guided-explorer
+vol_grid = np.arange(2, 14.01, .25)
+display(demo_explorer(vol_grid, {
+    "Six months remaining": black_futures_put(futures_price, strike, .5, risk_free_rate, vol_grid/100)*1000,
+    "Three months remaining": black_futures_put(futures_price, strike, .25, risk_free_rate, vol_grid/100)*1000,
+}, "Assumed volatility (% per square-root year)", "Put premium ($ per contract)",
+    int(np.argmin(abs(vol_grid-100*implied_vol)))))
+```
+:::

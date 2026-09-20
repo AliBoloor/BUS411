@@ -6,7 +6,29 @@ format:
     toc-location: left
     number-sections: true
     code-fold: true
+    code-summary: "Show calculation"
+    fig-align: center
+    fig-dpi: 160
     code-tools: true
+    include-in-header:
+      text: |
+        <style>
+        main.content, .cell, .cell-output-display { min-width: 0; }
+        .cell-output-display { overflow-x: auto; max-width: 100%; }
+        .cell-output-display img { max-width: 100%; height: auto; }
+        .demo-lab table { width: 100%; font-size: .95rem; }
+        .demo-lab th, .demo-lab td { text-align: left; padding: .35rem .65rem .35rem 0; }
+        .demo-lab th { border-bottom: 1px solid #b6bdb2; }
+        .demo-lab input { accent-color: #214b3e; }
+        .demo-lab button { border: 1px solid #214b3e; border-radius: 3px;
+          color: #214b3e; background: transparent; padding: .2rem .7rem; }
+        details.code-fold { margin: .8rem 0; }
+        mjx-container[display="true"] { display: block; max-width: 100%;
+          overflow-x: auto; overflow-y: hidden; padding-block: .35em; }
+        </style>
+  pdf:
+    execute:
+      echo: false
 jupyter: python3
 execute:
   echo: true
@@ -14,11 +36,21 @@ execute:
   message: false
 ---
 
+::: {.content-visible when-format="pdf"}
+This reading copy shows the calculations' results and figures. The HTML demo
+contains the full code in folded blocks and interactive scenario controls.
+:::
+
 ## Learning Objectives {.unnumbered}
 
 After completing this demo you should be able to decompose corporate-bond risk into Treasury-rate, spread, default, and liquidity components; calculate spread duration and duration times spread (DTS); compare spread carry with widening risk; and evaluate mild and severe portfolio scenarios.
 
 ## Inputs and Assumptions
+
+**The decision:** a credit manager is offered more spread by moving into a
+lower-rated bond. Does the extra carry justify the loss if spreads widen?
+Follow the chain **position → dollar sensitivity → carry cushion → stress loss**.
+For each step, predict the sign before opening the folded calculation.
 
 All values are **illustrative, market-like inputs**, not current quotes. The portfolio is intentionally small enough to audit by hand. Prices are near par; annual carry is approximated by spread times market value; spread duration is treated as constant; Treasury and spread P&L use first-order duration; PDs are physical one-year probabilities; defaults and mark-to-market spread changes are reported separately to avoid double counting.
 
@@ -28,6 +60,129 @@ All values are **illustrative, market-like inputs**, not current quotes. The por
 | Estimated | Spread duration, PD, recovery, and liquidity reserve |
 | Diagnosed | DTS concentration and carry breakeven |
 | Used for | Mild and severe portfolio stress decisions |
+
+
+```{python}
+#| label: reader-tools
+#| include: false
+import json
+import html
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from IPython.display import HTML, display
+from cycler import cycler
+
+plt.rcParams.update({
+    "figure.figsize": (8, 4.5), "figure.dpi": 140,
+    "axes.spines.top": False, "axes.spines.right": False,
+    "axes.grid": True, "axes.axisbelow": True, "grid.alpha": 0.20,
+    "axes.titleweight": "bold", "font.size": 11,
+    "lines.linewidth": 2.2, "lines.markersize": 6,
+    "axes.prop_cycle": cycler(color=["#214b3e", "#936724", "#486d8c", "#865c76"]),
+})
+
+
+# Keep every field, but split wide tables into readable panels for HTML and PDF.
+def readable_table(frame):
+    frame = frame.copy()
+    if len(frame.columns) and frame.iloc[:, 0].dtype == object:
+        frame = frame.set_index(frame.columns[0])
+    if len(frame.columns) > 6 and len(frame) <= 4:
+        frame = frame.T
+    panels = []
+    for start in range(0, len(frame.columns), 3):
+        part = frame.iloc[:, start:start+3]
+        markup = part.to_html(border=0, na_rep="", float_format=lambda v: f"{v:,.4f}".rstrip("0").rstrip("."))
+        widths = [40] + [60 / max(1, len(part.columns))] * len(part.columns)
+        cols = "<colgroup>" + "".join(f'<col style="width:{w}%">' for w in widths) + "</colgroup>"
+        end = markup.index(">") + 1
+        panels.append(markup[:end] + cols + markup[end:])
+    return "\n".join(panels)
+
+get_ipython().display_formatter.formatters["text/html"].for_type(pd.DataFrame, readable_table)
+
+def demo_explorer(x, series, x_label, y_label, initial=0):
+    """Show precomputed notebook results; the slider selects an exact grid row."""
+    x = np.asarray(x, dtype=float)
+    values = {name: np.asarray(y, dtype=float).tolist() for name, y in series.items()}
+    assert len(x) > 1 and np.all(np.diff(x) > 0)
+    assert all(len(y) == len(x) and np.isfinite(y).all() for y in values.values())
+    payload = json.dumps({"x": x.tolist(), "series": values,
+                          "xLabel": x_label, "yLabel": y_label,
+                          "initial": int(initial)}, allow_nan=False).replace("<", "\\u003c")
+    markup = """
+<div class="demo-lab" style="border-left:4px solid #936724;padding:1rem;margin:1rem 0">
+  <label for="demo-control"><strong>__XLABEL__</strong></label>
+  <input id="demo-control" type="range" min="0" max="__MAX__" value="__INITIAL__" step="1"
+         style="display:block;width:100%;margin:.8rem 0">
+  <button id="demo-reset" type="button">Reset</button>
+  <p id="demo-selection" aria-live="polite"></p>
+  <svg id="demo-plot" viewBox="0 0 760 350" role="img"
+       aria-label="__YLABEL__ as __XLABEL__ changes" style="width:100%;height:auto"></svg>
+  <div style="overflow-x:auto"><table><thead><tr><th>Model output</th><th>__YLABEL__</th></tr></thead>
+  <tbody id="demo-values"></tbody></table></div>
+  <small>The control selects computed scenario points, not live market observations.</small>
+</div>
+<script>
+(() => {
+const d = __DATA__, slider = document.getElementById('demo-control');
+const svg = document.getElementById('demo-plot'), ns = 'http://www.w3.org/2000/svg';
+const colors = ['#214b3e','#936724','#486d8c','#865c76'];
+const dash = ['', '8 4', '3 3', '10 3 2 3'];
+const all = Object.values(d.series).flat(), lo = Math.min(...all), hi = Math.max(...all);
+const pad = Math.max((hi-lo)*.12, .01), ymin = lo-pad, ymax = hi+pad;
+let width=760;
+const X = v => 70 + (width-100)*(v-d.x[0])/(d.x[d.x.length-1]-d.x[0]);
+const Y = v => 275 - 240*(v-ymin)/(ymax-ymin);
+const add = (name, attrs, content='') => {
+  const e=document.createElementNS(ns,name);
+  Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,v));
+  if(content) e.textContent=content; svg.appendChild(e); return e;
+};
+const fmt = v => v.toLocaleString('en-US',{maximumFractionDigits:3});
+const render = () => {
+  const i=Number(slider.value); svg.replaceChildren();
+  width=Math.max(340, Math.min(760, svg.clientWidth));
+  svg.setAttribute('viewBox','0 0 '+width+' 350');
+  add('rect',{x:0,y:0,width:width,height:350,fill:'#ffffff'});
+  for(let j=0;j<5;j++){
+    const v=ymin+(ymax-ymin)*j/4, y=Y(v);
+    add('line',{x1:70,y1:y,x2:width-30,y2:y,stroke:'#e0e3df'});
+    add('text',{x:62,y:y+4,'text-anchor':'end',fill:'#333','font-size':12},fmt(v));
+  }
+  for(let j=0;j<3;j++){
+    const v=d.x[0]+(d.x[d.x.length-1]-d.x[0])*j/2;
+    add('text',{x:X(v),y:299,'text-anchor':'middle',fill:'#333','font-size':12},fmt(v));
+  }
+  add('text',{x:70,y:19,fill:'#333','font-size':13},d.yLabel);
+  add('text',{x:width/2,y:333,'text-anchor':'middle',fill:'#333','font-size':13},d.xLabel);
+  add('line',{x1:X(d.x[i]),y1:35,x2:X(d.x[i]),y2:275,stroke:'#666','stroke-dasharray':'4 4'});
+  const tbody=document.getElementById('demo-values'); tbody.replaceChildren();
+  Object.entries(d.series).forEach(([name,y],j)=>{
+    add('polyline',{points:d.x.map((v,k)=>X(v)+','+Y(y[k])).join(' '),fill:'none',
+                   stroke:colors[j%4],'stroke-width':2.5,'stroke-dasharray':dash[j%4]});
+    add('circle',{cx:X(d.x[i]),cy:Y(y[i]),r:5,fill:colors[j%4],stroke:'white'});
+    const tr=document.createElement('tr');
+    const label=document.createElement('td'), value=document.createElement('td');
+    label.textContent=name; label.style.color=colors[j%4]; value.textContent=fmt(y[i]);
+    tr.append(label,value); tbody.appendChild(tr);
+  });
+  document.getElementById('demo-selection').textContent=d.xLabel+': '+fmt(d.x[i]);
+  slider.setAttribute('aria-valuetext',fmt(d.x[i])+' '+d.xLabel);
+};
+window.addEventListener('resize',render);
+slider.addEventListener('input',render);
+document.getElementById('demo-reset').addEventListener('click',()=>{slider.value=d.initial;render();});
+render();
+})();
+</script>
+"""
+    return HTML(markup.replace("__DATA__", payload)
+                .replace("__XLABEL__", html.escape(x_label))
+                .replace("__YLABEL__", html.escape(y_label))
+                .replace("__MAX__", str(len(x)-1)).replace("__INITIAL__", str(initial)))
+```
 
 ```{python}
 #| label: portfolio-inputs
@@ -94,6 +249,31 @@ Equal market values do not imply equal credit risk. Wider-spread bonds can contr
 
 ## Carry Versus Widening Breakeven
 
+::: {.callout-note}
+## Audit the utility position
+
+The utility's $12 million market value and spread duration of 4 give
+$12,000,000 × 4 × 0.0001 = **$4,800 per bp** of spread risk.
+A 25 bp widening therefore costs approximately $120,000. Its 78 bp annual
+spread carry is only $93,600. Even a small-looking spread move can erase a
+year's spread income; spread is quoted per year, but a price loss can occur today.
+:::
+
+```{python}
+#| label: fig-credit-concentration
+#| fig-cap: "Market-value weights versus shares of DTS risk; all inputs are illustrative."
+#| fig-alt: "Horizontal bars compare capital weights with proportional-spread-risk shares across the four bonds."
+concentration = pd.DataFrame({
+    "Capital weight": 100 * bonds["Market value ($mm)"] / bonds["Market value ($mm)"].sum(),
+    "Share of DTS": 100 * bonds["Contribution to DTS"] / portfolio_dts,
+})
+concentration.index = bonds["Bond"]
+ax = concentration.plot.barh(figsize=(8, 4), color=["#214b3e", "#936724"])
+ax.set(xlabel="Portfolio share (%)", ylabel="")
+plt.tight_layout()
+plt.show()
+```
+
 Approximate annual spread carry is $MV\times s$. The spread widening that consumes one year of spread carry is
 
 $$
@@ -112,6 +292,22 @@ bonds[["Bond", "Annual spread carry ($)", "Widening breakeven (bp)"]].round(1)
 ```
 
 ## Expected Loss and Liquidity Reserve
+
+```{python}
+#| label: fig-carry-cushion
+#| fig-cap: "Each crossing is the widening that consumes one year of spread carry, before default and liquidity allowances."
+#| fig-alt: "Four declining lines show annual spread carry less mark-to-market loss as spreads widen."
+widening_grid = np.arange(0, 161, 5)
+fig, ax = plt.subplots(figsize=(8, 4.6))
+for i, bond in bonds.iterrows():
+    cushion = bond["Spread (bp)"] - bond["Spread duration"] * widening_grid
+    ax.plot(widening_grid, cushion, linestyle=["-", "--", "-.", ":"][i], label=bond["Bond"])
+ax.axhline(0, color="#333333", linewidth=1)
+ax.set(xlabel="Spread widening (bp)", ylabel="Carry less price loss (bp of market value)")
+ax.legend(fontsize=9)
+plt.tight_layout()
+plt.show()
+```
 
 Expected credit loss is
 
@@ -213,3 +409,39 @@ pd.Series({
 ## Financial Interpretation
 
 A wide spread is not automatically attractive. The analyst should ask how much of the spread may be consumed by expected loss and liquidity, how much widening erases carry, and whether falling Treasury yields are likely to offset spread losses in stress. DTS is useful for proportional spread shocks; DV01 is useful for basis-point shocks; neither replaces explicit default and liquidity analysis.
+
+## Guided decision and market handoff
+
+1. **Hold Treasury yields fixed.** Compare a 25 bp widening in every bond with
+   a 25% increase in each bond's spread. DV01 ranks the first exposure; DTS
+   addresses the second. The shocks are not interchangeable.
+2. **Allow a Treasury rally.** Use the severe scenario to explain why government
+   yields falling does not guarantee a gain on a corporate bond.
+3. **Write the recommendation.** Cite carry breakeven, spread-loss concentration,
+   and the assumption about default. Do not add expected default loss to the
+   mark-to-market stress as though they were independent realized losses.
+
+Inspect [FINRA's security and trade lookup](https://www.finra.org/finra-data/fixed-income)
+for an issuer's terms and trade history. Record the benchmark, timestamp, callable
+status, and spread definition. A yield difference, a Z-spread, and an OAS are not
+interchangeable inputs. Keep the embedded four-bond case if a comparable security
+or permitted dataset is unavailable; the supplied PDs are assumptions, not ratings-agency estimates.
+
+
+## Guided explorer
+
+Apply the same proportional spread change to all four bonds while keeping Treasury yields fixed. At +25%, the 78 bp utility spread widens by 19.5 bp, while the 410 bp telecom spread widens by 102.5 bp. These are immediate price changes, with no annual carry or default loss added.
+
+The HTML control selects a precomputed scenario. In the PDF, use the preceding
+figures and tables and rerun the displayed notebook inputs to explore other values.
+
+::: {.content-visible when-format="html"}
+```{python}
+#| label: guided-explorer
+relative_shocks = np.arange(-25, 101, 5)
+display(demo_explorer(relative_shocks, {
+    row["Bond"]: -row["DTS"] * relative_shocks
+    for _, row in bonds.iterrows()
+}, "Proportional spread change (%)", "Approximate bond price change (%)", 10))
+```
+:::

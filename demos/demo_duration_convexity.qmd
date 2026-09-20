@@ -5,13 +5,56 @@ format:
     toc: true
     number-sections: true
     code-fold: true
+    code-summary: "Show calculation"
+    fig-align: center
+    fig-dpi: 160
     code-tools: true
+    include-in-header:
+      text: |
+        <style>
+        main.content, .cell, .cell-output-display { min-width: 0; }
+        .cell-output-display { overflow-x: auto; max-width: 100%; }
+        .cell-output-display img { max-width: 100%; height: auto; }
+        .demo-lab table { width: 100%; font-size: .95rem; }
+        .demo-lab th, .demo-lab td { text-align: left; padding: .35rem .65rem .35rem 0; }
+        .demo-lab th { border-bottom: 1px solid #b6bdb2; }
+        .demo-lab input { accent-color: #214b3e; }
+        .demo-lab button { border: 1px solid #214b3e; border-radius: 3px;
+          color: #214b3e; background: transparent; padding: .2rem .7rem; }
+        details.code-fold { margin: .8rem 0; }
+        mjx-container[display="true"] { display: block; max-width: 100%;
+          overflow-x: auto; overflow-y: hidden; padding-block: .35em; }
+        </style>
+  pdf:
+    execute:
+      echo: false
 jupyter: python3
 execute:
   echo: true
   warning: false
   message: false
 ---
+
+::: {.content-visible when-format="pdf"}
+This reading copy shows the calculations' results and figures. The HTML demo
+contains the full code in folded blocks and interactive scenario controls.
+:::
+
+## The desk question {.unnumbered}
+
+A manager holds three cash bonds and asks: **if yields rise by 50 basis points,
+how much will we lose, and can a duration estimate be trusted?** Start with the
+payments you own, then measure risk. Do not start by averaging the bonds' yields.
+
+1. **Read the position file:** distinguish face amount from market value.
+2. **Discount each payment:** recover the price and the timing of its present value.
+3. **Measure sensitivity:** translate duration into dollars per basis point.
+4. **Shock and reprice:** compare a tangent-line estimate with actual discounted cash flows.
+5. **Report the exception:** explain why a curve twist needs more than one risk number.
+
+Read the results first; open **Show calculation** when you want to reproduce them.
+The interactive controls work without a Python installation; changing the source
+inputs requires rerunning the notebook from the top.
 
 ## Purpose and Assumptions {.unnumbered}
 
@@ -23,6 +66,129 @@ This demo prices a small bond portfolio from contractual cash flows, measures Ma
 | Calculated | Full price, duration, DV01, and convexity |
 | Checked | Approximation error against exact cash-flow repricing |
 | Used for | Portfolio shock P&L and identification of curve risk |
+
+
+```{python}
+#| label: reader-tools
+#| include: false
+import json
+import html
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from IPython.display import HTML, display
+from cycler import cycler
+
+plt.rcParams.update({
+    "figure.figsize": (8, 4.5), "figure.dpi": 140,
+    "axes.spines.top": False, "axes.spines.right": False,
+    "axes.grid": True, "axes.axisbelow": True, "grid.alpha": 0.20,
+    "axes.titleweight": "bold", "font.size": 11,
+    "lines.linewidth": 2.2, "lines.markersize": 6,
+    "axes.prop_cycle": cycler(color=["#214b3e", "#936724", "#486d8c", "#865c76"]),
+})
+
+
+# Keep every field, but split wide tables into readable panels for HTML and PDF.
+def readable_table(frame):
+    frame = frame.copy()
+    if len(frame.columns) and frame.iloc[:, 0].dtype == object:
+        frame = frame.set_index(frame.columns[0])
+    if len(frame.columns) > 6 and len(frame) <= 4:
+        frame = frame.T
+    panels = []
+    for start in range(0, len(frame.columns), 3):
+        part = frame.iloc[:, start:start+3]
+        markup = part.to_html(border=0, na_rep="", float_format=lambda v: f"{v:,.4f}".rstrip("0").rstrip("."))
+        widths = [40] + [60 / max(1, len(part.columns))] * len(part.columns)
+        cols = "<colgroup>" + "".join(f'<col style="width:{w}%">' for w in widths) + "</colgroup>"
+        end = markup.index(">") + 1
+        panels.append(markup[:end] + cols + markup[end:])
+    return "\n".join(panels)
+
+get_ipython().display_formatter.formatters["text/html"].for_type(pd.DataFrame, readable_table)
+
+def demo_explorer(x, series, x_label, y_label, initial=0):
+    """Show precomputed notebook results; the slider selects an exact grid row."""
+    x = np.asarray(x, dtype=float)
+    values = {name: np.asarray(y, dtype=float).tolist() for name, y in series.items()}
+    assert len(x) > 1 and np.all(np.diff(x) > 0)
+    assert all(len(y) == len(x) and np.isfinite(y).all() for y in values.values())
+    payload = json.dumps({"x": x.tolist(), "series": values,
+                          "xLabel": x_label, "yLabel": y_label,
+                          "initial": int(initial)}, allow_nan=False).replace("<", "\\u003c")
+    markup = """
+<div class="demo-lab" style="border-left:4px solid #936724;padding:1rem;margin:1rem 0">
+  <label for="demo-control"><strong>__XLABEL__</strong></label>
+  <input id="demo-control" type="range" min="0" max="__MAX__" value="__INITIAL__" step="1"
+         style="display:block;width:100%;margin:.8rem 0">
+  <button id="demo-reset" type="button">Reset</button>
+  <p id="demo-selection" aria-live="polite"></p>
+  <svg id="demo-plot" viewBox="0 0 760 350" role="img"
+       aria-label="__YLABEL__ as __XLABEL__ changes" style="width:100%;height:auto"></svg>
+  <div style="overflow-x:auto"><table><thead><tr><th>Model output</th><th>__YLABEL__</th></tr></thead>
+  <tbody id="demo-values"></tbody></table></div>
+  <small>The control selects computed scenario points, not live market observations.</small>
+</div>
+<script>
+(() => {
+const d = __DATA__, slider = document.getElementById('demo-control');
+const svg = document.getElementById('demo-plot'), ns = 'http://www.w3.org/2000/svg';
+const colors = ['#214b3e','#936724','#486d8c','#865c76'];
+const dash = ['', '8 4', '3 3', '10 3 2 3'];
+const all = Object.values(d.series).flat(), lo = Math.min(...all), hi = Math.max(...all);
+const pad = Math.max((hi-lo)*.12, .01), ymin = lo-pad, ymax = hi+pad;
+let width=760;
+const X = v => 70 + (width-100)*(v-d.x[0])/(d.x[d.x.length-1]-d.x[0]);
+const Y = v => 275 - 240*(v-ymin)/(ymax-ymin);
+const add = (name, attrs, content='') => {
+  const e=document.createElementNS(ns,name);
+  Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,v));
+  if(content) e.textContent=content; svg.appendChild(e); return e;
+};
+const fmt = v => v.toLocaleString('en-US',{maximumFractionDigits:3});
+const render = () => {
+  const i=Number(slider.value); svg.replaceChildren();
+  width=Math.max(340, Math.min(760, svg.clientWidth));
+  svg.setAttribute('viewBox','0 0 '+width+' 350');
+  add('rect',{x:0,y:0,width:width,height:350,fill:'#ffffff'});
+  for(let j=0;j<5;j++){
+    const v=ymin+(ymax-ymin)*j/4, y=Y(v);
+    add('line',{x1:70,y1:y,x2:width-30,y2:y,stroke:'#e0e3df'});
+    add('text',{x:62,y:y+4,'text-anchor':'end',fill:'#333','font-size':12},fmt(v));
+  }
+  for(let j=0;j<3;j++){
+    const v=d.x[0]+(d.x[d.x.length-1]-d.x[0])*j/2;
+    add('text',{x:X(v),y:299,'text-anchor':'middle',fill:'#333','font-size':12},fmt(v));
+  }
+  add('text',{x:70,y:19,fill:'#333','font-size':13},d.yLabel);
+  add('text',{x:width/2,y:333,'text-anchor':'middle',fill:'#333','font-size':13},d.xLabel);
+  add('line',{x1:X(d.x[i]),y1:35,x2:X(d.x[i]),y2:275,stroke:'#666','stroke-dasharray':'4 4'});
+  const tbody=document.getElementById('demo-values'); tbody.replaceChildren();
+  Object.entries(d.series).forEach(([name,y],j)=>{
+    add('polyline',{points:d.x.map((v,k)=>X(v)+','+Y(y[k])).join(' '),fill:'none',
+                   stroke:colors[j%4],'stroke-width':2.5,'stroke-dasharray':dash[j%4]});
+    add('circle',{cx:X(d.x[i]),cy:Y(y[i]),r:5,fill:colors[j%4],stroke:'white'});
+    const tr=document.createElement('tr');
+    const label=document.createElement('td'), value=document.createElement('td');
+    label.textContent=name; label.style.color=colors[j%4]; value.textContent=fmt(y[i]);
+    tr.append(label,value); tbody.appendChild(tr);
+  });
+  document.getElementById('demo-selection').textContent=d.xLabel+': '+fmt(d.x[i]);
+  slider.setAttribute('aria-valuetext',fmt(d.x[i])+' '+d.xLabel);
+};
+window.addEventListener('resize',render);
+slider.addEventListener('input',render);
+document.getElementById('demo-reset').addEventListener('click',()=>{slider.value=d.initial;render();});
+render();
+})();
+</script>
+"""
+    return HTML(markup.replace("__DATA__", payload)
+                .replace("__XLABEL__", html.escape(x_label))
+                .replace("__YLABEL__", html.escape(y_label))
+                .replace("__MAX__", str(len(x)-1)).replace("__INITIAL__", str(initial)))
+```
 
 ```{python}
 #| label: setup
@@ -87,6 +253,35 @@ bond_risk.round(4)
 ```
 
 ## Exact Repricing Versus Approximations
+
+::: {.callout-note}
+## Follow one payment
+
+The corporate bond pays $230,000 every six months: $8,000,000 × 5.75% / 2.
+Its first payment is worth $230,000 / 1.0305 today, while its final payment
+is discounted twenty times. Later payments are more sensitive because a yield
+change affects more discounting periods. This is why maturity alone does not
+describe the portfolio's interest-rate risk.
+:::
+
+```{python}
+#| label: fig-payment-timing
+#| fig-cap: "Present value by payment date for the corporate position; the final bar includes principal."
+#| fig-alt: "Semiannual coupon present values decline with time, with a large principal payment at year ten."
+payment_times = np.arange(1, 21) / 2
+payments = np.full(20, 8_000_000 * 0.0575 / 2)
+payments[-1] += 8_000_000
+payment_pv = payments / (1 + 0.061 / 2) ** np.arange(1, 21)
+fig, ax = plt.subplots(figsize=(8, 4))
+ax.bar(payment_times, payment_pv / 1e6, width=0.30, color="#214b3e")
+ax.axvline(bond_risk.iloc[2]["Macaulay duration"], color="#936724",
+           linestyle="--", label="PV-weighted payment time")
+ax.set(xlabel="Payment time (years)", ylabel="Present value ($ millions)")
+ax.legend()
+plt.tight_layout()
+plt.show()
+assert np.isclose(payment_pv.sum(), bond_risk.iloc[2]["Price ($)"])
+```
 
 For a yield shock $\Delta y$,
 
@@ -196,7 +391,11 @@ pd.Series({
 
 ## Parallel and Nonparallel Scenarios
 
-A single duration number is designed for a parallel shift. A curve twist must be applied bond by bond.
+A single duration number is designed for a common yield shift. Here we approximate
+a curve twist with different yield-to-maturity shocks for the three bonds.
+Repricing is exact for those assigned bond yields, not for a fully specified
+spot-curve twist. A production key-rate analysis would shock the underlying
+discount curve and revalue every dated cash flow.
 
 ```{python}
 #| label: portfolio-scenarios
@@ -236,6 +435,30 @@ The parallel scenario can be summarized by portfolio duration. The steepener and
 ## Validation Checks
 
 ```{python}
+#| label: fig-risk-concentration
+#| fig-cap: "Capital allocation and risk allocation answer different questions."
+#| fig-alt: "Grouped horizontal bars compare each bond's share of market value with its share of total DV01."
+risk_shares = pd.DataFrame({
+    "Share of market value": 100 * bond_risk["Price ($)"] / portfolio_value,
+    "Share of DV01": 100 * bond_risk["DV01/PVBP ($/bp)"] / portfolio_dv01,
+})
+risk_shares.index = bonds["Bond"]
+ax = risk_shares.plot.barh(color=["#214b3e", "#936724"], figsize=(8, 4))
+ax.set(xlabel="Portfolio share (%)", ylabel="")
+plt.tight_layout()
+plt.show()
+```
+
+::: {.callout-tip}
+## Predict, change, explain
+
+Move the yield-shock slider from +25 to +150 bp, then to -150 bp. Are equal
+upward and downward shocks symmetric in price? Compare the exact result with the
+duration-only table. Next, identify the position with the largest share of DV01:
+selling the largest face amount is not necessarily the most efficient risk reduction.
+:::
+
+```{python}
 #| label: validation
 assert np.all(bond_risk["Macaulay duration"] > bond_risk["Modified duration"])
 assert np.all(bond_risk["DV01/PVBP ($/bp)"] > 0)
@@ -255,3 +478,42 @@ pd.Series({
 ## Financial Interpretation
 
 Duration is a local slope, convexity is a curvature correction, and exact cash-flow repricing is the benchmark. DV01 translates percentage sensitivity into dollars. Portfolio aggregation is reliable for a stated parallel shock, but nonparallel scenarios require maturity-specific or key-rate exposures.
+
+### From the classroom to a position report
+
+Use [FINRA Fixed Income Data](https://www.finra.org/finra-data/fixed-income)
+to inspect security terms and recent trades. Record the trade date, settlement
+date, coupon, maturity, price type, and accrued interest before substituting a bond.
+TRACE records trades, not a guaranteed executable quote. The embedded position
+table remains the complete offline case; its numbers are not FINRA observations.
+
+**Your deliverable:** a short risk note stating portfolio value, DV01, the exact
++50 bp loss, approximation error in dollars, and one nonparallel scenario.
+
+
+## Guided explorer
+
+Start at a zero shock, then compare +150 and -150 bp. The straight-line estimate has no curvature. Explain which approximation is closest and why equal yield moves do not produce equal percentage gains and losses.
+
+The HTML control selects a precomputed scenario. In the PDF, use the preceding
+figures and tables and rerun the displayed notebook inputs to explore other values.
+
+::: {.content-visible when-format="html"}
+```{python}
+#| label: guided-explorer
+explorer_shocks = np.arange(-200, 201, 5)
+explorer_exact = np.array([
+    bond_metrics(100, float(selected["Coupon rate"]), int(selected["Maturity (years)"]),
+                 float(selected["Yield"]) + bp/10000, frequency)[0]
+    for bp in explorer_shocks])
+explorer_base = bond_metrics(100, float(selected["Coupon rate"]),
+                            int(selected["Maturity (years)"]), float(selected["Yield"]), frequency)[0]
+explorer_dy = explorer_shocks / 10000
+display(demo_explorer(explorer_shocks, {
+    "Exact repricing": 100*(explorer_exact/explorer_base-1),
+    "Duration only": -100*selected["Modified duration"]*explorer_dy,
+    "Duration + convexity": 100*(-selected["Modified duration"]*explorer_dy
+                                + .5*selected["Convexity"]*explorer_dy**2),
+}, "Yield shock (bp)", "Price change (%)", 40))
+```
+:::

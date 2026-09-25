@@ -725,52 +725,6 @@ scenario_results.attrs["decimals"] = 2
 display(scenario_results)
 ```
 
-The following calculation trail keeps the convexity addition separate. It is
-positive for these long, option-free positions under either sign of shock.
-Only the duration term changes sign. Portfolio rows sum the unrounded bond-level
-figures; displayed cents may create a one-cent rounding difference.
-
-```{python}
-#| label: scenario-calculation-trail
-"""Display each bond's contribution and its portfolio reconciliation."""
-for name, detail in scenario_details.items():
-    display(Markdown(f"**{name}: dollar calculation trail**"))
-    trail = detail.drop(columns="Yield shock (bp)").copy()
-    # Put the shock in the row label so it stays beside all four P&L columns.
-    trail.index = [
-        f"{bond} ({bp:+.0f} bp)"
-        for bond, bp in zip(detail.index, detail["Yield shock (bp)"])
-    ]
-    trail.loc["Portfolio total"] = trail.sum()
-    trail.columns = ["Duration ($)", "Convexity add. ($)", "Combined ($)", "Exact ($)"]
-    trail.attrs.update(whole_table=True, decimals=2)
-    display(trail)
-
-corporate = bond_risk.iloc[2]
-corporate_parallel = scenario_details["Parallel +50 bp"].iloc[2]
-display(Markdown(
-    f"**Substitution for the corporate position under +50 bp:** "
-    f"initial value = \${corporate['Price ($)']:,.2f}, "
-    f"modified duration = {corporate['Modified duration']:.6f}, "
-    f"convexity = {corporate['Convexity']:.6f}. "
-    f"Duration P&L = −({corporate['Price ($)']:,.2f})"
-    f"({corporate['Modified duration']:.6f})(0.005) "
-    f"= \${corporate_parallel['Duration P&L ($)']:,.2f}. "
-    f"The convexity addition is ½ × {corporate['Price ($)']:,.2f} "
-    f"× {corporate['Convexity']:.6f} × 0.005² "
-    f"= \${corporate_parallel['Convexity addition ($)']:,.2f}. "
-    f"Adding gives \${corporate_parallel['Duration + convexity P&L ($)']:,.2f}. "
-    f"Discounting the same 20 cash flows at 6.60% instead of 6.10% gives "
-    f"\${corporate['Price ($)'] + corporate_parallel['Exact P&L ($)']:,.2f}; "
-    f"subtracting the starting value gives exact P&L of "
-    f"\${corporate_parallel['Exact P&L ($)']:,.2f}."
-))
-```
-
-The parallel scenario can be summarized by portfolio duration. The steepener
-and flattener require maturity-specific exposures. These P&Ls represent an
-**instantaneous mark-to-market change**, with no coupon receipt, passage of time,
-transaction cost, or separate credit-spread shock.
 
 ## Validation Checks
 
@@ -819,7 +773,7 @@ plt.show()
 3. **Explain:** compare the absolute gain at −150 bp with the loss at +150 bp.
    Positive convexity makes the gain larger. Explain why the combined estimate
    is closer, but still not exact for a finite shock.
-4. **Apply:** use the DV01-share chart to choose a position to reduce. Compare
+4. **Apply:** use the DV01-share chart to choose a position to reduce risk. Compare
    DV01 removed per $1 million face sold, rather than selecting the largest
    face value automatically. Also consider the desired maturity and credit mix.
 
@@ -940,13 +894,12 @@ cannot be obtained, use the full embedded case below and label it illustrative.
 **Worked deliverable: portfolio rate-risk memo and supporting tables**
 :::
 
-The following is a completed submission for the embedded case. Every exhibit
-uses the same full-precision calculations as the preceding sections. Displayed
-rounding does not change the calculations.
 
 ```{python}
 #| label: worked-position-report
 """Produce the complete risk memo from the same validated position dataset."""
+corporate = bond_risk.iloc[2]
+corporate_parallel = scenario_details["Parallel +50 bp"].iloc[2]
 parallel = scenario_results.loc["Parallel +50 bp"]
 steepener = scenario_results.loc["Bear steepener"]
 corporate_share_value = 100 * corporate["Price ($)"] / portfolio_value
@@ -955,19 +908,18 @@ parallel_error_d = parallel["Duration P&L ($)"] - parallel["Exact P&L ($)"]
 parallel_error_dc = parallel["Duration + convexity P&L ($)"] - parallel["Exact P&L ($)"]
 
 display(Markdown(
-    "**To:** Portfolio manager  \n"
-    "**Subject:** Instantaneous interest-rate exposure of the three-bond portfolio  \n"
-    "**Valuation basis:** Illustrative coupon-date snapshot; no live market marks.\n\n"
+    # "**To:** Portfolio manager  \n"
+    # "**Subject:** Instantaneous interest-rate exposure of the three-bond portfolio  \n"
+    # "**Valuation basis:** Illustrative coupon-date snapshot; no live market marks.\n\n"
     f"**Decision summary.** The portfolio has \${portfolio_value:,.2f} of market value "
     f"against \${bonds['Face value ($mm)'].sum():,.0f} million face value. "
-    f"DV01 is \${portfolio_dv01:,.2f} per bp, modified duration is "
+    f"DV01 is \${portfolio_dv01:,.2f}, modified duration is "
     f"{portfolio_modified_duration:.6f}, and convexity is {portfolio_convexity:.6f}. "
     f"A parallel +50 bp move produces exact P&L of \${parallel['Exact P&L ($)']:,.2f} "
     f"({100 * parallel['Exact P&L ($)'] / portfolio_value:.6f}% of initial value). "
     f"The bear steepener produces \${steepener['Exact P&L ($)']:,.2f}. "
     "The nonparallel result depends on where the exposure lies, not just total DV01.\n\n"
-    "**Data and conventions.** Inputs below are supplied teaching assumptions, "
-    "not FINRA observations. Coupons are semiannual, yields are annual nominal "
+    "**Data and conventions.** Coupons are semiannual, yields are annual nominal "
     "rates compounded twice yearly, and settlement is on coupon dates. Full "
     "price equals clean price here because accrued interest is zero. Face value "
     "is contractual principal; market value is the discounted value calculated "
@@ -1045,17 +997,7 @@ display(Markdown(
     "This is the most DV01 reduction per dollar of face sold among these three "
     "positions, not a claim that it is the best trade for every mandate. "
     "It also reduces corporate exposure and coupon income and changes the "
-    "portfolio's maturity allocation. Actual execution would require prices, "
-    "costs, liquidity, and mandate limits.\n\n"
-    "**Controls and limitations.** Market-value weights and DV01 shares each "
-    "sum to 100%. Analytical DV01 agrees with centered cash-flow repricing; "
-    "weighted duration reconciles to the position DV01 sum, and the +50 bp "
-    "duration P&L equals −50 times that sum. Exact prices decline with yield, "
-    "and convexity improves each tested nonzero shock. "
-    "All checks in Section 5 pass. These are bond-YTM scenarios rather than "
-    "full spot-curve shocks. The report excludes accrued-interest complications, "
-    "credit-spread changes, default, optionality, financing, and transaction costs. "
-    "A real positions report would need those extensions and observed data."
+    "portfolio's maturity allocation.\n\n"
 ))
 ```
 

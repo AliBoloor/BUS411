@@ -18,7 +18,7 @@ This map reflects the current set of 11 lecture notes.
 - Floating-rate and inverse-floating-rate securities
 - Current yield, yield to maturity, yield to call, yield to put, yield to worst, and portfolio yield
 
-## Lecture 3: Bond Price Volatility, Duration, Convexity, and Bond Portfolio Strategies
+## Lecture 3: Bond Price Volatility, Duration, and Convexity
 
 - Price sensitivity to coupon, maturity, and yield
 - PVBP, duration, spread duration, and portfolio duration
@@ -26,7 +26,7 @@ This map reflects the current set of 11 lecture notes.
 - Convexity and duration-convexity price approximations
 - Yield-curve reshaping duration and key-rate duration
 
-## Lecture 4: Benchmark Spreads and the Term Structure of Interest Rates
+## Lecture 4: Benchmark Spread, Term Structure of Interest Rate, and Curve Strategies
 
 - Drivers of benchmark spreads: credit, options, tax, liquidity, financing, and maturity
 - Yield curves, spot rates, forward rates, and Treasury curve construction

@@ -1,6 +1,6 @@
 ---
-title: "Lecture 3: Duration and Convexity"
-subtitle: "Bond price volatility and portfolio rate exposure"
+title: "Lecture 3: Bond Price Volatility, Duration, and Convexity"
+subtitle: "Interest-rate sensitivity and curvature"
 format:
   revealjs:
     css: lec3-11-slides.css
@@ -35,7 +35,7 @@ P(5\%)=\frac{60}{1.05}+\frac{60}{1.05^2}+\frac{1060}{1.05^3}
 $$
 
 $$
-=57.14+54.42+915.91=1027.47
+=57.14+54.42+915.67=1027.23
 $$
 
 $$
@@ -43,11 +43,9 @@ P(7\%)=\frac{60}{1.07}+\frac{60}{1.07^2}+\frac{1060}{1.07^3}
 $$
 
 $$
-=56.07+52.40+865.38=973.85
+=56.07+52.41+865.28=973.76
 $$
 Higher discount rates reduce the value of the package of future dollars.
-
-<div class="source-issue">Instructor review: the stated totals are retained from the notes. Direct evaluation gives 1,027.23 at 5% and 973.76 at 7%.</div>
 
 ## Six hypothetical bonds: yields from 6% to 9%
 
@@ -99,7 +97,9 @@ Over a very small interval, the curve looks nearly straight. This is the local a
 
 Equal large yield moves create unequal price changes. The gain when yields fall exceeds the loss when yields rise. This benefits a long position and works against a short position.
 
-## Maturity, coupon, and starting yield
+## Bond Characteristics Affecting Price Volatility
+
+The three characteristics are **maturity**, **coupon**, and **starting yield**.
 
 | Comparison | Greater percentage sensitivity | Why |
 |---|---|---|
@@ -108,6 +108,16 @@ Equal large yield moves create unequal price changes. The gain when yields fall 
 | Same cash flows | Lower starting yield | Distant cash flows retain more PV weight |
 
 The same 100-basis-point move can matter more from 4% than from 10%.
+
+## Measures of Bond Price Volatility
+
+- **Price Value of a Basis Point (PVBP / DV01):** dollar price response to a 1 bp yield move.
+- **Yield Value of a Price Change:** yield move associated with a specified price change.
+- **Duration:** local price sensitivity, including Macaulay, modified, and dollar duration.
+- **Spread Duration:** sensitivity to spread changes with benchmark rates fixed.
+- **Portfolio Duration:** market-value-weighted duration across holdings.
+- **Convexity:** curvature that improves the duration approximation.
+- **Key Rate and Curve Reshaping Duration:** sensitivity to changes at different parts of the curve.
 
 ## PVBP measures a one-basis-point price move
 
@@ -120,6 +130,8 @@ PVBP\approx P(y)-P(y+0.0001)
 $$
 PVBP, also called DV01, is normally reported as a positive dollar amount.
 
+**Example:** a bond loses **\$0.04 per \$100 par** when yield rises by 1 bp. The position has **\$10 million face value**.
+
 
 $$
 0.04\times\frac{\$10{,}000{,}000}{\$100}=\$4{,}000
@@ -131,10 +143,8 @@ A 1 bp yield increase produces approximately a \$4,000 loss on this position.
 | Measure | 5-year 9% coupon | 25-year 9% coupon | 5-year 6% coupon | 25-year 6% coupon | 5-year zero-coupon | 25-year zero-coupon |
 |---|---:|---:|---:|---:|---:|---:|
 | Initial Price (9% yield) | 100.0000 | 100.0000 | 88.1309 | 70.3570 | 64.3928 | 11.0710 |
-| Price at 9.01% | 99.9604 | 99.9013 | 88.0945 | 70.2824 | 64.3620 | 11.0445 |
-| DV01 | 0.0396 | 0.0987 | 0.0364 | 0.0746 | 0.0308 | 0.0265 |
-
-<div class="source-issue">Source discrepancy: the 5-year 6% bond is 88.0945 here but 88.0943 in the earlier price table. Values are retained as printed.</div>
+| Price at 9.01% | 99.9604 | 99.9013 | 88.0943 | 70.2824 | 64.3620 | 11.0445 |
+| DV01 | 0.0396 | 0.0987 | 0.0366 | 0.0746 | 0.0308 | 0.0265 |
 
 ## Yield value of a price change
 
@@ -261,31 +271,10 @@ Both methods price and weight the same cash flows.
 | Longer maturity | Increases, at a decreasing rate |
 | Higher coupon | Decreases: more value arrives early |
 | Higher yield | Decreases: distant PV weights shrink |
-| Coupon bond versus maturity | Macaulay duration is below maturity |
+| Coupon bond | Macaulay duration is below maturity |
 | Zero-coupon bond | Macaulay duration equals maturity |
 
 Very long, deep-discount bonds require direct calculation; the maturity rule is not universal.
-
-## Very long maturity: the notes’ counterexample
-
-At a **10% yield**, the notes compare **1% coupon bonds**:
-
-| Bond | Maturity | Approximate duration stated in notes |
-|---|---:|---:|
-| A | 30 years | 20–22 |
-| B | 100 years | 35–40 |
-
-<div class="source-issue">Instructor review: these duration ranges do not reconcile with the stated coupon and yield. They are retained here as source claims, not validated calculations.</div>
-
-Intermediate coupons and heavy discounting pull PV-weighted time far inward.
-
-## Maturity alone can mislead
-
-![](lec3-11-assets/lec3-long-duration.svg){.figure}
-
-The notes also compare a 30-year zero with a 100-year 2% coupon bond: the longer coupon bond can have lower duration.
-
-<div class="source-issue">Curve calculated from annual cash flows at 10%; it illustrates why the preceding numerical ranges need review.</div>
 
 ## Duration estimate versus actual repricing
 
@@ -300,16 +289,19 @@ $$
 
 ## Dollar duration connects duration to PVBP
 
-$$
-\Delta P\approx-D^*P\Delta y
-$$
+**25-year, 6% coupon bond**, paid semiannually, at **9% annual yield**. Price $P=70.357$ per \$100 par and modified duration $D^*=10.62$.
 
 $$
-\Delta P\approx-10.62(70.357)(0.0001)=-0.0747
+D^*P=10.62(70.357)=747.1913
 $$
-For this bond, a 1 bp increase costs about 0.0747 per \$100 par.
-
-The notes use **signed dollar duration** $-D^*P$; an unsigned exposure report may instead quote $D^*P$.
+Dollar duration is the magnitude of the price–yield slope. For a **1 bp rise**, $\Delta y=0.0001$:
+$$
+\Delta P\approx-D^*P\Delta y=-747.1913(0.0001)=-0.0747
+$$
+$$
+PVBP\approx D^*P\times0.0001=0.0747
+$$
+The bond loses approximately **\$0.0747 per \$100 par**.
 
 ## Spread duration separates benchmark and spread risk
 
@@ -320,15 +312,7 @@ $$
 $$
 \Delta P/P\approx-D_{\text{spread}}\Delta s
 $$
-Spread duration 5 implies about a 5% loss for a 100 bp widening, with Treasury rates unchanged.
-
-## Spread risk remains when coupons reset
-
-A Treasury has no credit spread relative to itself.
-
-For a corporate, high-yield, or structured security, the spread can compensate for credit, liquidity, and sector risk.
-
-<div class="flow"><span><b>Floater coupon</b>Resets with short-term rates</span><i>→</i><span><b>Quoted margin</b>Remains fixed</span><i>→</i><span><b>Required margin rises</b>Price falls</span></div>
+Spread duration of 5 implies about a 5% loss for a 100 bp widening of the spread, with Treasury rates unchanged.
 
 ## Portfolio duration is market-value weighted
 
@@ -381,12 +365,6 @@ Benchmark duration is 5.41. These are the illustrative benchmark values in the n
 
 Sector yields and spreads need not move together. The location of duration matters even when the total is close to the benchmark.
 
-## Analytical and empirical duration
-
-<div class="comparison"><div><h3>Analytical</h3><p>Differentiate a valuation formula. Fixed cash flows make the relationship explicit.</p></div><div><h3>Empirical</h3><p>Use observed or simulated price responses. Reprice under shocks or estimate a historical regression.</p></div></div>
-
-Distressed bonds may respond more to equity-like credit risk than to Treasury rates. Model-based risk estimates depend on the quality of the pricing model.
-
 ## Convexity adds curvature to the tangent
 
 ![](lec3-11-assets/lec3-tangent.svg){.figure}
@@ -407,9 +385,7 @@ Near par, with price per \$100, $PVBP\approx D^*/100$.
 
 ## Why the tangent understates ending price
 
-<div class="comparison"><div><h3>Yields fall</h3><p>Duration underestimates the price gain.</p></div><div><h3>Yields rise</h3><p>Duration overestimates the price loss.</p></div></div>
-
-The actual option-free bond price lies above its tangent. The error grows farther from the initial yield.
+![The price–yield curve and duration tangent from Section 4.2 of the lecture notes.](lec3-11-assets/lec3-notes-tangent.svg){.figure}
 
 ## Taylor expansion: slope plus curvature
 
@@ -424,37 +400,41 @@ Here $C$ denotes the convexity measure, not the coupon payment.
 
 ## Measuring convexity
 
+With $m$ payments per year, periodic yield $i=y/m$ and cash flows $CF_t$:
 $$
-\text{Dollar convexity}=\frac{d^2P}{dy^2}=\sum_{t=1}^{n}\frac{t(t+1)CF_t}{(1+y)^{t+2}}
+S=\frac{d^2P}{di^2}=\sum_{t=1}^{n}\frac{t(t+1)CF_t}{(1+i)^{t+2}}
 $$
-
 $$
-C=\frac1P\frac{d^2P}{dy^2}
+\text{Annual dollar convexity}=\frac{S}{m^2},\qquad C=\frac{S}{m^2P}
 $$
-When the derivative is calculated in coupon periods, divide by $m^2$ to annualize. With semiannual coupons, divide by $2^2=4$.
+For semiannual coupons, divide $S$ by $2^2=4$, then divide by price to obtain $C$. The factor $\tfrac12$ enters only the price-change approximation.
 
 ## Convexity of the six hypothetical bonds
 
-| Bond | Second Derivative | Annualized Convexity Measure | Annualized Dollar Convexity Measure |
-|---|---:|---:|---:|
-| 9% / 5-year | 7,781.02 | 19.45 | \$1,945.26 |
-| 9% / 25-year | 64,288.42 | 160.72 | \$16,072.00 |
-| 6% / 5-year | 7,349.45 | 20.85 | \$1,837.36 |
-| 6% / 25-year | 51,476.26 | 182.92 | \$12,869.70 |
-| 0% / 5-year | 6,486.30 | 25.18 | \$1,621.42 |
-| 0% / 25-year | 25,851.93 | 583.78 | \$6,463.02 |
+All bonds: **\$100 par**, **9% annual yield**, semiannual convention ($i=4.5\%$).
 
-At the same yield and maturity, a lower coupon gives higher convexity. Longer maturities usually give higher convexity.
+| Bond | $S=d^2P/di^2$ | Annual $C=S/(4P)$ | Annual dollar convexity $S/4$ |
+|---|---:|---:|---:|
+| 9% / 5-year | 7,781.03 | 19.45 | \$1,945.26 |
+| 9% / 25-year | 64,288.42 | 160.72 | \$16,072.11 |
+| 6% / 5-year | 7,349.45 | 20.85 | \$1,837.36 |
+| 6% / 25-year | 51,476.26 | 182.91 | \$12,869.07 |
+| 0% / 5-year | 6,486.30 | 25.18 | \$1,621.58 |
+| 0% / 25-year | 25,851.94 | 583.78 | \$6,462.98 |
+
+**6% / 5-year:** $P=88.13092273$, so $7{,}349.4513/4=1{,}837.3628$ and $C=1{,}837.3628/88.13092273=20.85$.
 
 ## A 200 bp increase: duration plus convexity
 
-25-year, 6% coupon bond at 9% yield. $P_0=70.357$, $D^*=10.62$, $C=182.92$.
+**25-year, 6% coupon bond**, paid semiannually, \$100 par. $P_0=70.357$, $D^*=10.62$, $C=182.91$.
+
+Annual yield rises **9% to 11%**: $\Delta y=+0.02$ (**+200 bp**).
 $$
 \text{Duration effect}=-10.62(0.02)=-21.24\%
 $$
 
 $$
-\text{Convexity effect}=\tfrac12(182.92)(0.02)^2=3.66\%
+\text{Convexity effect}=\tfrac12(182.91)(0.02)^2=3.66\%
 $$
 
 $$
@@ -464,29 +444,22 @@ Actual repricing: **−18.03%**. Curvature materially improves the estimate.
 
 ## A 200 bp decrease: convexity still helps
 
+**Same 25-year, 6% semiannual coupon bond**, \$100 par. $P_0=70.357$, $D^*=10.62$, $C=182.91$.
+
+Annual yield falls **9% to 7%**: $\Delta y=-0.02$ (**−200 bp**).
+
 $$
 \text{Duration effect}=-10.62(-0.02)=21.24\%
 $$
 
 $$
-\text{Convexity effect}=\tfrac12(182.92)(-0.02)^2=3.66\%
+\text{Convexity effect}=\tfrac12(182.91)(-0.02)^2=3.66\%
 $$
 
 $$
 \text{Estimated change}=21.24\%+3.66\%=24.90\%
 $$
 Actual repricing: **25.46%**. Squaring the yield change makes the convexity contribution positive in either direction.
-
-## Convexity conventions must match the formula
-
-Convexity can describe the **shape** or a **numerical measure**. The numerical value has meaning through its price effect.
-
-| Convention | Convexity contribution |
-|---|---|
-| $C=P^{-1}d^2P/dy^2$ | $\tfrac12C(\Delta y)^2$ |
-| $\widetilde C=(2P)^{-1}d^2P/dy^2$ | $\widetilde C(\Delta y)^2$ |
-
-The estimated effect is identical if the convention is used consistently.
 
 ## More convexity improves both sides of a large move
 
@@ -496,7 +469,8 @@ These illustrative second-order curves have the same starting price, yield, and 
 
 ## Convexity has a price
 
-<div class="comparison"><div><h3>Expect volatile rates</h3><p>Greater convexity offers more benefit from large moves. An investor may accept a lower yield to own it.</p></div><div><h3>Expect stable rates</h3><p>The local slope matters most. An investor may prefer less convexity and the higher yield offered in exchange.</p></div></div>
+- **Expect volatile rates:** greater convexity offers more benefit from large moves. An investor may accept a lower yield to own it.
+- **Expect stable rates:** the local slope matters most. An investor may prefer less convexity and the higher yield offered in exchange.
 
 The decision depends on expected volatility relative to the market price of convexity.
 
@@ -516,38 +490,6 @@ All option-free bonds have positive convexity.
 
 Change yield, maturity, and coupon to inspect the same cash-flow calculation used in the notes.
 
-## Holding duration fixed changes the comparison
-
-At a given yield and modified duration, the lower-coupon bond can have **less** convexity.
-
-<div class="flow"><span><b>Lower coupon</b>Later PV weights at a given maturity</span><i>→</i><span><b>Match duration</b>Use a shorter maturity</span><i>→</i><span><b>Result</b>Less dispersion in cash-flow timing</span></div>A zero has the lowest convexity for a given modified duration. Its **Macaulay** duration equals maturity; its modified duration is maturity divided by $1+y$.
-
-## Changing coupon near the same target duration
-
-<div class="visual-widget" data-mode="duration"></div>
-
-As in the notes, maturity is selected from whole years 1–80. The displayed achieved duration may differ from the target.
-
-## Duration needs a matching risk scenario
-
-| Limitation | Consequence |
-|---|---|
-| Local slope | Large moves need convexity or full repricing |
-| Parallel shift assumption | Curve twists need maturity-specific risk |
-| Embedded options | Cash flows and duration can change sharply |
-| Model dependence | Incorrect pricing produces incorrect sensitivities |
-
-Callable bonds require effective measures when exercise behavior changes.
-
-## Duration is a sensitivity, not a legal life
-
-$$
-\text{Duration}\approx\text{percentage sensitivity to a 100 bp yield change}
-$$
-A security can have duration greater than legal maturity, or even negative duration.
-
-An inverse floater with duration 40 and 30-year collateral does not have a 40-year life. It has roughly 40% first-order sensitivity to a 100 bp move.
-
 ## Three prices provide numerical risk measures
 
 <div class="flow"><span><b>Yield falls</b>Price $P_-$</span><i>→</i><span><b>Current yield</b>Price $P_0$</span><i>→</i><span><b>Yield rises</b>Price $P_+$</span></div>
@@ -558,27 +500,17 @@ Use the same positive shock magnitude $\Delta y$ on each side. A model for chang
 
 ## Numerical duration and convexity: substitution
 
+**The 25-year, 6% semiannual coupon bond** from the six-bond table, \$100 par. Initial annual yield is **9%**, shocked to **8.9% and 9.1%**.
+
 $P_0=70.3570$, $P_-=71.1105$, $P_+=69.6164$, $\Delta y=0.001$.
 $$
 D^*\approx\frac{71.1105-69.6164}{2(70.3570)(0.001)}=10.62
 $$
 
 $$
-C\approx\frac{71.1105+69.6164-2(70.3570)}{70.3570(0.001)^2}=183.3
+C\approx\frac{71.1105+69.6164-2(70.3570)}{70.3570(0.001)^2}=183.35
 $$
-The shock-and-reprice estimates are close to the analytical values.
-
-## Inverse floaters concentrate collateral exposure
-
-<div class="flow"><span><b>Collateral</b>\$100m, duration 8</span><i>→</i><span><b>Floater</b>\$80m, duration near zero</span><i>→</i><span><b>Inverse floater</b>\$20m, residual rate exposure</span></div>
-$$
-L=80/20=4,\qquad D_I\approx(1+L)D_C\frac{P_C}{P_I}
-$$
-
-$$
-D_I\approx(1+4)(8)=40\quad\text{at prices near par}
-$$
-Prices in the ratio use a consistent per-par convention. Falling rates help both discounting and the inverse coupon.
+Analytical values: $D^*=10.6175$, $C=182.91$. The convexity estimate is sensitive to rounding the prices to four decimals.
 
 ## Nonparallel shifts change where risk appears
 
@@ -600,19 +532,30 @@ A **twist** can raise one end and lower the other: $y(T)\mapsto y(T)+a+bT$, wher
 $$
 \text{Curvature measure}=2y(5y)-y(2y)-y(10y)
 $$
-<div class="flow"><span><b>Short end</b>Rates fall</span><i>→</i><span><b>Middle</b>Rates rise</span><i>→</i><span><b>Long end</b>Rates fall</span></div>This is the example in the notes. A barbell and a bullet can have the same total duration and react differently.
+<div class="flow"><span><b>Short end</b>Rates fall</span><i>→</i><span><b>Middle</b>Rates rise</span><i>→</i><span><b>Long end</b>Rates fall</span></div>
 
 ## Yield curve reshaping duration
 
-Short-end slope: $y_{10}-y_2$. Long-end slope: $y_{30}-y_{10}$.
+:::: {.columns}
+::: {.column width="60%"}
+![Illustrative yield curve with short-end and long-end yield differences.](lec3-11-assets/lec3-curve-slopes.svg){width=100%}
+:::
+::: {.column width="40%"}
+**Short end:** $y_{10}-y_2$
+
+**Long end:** $y_{30}-y_{10}$
+
+Steepening increases the relevant yield difference. Flattening reduces it.
+
 $$
 SEDUR=\frac{V_{SE,S}-V_{SE,F}}{2V_0\Delta y}
 $$
-
 $$
 LEDUR=\frac{V_{LE,F}-V_{LE,S}}{2V_0\Delta y}
 $$
-$S$ and $F$ denote steepening and flattening scenarios. The notes use opposite numerator conventions for the two segments. Specify the exact curve shocks before interpreting the signs.
+$S$: steepening; $F$: flattening. These definitions use opposite numerator signs.
+:::
+::::
 
 ## Key rate duration reveals an exposure vector
 
@@ -663,39 +606,6 @@ Only a parallel shock makes the equal total durations imply the same first-order
 
 The notes’ additional steepening scenario raises 2Y, 5Y, 10Y, and 30Y yields by 25, 50, 75, and 100 bp respectively.
 
-## Portfolio mandates define the relevant risk
-
-| Framework | Primary objective |
-|---|---|
-| Benchmark based | Outperform an index within active-risk limits |
-| Absolute return | Deliver positive or target return across environments |
-| Liability driven | Fund dated obligations with controlled surplus risk |
-
-Market-cap-weighted bond indexes can overweight the largest debt issuers and may be costly to replicate.
-
-::: {.notes}
-These topics are named in the lecture-note objectives and retained from the existing slide deck. The notes contain no corresponding developed section.
-:::
-
-## Portfolio construction connects factors and securities
-
-| Approach | Starting point |
-|---|---|
-| Top down | Duration, curve, sector, and quality exposures |
-| Bottom up | Issuer and security relative-value analysis |
-| Smart beta | Systematic rules beyond market-value weighting |
-| Leverage | Magnifies returns and unintended risks |
-
-A complete process reconciles security choices with portfolio exposures.
-
 ## Risk measurement follows the instrument
 
 <div class="flow"><span><b>Fixed cash flows</b>Duration, PVBP, convexity</span><i>→</i><span><b>Credit and portfolios</b>Spread and weighted contributions</span><i>→</i><span><b>Curve and options</b>Key rates and effective measures</span></div>Longer maturity, lower coupons, and lower yields usually raise sensitivity. Duration gives local slope; convexity adds curvature; exposure location matters.
-
-## Readings and market resources
-
-Fabozzi, *Bond Markets, Analysis, and Strategies*, **Chapter 4: Bond Price Volatility**.
-
-- [U.S. Treasury interest-rate statistics](https://home.treasury.gov/resource-center/data-chart-center/interest-rates): observable curve shocks.
-- [Federal Reserve H.15](https://www.federalreserve.gov/releases/h15/): rates across maturities.
-- [CME U.S. Treasury futures](https://www.cmegroup.com/markets/interest-rates/us-treasury.html): duration hedging instruments.

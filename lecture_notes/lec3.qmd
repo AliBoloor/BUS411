@@ -1,5 +1,5 @@
 ---
-title: "Lecture 3: Bond Price Volatility, Duration, Convexity, and Bond Portfolio Strategies"
+title: "Lecture 3: Bond Price Volatility, Duration, and Convexity"
 format:
   html:
     toc: true
@@ -74,19 +74,19 @@ Its price is
 
 $$
 P = \frac{60}{1.05} + \frac{60}{1.05^2} + \frac{1060}{1.05^3}
-= 57.14 + 54.42 + 915.91
-= 1027.47.
+= 57.14 + 54.42 + 915.67
+= 1027.23.
 $$
 
 If the required yield rises to 7%, the new price is
 
 $$
 P = \frac{60}{1.07} + \frac{60}{1.07^2} + \frac{1060}{1.07^3}
-= 56.07 + 52.40 + 865.38
-= 973.85.
+= 56.07 + 52.41 + 865.28
+= 973.76.
 $$
 
-The bond price falls from \$1,027.47 to \$973.85 when the required yield rises from 5% to 7%.
+The bond price falls from \$1,027.23 to \$973.76 when the required yield rises from 5% to 7%.
 :::
 
 ::: {.callout-tip title="Intuition"}
@@ -214,7 +214,7 @@ The 25-year coupon bond is more volatile than the 5-year coupon bond because its
 
 
 
-## Effects of Yield to Maturity
+### Effects of Yield to Maturity
 
 For two otherwise identical option-free bonds, the bond with the lower yield to maturity will exhibit greater percentage price volatility for a given change in yield. This effect is related to the curvature of the present value function.
 
@@ -259,8 +259,8 @@ So a one-basis-point yield increase would reduce the position value by about \$4
 | Measure | 5-year 9% coupon | 25-year 9% coupon | 5-year 6% coupon | 25-year 6% coupon | 5-year zero-coupon | 25-year zero-coupon |
 |---|---:|---:|---:|---:|---:|---:|
 | Initial Price (9% yield) | 100.0000 | 100.0000 | 88.1309 | 70.3570 | 64.3928 | 11.0710 |
-| Price at 9.01% | 99.9604 | 99.9013 | 88.0945 | 70.2824 | 64.3620 | 11.0445 |
-| DV01 | 0.0396 | 0.0987 | 0.0364 | 0.0746 | 0.0308 | 0.0265 |
+| Price at 9.01% | 99.9604 | 99.9013 | 88.0943 | 70.2824 | 64.3620 | 11.0445 |
+| DV01 | 0.0396 | 0.0987 | 0.0366 | 0.0746 | 0.0308 | 0.0265 |
 
 ## Yield Value of a Price Change
 
@@ -490,7 +490,7 @@ $$
 This matches the cash-flow contribution method. The alternative formula simply gets the same duration by differentiating the annuity-plus-face-value price formula.
 :::
 
-## Properties of Duration
+### Properties of Duration
 
 For option-free bonds:
 
@@ -570,7 +570,7 @@ The rule “longer maturity ⇒ higher duration” holds for standard bonds at t
 :::
 
 
-## Approximating the Percentage Price Change
+### Approximating the Percentage Price Change
 
 Modified duration gives the first-order approximation:
 
@@ -609,7 +609,7 @@ $$
 while the actual change is $(57.671/70.357 - 1) \approx -18.03\%$. The gap widens to about **3.21 percentage points** because duration forces a curved price–yield relationship into a straight-line estimate. Convexity (developed below) corrects part of this error for larger shocks.
 :::
 
-## Approximating the Dollar Price Change
+### Approximating the Dollar Price Change
 
 Multiply the percentage change by the bond price:
 
@@ -730,20 +730,24 @@ Sector yields and spreads do not always move together. A portfolio can be close 
 
 ## Analytical versus Empirical Duration
 
-- **Analytical duration** is computed from a pricing formula.
-- **Empirical duration** is estimated by repricing the bond under shifted yields and observing the resulting price change.
+**Analytical duration** comes from a valuation formula: differentiate the bond price with respect to yield, then divide the negative slope by price. For an option-free bond, the promised cash flows are fixed, so this measures sensitivity under the assumed pricing relationship.
 
-Empirical duration is often necessary for bonds with uncertain cash flows or embedded options.
+**Empirical duration** is estimated from **historical market data**, usually by regression. Match observed bond returns or percentage price changes with changes in a relevant benchmark yield over the same intervals. A simple specification is
 
-Analytical duration is cleanest for option-free bonds because the cash flows are fixed and the pricing formula is explicit. Empirical duration is more general. It asks a practical question: if the pricing model is shocked upward and downward by a small yield change, how much does the price move?
+$$
+r_t=\alpha+\beta\,\Delta y_t+\varepsilon_t,
+\qquad D_{\text{emp}}=-\widehat{\beta}.
+$$
 
-For high-quality corporate bonds, analytical duration often captures much of the interest-rate risk because the bond behaves similarly to an option-free bond plus a credit spread. For lower-rated or distressed bonds, the measured price movement may be driven more by equity-like credit risk than by Treasury-rate movements. In that case, a duration estimated from historical regression may differ meaningfully from a formula-based duration.
+Here, $r_t$ is the observed bond return or percentage price change in decimal form, and $\Delta y_t$ is the benchmark yield change in decimal form. For example, an estimated slope of $-5$ implies an empirical duration of $5$: a 0.001 (10 bp) benchmark-yield increase is associated with an approximately $-0.005$ (0.5%) price response, holding included controls fixed.
 
-The key distinction is:
+The estimate depends on the sample period, observation frequency, benchmark, and treatment of coupon income and accrued interest. Credit-spread changes, liquidity, and other influences may require additional regression controls. In particular, distressed bonds can respond more to credit or equity-market conditions than to Treasury yields, so empirical duration can differ substantially from formula-based duration.
 
-- Analytical duration comes from a valuation formula or pricing model.
-- Empirical duration comes from observed or simulated price responses.
-- Poor pricing models produce poor duration estimates.
+**Repricing under hypothetical yield shocks is a numerical model-based calculation**, rather than empirical duration. Finite differences approximate analytical duration for fixed cash flows. Effective duration uses model repricing under benchmark-curve shocks and allows cash flows to change when embedded options are exercised.
+
+- Analytical duration describes the sensitivity implied by a valuation formula.
+- Empirical duration describes the historical price–yield relationship estimated from observed data.
+- Numerical and effective duration depend on the pricing model and shock specification.
 
 ---
 
@@ -933,29 +937,101 @@ $$
 \frac{1}{2}\text{Convexity}(\Delta y)^2.
 $$
 
-For an option-free bond with cash flows $CF_t$, the second derivative is:
+For an option-free bond with cash flows $CF_t$, let $i$ denote the yield per coupon period and $n$ the number of periods. The second derivative with respect to the periodic yield is:
 
 $$
-\frac{d^2P}{dy^2}
+\frac{d^2P}{di^2}
 =
 \sum_{t=1}^{n}
-\frac{t(t+1)CF_t}{(1+y)^{t+2}}.
+\frac{t(t+1)CF_t}{(1+i)^{t+2}}.
 $$
 
-For bonds with semiannual coupons, the convexity calculation is first done in half-year periods. To annualize it, divide by $m^2$, where $m$ is the number of coupon payments per year. For semiannual coupon bonds, divide by $2^2 = 4$.
+If $y$ is the nominal annual yield compounded $m$ times per year, then $i=y/m$. The chain rule gives $d^2P/dy^2=(1/m^2)d^2P/di^2$. For semiannual coupon bonds, divide the periodic-yield second derivative by $2^2=4$ to obtain annualized dollar convexity.
 
 ## Convexity of the Hypothetical Bonds
 
-The following table summarizes the convexity measures for the six hypothetical bonds used earlier. Values are annualized.
+All six bonds are evaluated at a **9% nominal annual yield with semiannual compounding**, so $i=0.09/2=0.045$. Prices and dollar measures are for **$100 face value**, with settlement on a coupon date. For a bond with annual coupon rate $c$ and maturity $T$ years, there are $n=2T$ periods: each coupon is $100c/2$, and the final payment also includes the $100 principal. For zero-coupon bonds, only the principal payment remains.
 
-| Bond | Second Derivative | Annualized Convexity Measure | Annualized Dollar Convexity Measure |
+The table's columns are calculated in three steps:
+
+1. **Second derivative:** price the cash flows and differentiate twice with respect to the half-year yield $i$:
+
+   $$
+   P=\sum_{t=1}^{n}\frac{CF_t}{(1+i)^t},
+   \qquad
+   S=\frac{d^2P}{di^2}
+   =\sum_{t=1}^{n}\frac{t(t+1)CF_t}{(1+i)^{t+2}}.
+   $$
+
+2. **Annualized dollar convexity:** convert from the half-year yield to the annual yield:
+
+   $$
+   \frac{d^2P}{dy^2}
+   =\frac{d^2P}{di^2}\left(\frac{di}{dy}\right)^2
+   =\frac{S}{4}.
+   $$
+
+   A 1-percentage-point annual-yield change is a 0.5-percentage-point half-year-yield change. Because the convexity effect involves the square of the yield change, the conversion factor is $(1/2)^2=1/4$.
+
+3. **Annualized convexity:** divide annualized dollar convexity by the bond's **current price**, not its face value:
+
+   $$
+   \text{Convexity}=\frac{1}{P}\frac{d^2P}{dy^2}=\frac{S}{4P}.
+   $$
+
+Only the last two columns below are annualized. The second derivative $S$ is still measured with respect to the half-year yield. Calculations use unrounded values; displayed results are rounded independently.
+
+| Bond | Second Derivative $S$ | Annualized Convexity $S/(4P)$ | Annualized Dollar Convexity $S/4$ |
 |---|---:|---:|---:|
-| 9% / 5-year | 7,781.02 | 19.45 | \$1,945.26 |
-| 9% / 25-year | 64,288.42 | 160.72 | \$16,072.00 |
+| 9% / 5-year | 7,781.03 | 19.45 | \$1,945.26 |
+| 9% / 25-year | 64,288.42 | 160.72 | \$16,072.11 |
 | 6% / 5-year | 7,349.45 | 20.85 | \$1,837.36 |
-| 6% / 25-year | 51,476.26 | 182.92 | \$12,869.70 |
-| 0% / 5-year | 6,486.30 | 25.18 | \$1,621.42 |
-| 0% / 25-year | 25,851.93 | 583.78 | \$6,463.02 |
+| 6% / 25-year | 51,476.26 | 182.91 | \$12,869.07 |
+| 0% / 5-year | 6,486.30 | 25.18 | \$1,621.58 |
+| 0% / 25-year | 25,851.94 | 583.78 | \$6,462.98 |
+
+::: {.callout-note title="Example: From the Second Derivative to Convexity"}
+For the **9% coupon, five-year bond**, the semiannual coupon is $4.50 and the price is $100 because its coupon rate equals its yield. The last payment is $104.50. Thus,
+
+$$
+S=\sum_{t=1}^{9}\frac{t(t+1)(4.50)}{1.045^{t+2}}
++\frac{10(11)(104.50)}{1.045^{12}}
+\approx7{,}781.02573.
+$$
+
+Annualized dollar convexity is
+
+$$
+\frac{S}{4}=\frac{7{,}781.02573}{4}\approx1{,}945.26,
+$$
+
+and annualized convexity is
+
+$$
+\frac{S}{4P}=\frac{7{,}781.02573}{4(100)}\approx19.45.
+$$
+
+For the **6% coupon, five-year bond**, the price is $88.13092273, not $100. Therefore,
+
+$$
+\frac{S}{4}\approx\frac{7{,}349.45132}{4}=1{,}837.36283,
+$$
+
+$$
+\frac{S}{4P}\approx\frac{7{,}349.45132}{4(88.13092273)}=20.85.
+$$
+
+The calculation is the same for every row: **divide the second derivative by four, then divide by price**. Dollar convexity scales with the size of the position; the price-normalized convexity measure does not.
+:::
+
+The factor $1/2$ from the Taylor approximation is **not included** in either convexity column. Apply it when estimating the price change:
+
+$$
+\frac{\Delta P}{P}\approx-D^*\Delta y
++\frac12\left(\frac{S}{4P}\right)(\Delta y)^2,
+$$
+
+where $\Delta y$ is the change in the annual yield expressed as a decimal; for example, 100 basis points is $0.01$.
 
 The table shows two important patterns:
 
@@ -973,7 +1049,7 @@ The convexity term is positive for option-free bonds because $(\Delta y)^2$ is p
 Consider the 25-year, 6% coupon bond selling to yield 9%.
 
 - Modified duration = 10.62
-- Convexity measure = 182.92
+- Convexity measure = 182.91
 - Starting price = 70.357
 
 If the required yield rises by 200 basis points, then $\Delta y = +0.02$.
@@ -991,7 +1067,7 @@ $$
 The convexity effect is:
 
 $$
-\frac{1}{2}(182.92)(0.02)^2
+\frac{1}{2}(182.91)(0.02)^2
 =
 3.66\%.
 $$
@@ -1019,7 +1095,7 @@ $$
 The convexity effect is still positive:
 
 $$
-\frac{1}{2}(182.92)(-0.02)^2
+\frac{1}{2}(182.91)(-0.02)^2
 =
 3.66\%.
 $$
@@ -1509,7 +1585,7 @@ In practice, duration and convexity are often approximated numerically by repric
 
 This is the standard approach in commercial analytics. Instead of manually differentiating a price formula, the analyst shocks the relevant yield or curve, reprices the security, and converts the price response into duration and convexity. This works for plain bonds and can also work for complex securities if the pricing model handles changing cash flows.
 
-An empirical approximation to duration is
+A numerical approximation to duration is
 
 $$
 D^* \approx \frac{P_- - P_+}{2P_0 \Delta y}
@@ -1521,14 +1597,14 @@ where:
 - $P_+$ = price if yield increases
 - $P_0$ = current price
 
-An empirical approximation to convexity is
+A numerical approximation to convexity is
 
 $$
 \text{Convexity} \approx \frac{P_- + P_+ - 2P_0}{P_0 (\Delta y)^2}
 $$
 
 ::: {.callout-note title="Example: Numerical Duration and Convexity"}
-Suppose a bond has:
+Use the 25-year, 6% semiannual coupon bond from the six-bond table, with \$100 par and an initial annual yield of 9%:
 
 - Current price $P_0 = 70.3570$
 - Price if yield falls by 10 basis points: $P_- = 71.1105$
@@ -1549,10 +1625,10 @@ Approximate convexity is
 $$
 \frac{71.1105 + 69.6164 - 2(70.3570)}
 {70.3570(0.001)^2}
-= 183.3.
+= 183.35.
 $$
 
-These numerical estimates are close to the formula-based values for an option-free bond.
+The analytical values are $D^*=10.6175$ and convexity $182.91$. The numerical convexity estimate uses prices rounded to four decimals, which magnifies rounding error in the second difference.
 :::
 
 ## Duration of an Inverse Floater

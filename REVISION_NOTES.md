@@ -188,3 +188,12 @@ The matching forest website palette is shared across HTML pages through `forest-
 - Added consistent left-aligned editorial covers and restored Lecture One's cover.
 - Renamed Lecture One's opening diagram slide to “The course in a nutshell.”
 - Preserved lecture content, diagrams and private teaching materials. Baseline retained on `backup/pre-forest-theme-20260910`.
+
+## September 24, 2026: Lecture 3 teaching revisions
+
+- Preserved saved Lecture 3 note and slide edits before revising. Committed baseline retained on `backup/lec3-before-revision-20260924`.
+- Renamed Lectures 3 and 4 in their notes, decks, and public indexes.
+- Clarified historical regression-based empirical duration and distinguished it from numerical and effective duration.
+- Updated convexity calculations, added example setups and a volatility-measures overview, and removed the 13 slides identified by their original numbers. The revised Lecture 3 deck has 58 slides including its cover.
+- Reproduced the Section 4.2 tangent plot and added an explicitly illustrative short-end/long-end yield-spread chart.
+- Corrected arithmetic in the opening price example, the five-year 6% bond's PVBP, and the rounded-price numerical convexity example. Preserved the prior saved expansion of the convexity table calculations.

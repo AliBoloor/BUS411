@@ -22,6 +22,10 @@ format:
         .demo-lab button { border: 1px solid #214b3e; border-radius: 3px;
           color: #214b3e; background: transparent; padding: .2rem .7rem; }
         details.code-fold { margin: .8rem 0; }
+        details.demo-solution { border-left: 4px solid #936724; padding: 1rem;
+          margin: 1rem 0; background: #fafaf6; }
+        details.demo-solution > summary { cursor: pointer; font-weight: 700;
+          color: #214b3e; }
         mjx-container[display="true"] { display: block; max-width: 100%;
           overflow-x: auto; overflow-y: hidden; padding-block: .35em; }
         </style>
@@ -44,17 +48,14 @@ contains the full code in folded blocks and interactive scenario controls.
 
 A manager holds three cash bonds and asks: **if yields rise by 50 basis points,
 how much will we lose, and can a duration estimate be trusted?** Start with the
-payments you own, then measure risk. Do not start by averaging the bonds' yields.
+payments you own, then measure risk.
 
-1. **Read the position file:** distinguish face amount from market value.
+1. **Read the position file:** distinguish face value from market value.
 2. **Discount each payment:** recover the price and the timing of its present value.
 3. **Measure sensitivity:** translate duration into dollars per basis point.
 4. **Shock and reprice:** compare a tangent-line estimate with actual discounted cash flows.
 5. **Report the exception:** explain why a curve twist needs more than one risk number.
 
-Read the results first; open **Show calculation** when you want to reproduce them.
-The interactive controls work without a Python installation; changing the source
-inputs requires rerunning the notebook from the top.
 
 ## Purpose and Assumptions {.unnumbered}
 
@@ -62,7 +63,7 @@ This demo prices a small bond portfolio from contractual cash flows, measures Ma
 
 | Workflow stage | In this case |
 |---|---|
-| Observed on a position report | Face amount, coupon, maturity, and yield |
+| Observed on a position report | Face value, coupon, maturity, and yield |
 | Calculated | Full price, duration, DV01, and convexity |
 | Checked | Approximation error against exact cash-flow repricing |
 | Used for | Portfolio shock P&L and identification of curve risk |
@@ -71,12 +72,13 @@ This demo prices a small bond portfolio from contractual cash flows, measures Ma
 ```{python}
 #| label: reader-tools
 #| include: false
+"""Configure display helpers and the shared plotting style for this demo."""
 import json
 import html
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from IPython.display import HTML, display
+from IPython.display import HTML, Markdown, display
 from cycler import cycler
 
 plt.rcParams.update({
@@ -91,15 +93,36 @@ plt.rcParams.update({
 
 # Keep every field, but split wide tables into readable panels for HTML and PDF.
 def readable_table(frame):
+    """Format a teaching table without changing its underlying numerical values.
+
+    Parameters
+    ----------
+    frame : pandas.DataFrame
+        Display data. attrs["whole_table"] requests a single reconciliation
+        table; attrs["decimals"] chooses the number of displayed decimals.
+
+    Returns
+    -------
+    str
+        HTML markup suitable for both Quarto HTML and PDF conversion.
+
+    Notes
+    -----
+    Wide, short tables are transposed. Other wide tables are split into panels.
+    Formatting applies only at display time, preserving full-precision results.
+    """
+    whole_table = frame.attrs.get("whole_table", False)
+    decimals = frame.attrs.get("decimals", 4)
     frame = frame.copy()
-    if len(frame.columns) and frame.iloc[:, 0].dtype == object:
+    if not whole_table and len(frame.columns) and frame.iloc[:, 0].dtype == object:
         frame = frame.set_index(frame.columns[0])
-    if len(frame.columns) > 6 and len(frame) <= 4:
+    if not whole_table and len(frame.columns) > 6 and len(frame) <= 4:
         frame = frame.T
     panels = []
-    for start in range(0, len(frame.columns), 3):
-        part = frame.iloc[:, start:start+3]
-        markup = part.to_html(border=0, na_rep="", float_format=lambda v: f"{v:,.4f}".rstrip("0").rstrip("."))
+    panel_width = len(frame.columns) if whole_table else 3
+    for start in range(0, len(frame.columns), panel_width):
+        part = frame.iloc[:, start:start+panel_width]
+        markup = part.to_html(border=0, na_rep="", float_format=lambda v: f"{v:,.{decimals}f}")
         widths = [40] + [60 / max(1, len(part.columns))] * len(part.columns)
         cols = "<colgroup>" + "".join(f'<col style="width:{w}%">' for w in widths) + "</colgroup>"
         end = markup.index(">") + 1
@@ -109,10 +132,33 @@ def readable_table(frame):
 get_ipython().display_formatter.formatters["text/html"].for_type(pd.DataFrame, readable_table)
 
 def demo_explorer(x, series, x_label, y_label, initial=0):
-    """Show precomputed notebook results; the slider selects an exact grid row."""
+    """Build an accessible HTML explorer from precomputed price-change series.
+
+    Parameters
+    ----------
+    x : array-like
+        Strictly increasing finite scenario grid, in the units of x_label.
+    series : dict[str, array-like]
+        Named outputs, with one finite value for every x entry.
+    x_label, y_label : str
+        Axis labels including units.
+    initial : int, default 0
+        Zero-based row selected initially and by the Reset button.
+
+    Returns
+    -------
+    IPython.display.HTML
+        Self-contained chart, slider, reset control, and six-decimal table.
+
+    Notes
+    -----
+    The browser selects stored Python results without interpolating prices.
+    Use one instance per page because this helper uses fixed control IDs.
+    """
     x = np.asarray(x, dtype=float)
     values = {name: np.asarray(y, dtype=float).tolist() for name, y in series.items()}
-    assert len(x) > 1 and np.all(np.diff(x) > 0)
+    assert len(x) > 1 and np.isfinite(x).all() and np.all(np.diff(x) > 0)
+    assert 0 <= initial < len(x)
     assert all(len(y) == len(x) and np.isfinite(y).all() for y in values.values())
     payload = json.dumps({"x": x.tolist(), "series": values,
                           "xLabel": x_label, "yLabel": y_label,
@@ -141,12 +187,16 @@ const pad = Math.max((hi-lo)*.12, .01), ymin = lo-pad, ymax = hi+pad;
 let width=760;
 const X = v => 70 + (width-100)*(v-d.x[0])/(d.x[d.x.length-1]-d.x[0]);
 const Y = v => 275 - 240*(v-ymin)/(ymax-ymin);
+/** Append an SVG element with attributes and optional accessible text. */
 const add = (name, attrs, content='') => {
   const e=document.createElementNS(ns,name);
   Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,v));
   if(content) e.textContent=content; svg.appendChild(e); return e;
 };
+// Axis ticks stay compact; the result table preserves small differences.
 const fmt = v => v.toLocaleString('en-US',{maximumFractionDigits:3});
+const precise = v => (v === 0 ? 0 : v).toLocaleString('en-US',{minimumFractionDigits:6,maximumFractionDigits:6});
+/** Draw the selected scenario, marker, and accessible table values. */
 const render = () => {
   const i=Number(slider.value); svg.replaceChildren();
   width=Math.max(340, Math.min(760, svg.clientWidth));
@@ -171,7 +221,7 @@ const render = () => {
     add('circle',{cx:X(d.x[i]),cy:Y(y[i]),r:5,fill:colors[j%4],stroke:'white'});
     const tr=document.createElement('tr');
     const label=document.createElement('td'), value=document.createElement('td');
-    label.textContent=name; label.style.color=colors[j%4]; value.textContent=fmt(y[i]);
+    label.textContent=name; label.style.color=colors[j%4]; value.textContent=precise(y[i]);
     tr.append(label,value); tbody.appendChild(tr);
   });
   document.getElementById('demo-selection').textContent=d.xLabel+': '+fmt(d.x[i]);
@@ -192,6 +242,7 @@ render();
 
 ```{python}
 #| label: setup
+"""Define the illustrative position file; all rates are annual decimals."""
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -203,41 +254,106 @@ bonds = pd.DataFrame({
     "Maturity (years)": [2, 5, 10],
     "Yield": [0.0410, 0.0485, 0.0610],
 })
-frequency = 2
+frequency = 2  # Semiannual coupons and compounding.
 ```
 
 ## Full Cash-Flow Pricing and Risk Measures
 
-For cash flow $CF_k$ at semiannual period $k$,
+$$
+\begin{aligned}
+F&=\text{face value in dollars}, & c&=\text{annual coupon rate},\\
+T&=\text{maturity in years}, & y&=\text{nominal annual yield},\\
+m&=2\text{ payments per year}.&&
+\end{aligned}
+$$
 
 $$
-P=\sum_{k=1}^{n}\frac{CF_k}{(1+y/m)^k}.
+n=mT,\qquad t_k=\frac{k}{m},\qquad
+CF_k=\frac{Fc}{m}+F\,\mathbf{1}_{\{k=n\}},\qquad k=1,\ldots,n.
 $$
 
-Macaulay duration is the present-value-weighted average payment time. Modified duration is $D_{Mac}/(1+y/m)$, and
+$$
+PV_k=\frac{CF_k}{(1+y/m)^k},\qquad P=\sum_{k=1}^{n}PV_k.
+$$
 
 $$
-DV01=P D_{mod}(0.0001).
+D_{\mathrm{Mac}}=\frac{\sum_{k=1}^{n}t_kPV_k}{P},
+\qquad D_{\mathrm{mod}}=\frac{D_{\mathrm{Mac}}}{1+y/m}
+=-\frac{1}{P}\frac{\partial P}{\partial y}.
+$$
+
+$$
+DV01=PVBP\approx P D_{\mathrm{mod}}\times10^{-4}
+\quad\text{(dollars per basis point)}.
+$$
+
+$$
+C=\frac{1}{P}\frac{\partial^2P}{\partial y^2}
+=\frac{1}{P}\sum_{k=1}^{n}
+\frac{k(k+1)CF_k}{m^2(1+y/m)^{k+2}}.
 $$
 
 ```{python}
 #| label: bond-functions
 def bond_metrics(face, coupon_rate, maturity, ytm, frequency=2):
+    """Price a fixed-rate bullet bond and calculate annual-yield sensitivities.
+
+    Parameters
+    ----------
+    face : float
+        Face value in dollars, including the entire position if appropriate.
+    coupon_rate : float
+        Annual coupon rate as a decimal (0.0575 means 5.75%).
+    maturity : float
+        Remaining years, containing an integer number of coupon periods.
+    ytm : float
+        Nominal annual decimal yield, compounded frequency times per year.
+    frequency : int, default 2
+        Equally spaced coupon payments per year.
+
+    Returns
+    -------
+    tuple[float, float, float, float, float]
+        Full dollar price, Macaulay duration in years, modified duration,
+        positive first-order DV01 in dollars per bp, and annual convexity.
+        Convexity excludes the Taylor approximation's one-half factor.
+
+    Raises
+    ------
+    ValueError
+        For nonfinite inputs, nonpositive face/maturity, negative coupons,
+        invalid frequency/period count, or a nonpositive discount factor.
+
+    Notes
+    -----
+    Settlement is on a coupon date, so accrued interest is zero. Principal is
+    repaid at maturity. Default and embedded options are excluded.
+    DV01 is derivative-based, rather than an exact finite 1 bp price change.
+    """
+    inputs = [face, coupon_rate, maturity, ytm, frequency]
+    if not np.isfinite(inputs).all() or face <= 0 or maturity <= 0 or coupon_rate < 0:
+        raise ValueError("Use finite inputs, positive face/maturity, and nonnegative coupons.")
+    if frequency <= 0 or int(frequency) != frequency or 1 + ytm / frequency <= 0:
+        raise ValueError("Use a positive integer frequency and a valid discount factor.")
     periods = int(round(maturity * frequency))
+    if periods < 1 or not np.isclose(periods, maturity * frequency):
+        raise ValueError("Maturity must contain an integer number of coupon periods.")
+    # Coupon-date settlement places payments at whole coupon periods.
     times = np.arange(1, periods + 1) / frequency
     cash_flows = np.full(periods, face * coupon_rate / frequency)
-    cash_flows[-1] += face
+    cash_flows[-1] += face  # Repay principal with the final coupon.
     period_yield = ytm / frequency
     pv = cash_flows / (1 + period_yield) ** np.arange(1, periods + 1)
     price = pv.sum()
     macaulay = np.sum(times * pv) / price
     modified = macaulay / (1 + period_yield)
     k = np.arange(1, periods + 1)
+    # 1/m^2 converts periodic-yield curvature into annual-yield curvature.
     convexity = np.sum(
         cash_flows * k * (k + 1)
         / (frequency**2 * (1 + period_yield) ** (k + 2))
     ) / price
-    dv01 = price * modified * 0.0001
+    dv01 = price * modified * 0.0001  # One yield bp equals 0.0001.
     return price, macaulay, modified, dv01, convexity
 
 rows = []
@@ -249,7 +365,7 @@ for bond in bonds.itertuples(index=False):
 metrics = pd.DataFrame(rows, columns=["Price ($)", "Macaulay duration",
                                       "Modified duration", "DV01/PVBP ($/bp)", "Convexity"])
 bond_risk = pd.concat([bonds, metrics], axis=1)
-bond_risk.round(4)
+bond_risk  # Retain full precision for every subsequent calculation.
 ```
 
 ## Exact Repricing Versus Approximations
@@ -268,6 +384,7 @@ describe the portfolio's interest-rate risk.
 #| label: fig-payment-timing
 #| fig-cap: "Present value by payment date for the corporate position; the final bar includes principal."
 #| fig-alt: "Semiannual coupon present values decline with time, with a large principal payment at year ten."
+"""Visualize discounted corporate cash flows and reconcile them to price."""
 payment_times = np.arange(1, 21) / 2
 payments = np.full(20, 8_000_000 * 0.0575 / 2)
 payments[-1] += 8_000_000
@@ -295,52 +412,14 @@ $$
 \frac{\Delta P}{P}\approx-D_{mod}\Delta y+\frac12 C(\Delta y)^2.
 $$
 
-```{python}
-#| label: approximation-table
-selected = bond_risk.iloc[2]
-shocks_bp = np.array([-150, -75, -25, 25, 75, 150])
-base_price = selected["Price ($)"]
-exact_prices = np.array([
-    bond_metrics(selected["Face value ($mm)"] * 1_000_000,
-                 selected["Coupon rate"], selected["Maturity (years)"],
-                 selected["Yield"] + shock / 10_000, frequency)[0]
-    for shock in shocks_bp
-])
-dy = shocks_bp / 10_000
-duration_change = -selected["Modified duration"] * dy
-duration_convexity_change = duration_change + 0.5 * selected["Convexity"] * dy**2
-exact_change = exact_prices / base_price - 1
-
-comparison = pd.DataFrame({
-    "Yield shock (bp)": shocks_bp,
-    "Duration-only change (%)": 100 * duration_change,
-    "Duration + convexity change (%)": 100 * duration_convexity_change,
-    "Exact price change (%)": 100 * exact_change,
-    "Duration-only error (bp of price)": 10_000 * (duration_change - exact_change),
-    "Duration + convexity error (bp of price)": 10_000 * (duration_convexity_change - exact_change),
-})
-comparison.round(3)
-```
-
-```{python}
-#| label: fig-approximation-errors
-#| fig-cap: "Convexity materially improves the approximation for larger yield moves"
-fig, ax = plt.subplots(figsize=(7.4, 4.0))
-ax.plot(shocks_bp, 100 * exact_change, "o-", label="Exact repricing")
-ax.plot(shocks_bp, 100 * duration_change, "s--", label="Duration only")
-ax.plot(shocks_bp, 100 * duration_convexity_change, "^--", label="Duration + convexity")
-ax.set(xlabel="Yield shock (bp)", ylabel="Price change (%)",
-       title="10-year corporate bond repricing")
-ax.grid(alpha=0.3)
-ax.legend()
-plt.tight_layout()
-plt.show()
-```
-
 ### Explore the shock size (HTML)
 
-The table and figure above are the static fallback in PDF. In HTML, move the
-slider to reprice the same 10-year 5.75% coupon bond exactly.
+Move the slider to shock the **10-year corporate position**: $8 million face,
+5.75% coupon, semiannual payments, and 6.10% initial yield. All three estimates
+use the same starting price and cash flows. Section 2.2 provides the PDF fallback.
+
+Results retain six decimals in percentage units. Error is **estimated minus exact**,
+reported in basis points of the initial price, not basis points of yield.
 
 ::: {.content-visible when-format="html"}
 <div id="duration-explorer" style="padding:1rem;border:1px solid #d9e1e8;border-radius:.4rem">
@@ -353,41 +432,180 @@ slider to reprice the same 10-year 5.75% coupon bond exactly.
   const slider = document.getElementById('shock-slider');
   const label = document.getElementById('shock-label');
   const result = document.getElementById('shock-result');
-  const face = 100, coupon = 100 * 0.0575 / 2, periods = 20, baseYield = 0.0610;
+  const face = 8000000, coupon = face * 0.0575 / 2, periods = 20, baseYield = 0.0610;
+  /**
+   * Discount fixed corporate cash flows at a nominal annual yield.
+   * @param {number} y Decimal yield, compounded semiannually.
+   * @returns {number} Full dollar value at coupon-date settlement.
+   */
   const price = y => {
     let value = 0;
-    for (let k = 1; k <= periods; k++) value += (coupon + (k === periods ? face : 0)) / Math.pow(1 + y / 2, k);
+    for (let k = 1; k <= periods; k++) {
+      value += (coupon + (k === periods ? face : 0)) / Math.pow(1 + y / 2, k);
+    }
     return value;
   };
-  const base = price(baseYield);
+  const base = price(baseYield), discount = 1 + baseYield / 2;
+  let modified = 0, convexity = 0;
+  // Annual-yield derivatives require factors of 1/2 and 1/4.
+  for (let k = 1; k <= periods; k++) {
+    const cf = coupon + (k === periods ? face : 0);
+    modified += k * cf / (2 * Math.pow(discount, k + 1) * base);
+    convexity += k * (k + 1) * cf / (4 * Math.pow(discount, k + 2) * base);
+  }
+  /** Reprice the selected yield shock and report signed errors in explicit units. */
   const update = () => {
-    const bp = Number(slider.value), shocked = price(baseYield + bp / 10000);
-    label.value = `${bp > 0 ? '+' : ''}${bp} bp`;
-    result.textContent = `Exact price: ${shocked.toFixed(3)} per 100; change: ${((shocked / base - 1) * 100).toFixed(3)}%.`;
+    const bp = Number(slider.value), dy = bp / 10000, shocked = price(baseYield + dy);
+    const exact = shocked / base - 1, duration = -modified * dy;
+    const combined = duration + 0.5 * convexity * dy * dy;
+    label.value = (bp > 0 ? '+' : '') + bp + ' bp';
+    result.textContent =
+      'Exact price per $100 par: ' + (100 * shocked / face).toFixed(6) + '. ' +
+      'Duration only: ' + (100 * duration).toFixed(6) + '%; ' +
+      'duration + convexity: ' + (100 * combined).toFixed(6) + '%; ' +
+      'exact change: ' + (100 * exact).toFixed(6) + '%. ' +
+      'Errors (bp of initial price): duration ' + (10000 * (duration - exact)).toFixed(6) +
+      ', duration + convexity ' + (10000 * (combined - exact)).toFixed(6) + '. ' +
+      'Duration + convexity dollar error: $' + (base * (combined - exact)).toFixed(2) + '.';
   };
   slider.addEventListener('input', update); update();
 })();
 </script>
 :::
 
-## Portfolio Aggregation
+### Approximation table: precision and error units
 
-Dollar risk aggregates across positions. Portfolio DV01 is the sum of bond DV01s; market-value-weighted duration is equivalent to total dollar duration divided by portfolio value.
+The corporate position is valued at its original 6.10% yield before every shock.
+A **+25 bp yield shock** means $6.10\%+0.25\%=6.35\%$.
+
+$$
+r_{\mathrm{exact}}=\frac{P(y+\Delta y)-P(y)}{P(y)}.
+$$
+
+$$
+e_{\mathrm{price\,bp}}=10{,}000(r_{\mathrm{estimate}}-r_{\mathrm{exact}}),
+\qquad e_{\$}=P(y)(r_{\mathrm{estimate}}-r_{\mathrm{exact}}).
+$$
+
+One basis point **of price** equals 0.01 percentage points of price change.
+Equal values rounded to three decimals need not have zero error.
+Positive error means the estimated ending value is too high; negative error
+means it is too low. All errors below use unrounded calculation results.
 
 ```{python}
-#| label: portfolio-aggregation
-portfolio_value = bond_risk["Price ($)"].sum()
-portfolio_dv01 = bond_risk["DV01/PVBP ($/bp)"].sum()
-portfolio_modified_duration = portfolio_dv01 / (portfolio_value * 0.0001)
-portfolio_convexity = np.average(bond_risk["Convexity"], weights=bond_risk["Price ($)"])
+#| label: approximation-table
+"""Compare Taylor estimates with exact repricing using unrounded values."""
+selected = bond_risk.iloc[2]
+shocks_bp = np.array([-150, -75, -25, 25, 75, 150])
+base_price = selected["Price ($)"]
+exact_prices = np.array([
+    bond_metrics(selected["Face value ($mm)"] * 1_000_000,
+                 selected["Coupon rate"], selected["Maturity (years)"],
+                 selected["Yield"] + shock / 10_000, frequency)[0]
+    for shock in shocks_bp
+])
+dy = shocks_bp / 10_000  # Convert yield bp to decimal annual-yield changes.
+duration_change = -selected["Modified duration"] * dy
+duration_convexity_change = duration_change + 0.5 * selected["Convexity"] * dy**2
+exact_change = exact_prices / base_price - 1
 
-pd.Series({
-    "Portfolio market value ($)": portfolio_value,
-    "Portfolio DV01/PVBP ($/bp)": portfolio_dv01,
-    "Portfolio modified duration": portfolio_modified_duration,
-    "Market-value-weighted convexity": portfolio_convexity,
-}).round(3)
+comparison = pd.DataFrame({
+    "Yield shock (bp)": shocks_bp,
+    "Duration-only change (%)": 100 * duration_change,
+    "Duration + convexity change (%)": 100 * duration_convexity_change,
+    "Exact price change (%)": 100 * exact_change,
+    "Duration-only error (bp of price)": 10_000 * (duration_change - exact_change),
+    "Duration + convexity error (bp of price)": 10_000 * (duration_convexity_change - exact_change),
+})
+comparison = comparison.set_index("Yield shock (bp)")
+comparison.attrs["decimals"] = 6
+comparison
 ```
+
+::: {.callout-note title="Why the +25 bp row has a nonzero error"}
+The duration-plus-convexity change is **−1.848029%** and the exact change is
+**−1.848211%**. Both round to −1.848% at three decimals, but
+
+$$
+10{,}000[-0.018480289632-(-0.018482112824)]
+\approx0.018232\text{ bp of price}.
+$$
+
+Multiplying the unrounded return difference by the initial position value,
+$7,792,674.95, gives a **+$14.21 error**. The approximation understates the loss
+by $14.21. Display rounding explains the apparent inconsistency.
+:::
+
+```{python}
+#| label: fig-approximation-errors
+#| fig-cap: "Convexity materially improves the approximation for larger yield moves"
+"""Compare percentage-price responses over the same yield-shock grid."""
+fig, ax = plt.subplots(figsize=(7.4, 4.0))
+ax.plot(shocks_bp, 100 * exact_change, "o-", label="Exact repricing")
+ax.plot(shocks_bp, 100 * duration_change, "s--", label="Duration only")
+ax.plot(shocks_bp, 100 * duration_convexity_change, "^--", label="Duration + convexity")
+ax.set(xlabel="Yield shock (bp)", ylabel="Price change (%)",
+       title="10-year corporate bond repricing")
+ax.grid(alpha=0.3)
+ax.legend()
+plt.tight_layout()
+plt.show()
+```
+
+## Portfolio Aggregation
+
+Each column below is a position; the last column reconciles the whole portfolio.
+Market values and DV01s **sum**. Durations and convexities are **market-value-weighted
+averages**. Contribution rows show the pieces of those averages.
+
+$$
+V_0=\sum_iP_i,\qquad w_i=\frac{P_i}{V_0},\qquad
+DV01_{\mathrm{port}}=\sum_iDV01_i.
+$$
+
+$$
+D_{\mathrm{port}}=\sum_iw_iD_i
+=\frac{DV01_{\mathrm{port}}}{V_0\,10^{-4}},\qquad
+C_{\mathrm{port}}=\sum_iw_iC_i.
+$$
+
+```{python}
+#| label: portfolio-risk-table
+"""Reconcile position values, risk contributions, and portfolio totals."""
+portfolio_value = bond_risk["Price ($)"].sum()
+weights = bond_risk["Price ($)"] / portfolio_value
+portfolio_dv01 = bond_risk["DV01/PVBP ($/bp)"].sum()
+portfolio_modified_duration = np.dot(weights, bond_risk["Modified duration"])
+portfolio_convexity = np.dot(weights, bond_risk["Convexity"])
+
+# Keep every position next to the aggregate in one transposed exhibit.
+aggregation = pd.DataFrame({
+    "Face value ($mm)": bond_risk["Face value ($mm)"],
+    "Market value ($mm)": bond_risk["Price ($)"] / 1e6,
+    "Market-value weight (%)": 100 * weights,
+    "Macaulay duration (years)": bond_risk["Macaulay duration"],
+    "Modified duration": bond_risk["Modified duration"],
+    "Contribution to duration": weights * bond_risk["Modified duration"],
+    "DV01 ($/bp)": bond_risk["DV01/PVBP ($/bp)"],
+    "Share of DV01 (%)": 100 * bond_risk["DV01/PVBP ($/bp)"] / portfolio_dv01,
+    "Convexity": bond_risk["Convexity"],
+    "Contribution to convexity": weights * bond_risk["Convexity"],
+}).T
+aggregation.columns = ["2Y Treasury", "5Y agency", "10Y corporate"]
+aggregation["Portfolio"] = [
+    bonds["Face value ($mm)"].sum(), portfolio_value / 1e6, 100.0,
+    np.dot(weights, bond_risk["Macaulay duration"]),
+    portfolio_modified_duration, portfolio_modified_duration, portfolio_dv01,
+    100.0, portfolio_convexity, portfolio_convexity,
+]
+aggregation.attrs["whole_table"] = True
+aggregation
+```
+
+The portfolio's Macaulay duration is the weighted payment time using each
+position's own discounted cash flows. With different bond yields, do not convert
+it to portfolio modified duration using a simple average yield. Aggregate each
+bond's modified duration as shown above.
 
 ## Parallel and Nonparallel Scenarios
 
@@ -397,52 +615,192 @@ Repricing is exact for those assigned bond yields, not for a fully specified
 spot-curve twist. A production key-rate analysis would shock the underlying
 discount curve and revalue every dated cash flow.
 
+For bond $i$, let $b_i$ be its assigned shock in basis points, so
+$\Delta y_i=b_i/10{,}000$. Each method starts from the **same dollar market value**
+$P_i$, not face value.
+Here $D_i$ is modified duration and $C_i$ is annualized convexity, both
+evaluated at the bond's initial yield.
+
+$$
+L_i^{D}=-P_iD_i\Delta y_i=-DV01_i\,b_i,
+\qquad A_i^C=\frac12P_iC_i(\Delta y_i)^2.
+$$
+
+$$
+L_i^{D+C}=L_i^D+A_i^C,\qquad
+L_i^{\mathrm{exact}}=
+\sum_{k=1}^{n_i}\frac{CF_{i,k}}{[1+(y_i+\Delta y_i)/m]^k}-P_i.
+$$
+
+$$
+L_{\mathrm{port}}^D=\sum_iL_i^D,\qquad
+L_{\mathrm{port}}^{D+C}=\sum_iL_i^{D+C},\qquad
+L_{\mathrm{port}}^{\mathrm{exact}}=\sum_iL_i^{\mathrm{exact}}.
+$$
+
+Under the parallel +50 bp shock, every $\Delta y_i=0.005$, so the same results
+can also be obtained directly from the portfolio measures:
+
+$$
+L_{\mathrm{port}}^D=-50\,DV01_{\mathrm{port}},
+\qquad
+L_{\mathrm{port}}^{D+C}
+=-V_0D_{\mathrm{port}}(0.005)+\frac12V_0C_{\mathrm{port}}(0.005)^2.
+$$
+
+For the twist scenarios, use each bond's own shock **before summing**. There is
+no common $\Delta y$ to insert into the portfolio-duration formula.
+
 ```{python}
 #| label: portfolio-scenarios
+"""Assign bond-level yield shocks and retain every contribution to portfolio P&L."""
 scenario_shocks = {
     "Parallel +50 bp": np.array([50, 50, 50]),
     "Bear steepener": np.array([10, 35, 75]),
     "Bull flattener": np.array([-15, -45, -90]),
 }
 
-scenario_rows = []
-for name, shocks in scenario_shocks.items():
-    exact_pnl = 0.0
-    duration_pnl = 0.0
-    duration_convexity_pnl = 0.0
-    for i, bond in bond_risk.iterrows():
-        shock = shocks[i] / 10_000
-        shocked_price = bond_metrics(
-            bond["Face value ($mm)"] * 1_000_000, bond["Coupon rate"],
-            bond["Maturity (years)"], bond["Yield"] + shock, frequency
-        )[0]
-        exact_pnl += shocked_price - bond["Price ($)"]
-        duration_pnl += bond["Price ($)"] * (-bond["Modified duration"] * shock)
-        duration_convexity_pnl += bond["Price ($)"] * (
-            -bond["Modified duration"] * shock + 0.5 * bond["Convexity"] * shock**2
-        )
-    scenario_rows.append([name, duration_pnl, duration_convexity_pnl, exact_pnl])
+def scenario_contributions(risk, shocks_bp, frequency=2):
+    """Calculate position-level dollar P&L under an assigned yield scenario.
 
-scenario_results = pd.DataFrame(
-    scenario_rows,
-    columns=["Scenario", "Duration P&L ($)", "Duration + convexity P&L ($)", "Exact P&L ($)"],
-).set_index("Scenario")
-scenario_results.round(0)
+    Parameters
+    ----------
+    risk : pandas.DataFrame
+        One row per bond with the inputs and full-precision bond_metrics outputs.
+    shocks_bp : array-like
+        One nominal annual yield shock per row, in basis points and row order.
+    frequency : int, default 2
+        Coupon frequency shared by these illustrative bonds.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Per-position shock, first-order P&L, convexity addition, combined P&L,
+        and exact shocked value minus initial value, all P&L fields in dollars.
+
+    Raises
+    ------
+    ValueError
+        If there is not exactly one finite yield shock per bond.
+
+    Notes
+    -----
+    This applies bond-specific YTM shocks, not a full spot-curve revaluation.
+    Original duration and convexity remain fixed for the Taylor approximation.
+    """
+    bp = np.asarray(shocks_bp, dtype=float)
+    if bp.shape != (len(risk),) or not np.isfinite(bp).all():
+        raise ValueError("Provide one finite shock per bond in portfolio order.")
+    dy = bp / 10000
+    values = risk["Price ($)"].to_numpy()
+    first_order = -risk["DV01/PVBP ($/bp)"].to_numpy() * bp
+    curvature = 0.5 * values * risk["Convexity"].to_numpy() * dy**2
+    # Reprice cash flows independently; do not reuse a Taylor-estimated value.
+    shocked_values = np.array([
+        bond_metrics(row["Face value ($mm)"] * 1e6, row["Coupon rate"],
+                     row["Maturity (years)"], row["Yield"] + shock, frequency)[0]
+        for (_, row), shock in zip(risk.iterrows(), dy)
+    ])
+    return pd.DataFrame({
+        "Yield shock (bp)": bp,
+        "Duration P&L ($)": first_order,
+        "Convexity addition ($)": curvature,
+        "Duration + convexity P&L ($)": first_order + curvature,
+        "Exact P&L ($)": shocked_values - values,
+    }, index=risk["Bond"].to_numpy())
+
+# Show the scenario definitions explicitly before reporting their effects.
+shock_table = pd.DataFrame(scenario_shocks, index=bond_risk["Bond"])
+display(shock_table)
+scenario_details = {
+    name: scenario_contributions(bond_risk, shocks, frequency)
+    for name, shocks in scenario_shocks.items()
+}
+pnl_columns = ["Duration P&L ($)", "Duration + convexity P&L ($)", "Exact P&L ($)"]
+scenario_results = pd.DataFrame({
+    name: detail[pnl_columns].sum() for name, detail in scenario_details.items()
+}).T
+scenario_results.index.name = "Scenario"
+scenario_results.attrs["decimals"] = 2
+display(scenario_results)
 ```
 
-The parallel scenario can be summarized by portfolio duration. The steepener and flattener require maturity-specific exposures; the same portfolio DV01 can hide materially different curve risk.
+The following calculation trail keeps the convexity addition separate. It is
+positive for these long, option-free positions under either sign of shock.
+Only the duration term changes sign. Portfolio rows sum the unrounded bond-level
+figures; displayed cents may create a one-cent rounding difference.
+
+```{python}
+#| label: scenario-calculation-trail
+"""Display each bond's contribution and its portfolio reconciliation."""
+for name, detail in scenario_details.items():
+    display(Markdown(f"**{name}: dollar calculation trail**"))
+    trail = detail.drop(columns="Yield shock (bp)").copy()
+    # Put the shock in the row label so it stays beside all four P&L columns.
+    trail.index = [
+        f"{bond} ({bp:+.0f} bp)"
+        for bond, bp in zip(detail.index, detail["Yield shock (bp)"])
+    ]
+    trail.loc["Portfolio total"] = trail.sum()
+    trail.columns = ["Duration ($)", "Convexity add. ($)", "Combined ($)", "Exact ($)"]
+    trail.attrs.update(whole_table=True, decimals=2)
+    display(trail)
+
+corporate = bond_risk.iloc[2]
+corporate_parallel = scenario_details["Parallel +50 bp"].iloc[2]
+display(Markdown(
+    f"**Substitution for the corporate position under +50 bp:** "
+    f"initial value = \${corporate['Price ($)']:,.2f}, "
+    f"modified duration = {corporate['Modified duration']:.6f}, "
+    f"convexity = {corporate['Convexity']:.6f}. "
+    f"Duration P&L = −({corporate['Price ($)']:,.2f})"
+    f"({corporate['Modified duration']:.6f})(0.005) "
+    f"= \${corporate_parallel['Duration P&L ($)']:,.2f}. "
+    f"The convexity addition is ½ × {corporate['Price ($)']:,.2f} "
+    f"× {corporate['Convexity']:.6f} × 0.005² "
+    f"= \${corporate_parallel['Convexity addition ($)']:,.2f}. "
+    f"Adding gives \${corporate_parallel['Duration + convexity P&L ($)']:,.2f}. "
+    f"Discounting the same 20 cash flows at 6.60% instead of 6.10% gives "
+    f"\${corporate['Price ($)'] + corporate_parallel['Exact P&L ($)']:,.2f}; "
+    f"subtracting the starting value gives exact P&L of "
+    f"\${corporate_parallel['Exact P&L ($)']:,.2f}."
+))
+```
+
+The parallel scenario can be summarized by portfolio duration. The steepener
+and flattener require maturity-specific exposures. These P&Ls represent an
+**instantaneous mark-to-market change**, with no coupon receipt, passage of time,
+transaction cost, or separate credit-spread shock.
 
 ## Validation Checks
+
+Validation asks two different questions: **do the calculations reconcile?** and
+**does the risk allocation make economic sense?**
+
+The chart compares the share of money invested with the share of sensitivity
+to a common 1 bp yield increase:
+
+$$
+\text{Capital share}_i=100\frac{P_i}{V_0},\qquad
+\text{DV01 share}_i=100\frac{DV01_i}{DV01_{\mathrm{port}}}.
+$$
+
+Each set of shares must sum to 100%. If a bond's DV01 bar is longer than its
+market-value bar, it contributes more risk per dollar invested than the portfolio
+average. The long corporate bond can therefore dominate rate risk without being
+the largest investment. This chart diagnoses concentration; it does not by
+itself validate the pricing formula or measure credit risk.
 
 ```{python}
 #| label: fig-risk-concentration
 #| fig-cap: "Capital allocation and risk allocation answer different questions."
 #| fig-alt: "Grouped horizontal bars compare each bond's share of market value with its share of total DV01."
+"""Compare capital weights with contributions to parallel-yield DV01."""
 risk_shares = pd.DataFrame({
     "Share of market value": 100 * bond_risk["Price ($)"] / portfolio_value,
     "Share of DV01": 100 * bond_risk["DV01/PVBP ($/bp)"] / portfolio_dv01,
 })
-risk_shares.index = bonds["Bond"]
+risk_shares.index = bonds["Bond"]  # Compare each issuer across both bars.
 ax = risk_shares.plot.barh(color=["#214b3e", "#936724"], figsize=(8, 4))
 ax.set(xlabel="Portfolio share (%)", ylabel="")
 plt.tight_layout()
@@ -452,55 +810,74 @@ plt.show()
 ::: {.callout-tip}
 ## Predict, change, explain
 
-Move the yield-shock slider from +25 to +150 bp, then to -150 bp. Are equal
-upward and downward shocks symmetric in price? Compare the exact result with the
-duration-only table. Next, identify the position with the largest share of DV01:
-selling the largest face amount is not necessarily the most efficient risk reduction.
+1. **Predict:** before moving the Section 2.1 slider, write down whether a
+   +150 bp move should produce six times the +25 bp percentage loss. Duration
+   predicts this scaling; curvature should make the actual loss smaller.
+2. **Change:** compare +25, +150, and −150 bp. Record all three percentage
+   estimates and the error in bp of price. Keep the bond, face value, and
+   starting yield unchanged.
+3. **Explain:** compare the absolute gain at −150 bp with the loss at +150 bp.
+   Positive convexity makes the gain larger. Explain why the combined estimate
+   is closer, but still not exact for a finite shock.
+4. **Apply:** use the DV01-share chart to choose a position to reduce. Compare
+   DV01 removed per $1 million face sold, rather than selecting the largest
+   face value automatically. Also consider the desired maturity and credit mix.
+
 :::
+
+The checks below compare independently constructed quantities where possible:
+a centered finite-difference derivative against analytical DV01, position
+totals against weighted portfolio measures, and exact repricing against the
+approximations. The duration ordering assumes the positive yields in this case.
+Passing these tests checks this teaching model, not real-world settlement,
+option exercise, or credit-spread dynamics.
 
 ```{python}
 #| label: validation
-assert np.all(bond_risk["Macaulay duration"] > bond_risk["Modified duration"])
-assert np.all(bond_risk["DV01/PVBP ($/bp)"] > 0)
-assert abs(portfolio_dv01 - bond_risk["DV01/PVBP ($/bp)"].sum()) < 1e-10
-assert np.mean(np.abs(duration_convexity_change - exact_change)) < np.mean(np.abs(duration_change - exact_change))
-assert np.all(np.diff(exact_prices) < 0)
-
-pd.Series({
-    "Macaulay duration exceeds modified duration": True,
-    "DV01 values are positive": True,
-    "Portfolio DV01 equals component sum": True,
-    "Convexity improves average approximation": True,
-    "Exact price falls as yield rises": True,
-})
+"""Validate sensitivities, accounting identities, and approximation behavior."""
+epsilon = 1e-5  # A 0.1 bp shock gives a stable centered derivative check.
+finite_difference_dv01 = np.array([
+    (bond_metrics(row["Face value ($mm)"] * 1e6, row["Coupon rate"],
+                  row["Maturity (years)"], row["Yield"] - epsilon, frequency)[0]
+     - bond_metrics(row["Face value ($mm)"] * 1e6, row["Coupon rate"],
+                    row["Maturity (years)"], row["Yield"] + epsilon, frequency)[0])
+    / (2 * epsilon) * 1e-4
+    for _, row in bond_risk.iterrows()
+])
+checks = {
+    "Positive yields: Macaulay > modified": bool(
+        np.all(bond_risk["Macaulay duration"] > bond_risk["Modified duration"])),
+    "DV01 agrees with centered repricing": bool(
+        np.allclose(finite_difference_dv01, bond_risk["DV01/PVBP ($/bp)"], rtol=1e-7)),
+    "Value and risk shares each sum to 100%": bool(
+        np.allclose(risk_shares.sum(), 100)),
+    "Weighted duration reconciles to total DV01": bool(
+        np.isclose(portfolio_value * portfolio_modified_duration * 1e-4, portfolio_dv01)),
+    "Parallel duration P&L equals -50 x DV01": bool(
+        np.isclose(scenario_results.loc["Parallel +50 bp", "Duration P&L ($)"],
+                   -50 * portfolio_dv01)),
+    "Convexity improves every tabulated shock": bool(
+        np.all(np.abs(duration_convexity_change - exact_change)
+               < np.abs(duration_change - exact_change))),
+    "Exact price falls as yield rises": bool(np.all(np.diff(exact_prices) < 0)),
+}
+assert all(checks.values()), checks
+pd.DataFrame({"Check": list(checks), "Passed": list(checks.values())})
 ```
 
 ## Financial Interpretation
 
 Duration is a local slope, convexity is a curvature correction, and exact cash-flow repricing is the benchmark. DV01 translates percentage sensitivity into dollars. Portfolio aggregation is reliable for a stated parallel shock, but nonparallel scenarios require maturity-specific or key-rate exposures.
 
-### From the classroom to a position report
-
-Use [FINRA Fixed Income Data](https://www.finra.org/finra-data/fixed-income)
-to inspect security terms and recent trades. Record the trade date, settlement
-date, coupon, maturity, price type, and accrued interest before substituting a bond.
-TRACE records trades, not a guaranteed executable quote. The embedded position
-table remains the complete offline case; its numbers are not FINRA observations.
-
-**Your deliverable:** a short risk note stating portfolio value, DV01, the exact
-+50 bp loss, approximation error in dollars, and one nonparallel scenario.
-
-
-## Guided explorer
+## Interactive explorer
 
 Start at a zero shock, then compare +150 and -150 bp. The straight-line estimate has no curvature. Explain which approximation is closest and why equal yield moves do not produce equal percentage gains and losses.
 
-The HTML control selects a precomputed scenario. In the PDF, use the preceding
-figures and tables and rerun the displayed notebook inputs to explore other values.
 
 ::: {.content-visible when-format="html"}
 ```{python}
 #| label: guided-explorer
+"""Precompute the same three return estimates on a finer yield-shock grid."""
 explorer_shocks = np.arange(-200, 201, 5)
 explorer_exact = np.array([
     bond_metrics(100, float(selected["Coupon rate"]), int(selected["Maturity (years)"]),
@@ -517,3 +894,171 @@ display(demo_explorer(explorer_shocks, {
 }, "Yield shock (bp)", "Price change (%)", 40))
 ```
 :::
+
+
+## From the Classroom to the Positions Report
+
+**Project brief.** You are the junior fixed-income analyst supporting a manager
+of the three-position portfolio in Section 1. Before a rate-risk meeting, the
+manager wants a reproducible **risk memo and supporting tables**, rather than a
+list of model outputs. Use the embedded, illustrative positions as the required
+dataset. Treat the valuation instant as a coupon date for each bond.
+
+Answer: **What is the portfolio worth, how much does it lose under a parallel
++50 bp move, and what does a bear steepener reveal that aggregate duration misses?**
+Recommend one explicitly sized risk-reduction action and discuss its tradeoffs.
+This is an instantaneous rate-risk exercise, not a forecast of total return.
+
+**Required deliverable:**
+
+1. A data-and-conventions statement and position table with face value, coupon,
+   maturity, and initial yield. Distinguish supplied inputs from calculated prices.
+2. A position-and-portfolio risk exhibit showing market value, weights, duration,
+   DV01, convexity, and each position's contributions.
+3. A scenario exhibit with duration, duration-plus-convexity, and exact dollar
+   P&L for +50 bp and the bear steepener, including both signed dollar errors.
+   Include the bull flattener as an opposite-direction check.
+4. One worked bond-level calculation, a concentration diagnosis, and a quantified
+   action. State what the action gives up and what risks the model leaves out.
+5. A short control statement confirming reconciliation and repricing checks.
+
+**Optional market-data extension.** Use
+[FINRA Fixed Income Data](https://www.finra.org/finra-data/fixed-income) to investigate
+actual securities. Record identifiers, observation/trade date, settlement date,
+coupon, maturity, price type, and accrued interest. A reported trade is not a
+guaranteed executable quote. Replacing a bond requires checking day count,
+coupon schedules, settlement, and embedded options; do not insert an observed
+clean price into this coupon-date model without adjustment. If suitable data
+cannot be obtained, use the full embedded case below and label it illustrative.
+
+```{=html}
+<details class="demo-solution" id="worked-deliverable">
+<summary>Worked deliverable: portfolio rate-risk memo and supporting tables</summary>
+```
+
+::: {.content-visible when-format="pdf"}
+**Worked deliverable: portfolio rate-risk memo and supporting tables**
+:::
+
+The following is a completed submission for the embedded case. Every exhibit
+uses the same full-precision calculations as the preceding sections. Displayed
+rounding does not change the calculations.
+
+```{python}
+#| label: worked-position-report
+"""Produce the complete risk memo from the same validated position dataset."""
+parallel = scenario_results.loc["Parallel +50 bp"]
+steepener = scenario_results.loc["Bear steepener"]
+corporate_share_value = 100 * corporate["Price ($)"] / portfolio_value
+corporate_share_risk = 100 * corporate["DV01/PVBP ($/bp)"] / portfolio_dv01
+parallel_error_d = parallel["Duration P&L ($)"] - parallel["Exact P&L ($)"]
+parallel_error_dc = parallel["Duration + convexity P&L ($)"] - parallel["Exact P&L ($)"]
+
+display(Markdown(
+    "**To:** Portfolio manager  \n"
+    "**Subject:** Instantaneous interest-rate exposure of the three-bond portfolio  \n"
+    "**Valuation basis:** Illustrative coupon-date snapshot; no live market marks.\n\n"
+    f"**Decision summary.** The portfolio has \${portfolio_value:,.2f} of market value "
+    f"against \${bonds['Face value ($mm)'].sum():,.0f} million face value. "
+    f"DV01 is \${portfolio_dv01:,.2f} per bp, modified duration is "
+    f"{portfolio_modified_duration:.6f}, and convexity is {portfolio_convexity:.6f}. "
+    f"A parallel +50 bp move produces exact P&L of \${parallel['Exact P&L ($)']:,.2f} "
+    f"({100 * parallel['Exact P&L ($)'] / portfolio_value:.6f}% of initial value). "
+    f"The bear steepener produces \${steepener['Exact P&L ($)']:,.2f}. "
+    "The nonparallel result depends on where the exposure lies, not just total DV01.\n\n"
+    "**Data and conventions.** Inputs below are supplied teaching assumptions, "
+    "not FINRA observations. Coupons are semiannual, yields are annual nominal "
+    "rates compounded twice yearly, and settlement is on coupon dates. Full "
+    "price equals clean price here because accrued interest is zero. Face value "
+    "is contractual principal; market value is the discounted value calculated "
+    "from all remaining payments. No calendar valuation date is assigned."
+))
+display(Markdown("**Exhibit 1. Supplied position inputs**"))
+position_inputs = bonds.copy()
+position_inputs["Coupon rate"] = position_inputs["Coupon rate"].map(lambda v: f"{v:.2%}")
+position_inputs["Yield"] = position_inputs["Yield"].map(lambda v: f"{v:.2%}")
+position_inputs = position_inputs.set_index("Bond").T
+position_inputs.attrs["whole_table"] = True
+display(position_inputs)
+
+display(Markdown("**Exhibit 2. Calculated position risks and portfolio reconciliation**"))
+display(aggregation)
+
+display(Markdown(
+    "**Exhibit 3. Scenario P&L and signed errors.** "
+    "Errors equal estimated P&L minus exact P&L. Negative error overstates the loss "
+    "(or understates the gain); positive error overstates the ending value. "
+    "Bond shocks, ordered Treasury / agency / corporate, are +50 / +50 / +50 bp, "
+    "+10 / +35 / +75 bp, and −15 / −45 / −90 bp."
+))
+memo_scenarios = scenario_results.copy()
+memo_scenarios["Duration error ($)"] = (
+    memo_scenarios["Duration P&L ($)"] - memo_scenarios["Exact P&L ($)"])
+memo_scenarios["Combined error ($)"] = (
+    memo_scenarios["Duration + convexity P&L ($)"] - memo_scenarios["Exact P&L ($)"])
+memo_scenarios.attrs["decimals"] = 2
+display(memo_scenarios)
+
+display(Markdown(
+    f"**Calculation and interpretation.** Under +50 bp, portfolio duration P&L "
+    f"is −50 × \${portfolio_dv01:,.6f} = \${parallel['Duration P&L ($)']:,.2f}. "
+    f"The aggregate convexity correction adds "
+    f"\${parallel['Duration + convexity P&L ($)'] - parallel['Duration P&L ($)']:,.2f}, "
+    f"giving \${parallel['Duration + convexity P&L ($)']:,.2f}. "
+    f"The signed errors are \${parallel_error_d:,.2f} for duration and "
+    f"\${parallel_error_dc:,.2f} for duration plus convexity. "
+    "Exact repricing remains the benchmark because a finite yield move contains "
+    "higher-order effects beyond the second derivative.\n\n"
+    f"For the corporate bond alone, the +50 bp calculation starts from "
+    f"\${corporate['Price ($)']:,.2f}, not its \$8 million face value. "
+    f"Multiplying by −{corporate['Modified duration']:.6f} × 0.005 gives "
+    f"\${corporate_parallel['Duration P&L ($)']:,.2f}. "
+    f"Adding ½ × {corporate['Price ($)']:,.2f} × "
+    f"{corporate['Convexity']:.6f} × 0.005² adds "
+    f"\${corporate_parallel['Convexity addition ($)']:,.2f}. "
+    f"Exact valuation uses 19 coupons of \$230,000 and a final \$8,230,000 "
+    f"discounted at 6.60%/2 per half-year. Their value is "
+    f"\${corporate['Price ($)'] + corporate_parallel['Exact P&L ($)']:,.2f}, "
+    f"so the exact position P&L is \${corporate_parallel['Exact P&L ($)']:,.2f}.\n\n"
+    f"**Concentration.** The corporate position is {corporate_share_value:.2f}% "
+    f"of market value but {corporate_share_risk:.2f}% of DV01. "
+    "Its later cash flows give it more sensitivity per invested dollar. "
+    "In the bear steepener, its yield rises 75 bp, compared with only 10 bp "
+    "for the Treasury; multiplying total DV01 by a simple average shock "
+    "would ignore that concentration."
+))
+
+# Face amounts scale cash flows linearly; hold sale proceeds in zero-DV01 cash.
+dv01_per_million = bond_risk["DV01/PVBP ($/bp)"] / bonds["Face value ($mm)"]
+removed_dv01 = dv01_per_million.iloc[2]
+new_dv01 = portfolio_dv01 - removed_dv01
+avoided_loss = -corporate_parallel["Exact P&L ($)"] / corporate["Face value ($mm)"]
+display(Markdown(
+    f"**Proposed action.** Sell \$1 million face of the corporate bond and hold "
+    "the proceeds in cash assumed to have zero instantaneous price DV01. "
+    f"Each \$1 million face sale removes \${dv01_per_million.iloc[0]:,.2f}/bp "
+    f"for the Treasury, \${dv01_per_million.iloc[1]:,.2f}/bp for the agency, "
+    f"or \${removed_dv01:,.2f}/bp for the corporate bond. "
+    f"The proposed sale reduces portfolio DV01 to \${new_dv01:,.2f}/bp, "
+    f"a {100 * removed_dv01 / portfolio_dv01:.2f}% reduction. "
+    f"It avoids \${avoided_loss:,.2f} of the exact +50 bp loss. "
+    "This is the most DV01 reduction per dollar of face sold among these three "
+    "positions, not a claim that it is the best trade for every mandate. "
+    "It also reduces corporate exposure and coupon income and changes the "
+    "portfolio's maturity allocation. Actual execution would require prices, "
+    "costs, liquidity, and mandate limits.\n\n"
+    "**Controls and limitations.** Market-value weights and DV01 shares each "
+    "sum to 100%. Analytical DV01 agrees with centered cash-flow repricing; "
+    "weighted duration reconciles to the position DV01 sum, and the +50 bp "
+    "duration P&L equals −50 times that sum. Exact prices decline with yield, "
+    "and convexity improves each tested nonzero shock. "
+    "All checks in Section 5 pass. These are bond-YTM scenarios rather than "
+    "full spot-curve shocks. The report excludes accrued-interest complications, "
+    "credit-spread changes, default, optionality, financing, and transaction costs. "
+    "A real positions report would need those extensions and observed data."
+))
+```
+
+```{=html}
+</details>
+```

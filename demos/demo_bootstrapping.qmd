@@ -1,0 +1,704 @@
+---
+title: "Practical Demo: Bootstrapping a Treasury Discount Curve"
+format:
+  html:
+    toc: true
+    number-sections: true
+    code-fold: true
+    code-summary: "Show calculation"
+    fig-align: center
+    fig-dpi: 160
+    code-tools: true
+    include-in-header:
+      text: |
+        <style>
+        main.content, .cell, .cell-output-display { min-width: 0; }
+        .cell-output-display { overflow-x: auto; max-width: 100%; }
+        .cell-output-display img { max-width: 100%; height: auto; }
+        .demo-lab table { width: 100%; font-size: .95rem; }
+        .demo-lab th, .demo-lab td { text-align: left; padding: .35rem .65rem .35rem 0; }
+        .demo-lab th { border-bottom: 1px solid #b6bdb2; }
+        .demo-lab input { accent-color: #214b3e; }
+        .demo-lab button { border: 1px solid #214b3e; border-radius: 3px;
+          color: #214b3e; background: transparent; padding: .2rem .7rem; }
+        details.code-fold { margin: .8rem 0; }
+        details.demo-solution { border-left: 4px solid #936724; padding: 1rem;
+          margin: 1rem 0; background: #fafaf6; }
+        details.demo-solution > summary { cursor: pointer; font-weight: 700;
+          color: #214b3e; }
+        mjx-container[display="true"] { display: block; max-width: 100%;
+          overflow-x: auto; overflow-y: hidden; padding-block: .35em; }
+        </style>
+  pdf:
+    include-in-header:
+      text: |
+        \newcommand{\ReserveTableSpace}[1]{\par\begingroup\dimen0=\pagegoal\advance\dimen0 by -\pagetotal\ifdim\dimen0<#1\newpage\fi\endgroup}
+    execute:
+      echo: false
+jupyter: python3
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+::: {.content-visible when-format="pdf"}
+This reading copy shows the calculations' results and figures. The HTML demo
+contains the full code in folded blocks and interactive scenario controls.
+:::
+
+
+## The desk question {.unnumbered}
+
+A fixed-income analyst has Treasury prices. **What is today's value of each
+future dollar, and how can those values price a bond outside the input set?**
+This demo follows the Lecture 4 example from payment schedules through curve
+construction, valuation, forward rates, and validation.
+
+## Purpose and assumptions {.unnumbered}
+
+Sections 1–5 use four **illustrative Treasury-like securities**, not market
+quotes. Face value is \$100, settlement is on a coupon date, accrued interest
+is zero, and payments align every six months. Rates are decimal annual nominal
+rates compounded semiannually unless stated otherwise. Default, options, taxes,
+liquidity premiums, and transaction costs are outside this teaching model.
+
+Section 6 separately uses a **January 2, 2025 Treasury par-yield snapshot**.
+That historical dataset demonstrates the alternative route of starting with a
+published par curve. It is neither live data nor a file of individual bond prices.
+
+## Input Prices and Payment Schedules
+
+$$
+P_i^{\mathrm{full}}=P_i^{\mathrm{clean}}+AI_i
+=\sum_j CF_{ij}D(t_j),\qquad D(0)=1.
+$$
+
+Each row of the cash-flow matrix is one instrument. Each column is a payment
+date. The final payment includes principal. Contractual coupon rates and YTMs
+are different concepts: a YTM summarizes a bond's own price and payments.
+
+```{python}
+#| label: bootstrap-setup
+"""Configure the teaching inputs, table display, and consistent plotting style."""
+import json
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from IPython.display import Markdown, HTML, display
+from cycler import cycler
+
+plt.rcParams.update({
+    "figure.figsize": (8, 4.4), "font.size": 11,
+    "axes.spines.top": False, "axes.spines.right": False,
+    "axes.grid": True, "axes.axisbelow": True, "grid.alpha": .2,
+    "lines.linewidth": 2.4, "lines.markersize": 7,
+    "axes.prop_cycle": cycler(color=["#214b3e", "#936724", "#486d8c", "#865c76"]),
+})
+
+def show_table(frame, decimals=6):
+    """Emit a readable Markdown table for HTML and PDF.
+
+    Parameters
+    ----------
+    frame : pandas.DataFrame
+        Bounded results with descriptive column labels and units.
+    decimals : int
+        Display precision only; underlying numerical arrays are unchanged.
+
+    Returns
+    -------
+    None
+        Displays the formatted table.
+    """
+    # Reserve enough PDF space for each short table; HTML ignores raw LaTeX.
+    reserve = "```{=latex}\n\\ReserveTableSpace{" + str(len(frame) + 4) + "\\baselineskip}\n```\n\n"
+    display(Markdown(reserve + frame.to_markdown(index=False, floatfmt=f".{decimals}f")))
+
+times = np.arange(1, 5) / 2
+prices = np.array([98.20, 99.10, 100.30, 101.20])
+coupon_rates = np.array([0.00, 0.03, 0.04, 0.05])
+coupons = 100 * coupon_rates / 2
+# Coupons fill each row through maturity; principal enters the diagonal.
+cashflows = np.tril(np.broadcast_to(coupons[:, None], (4, 4))).copy()
+cashflows[np.diag_indices(4)] += 100
+inputs = pd.DataFrame({
+    "Maturity (years)": times, "Coupon (%)": 100 * coupon_rates,
+    "Full price": prices,
+})
+show_table(inputs, 2)
+matrix = pd.DataFrame(cashflows, columns=[f"{t:g}Y payment" for t in times])
+matrix.insert(0, "Bond maturity", times)
+show_table(matrix, 2)
+```
+
+The six-month input pays only \$100. The one-year bond pays \$1.50 in six
+months and \$101.50 in one year. We must value each payment at its own date.
+
+```{python}
+#| label: fig-bootstrap-payments
+#| fig-cap: "Dated payments in dollars per $100 face value."
+fig, ax = plt.subplots(figsize=(8, 3.6))
+ax.imshow(cashflows, cmap="Greens", aspect="auto", vmin=0, vmax=105)
+for i in range(4):
+    for j in range(4):
+        ax.text(j, i, f"{cashflows[i,j]:.2f}", ha="center", va="center",
+                color="white" if cashflows[i,j] > 50 else "#183b32")
+ax.set(xticks=range(4), xticklabels=[f"{t:g} years" for t in times],
+       yticks=range(4), yticklabels=[f"{t:g}Y bond" for t in times],
+       xlabel="Payment date")
+ax.grid(False)
+fig.tight_layout()
+plt.show()
+```
+
+## Bootstrapping the Discount Factors
+
+For the bond maturing at $t_n=n/2$, let $C_n$ be the semiannual coupon in dollars:
+
+$$
+D(t_n)=\frac{P_n-C_n\sum_{j=1}^{n-1}D(t_j)}{100+C_n},
+\qquad z(t_n)=2\left[D(t_n)^{-1/n}-1\right].
+$$
+
+Subtract the value of the earlier coupons, whose discount factors are known.
+The residual price belongs to the final payment. Dividing by that payment gives
+its discount factor. The recursion needs one new unknown per instrument.
+
+### The first two steps by hand
+
+$$
+D(0.5)=98.20/100=0.982,
+\qquad
+D(1)=\frac{99.10-1.50(0.982)}{101.50}=0.961842365.
+$$
+
+$$
+z(1)=2[D(1)^{-1/2}-1]=3.928556\%.
+$$
+
+### The complete calculation trail
+
+```{python}
+#| label: bootstrap-functions
+def bootstrap(full_prices, coupon_payments):
+    """Solve an aligned semiannual discount curve from full prices.
+
+    Parameters
+    ----------
+    full_prices : array-like, shape (n,)
+        Prices per 100 face at maturities 0.5, 1.0, ..., n/2 years.
+    coupon_payments : array-like, shape (n,)
+        Each instrument's coupon dollars per half year, not percentages.
+
+    Returns
+    -------
+    discounts : ndarray, shape (n,)
+        Positive payment-date discount factors.
+    trail : pandas.DataFrame
+        Earlier coupon PV, residual price, final payment, and solved factor.
+
+    Raises
+    ------
+    ValueError
+        For invalid inputs or a nonpositive implied discount factor.
+
+    Notes
+    -----
+    Each instrument adds one date. Irregular schedules or missing dates need
+    additional modeling and cannot be inserted into this recursion unchanged.
+    """
+    p = np.asarray(full_prices, dtype=float)
+    c = np.asarray(coupon_payments, dtype=float)
+    if p.ndim != 1 or p.size == 0 or c.shape != p.shape:
+        raise ValueError("Prices and coupons must be matching nonempty vectors.")
+    if not np.all(np.isfinite(p)) or not np.all(np.isfinite(c)):
+        raise ValueError("Inputs must be finite.")
+    if np.any(p <= 0) or np.any(c < 0):
+        raise ValueError("Prices must be positive and coupons nonnegative.")
+    d = np.empty(len(p))
+    rows = []
+    for i in range(len(p)):
+        earlier_pv = c[i] * d[:i].sum()
+        residual = p[i] - earlier_pv
+        d[i] = residual / (100 + c[i])
+        if d[i] <= 0:
+            raise ValueError("The price implies a nonpositive discount factor.")
+        rows.append([(i + 1) / 2, earlier_pv, residual, 100 + c[i], d[i]])
+    return d, pd.DataFrame(rows, columns=[
+        "Years", "Earlier PV", "Residual price", "Final payment", "Discount factor"
+    ])
+
+def curve_rates(discounts):
+    """Convert aligned half-year factors into spot, par, and forward quotes.
+
+    Parameters
+    ----------
+    discounts : array-like
+        Positive factors at consecutive half-year dates.
+
+    Returns
+    -------
+    tuple of ndarrays
+        Decimal annual semiannual spot rates, par coupons, and annualized
+        six-month forwards. The first forward starts today.
+    """
+    d = np.asarray(discounts, dtype=float)
+    if d.ndim != 1 or d.size == 0 or np.any(d <= 0) or not np.all(np.isfinite(d)):
+        raise ValueError("Factors must form a finite positive vector.")
+    n = np.arange(1, len(d) + 1)
+    spots = 2 * np.expm1(-np.log(d) / n)
+    par = 2 * (1 - d) / np.cumsum(d)
+    forwards = 2 * (np.r_[1.0, d[:-1]] / d - 1)
+    return spots, par, forwards
+
+discounts, trail = bootstrap(prices, coupons)
+spots, par, forwards = curve_rates(discounts)
+show_table(trail)
+show_table(pd.DataFrame({
+    "Years": times, "Discount factor": discounts, "Spot (%)": 100 * spots
+}))
+```
+
+The spot curve and discount-factor curve contain the same information.
+The 1.5-year spot is below the one-year spot: a valid curve need not have
+monotonically increasing spot rates.
+
+```{python}
+#| label: fig-bootstrap-discounts
+#| fig-cap: "Two equivalent representations of the same pricing curve."
+fig, axes = plt.subplots(1, 2, figsize=(9, 3.8))
+axes[0].plot(times, discounts, "o-")
+axes[0].set(ylabel="Value today of $1", xlabel="Payment date (years)", xticks=times)
+axes[1].plot(times, 100 * spots, "s-", color="#936724")
+axes[1].set(ylabel="Annual semiannual spot (%)", xlabel="Maturity (years)", xticks=times)
+fig.tight_layout()
+plt.show()
+```
+
+## Repricing and Valuing a New Bond
+
+$$
+\widehat P_i=\sum_j CF_{ij}D(t_j),
+\qquad e_i=\widehat P_i-P_i.
+$$
+
+```{python}
+#| label: bootstrap-repricing
+repriced = cashflows @ discounts
+show_table(pd.DataFrame({
+    "Years": times, "Input price": prices, "Repriced": repriced,
+    "Error per 100": repriced - prices
+}), 8)
+```
+
+Near-zero residuals confirm the recursion. They do not establish that the
+input prices are synchronized, liquid, or economically reasonable.
+
+Now value a two-year **6% coupon bond**, absent from the input file:
+
+$$
+P_{\mathrm{new}}=3D(0.5)+3D(1)+3D(1.5)+103D(2),
+\qquad V=\frac{\text{face value}}{100}P_{\mathrm{new}}.
+$$
+
+```{python}
+#| label: bootstrap-new-bond
+new_cashflows = np.array([3., 3., 3., 103.])
+new_pv = new_cashflows * discounts
+new_price = new_pv.sum()
+position_face = 2_000_000
+show_table(pd.DataFrame({
+    "Years": times, "Payment": new_cashflows,
+    "Discount factor": discounts, "Present value": new_pv
+}))
+display(Markdown(
+    f"**Full price:** {new_price:.6f} per 100. "
+    f"**Value of 2 million dollars face:** {position_face/100*new_price:,.2f} dollars."
+))
+fig, ax = plt.subplots()
+ax.bar(times, new_pv, width=.23, color="#214b3e")
+ax.set(xlabel="Payment date (years)", ylabel="PV per $100 face", xticks=times)
+fig.tight_layout()
+plt.show()
+```
+
+The final payment dominates because it includes principal. This valuation
+assumes cash flows comparable to those underlying the Treasury curve.
+Credit risk and embedded options require additional modeling.
+
+## Derived Par Coupons and Forward Rates
+
+The par coupon makes a hypothetical bond worth 100. A forward is the break-even
+rate between adjacent payment dates:
+
+$$
+c_{\mathrm{par}}(t_n)=\frac{2[1-D(t_n)]}{\sum_{j=1}^{n}D(t_j)},
+\qquad
+f_{t_{n-1},t_n}^{(2)}=2\left[\frac{D(t_{n-1})}{D(t_n)}-1\right].
+$$
+
+The superscript $(2)$ denotes annual nominal rates with semiannual compounding.
+The six-month interval return is $f^{(2)}/2$.
+
+```{python}
+#| label: bootstrap-derived-curves
+show_table(pd.DataFrame({
+    "End date": times, "Spot (%)": spots*100,
+    "Par (%)": par*100, "6M forward, annual (%)": forwards*100
+}))
+fig, ax = plt.subplots()
+ax.plot(times, spots*100, "o-", label="Spot")
+ax.plot(times, par*100, "s--", label="Par coupon")
+ax.plot(times, forwards*100, "^:", label="6M forward, annualized")
+ax.set(xlabel="Maturity / forward end date (years)", ylabel="Annual rate (%)", xticks=times)
+ax.legend()
+fig.tight_layout()
+plt.show()
+```
+
+The two-year par coupon is about **4.3694%**. The input bond pays 5%, so its
+price exceeds 100. The last forward is about **6.1878% annualized** and covers
+1.5 to 2 years. It is a break-even rate, not a forecast.
+
+### Interactive quote sensitivity
+
+Change only the two-year input price. Every setting rebuilds the curve.
+Earlier discount factors remain fixed, so this is **not a parallel rate shift**.
+
+::: {.callout-tip title="Predict, change, explain"}
+Predict what a higher two-year input price does to its discount factor, spot
+rate, final forward rate, and the new bond's value. Move the control, then explain
+why only the final payment's present value changes.
+:::
+
+```{python}
+#| label: bootstrap-interactive
+#| output: asis
+# Precompute using the same numerical engine, so HTML works without a live kernel.
+scenarios = []
+for change in np.linspace(-1, 1, 41):
+    shocked = prices.copy()
+    shocked[-1] += change
+    d, _ = bootstrap(shocked, coupons)
+    z, _, f = curve_rates(d)
+    scenarios.append(dict(change=float(change), input=float(shocked[-1]),
+                          df=float(d[-1]), spot=float(100*z[-1]),
+                          forward=float(100*f[-1]), price=float(new_cashflows@d),
+                          curve=(100*z).tolist()))
+widget = """
+<div class="demo-lab">
+<label for="quote-shock">Two-year price change per $100 face</label>
+<input id="quote-shock" type="range" min="0" max="40" value="20" step="1">
+<button id="quote-reset" type="button">Reset</button>
+<div id="quote-values" aria-live="polite"></div>
+<svg id="quote-chart" viewBox="0 0 700 260" role="img"
+ aria-label="Rebuilt spot curve compared with baseline"></svg>
+</div>
+<script>
+(() => {
+ const data=__DATA__, control=document.getElementById('quote-shock');
+ const svg=document.getElementById('quote-chart');
+ const x=[90,260,430,600], y=v=>215-(v-3)*100;
+ function line(values,color,dash) {
+  return '<polyline fill="none" stroke="'+color+'" stroke-width="3" '+dash+
+   ' points="'+values.map((v,i)=>x[i]+','+y(v)).join(' ')+'"/>'+
+   values.map((v,i)=>'<circle cx="'+x[i]+'" cy="'+y(v)+'" r="5" fill="'+color+'"/>').join('');
+ }
+ function update() {
+  const d=data[Number(control.value)];
+  document.getElementById('quote-values').innerHTML=
+   '<p>Input: '+d.input.toFixed(2)+' ('+(d.change>=0?'+':'')+d.change.toFixed(2)+
+   '). Discount factor: '+d.df.toFixed(6)+'.</p><p>Two-year spot: '+
+   d.spot.toFixed(6)+'%. Final forward: '+d.forward.toFixed(6)+
+   '%. New bond price: '+d.price.toFixed(6)+'.</p>';
+  svg.innerHTML=[3,3.5,4,4.5,5].map(v=>'<line x1="65" x2="625" y1="'+y(v)+
+   '" y2="'+y(v)+'" stroke="#ddd"/><text x="12" y="'+(y(v)+5)+'" font-size="14">'+v+'%</text>').join('')+
+   line(data[20].curve,'#936724','stroke-dasharray="7 5"')+
+   line(d.curve,'#214b3e','')+
+   x.map((v,i)=>'<text x="'+v+'" y="244" text-anchor="middle" font-size="14">'+
+   [.5,1,1.5,2][i]+'Y</text>').join('')+
+   '<text x="75" y="20" font-size="14">Annual spots: green scenario, dashed brass baseline</text>';
+ }
+ control.addEventListener('input',update);
+ document.getElementById('quote-reset').addEventListener('click',()=>{control.value=20;update();});
+ update();
+})();
+</script>
+"""
+display({"text/html": widget.replace("__DATA__", json.dumps(scenarios)),
+         "text/latex": ""}, raw=True)
+```
+
+The table provides three settings of the same calculation, including a static
+reference for the PDF reading copy.
+
+```{python}
+#| label: bootstrap-sensitivity-table
+show_table(pd.DataFrame([{
+    "Price change": scenarios[i]["change"], "2Y spot (%)": scenarios[i]["spot"],
+    "Last forward (%)": scenarios[i]["forward"], "New bond price": scenarios[i]["price"]
+} for i in [0, 20, 40]]))
+```
+
+## Interpolation and Model Risk
+
+Suppose a claim pays \$100 at 1.25 years. There is no input at that date.
+Between known dates $a,b$, define $w=(t-a)/(b-a)$:
+
+$$
+D_{\mathrm{linear}}(t)=(1-w)D(a)+wD(b),
+$$
+
+$$
+D_{\mathrm{log}}(t)=\exp\{(1-w)\log D(a)+w\log D(b)\}.
+$$
+
+Both methods reproduce the endpoint factors. Log-linear interpolation implies
+constant continuously compounded forwards within each interval. Neither
+intermediate value is observed, and neither rule guarantees smooth forwards
+at the knots.
+
+```{python}
+#| label: bootstrap-interpolation
+def interpolate_discount(payment_times, known_times, known_discounts, method="log"):
+    """Interpolate discount factors without unsupported extrapolation.
+
+    Parameters
+    ----------
+    payment_times : array-like
+        Requested maturities in years, within the knot range.
+    known_times, known_discounts : array-like
+        Increasing dates and matching positive discount factors.
+    method : {"log", "linear"}
+        Interpolate log factors or levels.
+
+    Returns
+    -------
+    ndarray
+        Factors at the requested dates.
+
+    Raises
+    ------
+    ValueError
+        For invalid knots, factors, method, or requested extrapolation.
+    """
+    t, x, d = (np.asarray(v, dtype=float) for v in
+               (payment_times, known_times, known_discounts))
+    if x.ndim != 1 or d.shape != x.shape or x.size < 2:
+        raise ValueError("Supply at least two matching knots.")
+    if not all(np.all(np.isfinite(v)) for v in (t,x,d)):
+        raise ValueError("Dates and factors must be finite.")
+    if np.any(np.diff(x) <= 0) or np.any(d <= 0):
+        raise ValueError("Dates must increase and factors must be positive.")
+    if np.any(t < x[0]) or np.any(t > x[-1]):
+        raise ValueError("Extrapolation needs a separate assumption.")
+    if method == "log":
+        return np.exp(np.interp(t,x,np.log(d)))
+    if method == "linear":
+        return np.interp(t,x,d)
+    raise ValueError("Unknown interpolation method.")
+
+knots, knot_discounts = np.r_[0.,times], np.r_[1.,discounts]
+offgrid_log = interpolate_discount([1.25],knots,knot_discounts)[0]
+offgrid_linear = interpolate_discount([1.25],knots,knot_discounts,"linear")[0]
+show_table(pd.DataFrame({
+    "Method": ["Log-linear","Linear discounts"],
+    "D(1.25)": [offgrid_log,offgrid_linear],
+    "PV of 100": [100*offgrid_log,100*offgrid_linear],
+}),8)
+grid = np.linspace(1,1.5,101)
+difference = 100*(interpolate_discount(grid,knots,knot_discounts,"linear") -
+                  interpolate_discount(grid,knots,knot_discounts))
+fig,ax = plt.subplots()
+ax.plot(grid,difference)
+ax.axhline(0,color="#777",linewidth=1)
+ax.set(xlabel="Payment date (years)",ylabel="Linear minus log-linear PV per $100",
+       title="Same endpoint prices, different intermediate values")
+fig.tight_layout()
+plt.show()
+```
+
+The difference is small over this short interval but not zero. Larger gaps and
+larger positions can make interpolation more important. An exact fit at known
+dates cannot establish the correct shape between them.
+
+## Market Data: An Existing Par Curve
+
+These **January 2, 2025** observations come from
+[U.S. Treasury Daily Par Yield Curve Rates](https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?field_tdr_date_value=2025&type=daily_treasury_yield_curve).
+They are published curve points, not security-level prices. The embedded snapshot
+makes the demonstration reproducible without an online data connection.
+
+We interpolate the missing half-year par coupons linearly, then assign a price
+of 100 to each hypothetical par bond:
+
+$$
+P_n=100,\quad C_n=100c_n/2,\quad
+D(t_n)=\frac{100-C_n\sum_{j<n}D(t_j)}{100+C_n}.
+$$
+
+This is a **teaching reconstruction**, not the Treasury's exact internal curve.
+The [official methodology](https://home.treasury.gov/policy-issues/financing-the-government/interest-rate-statistics/treasury-yield-curve-methodology)
+uses its own market inputs and fitting procedure.
+
+```{python}
+#| label: bootstrap-market-snapshot
+market_times = np.array([.5,1,2,3,5])
+market_par = np.array([4.25,4.17,4.25,4.29,4.38])/100
+show_table(pd.DataFrame({
+    "Date": ["2025-01-02"]*5,"Years": market_times,"Published par (%)":100*market_par
+}),2)
+market_grid = np.arange(1,11)/2
+filled_par = np.interp(market_grid,market_times,market_par)
+market_d,_ = bootstrap(np.full(10,100.),100*filled_par/2)
+market_z,market_par_check,market_f = curve_rates(market_d)
+show_table(pd.DataFrame({
+    "Years":market_grid,
+    "Input origin":["Published" if t in market_times else "Interpolated" for t in market_grid],
+    "Par (%)":100*filled_par,"Spot (%)":100*market_z,"D(t)":market_d
+}))
+fig,ax = plt.subplots()
+ax.plot(market_grid,100*market_z,"o-",label="Reconstructed spots")
+ax.plot(market_grid,100*filled_par,"--",label="Interpolated par coupons")
+ax.scatter(market_times,100*market_par,marker="s",s=65,color="#936724",
+           label="Published par points",zorder=3)
+ax.set(xlabel="Maturity (years)",ylabel="Annual semiannual rate (%)",
+       title="January 2, 2025 snapshot")
+ax.legend()
+fig.tight_layout()
+plt.show()
+```
+
+The six-month par and spot quotes coincide because there is only one payment.
+At longer maturities, the par coupon generally differs from the terminal spot.
+
+For live implementation, obtain synchronized security-level quotes, schedules,
+accrued interest, settlement and day-count conventions. Convert bill quotes
+correctly. An interpolated point is not a new market observation, and a dated
+snapshot does not represent today's market.
+
+## Validation Checks
+
+The checks answer separate questions: does the recursion reproduce prices,
+does an independent matrix solution agree, do rate conventions reconcile,
+and do hypothetical par bonds return to 100?
+
+```{python}
+#| label: bootstrap-validation
+np.testing.assert_allclose(repriced,prices,rtol=0,atol=1e-10)
+np.testing.assert_allclose(np.linalg.solve(cashflows,prices),discounts,atol=1e-12)
+np.testing.assert_allclose((1+spots/2)**(-2*times),discounts,atol=1e-12)
+np.testing.assert_allclose(np.cumprod(1+forwards/2),1/discounts,atol=1e-12)
+np.testing.assert_allclose(market_par_check,filled_par,atol=1e-12)
+market_cf = np.tril(np.broadcast_to((100*filled_par/2)[:,None],(10,10))).copy()
+market_cf[np.diag_indices(10)] += 100
+np.testing.assert_allclose(market_cf@market_d,100,atol=1e-10)
+for scenario in scenarios:
+    p = prices.copy()
+    p[-1] = scenario["input"]
+    d,_ = bootstrap(p,coupons)
+    np.testing.assert_allclose(cashflows@d,p,atol=1e-10)
+rejected = 0
+for operation in [
+    lambda: bootstrap([100,1],[0,5]),
+    lambda: interpolate_discount([3],knots,knot_discounts),
+]:
+    try:
+        operation()
+    except ValueError:
+        rejected += 1
+assert rejected == 2
+display(Markdown("**All checks passed:** input repricing, independent matrix "
+                 "solution, spot/forward identities, par reconstruction, "
+                 "all 41 quote scenarios, and both invalid-input tests."))
+```
+
+Positive discount factors are essential. Decreasing factors hold in this
+positive-rate example but are not universal: negative rates can produce
+increasing factors. Extreme forward jumps warrant investigation of stale
+prices, inconsistent inputs or interpolation. A successful repricing check
+does not establish market-data quality.
+
+## Mini Project
+
+Prepare a curve-validation memo for a portfolio manager. Use the four
+illustrative inputs to value a two-year 6% coupon bond with \$2 million face.
+Then raise only the two-year calibration price by \$0.50 and repeat.
+
+Deliver:
+
+1. Input prices, cash-flow matrix, settlement and compounding assumptions.
+2. Discount factors, spot rates, par coupons and forwards.
+3. Input repricing errors and payment-by-payment valuation of the new bond.
+4. Base-versus-shocked results, dollar P&L and an explanation.
+5. The 1.25-year \$100 claim under both interpolation rules and limitations
+   relevant to a live trade.
+
+```{=html}
+<details class="demo-solution" id="bootstrap-solution">
+<summary>Worked deliverable: curve-validation memo</summary>
+```
+
+::: {.content-visible when-format="pdf"}
+**Worked deliverable: curve-validation memo**
+:::
+
+```{python}
+#| label: bootstrap-project-solution
+project_prices = prices.copy()
+project_prices[-1] += .50
+project_d,_ = bootstrap(project_prices,coupons)
+project_z,project_par,project_f = curve_rates(project_d)
+project_price = float(new_cashflows@project_d)
+project_value = position_face/100*project_price
+base_value = position_face/100*new_price
+display(Markdown(
+    f"**Decision summary.** The baseline bond is worth {new_price:.6f} per 100, "
+    f"or {base_value:,.2f} dollars for 2 million face. Raising the two-year input "
+    f"price from 101.20 to 101.70 raises the position value to "
+    f"{project_value:,.2f} dollars, a gain of {project_value-base_value:,.2f} dollars. "
+    "This is an instantaneous quote scenario, not a forecast.\n\n"
+    "**Inputs and conventions.** Prices are illustrative full prices per 100. "
+    "Settlement is on a coupon date, accrued interest is zero, and semiannual "
+    "cash flows share one payment grid. Rate quotes are annual nominal with "
+    "semiannual compounding."
+))
+show_table(inputs,2)
+show_table(matrix,2)
+show_table(pd.DataFrame({
+    "Years":times,"D(t)":discounts,"Spot (%)":100*spots,
+    "Par (%)":100*par,"Forward (%)":100*forwards
+}))
+display(Markdown("**Pricing control.** Maximum absolute repricing error is "
+                 f"{np.max(np.abs(repriced-prices)):.10f} per 100."))
+show_table(pd.DataFrame({
+    "Years":times,"Payment":new_cashflows,"D(t)":discounts,"PV":new_pv
+}))
+show_table(pd.DataFrame({
+    "Measure":["D(2)","2Y spot (%)","Last forward (%)","New bond price"],
+    "Base":[discounts[-1],100*spots[-1],100*forwards[-1],new_price],
+    "Input price +0.50":[project_d[-1],100*project_z[-1],100*project_f[-1],project_price]
+}))
+display(Markdown(
+    "**Calculation and interpretation.** Earlier discounts stay fixed. "
+    "The final factor increases by $0.50/102.50=0.004878049$. "
+    "Only the new bond's final payment changes in present value: "
+    "$\\Delta P=103(0.50/102.50)=0.502439024$ per 100. "
+    "Multiply by 20,000 to obtain the position gain. The higher discount factor "
+    "corresponds to a lower spot and a lower final forward rate.\n\n"
+    f"**Interpolation.** The 1.25-year claim is worth {100*offgrid_log:.8f} "
+    f"under log-linear interpolation and {100*offgrid_linear:.8f} under linear "
+    "discount interpolation. Both reproduce the endpoints. Their difference "
+    "is model risk, not evidence of executable arbitrage.\n\n"
+    "**Limitations and recommendation.** The teaching model omits actual "
+    "calendars, accrued interest, bid-ask costs, liquidity and financing effects. "
+    "Before trading, validate synchronized quotes and schedules, inspect "
+    "forward stability, and test interpolation sensitivity. The historical "
+    "par snapshot is a separate example, not a substitute for these inputs."
+))
+```
+
+```{=html}
+</details>
+```

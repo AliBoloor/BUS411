@@ -422,9 +422,12 @@ window.Quarto = {
   <li><a href="#term-structure-of-interest-rates" id="toc-term-structure-of-interest-rates" class="nav-link" data-scroll-target="#term-structure-of-interest-rates"><span class="header-section-number">3</span> Term Structure of Interest Rates</a>
   <ul class="collapse">
   <li><a href="#yield-curve" id="toc-yield-curve" class="nav-link" data-scroll-target="#yield-curve"><span class="header-section-number">3.1</span> Yield Curve</a></li>
-  <li><a href="#why-the-yield-curve-should-not-be-used-to-price-a-bond" id="toc-why-the-yield-curve-should-not-be-used-to-price-a-bond" class="nav-link" data-scroll-target="#why-the-yield-curve-should-not-be-used-to-price-a-bond"><span class="header-section-number">3.2</span> Why the Yield Curve Should Not Be Used to Price a Bond</a></li>
+  <li><a href="#why-a-coupon-bond-ytm-curve-is-not-a-discount-curve" id="toc-why-a-coupon-bond-ytm-curve-is-not-a-discount-curve" class="nav-link" data-scroll-target="#why-a-coupon-bond-ytm-curve-is-not-a-discount-curve"><span class="header-section-number">3.2</span> Why a Coupon-Bond YTM Curve Is Not a Discount Curve</a></li>
   <li><a href="#constructing-the-theoretical-spot-rate-curve-for-treasuries" id="toc-constructing-the-theoretical-spot-rate-curve-for-treasuries" class="nav-link" data-scroll-target="#constructing-the-theoretical-spot-rate-curve-for-treasuries"><span class="header-section-number">3.3</span> Constructing the Theoretical Spot Rate Curve for Treasuries</a>
   <ul class="collapse">
+  <li><a href="#bootstrapping-directly-from-bond-prices" id="toc-bootstrapping-directly-from-bond-prices" class="nav-link" data-scroll-target="#bootstrapping-directly-from-bond-prices">Bootstrapping Directly from Bond Prices</a></li>
+  <li><a href="#where-the-par-coupon-curve-fits" id="toc-where-the-par-coupon-curve-fits" class="nav-link" data-scroll-target="#where-the-par-coupon-curve-fits">Where the Par Coupon Curve Fits</a></li>
+  <li><a href="#missing-payment-dates-and-interpolation" id="toc-missing-payment-dates-and-interpolation" class="nav-link" data-scroll-target="#missing-payment-dates-and-interpolation">Missing Payment Dates and Interpolation</a></li>
   <li><a href="#on-the-run-treasury-issues" id="toc-on-the-run-treasury-issues" class="nav-link" data-scroll-target="#on-the-run-treasury-issues">On-the-Run Treasury Issues</a></li>
   <li><a href="#on-the-run-and-selected-off-the-run-treasury-issues" id="toc-on-the-run-and-selected-off-the-run-treasury-issues" class="nav-link" data-scroll-target="#on-the-run-and-selected-off-the-run-treasury-issues">On-the-Run and Selected Off-the-Run Treasury Issues</a></li>
   <li><a href="#all-treasury-coupon-securities-and-bills" id="toc-all-treasury-coupon-securities-and-bills" class="nav-link" data-scroll-target="#all-treasury-coupon-securities-and-bills">All Treasury Coupon Securities and Bills</a></li>
@@ -919,7 +922,7 @@ Figure&nbsp;2: Illustrative yields across maturity sectors and the maturity spre
 <p><span class="math display">\[
 P = \sum_{t=1}^{n} \frac{CF_t}{(1+y)^t}.
 \]</span></p>
-<p>For a plain coupon bond, the cash flows include periodic coupon payments and the repayment of face value at maturity. The YTM is therefore the bond’s internal rate of return if:</p>
+<p>For a plain coupon bond, the cash flows include periodic coupon payments and the repayment of face value at maturity. The YTM is the internal rate of return of the promised cash flows at the observed price. Earning that same compounded terminal-wealth return requires that:</p>
 <ul>
 <li>the bond is held to maturity,</li>
 <li>all coupon payments are reinvested at the YTM,</li>
@@ -990,10 +993,10 @@ Figure&nbsp;3: Common yield curve shapes.
 </table>
 <p>These interpretations are useful, but they are not mechanical rules. Yield curve shapes can also be affected by central bank purchases, liquidity conditions, Treasury supply, and investor demand for specific maturities.</p>
 </section>
-<section id="why-the-yield-curve-should-not-be-used-to-price-a-bond" class="level2" data-number="3.2">
-<h2 data-number="3.2" class="anchored" data-anchor-id="why-the-yield-curve-should-not-be-used-to-price-a-bond"><span class="header-section-number">3.2</span> Why the Yield Curve Should Not Be Used to Price a Bond</h2>
+<section id="why-a-coupon-bond-ytm-curve-is-not-a-discount-curve" class="level2" data-number="3.2">
+<h2 data-number="3.2" class="anchored" data-anchor-id="why-a-coupon-bond-ytm-curve-is-not-a-discount-curve"><span class="header-section-number">3.2</span> Why a Coupon-Bond YTM Curve Is Not a Discount Curve</h2>
 <p>A coupon bond has multiple cash flows. A single yield-to-maturity applies one discount rate to all cash flows, but the market may require different discount rates for different cash-flow dates.</p>
-<p>If a 5-year bond pays coupons every six months, it has 10 cash flows. The first coupon should be discounted using a 6-month rate, the second coupon using a 1-year rate, and so on. Using only the 5-year yield ignores the fact that the earlier cash flows are less risky with respect to time.</p>
+<p>If a 5-year bond pays coupons every six months, it has 10 cash flows. The first coupon should be discounted using a 6-month rate, the second coupon using a 1-year rate, and so on. Using only a quoted 5-year benchmark YTM ignores the market discount rates for the earlier payment dates. A bond’s own YTM does reproduce its price by definition, but that YTM is not a universal rate for pricing other cash-flow packages.</p>
 <p>The correct discounting approach is:</p>
 <p><span class="math display">\[
 P = \sum_{t=1}^{n} \frac{CF_t}{(1 + z_t)^t},
@@ -1025,11 +1028,11 @@ P = \sum_{t=1}^{n} \frac{CF_t}{(1 + z_t)^t},
 <p>Consider a 2-year annual-pay bond with $50 coupon payments and $1,000 principal. Suppose the 1-year spot rate is 3% and the 2-year spot rate is 5%.</p>
 <p>Correct spot-rate price:</p>
 <p><span class="math display">\[
-P = \frac{50}{1.03} + \frac{1050}{1.05^2} = 1000.65.
+P = \frac{50}{1.03} + \frac{1050}{1.05^2} = 1000.92.
 \]</span></p>
 <p>If an investor incorrectly discounts both cash flows at the 2-year rate:</p>
 <p><span class="math display">\[
-P = \frac{50}{1.05} + \frac{1050}{1.05^2} = 999.72.
+P = \frac{50}{1.05} + \frac{1050}{1.05^2} = 1000.00.
 \]</span></p>
 <p>The difference is small in this simple example, but it becomes material for large portfolios, steep curves, and securities with unusual cash-flow timing.</p>
 </div>
@@ -1037,300 +1040,188 @@ P = \frac{50}{1.05} + \frac{1050}{1.05^2} = 999.72.
 </section>
 <section id="constructing-the-theoretical-spot-rate-curve-for-treasuries" class="level2" data-number="3.3">
 <h2 data-number="3.3" class="anchored" data-anchor-id="constructing-the-theoretical-spot-rate-curve-for-treasuries"><span class="header-section-number">3.3</span> Constructing the Theoretical Spot Rate Curve for Treasuries</h2>
-<p>The <strong>theoretical spot rate curve</strong> is the set of zero-coupon Treasury rates implied by Treasury market prices. It is called theoretical because most maturities do not have directly traded zero-coupon Treasury securities.</p>
-<p>In practice, the starting point is a set of observed yields to maturity for Treasury bills, notes, and bonds. These observed yields are useful market summaries, but they are not homogeneous discount rates. Each yield depends on the security’s maturity, coupon rate, cash-flow timing, liquidity, tax treatment, and financing characteristics. A 10-year Treasury with a 1.50% coupon and a 10-year Treasury with a 4.50% coupon can have different yields even when they are exposed to similar Treasury discount rates.</p>
-<p>Because yield to maturity is a single internal rate of return for all of a bond’s cash flows, it should not be used to discount individual future cash flows. To value a cash flow due in exactly 7 years, we need the 7-year spot rate, not the yield to maturity on a coupon bond whose cash flows occur over many dates.</p>
-<p>The construction process is therefore:</p>
+<p>The <strong>theoretical spot rate curve</strong> summarizes the discount factors implied by Treasury prices. A discount factor <span class="math inline">\(D(t)\)</span> is today’s value of $1 paid at time <span class="math inline">\(t\)</span>. A spot rate expresses the same information as an annualized yield. With semiannual compounding and maturity <span class="math inline">\(t\)</span> in years:</p>
+<p><span class="math display">\[
+D(t)=(1+z(t)/2)^{-2t},
+\qquad z(t)=2\left[D(t)^{-1/(2t)}-1\right].
+\]</span></p>
+<p>The starting inputs are <strong>prices and contractual cash flows</strong>, not a sequence of coupon-bond YTMs treated as spot rates. Two bonds with the same maturity but different coupons can have different YTMs under the same discount curve because their payments have different timing.</p>
+<p>A practical construction follows these steps:</p>
 <ol type="1">
-<li>Observe Treasury yields to maturity across benchmark maturities.</li>
-<li>Fit a smooth <strong>par coupon curve</strong> from those observed yields.</li>
-<li>Interpolate the par coupon curve so that it has a rate at every needed cash-flow date.</li>
-<li>Bootstrap the theoretical spot rate curve from the smoothed and interpolated par coupon curve.</li>
+<li>Select reliable Treasury prices at a common observation and settlement date. Convert quoted clean prices into full prices by adding accrued interest.</li>
+<li>Build each security’s payment schedule, including its coupons and principal.</li>
+<li>Solve for discount factors that reproduce those full prices. <strong>Bootstrapping</strong> solves sequentially when each successive instrument introduces one unknown discount factor. Irregular dates or gaps require an interpolation assumption or a joint curve fit.</li>
+<li>Convert discount factors to spot rates, reprice the input securities, and inspect the resulting forward curve for implausible jumps.</li>
 </ol>
-<p>The par coupon curve is the set of coupon rates that would make hypothetical Treasury securities trade at par at each maturity. It is a more standardized curve than the raw observed YTM curve because each point refers to a par bond rather than to a specific seasoned Treasury issue.</p>
-<p>Observed YTMs are first adjusted and smoothed to obtain benchmark par coupon rates. The smoothing step reduces issue-specific noise from liquidity, coupon, tax, and financing effects. The interpolation step fills missing maturities. For example, if the fitted par coupon rates are available at 1 year and 2 years but not at 1.5 years, linear interpolation gives:</p>
+<p>Real market prices contain liquidity, financing, and other issue-specific effects. A fitted curve may therefore approximate many securities rather than exactly reproduce every quote. Smoothing raw YTMs alone does not remove these effects.</p>
+<section id="bootstrapping-directly-from-bond-prices" class="level3">
+<h3 class="anchored" data-anchor-id="bootstrapping-directly-from-bond-prices">Bootstrapping Directly from Bond Prices</h3>
+<p>For a $100 face-value bond maturing at <span class="math inline">\(t_n=n/2\)</span>, let <span class="math inline">\(C_n\)</span> be its semiannual coupon payment in dollars and <span class="math inline">\(P_n\)</span> its full price per $100 face value. The price equation and recursive solution are:</p>
 <p><span class="math display">\[
-c_{1.5}
-= c_1 + \frac{1.5-1.0}{2.0-1.0}(c_2-c_1).
+P_n=C_n\sum_{j=1}^{n-1}D(t_j)+(100+C_n)D(t_n),
 \]</span></p>
-<p>After the par coupon curve has been smoothed and interpolated, bootstrapping converts it into spot rates. With semiannual coupon payments, the annual par coupon rate at maturity <span class="math inline">\(m\)</span> half-year periods is <span class="math inline">\(c_m\)</span>, so each semiannual coupon payment is <span class="math inline">\(c_m/2\)</span> dollars per $100 face value. The par bond equation is:</p>
 <p><span class="math display">\[
-100 =
-\sum_{j=1}^{m-1}\frac{c_m/2}{(1+z_j/2)^j}
-+ \frac{100+c_m/2}{(1+z_m/2)^m}.
+D(t_n)=\frac{P_n-C_n\sum_{j=1}^{n-1}D(t_j)}{100+C_n}.
 \]</span></p>
-<p>The earlier spot rates <span class="math inline">\(z_1,\ldots,z_{m-1}\)</span> are already known from shorter maturities. The only unknown is <span class="math inline">\(z_m\)</span>, so the next spot rate can be solved recursively:</p>
-<p><span class="math display">\[
-z_m =
-2\left[
-\left(
-\frac{100+c_m/2}
-{100-\sum_{j=1}^{m-1}\frac{c_m/2}{(1+z_j/2)^j}}
-\right)^{1/m}
--1
-\right].
-\]</span></p>
-<div class="callout callout-style-default callout-note callout-titled" title="Semiannual Example: From YTM Curve to Par Curve to Spot Curve">
+<p>First subtract the value of the earlier coupons, whose discount factors are already known. What remains is the present value of the final payment. Dividing by that payment reveals its discount factor.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Worked Example: Four Prices, Four Discount Factors">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Semiannual Example: From YTM Curve to Par Curve to Spot Curve
+<span class="screen-reader-only">Note</span>Worked Example: Four Prices, Four Discount Factors
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Assume face value $100, semiannual coupon payments, and annualized rates quoted with semiannual compounding.</p>
-<p>First, suppose we observe Treasury YTMs at standard benchmark maturities:</p>
+<p>Assume a common coupon-date settlement, $100 face value, and aligned semiannual payment dates. These are <strong>illustrative Treasury-like prices</strong>, not market quotes. The six-month instrument has one payment of $100.</p>
 <table class="caption-top table">
 <thead>
 <tr class="header">
-<th style="text-align: right;">Benchmark maturity</th>
-<th style="text-align: right;">Observed YTM</th>
-<th style="text-align: right;">Smoothed par coupon rate</th>
+<th style="text-align: right;">Maturity (years)</th>
+<th style="text-align: right;">Annual coupon</th>
+<th style="text-align: right;">Full price</th>
+<th style="text-align: right;">Semiannual coupon</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: right;">0.5 year</td>
-<td style="text-align: right;">3.58%</td>
-<td style="text-align: right;">3.60%</td>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: right;">0.00%</td>
+<td style="text-align: right;">98.20</td>
+<td style="text-align: right;">0.00</td>
 </tr>
 <tr class="even">
-<td style="text-align: right;">1 year</td>
-<td style="text-align: right;">3.82%</td>
-<td style="text-align: right;">3.80%</td>
+<td style="text-align: right;">1.0</td>
+<td style="text-align: right;">3.00%</td>
+<td style="text-align: right;">99.10</td>
+<td style="text-align: right;">1.50</td>
 </tr>
 <tr class="odd">
-<td style="text-align: right;">2 years</td>
-<td style="text-align: right;">4.08%</td>
-<td style="text-align: right;">4.10%</td>
+<td style="text-align: right;">1.5</td>
+<td style="text-align: right;">4.00%</td>
+<td style="text-align: right;">100.30</td>
+<td style="text-align: right;">2.00</td>
 </tr>
 <tr class="even">
-<td style="text-align: right;">3 years</td>
-<td style="text-align: right;">4.38%</td>
-<td style="text-align: right;">4.35%</td>
-</tr>
-<tr class="odd">
-<td style="text-align: right;">5 years</td>
-<td style="text-align: right;">4.57%</td>
-<td style="text-align: right;">4.60%</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;">7 years</td>
-<td style="text-align: right;">4.78%</td>
-<td style="text-align: right;">4.75%</td>
-</tr>
-<tr class="odd">
-<td style="text-align: right;">10 years</td>
-<td style="text-align: right;">4.88%</td>
-<td style="text-align: right;">4.90%</td>
+<td style="text-align: right;">2.0</td>
+<td style="text-align: right;">5.00%</td>
+<td style="text-align: right;">101.20</td>
+<td style="text-align: right;">2.50</td>
 </tr>
 </tbody>
 </table>
-<p>The observed YTMs are not used directly as spot rates. They are first converted into a smooth par coupon curve. Then the missing half-year points are interpolated. For example:</p>
+<p>At six months:</p>
 <p><span class="math display">\[
-c_{1.5}
-= 3.80\% + \frac{1.5-1.0}{2.0-1.0}(4.10\%-3.80\%)
-= 3.95\%.
+D(0.5)=\frac{98.20}{100}=0.982000,
+\qquad z(0.5)=2(1/0.982-1)=3.665988\%.
 \]</span></p>
-<p>Similarly:</p>
+<p>At one year, the first coupon already has a known present value:</p>
 <p><span class="math display">\[
-c_{4.0}
-= 4.35\% + \frac{4.0-3.0}{5.0-3.0}(4.60\%-4.35\%)
-= 4.475\%.
+D(1)=\frac{99.10-1.50(0.982000)}{101.50}=0.961842365,
 \]</span></p>
-<p>Now bootstrap the spot rates from the half-year par coupon curve.</p>
-<p>For the 6-month par bond, there is only one cash flow:</p>
 <p><span class="math display">\[
-100 = \frac{100+3.60/2}{1+z_{0.5}/2}.
+z(1)=2\left[D(1)^{-1/2}-1\right]=3.928556\%.
 \]</span></p>
-<p>Solving gives:</p>
+<p>At 1.5 and 2 years, subtract all earlier coupon present values:</p>
 <p><span class="math display">\[
-z_{0.5} = 3.600\%.
+D(1.5)=\frac{100.30-2[D(0.5)+D(1)]}{102}=0.945218777,
 \]</span></p>
-<p>For the 1-year par bond, the annual par coupon is 3.80%, so each semiannual coupon is 1.90:</p>
 <p><span class="math display">\[
-100 =
-\frac{1.90}{1+0.0360/2}
-+ \frac{101.90}{(1+z_{1.0}/2)^2}.
+D(2)=\frac{101.20-2.50[D(0.5)+D(1)+D(1.5)]}{102.50}
+=0.916852167.
 \]</span></p>
-<p>Solving gives:</p>
-<p><span class="math display">\[
-z_{1.0} = 3.802\%.
-\]</span></p>
-<p>For the 1.5-year par bond, the interpolated annual par coupon is 3.95%, so each semiannual coupon is 1.975:</p>
-<p><span class="math display">\[
-100 =
-\frac{1.975}{1+0.0360/2}
-+ \frac{1.975}{(1+0.03802/2)^2}
-+ \frac{101.975}{(1+z_{1.5}/2)^3}.
-\]</span></p>
-<p>Solving gives:</p>
-<p><span class="math display">\[
-z_{1.5} = 3.954\%.
-\]</span></p>
-<p>The same recursion is repeated every six months through 10 years:</p>
 <table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
 <thead>
 <tr class="header">
-<th style="text-align: right;">Period</th>
-<th style="text-align: right;">Maturity</th>
-<th style="text-align: right;">Par coupon rate</th>
-<th style="text-align: right;">Bootstrapped spot rate</th>
+<th style="text-align: right;">Maturity (years)</th>
+<th style="text-align: right;">Discount factor</th>
+<th style="text-align: right;">Spot rate, annual semiannual quote</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">0.5 year</td>
-<td style="text-align: right;">3.600%</td>
-<td style="text-align: right;">3.600%</td>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: right;">0.982000000</td>
+<td style="text-align: right;">3.665988%</td>
 </tr>
 <tr class="even">
-<td style="text-align: right;">2</td>
-<td style="text-align: right;">1.0 year</td>
-<td style="text-align: right;">3.800%</td>
-<td style="text-align: right;">3.802%</td>
+<td style="text-align: right;">1.0</td>
+<td style="text-align: right;">0.961842365</td>
+<td style="text-align: right;">3.928556%</td>
 </tr>
 <tr class="odd">
-<td style="text-align: right;">3</td>
-<td style="text-align: right;">1.5 years</td>
-<td style="text-align: right;">3.950%</td>
-<td style="text-align: right;">3.954%</td>
+<td style="text-align: right;">1.5</td>
+<td style="text-align: right;">0.945218777</td>
+<td style="text-align: right;">3.791414%</td>
 </tr>
 <tr class="even">
-<td style="text-align: right;">4</td>
-<td style="text-align: right;">2.0 years</td>
-<td style="text-align: right;">4.100%</td>
-<td style="text-align: right;">4.108%</td>
-</tr>
-<tr class="odd">
-<td style="text-align: right;">5</td>
-<td style="text-align: right;">2.5 years</td>
-<td style="text-align: right;">4.225%</td>
-<td style="text-align: right;">4.237%</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;">6</td>
-<td style="text-align: right;">3.0 years</td>
-<td style="text-align: right;">4.350%</td>
-<td style="text-align: right;">4.367%</td>
-</tr>
-<tr class="odd">
-<td style="text-align: right;">7</td>
-<td style="text-align: right;">3.5 years</td>
-<td style="text-align: right;">4.412%</td>
-<td style="text-align: right;">4.432%</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;">8</td>
-<td style="text-align: right;">4.0 years</td>
-<td style="text-align: right;">4.475%</td>
-<td style="text-align: right;">4.497%</td>
-</tr>
-<tr class="odd">
-<td style="text-align: right;">9</td>
-<td style="text-align: right;">4.5 years</td>
-<td style="text-align: right;">4.537%</td>
-<td style="text-align: right;">4.564%</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;">10</td>
-<td style="text-align: right;">5.0 years</td>
-<td style="text-align: right;">4.600%</td>
-<td style="text-align: right;">4.631%</td>
-</tr>
-<tr class="odd">
-<td style="text-align: right;">11</td>
-<td style="text-align: right;">5.5 years</td>
-<td style="text-align: right;">4.637%</td>
-<td style="text-align: right;">4.671%</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;">12</td>
-<td style="text-align: right;">6.0 years</td>
-<td style="text-align: right;">4.675%</td>
-<td style="text-align: right;">4.711%</td>
-</tr>
-<tr class="odd">
-<td style="text-align: right;">13</td>
-<td style="text-align: right;">6.5 years</td>
-<td style="text-align: right;">4.713%</td>
-<td style="text-align: right;">4.752%</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;">14</td>
-<td style="text-align: right;">7.0 years</td>
-<td style="text-align: right;">4.750%</td>
-<td style="text-align: right;">4.793%</td>
-</tr>
-<tr class="odd">
-<td style="text-align: right;">15</td>
-<td style="text-align: right;">7.5 years</td>
-<td style="text-align: right;">4.775%</td>
-<td style="text-align: right;">4.820%</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;">16</td>
-<td style="text-align: right;">8.0 years</td>
-<td style="text-align: right;">4.800%</td>
-<td style="text-align: right;">4.848%</td>
-</tr>
-<tr class="odd">
-<td style="text-align: right;">17</td>
-<td style="text-align: right;">8.5 years</td>
-<td style="text-align: right;">4.825%</td>
-<td style="text-align: right;">4.876%</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;">18</td>
-<td style="text-align: right;">9.0 years</td>
-<td style="text-align: right;">4.850%</td>
-<td style="text-align: right;">4.904%</td>
-</tr>
-<tr class="odd">
-<td style="text-align: right;">19</td>
-<td style="text-align: right;">9.5 years</td>
-<td style="text-align: right;">4.875%</td>
-<td style="text-align: right;">4.933%</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;">20</td>
-<td style="text-align: right;">10.0 years</td>
-<td style="text-align: right;">4.900%</td>
-<td style="text-align: right;">4.963%</td>
+<td style="text-align: right;">2.0</td>
+<td style="text-align: right;">0.916852167</td>
+<td style="text-align: right;">4.387893%</td>
 </tr>
 </tbody>
 </table>
-<p>For example, at 10 years the annual par coupon is 4.90%, so each semiannual coupon is 2.45. The 10-year spot rate is solved from:</p>
-<p><span class="math display">\[
-100 =
-\sum_{j=1}^{19}
-\frac{2.45}{(1+z_j/2)^j}
-+ \frac{102.45}{(1+z_{10}/2)^{20}}.
-\]</span></p>
-<p>Using the previously bootstrapped spot rates for periods 1 through 19 gives:</p>
-<p><span class="math display">\[
-z_{10} = 4.963\%.
-\]</span></p>
-<p>The result is a theoretical spot curve at every six-month cash-flow date from 6 months to 10 years.</p>
+<p>Calculations retain unrounded discount factors. As a check, the last input bond reprices to <span class="math inline">\(2.50[D(0.5)+D(1)+D(1.5)]+102.50D(2)=101.20\)</span>. No par coupon curve was needed.</p>
 </div>
 </div>
-<div id="cell-fig-bootstrapped-spot-curve" class="cell" data-message="false" data-execution_count="4">
+<div class="callout callout-style-default callout-note callout-titled" title="Worked Example: Pricing a Different Coupon">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Worked Example: Pricing a Different Coupon
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A new two-year bond pays $3 every six months and $100 principal at maturity. Use the same discount factors because the payment dates and assumed credit quality are the same:</p>
+<p><span class="math display">\[
+P=3[D(0.5)+D(1)+D(1.5)]+103D(2)=103.102957.
+\]</span></p>
+<p>The curve can value a different coupon even though that bond was not an input. For a $2 million face-value position, the full market value is <span class="math inline">\(20{,}000(103.102957)\approx\$2{,}062{,}059.13\)</span>, using unrounded values.</p>
+</div>
+</div>
+</section>
+<section id="where-the-par-coupon-curve-fits" class="level3">
+<h3 class="anchored" data-anchor-id="where-the-par-coupon-curve-fits">Where the Par Coupon Curve Fits</h3>
+<p>A <strong>par coupon rate</strong> is the annual coupon rate that makes a hypothetical bond worth $100 under a specified discount curve and payment convention. For semiannual payments, expressed as a decimal annual rate:</p>
+<p><span class="math display">\[
+c_{\mathrm{par}}(t_n)
+=\frac{2[1-D(t_n)]}{\sum_{j=1}^{n}D(t_j)}.
+\]</span></p>
+<p>For the two-year maturity above, this gives <strong>4.369402%</strong>. That is the coupon required for a price of 100, whereas the observed 5% coupon bond costs 101.20.</p>
+<p>A published par curve can also be a <strong>starting input</strong>. Set <span class="math inline">\(P_n=100\)</span> and <span class="math inline">\(C_n=100c_{\mathrm{par}}(t_n)/2\)</span> in the bootstrap equation. For example, supplied six-month and one-year par rates of 3.60% and 3.80% imply <span class="math inline">\(D(0.5)=100/101.80\)</span> and <span class="math inline">\(D(1)=[100-1.90D(0.5)]/101.90\)</span>. This is a conversion of an existing par curve into discount factors, not a required detour when fitting raw bond prices.</p>
+<p>Par, spot, and forward curves are related descriptions of a chosen pricing curve. Par yields do not automatically equal the YTMs of seasoned bonds. The <a href="https://home.treasury.gov/policy-issues/financing-the-government/interest-rate-statistics/treasury-yield-curve-methodology">Treasury’s published methodology</a> describes its own fitting procedure; the simple recursion here is a teaching model.</p>
+</section>
+<section id="missing-payment-dates-and-interpolation" class="level3">
+<h3 class="anchored" data-anchor-id="missing-payment-dates-and-interpolation">Missing Payment Dates and Interpolation</h3>
+<p>If a bond introduces two unknown payment-date discount factors, its one price equation cannot determine both. We must add information or choose a curve shape. For example, log-linear interpolation between known dates <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span> gives:</p>
+<p><span class="math display">\[
+\log D(t)=\frac{b-t}{b-a}\log D(a)+\frac{t-a}{b-a}\log D(b),
+\qquad a&lt;t&lt;b.
+\]</span></p>
+<p>This keeps discount factors positive and implies a constant continuously compounded forward rate within that interval. It is a modeling choice, not an observed price. Different reasonable choices can change off-grid valuations. The <a href="../demos/demo_bootstrapping.html">bootstrapping demo</a> makes these choices visible and checks their pricing consequences.</p>
+<div id="cell-fig-bootstrapped-spot-curve" class="cell" data-execution_count="4">
 <div class="cell-output cell-output-display">
 <div id="fig-bootstrapped-spot-curve" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-bootstrapped-spot-curve-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="lec4_files/figure-html/fig-bootstrapped-spot-curve-output-1.png" width="589" height="376" class="figure-img">
+<img src="lec4_files/figure-html/fig-bootstrapped-spot-curve-output-1.png" width="661" height="372" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bootstrapped-spot-curve-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;4: Observed YTMs are smoothed and interpolated into a par curve, then bootstrapped into a spot curve.
+Figure&nbsp;4: Spot and par rates calculated from the same four illustrative bond prices.
 </figcaption>
 </figure>
 </div>
 </div>
 </div>
+</section>
 <section id="on-the-run-treasury-issues" class="level3">
 <h3 class="anchored" data-anchor-id="on-the-run-treasury-issues">On-the-Run Treasury Issues</h3>
 <p><strong>On-the-run Treasuries</strong> are the most recently issued Treasury securities at standard maturities. They are usually the most liquid securities in the Treasury market.</p>
@@ -1538,7 +1429,7 @@ P
 <p>Suppose a Treasury STRIP paying $100 in 10 years trades at $62.00.</p>
 <p>The 10-year annual spot rate is:</p>
 <p><span class="math display">\[
-z_{10} = \left(\frac{100}{62}\right)^{1/10} - 1 = 4.91\%.
+z_{10} = \left(\frac{100}{62}\right)^{1/10} - 1 = 4.90\%.
 \]</span></p>
 <p>Because the STRIP has only one cash flow, its yield is directly interpretable as a spot rate.</p>
 </div>
@@ -1587,7 +1478,7 @@ P = \sum_{t=1}^{n} \frac{CF_t}{(1+z_t)^t}.
 </table>
 <p>The price is:</p>
 <p><span class="math display">\[
-P = \frac{4}{1.035} + \frac{4}{1.04^2} + \frac{104}{1.044^3} = 98.54.
+P = \frac{4}{1.035} + \frac{4}{1.04^2} + \frac{104}{1.044^3} = 98.96.
 \]</span></p>
 <p>This price uses the correct discount rate for each cash-flow maturity.</p>
 </div>
@@ -1638,13 +1529,13 @@ P = \sum_{t=1}^{n} \frac{CF_t}{(1 + z_t + s)^t},
 <p><span class="math display">\[
 P_{\text{Treasury base}}
 = \frac{5}{1.03} + \frac{105}{1.035^2}
-= 102.91.
+= 102.87.
 \]</span></p>
 <p>Now suppose investors require a constant 120 bps spread over the Treasury spot curve. The discount rates become 4.20% for year 1 and 4.70% for year 2:</p>
 <p><span class="math display">\[
 P_{\text{risky}}
 = \frac{5}{1.042} + \frac{105}{1.047^2}
-= 100.63.
+= 100.58.
 \]</span></p>
 <p>The Treasury spot rates are the base interest rates for the cash-flow dates. The spread adjusts those base rates for the bond’s additional risks.</p>
 </div>
@@ -1817,7 +1708,7 @@ f_i =
 <td style="text-align: right;">6</td>
 <td style="text-align: right;">3.0 years</td>
 <td style="text-align: right;">3.427%</td>
-<td style="text-align: right;">6.855%</td>
+<td style="text-align: right;">6.854%</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">7</td>
@@ -1829,19 +1720,19 @@ f_i =
 <td style="text-align: right;">8</td>
 <td style="text-align: right;">4.0 years</td>
 <td style="text-align: right;">3.578%</td>
-<td style="text-align: right;">7.155%</td>
+<td style="text-align: right;">7.156%</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">9</td>
 <td style="text-align: right;">4.5 years</td>
 <td style="text-align: right;">3.635%</td>
-<td style="text-align: right;">7.271%</td>
+<td style="text-align: right;">7.270%</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">10</td>
 <td style="text-align: right;">5.0 years</td>
 <td style="text-align: right;">3.660%</td>
-<td style="text-align: right;">7.321%</td>
+<td style="text-align: right;">7.320%</td>
 </tr>
 </tbody>
 </table>
@@ -1888,22 +1779,22 @@ f_2 =
 <tr class="odd">
 <td><span class="math inline">\(f_5\)</span></td>
 <td>2.5 to 3.0 years</td>
-<td style="text-align: right;">4.320%</td>
+<td style="text-align: right;">4.317%</td>
 </tr>
 <tr class="even">
 <td><span class="math inline">\(f_6\)</span></td>
 <td>3.0 to 3.5 years</td>
-<td style="text-align: right;">3.605%</td>
+<td style="text-align: right;">3.609%</td>
 </tr>
 <tr class="odd">
 <td><span class="math inline">\(f_7\)</span></td>
 <td>3.5 to 4.0 years</td>
-<td style="text-align: right;">4.455%</td>
+<td style="text-align: right;">4.457%</td>
 </tr>
 <tr class="even">
 <td><span class="math inline">\(f_8\)</span></td>
 <td>4.0 to 4.5 years</td>
-<td style="text-align: right;">4.100%</td>
+<td style="text-align: right;">4.092%</td>
 </tr>
 <tr class="odd">
 <td><span class="math inline">\(f_9\)</span></td>
@@ -1915,25 +1806,21 @@ f_2 =
 <p>These forward rates are not new market observations. They are the rates implied by the spot curve. What they tell us is the break-even reinvestment path embedded in today’s spot rates. For example, the 5-year spot rate can be decomposed into today’s 6-month spot rate plus nine future six-month forward rates.</p>
 <p>A 5-year maturity equals 10 six-month periods, so using the current 6-month spot rate and the nine forward rates:</p>
 <p><span class="math display">\[
-z_{10} =
-\left[
-(1.02625)(1.02875)(1.03140)(1.03670)(1.03945)
-(1.04320)(1.03605)(1.04455)(1.04100)(1.03885)
-\right]^{1/10} - 1.
+G=(1+z_1)\prod_{i=1}^{9}(1+f_i)=(1.03660)^{10}.
 \]</span></p>
-<p>The product inside the brackets is:</p>
+<p>Using the unrounded forward rates calculated from the displayed spot inputs, the product is:</p>
 <p><span class="math display">\[
-1.43261.
+1.432557.
 \]</span></p>
 <p>Therefore:</p>
 <p><span class="math display">\[
-z_{10} = (1.43261)^{1/10} - 1 = 0.03660 = 3.660\%.
+z_{10} = (1.432557)^{1/10} - 1 = 0.03660 = 3.660\%.
 \]</span></p>
-<p>This is the 5-year spot rate stated as a six-month periodic rate. On a bond-equivalent annual basis, it is approximately:</p>
+<p>The forward rates in the table are rounded; the unrounded factors telescope exactly. This is the 5-year spot rate stated as a six-month periodic rate. On a bond-equivalent annual basis, it is:</p>
 <p><span class="math display">\[
 2(3.660\%) = 7.320\%.
 \]</span></p>
-<p>The calculation confirms internal consistency: the 5-year spot rate and the sequence of six-month forward rates describe the same total 5-year return. The forward curve is useful because it shows where the spot curve embeds higher or lower future short-rate assumptions. In this example, forward rates rise through <span class="math inline">\(f_5\)</span>, fall at <span class="math inline">\(f_6\)</span>, and then move unevenly afterward, information that is hidden inside the single 5-year spot rate.</p>
+<p>The calculation confirms internal consistency: the 5-year spot rate and the sequence of six-month forward rates describe the same total 5-year return. The forward curve is useful because it shows the higher or lower future break-even rates embedded in current prices, without treating them as forecasts. In this example, forward rates rise through <span class="math inline">\(f_5\)</span>, fall at <span class="math inline">\(f_6\)</span>, and then move unevenly afterward, information that is hidden inside the single 5-year spot rate.</p>
 </div>
 </div>
 <div id="cell-fig-forward-rates" class="cell" data-message="false" data-execution_count="5">
@@ -2030,16 +1917,16 @@ Figure&nbsp;5: Forward rates implied by an upward-sloping spot curve.
 <p>The implied six-month forward rate beginning six months from now is:</p>
 <p><span class="math display">\[
 f_1 =
-\frac{(1.02685)^2}{1.0250} - 1 = 0.02875.
+\frac{(1.02685)^2}{1.0250} - 1 \approx 0.02870334.
 \]</span></p>
 <p>So:</p>
 <p><span class="math display">\[
-f_1 = 2.875\% \text{ for six months}
-= 5.75\% \text{ on a bond-equivalent basis}.
+f_1 = 2.870334\% \text{ for six months}
+= 5.740668\% \text{ on a bond-equivalent basis}.
 \]</span></p>
-<p>This 5.75% is not necessarily a forecast of the actual 6-month rate six months from now. It is the break-even reinvestment rate.</p>
-<p>If the investor expects the 6-month rate six months from now to be <strong>less than 5.75%</strong>, Alternative 1 is better because the 1-year Treasury locks in a rate above the expected reinvestment rate.</p>
-<p>If the investor expects the future 6-month rate to be <strong>greater than 5.75%</strong>, Alternative 2 is better because rolling the 6-month Treasury is expected to earn more.</p>
+<p>This 5.740668% is not necessarily a forecast of the actual 6-month rate six months from now. It is the break-even reinvestment rate.</p>
+<p>If the investor expects the 6-month rate six months from now to be <strong>less than 5.740668%</strong>, Alternative 1 is better because the 1-year Treasury locks in a rate above the expected reinvestment rate.</p>
+<p>If the investor expects the future 6-month rate to be <strong>greater than 5.740668%</strong>, Alternative 2 is better because rolling the 6-month Treasury is expected to earn more.</p>
 <p>By buying the 1-year Treasury, the investor hedges the uncertainty about the 6-month reinvestment rate six months from now. The investor no longer needs the future 6-month rate to be realized; the 1-year return is locked in today.</p>
 </div>
 </div>
@@ -2191,16 +2078,21 @@ Figure&nbsp;6: Illustrative effects of rate expectations on the yield curve.
 </div>
 <div class="callout-body-container callout-body">
 <p>An <strong>interest rate swap</strong> is a contract in which two parties exchange interest payments based on a notional principal amount. In a plain-vanilla fixed-for-floating swap, one party pays a fixed interest rate and receives a floating reference rate; the other party receives the fixed rate and pays the floating rate.</p>
-<p>For example, suppose two parties enter a 5-year swap with a notional principal of $100 million. Party A agrees to pay a fixed rate of 4.50% per year and receive 6-month SOFR. Party B receives the fixed 4.50% and pays 6-month SOFR. The $100 million notional is not exchanged; it is only used to calculate the interest payments.</p>
-<p>Assume payments are exchanged semiannually. The fixed payment each six months is:</p>
+<p>For example, suppose two parties enter a 5-year swap with a notional principal of $100 million. Party A agrees to pay a fixed rate of 4.50% per year and receive SOFR compounded over each six-month payment period. Party B takes the opposite side. SOFR itself is an overnight rate; here the floating rate is the annualized compounded rate realized over the payment period. The $100 million notional is not exchanged; it is only used to calculate the interest payments.</p>
+<p>Assume payments are exchanged semiannually and use a year fraction of 0.5 for this simplified example. The fixed payment each six months is:</p>
 <p><span class="math display">\[
 \$100{,}000{,}000 \times \frac{4.50\%}{2} = \$2{,}250{,}000.
 \]</span></p>
-<p>The floating payment changes with 6-month SOFR:</p>
+<p>The floating payment changes with the annualized compounded SOFR rate:</p>
 <table class="caption-top table">
+<colgroup>
+<col style="width: 30%">
+<col style="width: 40%">
+<col style="width: 30%">
+</colgroup>
 <thead>
 <tr class="header">
-<th>Scenario for 6-month SOFR</th>
+<th>Annualized compounded SOFR over the period</th>
 <th style="text-align: right;">Floating payment</th>
 <th>Net cash flow</th>
 </tr>
@@ -2704,18 +2596,18 @@ Figure&nbsp;12: Butterfly trade: the intermediate maturity richens relative to t
 }
 </style>
 
-<div class="lecture-roadmap" role="img" aria-label="Broad picture of the lecture from observed Treasury yields to the par curve, spot rate curve, pricing, forward rates, and hedging or trading.">
-  <div class="lecture-roadmap__title">From Treasury Yields to Pricing and Hedging Rates</div>
-  <div class="lecture-roadmap__subtitle">The main path is: observe Treasury YTMs, build the par curve, bootstrap the spot rate curve, then use spots and forwards.</div>
+<div class="lecture-roadmap" role="img" aria-label="Treasury prices and payment schedules determine discount factors and spot rates, which support valuation, par yields, forwards, and risk management.">
+  <div class="lecture-roadmap__title">From Treasury Prices to a Discount Curve</div>
+  <div class="lecture-roadmap__subtitle">Prices and payment schedules determine discount factors. Spot, par, and forward rates follow from that curve.</div>
 
   <div class="lecture-roadmap__canvas">
     <div class="lecture-card lecture-card--blue" style="grid-column: 1; grid-row: 2;">
       <h3 class="anchored">1. Observe</h3>
-      <p>Treasury issue prices and YTMs across maturities.</p>
+      <p>Full Treasury prices, coupons, and payment dates at a common settlement date.</p>
     </div>
 
     <div class="lecture-cloud lecture-cloud--red" style="grid-column: 1; grid-row: 3;">
-      <h3 class="anchored">Raw YTMs Fail</h3>
+      <h3 class="anchored">YTM Is a Summary</h3>
       <p>A YTM is one IRR for a bundle of cash flows, not a one-date discount rate.</p>
     </div>
 
@@ -2731,18 +2623,18 @@ Figure&nbsp;12: Butterfly trade: the intermediate maturity richens relative to t
       </div>
     </div>
 
-    <div class="lecture-arrow" style="grid-column: 2; grid-row: 2;">→<span>standardize</span></div>
+    <div class="lecture-arrow" style="grid-column: 2; grid-row: 2;">→<span>calibrate</span></div>
 
     <div class="lecture-card lecture-card--green" style="grid-column: 3; grid-row: 2;">
-      <h3 class="anchored">2. Par Curve</h3>
-      <p>Move to par coupon space. Smooth the curve, interpolate missing maturities, and identify the coupon that prices each new Treasury at par.</p>
+      <h3 class="anchored">2. Discount Factors</h3>
+      <p>Bootstrap or fit payment-date discount factors. Specify interpolation and check input repricing.</p>
     </div>
 
-    <div class="lecture-arrow" style="grid-column: 4; grid-row: 2;">→<span>bootstrap</span></div>
+    <div class="lecture-arrow" style="grid-column: 4; grid-row: 2;">→<span>convert</span></div>
 
     <div class="lecture-card lecture-card--purple" style="grid-column: 5; grid-row: 2;">
       <h3 class="anchored">3. Spot Rate Curve</h3>
-      <p>Bootstrap spot rates for each maturity: <em>z</em><sub>0.5</sub>, <em>z</em><sub>1</sub>, ..., <em>z</em><sub>10</sub>.</p>
+      <p>Express each discount factor as a spot rate under a stated compounding convention.</p>
     </div>
 
     <div class="lecture-branch">
@@ -2752,11 +2644,11 @@ Figure&nbsp;12: Butterfly trade: the intermediate maturity richens relative to t
 
       <div class="lecture-card lecture-card--purple lecture-card--small" style="grid-column: 1; grid-row: 2;">
         <h3 class="anchored">4. Price Cash Flows</h3>
-        <p>Discount each cash flow using the spot rate for its payment date.</p>
+        <p>Value comparable Treasury cash flows. Derive the coupon that prices a hypothetical bond at par.</p>
       </div>
       <div></div>
       <div class="lecture-card lecture-card--orange lecture-card--small" style="grid-column: 3; grid-row: 2;">
-        <h3 class="anchored">5. Forwards Rates</h3>
+        <h3 class="anchored">5. Forward Rates</h3>
         <p>Forward rates describe future start dates and tenors implied by spot rates.</p>
       </div>
 
@@ -2768,7 +2660,7 @@ Figure&nbsp;12: Butterfly trade: the intermediate maturity richens relative to t
       <div></div>
       <div class="lecture-card lecture-card--orange lecture-card--small" style="grid-column: 3; grid-row: 4;">
         <h3 class="anchored">6. Hedge or Trade</h3>
-        <p>Use forwards to express views on future rates or hedge future rate exposure.</p>
+        <p>Use suitable bonds or derivatives to hedge exposure or express a rate view. Implied forwards are break-even rates.</p>
       </div>
     </div>
   </div>
@@ -2782,9 +2674,9 @@ Figure&nbsp;12: Butterfly trade: the intermediate maturity richens relative to t
 <li>Option-adjusted spread removes the estimated value of embedded options from the observed benchmark spread.</li>
 <li>Longer-maturity bonds generally have greater price volatility, and yield differences across maturity sectors are called maturity spreads.</li>
 <li>A yield curve summarizes yields across maturities, but coupon bond YTMs are not homogeneous discount rates for individual cash flows.</li>
-<li>The theoretical Treasury spot rate curve is built by smoothing and interpolating the par coupon curve, then bootstrapping spot rates from the par curve.</li>
+<li>Bootstrap or fit discount factors from Treasury prices and cash-flow schedules, then convert them to spot rates. A supplied par curve is an alternative input, not a mandatory first step.</li>
 <li>On-the-run Treasuries, selected off-the-run issues, all Treasury securities, and STRIPS each offer different tradeoffs for curve construction.</li>
-<li>Spot rates are the correct discount rates for valuing each cash flow at its own maturity.</li>
+<li>Treasury spot rates value comparable default-free cash flows at their payment dates. Risky or option-dependent cash flows need additional modeling.</li>
 <li>Forward rates are implied by spot rates; they are break-even and hedgeable rates, not reliable forecasts of future spot rates.</li>
 <li>The shape of the yield curve reflects expected future rate changes, bond risk premiums, and convexity bias.</li>
 <li>Term structure theories explain different parts of curve behavior: expectations, liquidity premiums, preferred habitats, and market segmentation.</li>

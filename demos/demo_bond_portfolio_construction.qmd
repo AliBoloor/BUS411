@@ -22,6 +22,10 @@ format:
         .demo-lab input { accent-color: #214b3e; }
         .demo-lab button { border: 1px solid #214b3e; border-radius: 3px;
           color: #214b3e; background: transparent; padding: .2rem .7rem; }
+        details.demo-solution { border-left: 4px solid #936724; padding: 1rem;
+          margin: 1rem 0; background: #fafaf6; }
+        details.demo-solution > summary { cursor: pointer; font-weight: 700;
+          color: #214b3e; }
         details.code-fold { margin: .8rem 0; }
         mjx-container[display="true"] { display: block; max-width: 100%;
           overflow-x: auto; overflow-y: hidden; padding-block: .35em; }
@@ -41,7 +45,14 @@ This reading copy shows the calculations' results and figures. The HTML demo
 contains the full code in folded blocks and interactive scenario controls.
 :::
 
-## Goal and Decision {.unnumbered}
+## The desk question {.unnumbered}
+
+**How should a manager invest $50 million near a bond benchmark while keeping
+active risk, concentration, and trading costs under control?** Compare a simple
+cell sample with a constrained portfolio, then turn the chosen weights into a
+trade list and a decision memo.
+
+## Purpose and assumptions {.unnumbered}
 
 An investment-grade manager has **$50 million** to invest. The mandate is to earn
 more carry than a broad bond benchmark without taking an unintended duration,
@@ -76,7 +87,7 @@ import html
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from IPython.display import HTML, display
+from IPython.display import HTML, Markdown, display
 from cycler import cycler
 
 plt.rcParams.update({
@@ -326,7 +337,10 @@ $$\min_w\; TE^2+\lambda_T\sum_i(w_i-w_i^{current})^2
 
 This is a teaching risk model. Production construction would use a validated
 factor covariance matrix, specific-risk forecasts, executable costs, lot sizes,
-and compliance-tested constraints.
+and compliance-tested constraints. Here, factor and specific volatilities are
+annualized decimal return/rate units, so predicted tracking error is annualized.
+The objective coefficients are illustrative tuning weights, not estimated
+investor preferences or a guarantee of outperformance.
 
 ```{python}
 #| label: optimization-inputs
@@ -563,16 +577,12 @@ factor control survive executable-price checks, lot rounding, issuer review, and
 scenario analysis. Rebalance when the benefit of restoring the mandate exceeds
 transaction costs and operational complexity.
 
-## Instructor Extension
+## Financial interpretation and market handoff
 
-::: {.callout-tip}
-## Make a recommendation, not just a weight vector
-
-Lower the corporate cap from 45% to 35%, rerun from the top, and compare yield,
-trading cost, tracking error, and the credit-selloff outcome. Explain which
-constraint forced the trades. Would the improvement justify the transaction cost?
-Keep the covariance matrix fixed so the comparison isolates the mandate change.
-:::
+A portfolio can match aggregate duration and still carry different key-rate,
+spread, and issuer exposures. Check the whole constraint set and stress outcomes
+before comparing the carry proxy. The mini project below isolates the effect
+of a tighter corporate-sector limit while keeping the risk model fixed.
 
 For a market-based extension, inspect bond terms and trade histories through
 [FINRA Fixed Income Data](https://www.finra.org/finra-data/fixed-income).
@@ -586,7 +596,7 @@ face amounts, impose issuer-level limits, and compare predicted tracking error
 with realized active returns over the next month.
 
 
-## Guided explorer
+## Interactive explorer
 
 Keep Treasury yields unchanged and move corporate spreads; agencies move by one quarter as much. Compare the three candidate portfolios before recommending a trade. These are instantaneous mark-to-market scenarios, excluding carry and transaction costs.
 
@@ -605,3 +615,145 @@ display(demo_explorer(credit_shocks, {
 }, "Corporate spread shock (bp)", "Portfolio P&L ($ millions)", 10))
 ```
 :::
+
+
+## Mini Project
+
+**Project brief.** The investment committee reduces the corporate-sector cap
+from 45% to 35%. Starting from the same current holdings, solve for a new target
+using the same universe, benchmark, covariance matrix, transaction costs, and
+objective. Keep the 18% position cap, 25% Treasury minimum, and 0.05-year duration
+tolerance unchanged.
+
+**Required deliverable:** a one-page decision memo with supporting tables.
+
+1. Compare the 45% and 35% targets: corporate and Treasury weights, duration,
+   carry proxy, annual predicted tracking error, turnover, and trading cost.
+2. Show the 35% target and signed dollar trades for every bond. Reconcile buys
+   and sells and confirm the new target satisfies every mandate constraint.
+3. Compare all four supplied stress scenarios before and after estimated
+   implementation cost. Do not add annual carry to an instantaneous stress.
+4. Recommend a target under the revised mandate. Explain the credit-risk
+   tradeoff and identify implementation checks still needed before trading.
+
+```{=html}
+<details class="demo-solution"><summary>Worked solution: revised mandate and trade memo</summary>
+```
+
+::: {.content-visible when-format="pdf"}
+**Worked solution: revised mandate and trade memo**
+:::
+
+### Solve the revised mandate
+
+Only the corporate constraint changes. Both optimizations start from the same
+current holdings, so the cost comparison is between two alternative trade plans,
+not the cost of trading from one optimized target to the other.
+
+```{python}
+#| label: mini-project-optimization
+revised_cap = 0.35
+revised_constraints = list(constraints)
+revised_constraints[2] = {
+    "type": "ineq", "fun": lambda w: revised_cap - w[corporate_mask].sum()
+}
+revised_solution = minimize(
+    objective, current_weights, method="SLSQP",
+    bounds=[(0, position_cap)] * len(universe),
+    constraints=revised_constraints,
+    options={"ftol": 1e-12, "maxiter": 2_000},
+)
+assert revised_solution.success, revised_solution.message
+revised_weights = revised_solution.x
+project_portfolios = {"45% cap": optimized_weights, "35% cap": revised_weights}
+project_summary = pd.DataFrame({
+    name: portfolio_summary(w) for name, w in project_portfolios.items()
+}).T
+project_summary["Annual predicted TE (%)"] = [
+    100*np.sqrt(tracking_variance(w)) for w in project_portfolios.values()
+]
+project_summary["One-way turnover (%)"] = [
+    50*np.abs(w-current_weights).sum() for w in project_portfolios.values()
+]
+project_costs = {
+    name: portfolio_value*np.sum(cost_rate*np.abs(w-current_weights))
+    for name, w in project_portfolios.items()
+}
+project_summary["Trading cost ($)"] = pd.Series(project_costs)
+display(project_summary[["Corporate weight (%)", "Treasury weight (%)", "Duration"]].round(4))
+display(project_summary[["Yield (%)", "Annual predicted TE (%)"]].round(4))
+display(project_summary[["One-way turnover (%)", "Trading cost ($)"]].round(4))
+```
+
+### Translate the target into trades
+
+A positive trade buys market value; a negative trade sells it. These are dollar
+exposures, not face amounts or rounded trade tickets. Estimated costs are
+reported separately from the fully invested, gross target weights.
+
+```{python}
+#| label: mini-project-trades
+project_trades = pd.DataFrame({
+    "Bond": universe["Bond"],
+    "Target weight (%)": 100*revised_weights,
+    "Trade ($mm)": portfolio_value*(revised_weights-current_weights)/1_000_000,
+    "Cost ($)": portfolio_value*np.abs(revised_weights-current_weights)*cost_rate,
+})
+display(project_trades.round(4))
+assert np.isclose(revised_weights.sum(), 1, atol=1e-8)
+assert revised_weights.min() >= -1e-8
+assert revised_weights.max() <= position_cap+1e-8
+assert revised_weights[treasury_mask].sum() >= treasury_minimum-1e-8
+assert revised_weights[corporate_mask].sum() <= revised_cap+1e-8
+assert abs(revised_weights @ universe["Duration"]-benchmark_duration) <= duration_tolerance+1e-8
+assert abs(project_trades["Trade ($mm)"].sum()) < 1e-6
+assert np.isclose(project_trades["Cost ($)"].sum(), project_costs["35% cap"])
+```
+
+### Compare stress outcomes and decide
+
+The net exhibit deducts each alternative's one-time implementation cost from
+its instantaneous mark-to-market stress P&L. It assumes trading at the initial
+prices followed by the shock. It is not a one-year return forecast.
+
+```{python}
+#| label: mini-project-stresses
+project_stress = pd.DataFrame({
+    name: {scenario: portfolio_value*scenario_return(w, shock)/1_000_000
+           for scenario, shock in scenarios.items()}
+    for name, w in project_portfolios.items()
+})
+project_stress.index.name = "Scenario"
+project_net_stress = project_stress-pd.Series(project_costs)/1_000_000
+display(Markdown("**Gross stress P&L ($ millions)**"))
+display(project_stress.round(4))
+display(Markdown("**Stress P&L after implementation cost ($ millions)**"))
+display(project_net_stress.round(4))
+assert np.allclose(project_stress-project_net_stress,
+                   np.array(list(project_costs.values()))/1_000_000)
+credit_improvement = (project_stress.loc["Credit selloff", "35% cap"]-
+                      project_stress.loc["Credit selloff", "45% cap"])*1_000_000
+extra_cost = project_costs["35% cap"]-project_costs["45% cap"]
+display(Markdown(
+    f"The tighter target changes gross credit-selloff P&L by **${credit_improvement:,.2f}** "
+    f"and implementation cost by **${extra_cost:,.2f}** relative to the 45% plan. "
+    "These compare a conditional stress benefit with a one-time cost; they do not establish expected profit."
+))
+```
+
+**Recommendation.** Use the 35% target as the starting proposal because the
+45% target is no longer permissible under the revised mandate. Lower corporate
+exposure reduces the specified credit-selloff loss, but may reduce the carry
+proxy, increase benchmark-relative risk, and require additional turnover.
+Matching duration alone does not remove those tradeoffs.
+
+Before execution, verify prices, accrued interest, issuer aggregation, liquidity,
+and lot sizes; convert market-value trades to face amounts and rerun constraints
+on rounded tickets. If transaction costs must be funded inside the $50 million,
+reserve that cash and reoptimize: gross weights that sum to one do not also pay
+fees. The covariance matrix, spreads, and expected trading costs are teaching
+inputs, and the stress scenarios carry no assigned probabilities.
+
+```{=html}
+</details>
+```

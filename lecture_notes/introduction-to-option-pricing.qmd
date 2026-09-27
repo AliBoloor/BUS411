@@ -13,22 +13,166 @@ format:
 jupyter: python3
 ---
 
-Before analyzing bonds with embedded options, it is useful to understand the basic option pricing logic. An **option** gives one party a right, but not an obligation, to take an action in the future. The value of that right depends on what the underlying asset may be worth at the exercise date.
+```{=html}
+<style>
+main mjx-container[display="true"] {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-block: 0.25rem;
+}
+</style>
+```
 
-In equity markets, the underlying asset is often a stock. In fixed income, the underlying asset may be:
+This appendix assumes no previous knowledge of options. You only need the
+idea that a dollar received later is worth less today when interest rates are
+positive. Read the payoff examples first, then follow the pricing calculation.
+The replication section explains *why* the pricing rule works; no calculus is
+required.
 
-- a bond;
-- a future bond price;
-- a future interest rate;
-- a future yield curve;
-- a swap rate;
-- a mortgage pool whose cash flows depend on future rates.
+By the end, you should be able to distinguish a call from a put, separate payoff
+from profit, price a simple option in a two-state model, and explain why an
+issuer's call right reduces a bondholder's value.
 
-The important idea is the same: the option payoff depends on future states, so today's valuation must account for multiple possible future outcomes.
+## Start with the right to choose
+
+Imagine paying for the right to buy a bond for $100 one year from now. If the
+bond is then worth $110, buying it for $100 is attractive. If it is worth $90,
+you can let the right expire and buy the cheaper bond in the market instead.
+You have a choice; a forward contract would commit you to the agreed trade.
+
+The choice is valuable, so the seller normally charges an upfront **premium**.
+That premium is the option's price. The buyer can decline to exercise, but does
+not get the premium back. The seller, also called the **writer**, must honor
+valid exercise under the contract.
+
+| Term | Plain-language meaning |
+|---|---|
+| Underlying | The asset or reference on which the option is based; here, a bond. |
+| Call | The holder's right to **buy** the underlying at the agreed price. |
+| Put | The holder's right to **sell** the underlying at the agreed price. |
+| Strike, $K$ | The price paid or received when the holder exercises. |
+| Expiration, $T$ | The last time at which the right can be exercised. |
+| Premium | The option price paid by the buyer to the seller. |
+| Exercise | Use the contractual right to buy or sell. |
+
+A **European** option can be exercised only at expiration. An **American**
+option can be exercised earlier as well. These names describe exercise timing,
+not where the option trades. Many embedded bond options allow exercise only on
+specified dates. We begin with European options to keep the decision simple.
+
+All numbers below are illustrative. Prices are dollars for one unit of the bond;
+one option covers that unit. Ignore fees, bid–ask spreads, taxes, and default.
+In the pricing trees, the underlying bond makes no coupon or principal payment
+before the option expires, and borrowing and lending use the same risk-free
+rate. These assumptions are essential to the simple formulas.
+
+## Payoff is not profit
+
+### Example 1: a call with a $100 strike
+
+Suppose the call's supplied premium is $3. We are studying its outcome here,
+not yet deciding whether $3 is a fair price.
+
+| Bond price at expiration | Exercise the call? | Call payoff | Buyer's cash profit |
+|---:|---|---:|---:|
+| $90 | No: buying for $100 would overpay | $0 | −$3 |
+| $100 | No economic gain from exercise | $0 | −$3 |
+| $102 | Yes: buy for $100, receive value $102 | $2 | −$1 |
+| $110 | Yes: buy for $100, receive value $110 | $10 | $7 |
+
+The **payoff** is the value obtained at expiration. **Cash profit** here means
+payoff minus the $3 upfront premium, without adjusting for financing or the time
+value of money. Exercise can be worthwhile even when the overall trade loses
+money: at $102 the $2 payoff recovers part of the premium already spent.
+
+With $B_T$ denoting the bond price at expiration,
+
+$$
+\text{Call payoff}=\max(B_T-K,0),\qquad
+\text{Cash profit}=\max(B_T-K,0)-\text{premium}.
+$$
+
+“Max” simply means choose the larger number. The holder can choose not to
+exercise, which prevents a negative payoff. The premium still creates a loss.
+Ignoring financing, the call buyer breaks even at $100+3=103$. If the premium
+is financed for one year at 2%, the terminal cost is $3(1.02)=3.06$, so the
+financed break-even is $103.06$ instead.
+
+```{python}
+#| label: fig-option-payoff-profit
+#| fig-cap: "A call's payoff cannot be negative, but the buyer can lose the premium. Cash profit here excludes financing."
+#| fig-alt: "Call payoff is zero below a strike of 100 and then rises. Profit lies three dollars below payoff and crosses zero at a bond price of 103."
+#| echo: false
+import numpy as np
+import matplotlib.pyplot as plt
+from IPython.display import Markdown, display
+
+bond_prices = np.linspace(85, 115, 121)
+call_payoffs = np.maximum(bond_prices-100, 0)
+fig, ax = plt.subplots(figsize=(7.5, 3.7))
+ax.plot(bond_prices, call_payoffs, label="Payoff at expiration", color="#214b3e", lw=2.4)
+ax.plot(bond_prices, call_payoffs-3, label="Cash profit after $3 premium", color="#936724", lw=2.4)
+ax.axhline(0, color="#777", lw=.8)
+ax.axvline(100, color="#777", lw=.8, ls=":")
+ax.scatter([103], [0], color="#936724", zorder=3)
+ax.annotate("Break-even: $103", xy=(103,0), xytext=(104,-5.5), fontsize=9,
+            arrowprops={"arrowstyle":"->", "color":"#936724"})
+ax.set(xlabel="Bond price at expiration ($)", ylabel="Dollars per option", ylim=(-7,17))
+ax.spines[["top","right"]].set_visible(False)
+ax.legend(loc="upper left", fontsize=9)
+fig.tight_layout()
+plt.show()
+```
+
+### Example 2: a put protects against a lower bond price
+
+Now consider a **separate** put with strike $100 and supplied premium $3.
+The put holder can sell for $100 even if the market price is lower.
+
+$$
+\text{Put payoff}=\max(K-B_T,0).
+$$
+
+| Bond price at expiration | Put payoff | Put buyer's cash profit |
+|---:|---:|---:|
+| $90 | $100−90=$10 | $10−3=$7 |
+| $100 | $0 | −$3 |
+| $110 | $0 | −$3 |
+
+A call benefits from a higher underlying price; a put benefits from a lower
+one. For a conventional fixed-rate bond, higher yields usually mean a lower
+bond price. A **put on the bond price** can therefore protect against a yield
+increase. Always identify the underlying: a call on an interest rate is a
+different contract from a call on a bond price.
+
+### The words “in the money” do not mean “profitable”
+
+A call is **in the money** when the bond price exceeds its strike. A put is in
+the money when the bond price is below its strike. At the strike, either is
+**at the money**; on the other side it is **out of the money**. These terms
+compare the underlying price with the strike and ignore the premium.
+
+Before expiration, an out-of-the-money option can still have value because the
+price may move before the exercise date. Its eventual payoff can be zero even
+though its current price is positive. Before-expiration option value and
+expiration payoff are different quantities.
+
+## From possible payoffs to a price today
+
+We now ask a different question: **what premium is consistent with today's
+bond price and the possible future payoffs?** A simple average is not enough.
+We need both the time value of money and a pricing rule that respects the
+underlying bond's current price.
+
+A **binomial tree** represents two possible next states: “up” and “down.” It
+is a teaching approximation, not a claim that markets have only two outcomes.
+**No arbitrage** means identical future cash flows must have the same price
+today; otherwise someone could buy the cheaper version and sell the dearer one.
 
 ## A one-period binomial tree
 
-A simple way to introduce option pricing is with a **binomial tree**. Suppose a bond is worth $B_0$ today. Over one period, it can move to one of two possible values:
+The subscript 0 means today; $u$ and $d$ label the next up and down states. Suppose the bond is worth $B_0$ today. Over one period, it can move to:
 
 - an up state, $B_u$;
 - a down state, $B_d$.
@@ -53,13 +197,53 @@ $$
 q=\frac{(1+r)B_0-B_d}{B_u-B_d},\qquad B_d<(1+r)B_0<B_u.
 $$
 
-The inequality rules out arbitrage and gives $0<q<1$. Any coupon within the interval must be included in the replication cash flows. At a callable-bond decision below, continuation and redemption values are measured immediately after the coupon; the coupon is accounted for separately.
+The inequality places the risk-free growth of today's bond price between the
+two possible future prices. It gives $0<q<1$. If it fails, these inputs do not
+form a valid no-arbitrage two-state model. Do not fix the problem by clipping
+$q$ to zero or one; reconsider the inputs.
+
+The rate $r$ is for **one tree interval**, not necessarily an annual quote.
+Dividing by $1+r$ brings the next-period cash flow back to today. Any coupon
+within that interval must be included in the replication cash flows.
 
 ::: {.callout-tip}
 ## Intuition
 
 The risk-neutral probability is not a forecast of what will actually happen. It is the probability that makes the model consistent with no-arbitrage pricing. We use it to price cash flows consistently with today's market prices.
 :::
+
+### Example 3: calculate the premium, one step at a time
+
+Use a **new pricing example**: the bond costs $100 today, is worth either $110
+or $90 in one year, and pays nothing during that year. The call strike is $100.
+The effective one-year risk-free rate is 2%. The option premium is now unknown.
+
+**Step 1 — Calculate the payoffs.** The call pays $10 in the up state and $0
+in the down state.
+
+**Step 2 — Find the pricing weight.**
+
+$$
+q=\frac{1.02(100)-90}{110-90}=\frac{12}{20}=0.60.
+$$
+
+Check that the same weight prices the bond itself:
+
+$$
+\frac{0.60(110)+0.40(90)}{1.02}=\frac{102}{1.02}=100.
+$$
+
+**Step 3 — Weight the option payoffs and discount.**
+
+$$
+C_0=\frac{0.60(10)+0.40(0)}{1.02}
+=\frac{6}{1.02}\approx5.8824.
+$$
+
+Thus the model-consistent premium is about **$5.88 per option**. The weighted
+future payoff is $6, but the price today is lower because of discounting.
+The earlier $3 premium was an independent payoff illustration, not a price for
+this tree.
 
 ```{python}
 #| label: fig-one-period-option-tree
@@ -72,9 +256,9 @@ fig, ax = plt.subplots(figsize=(7.0, 3.6))
 ax.set_axis_off()
 
 nodes = {
-    "today": ("Today\nBond: $B_0$\nOption: $C_0$", 0.0, 0.9),
-    "up": ("Up state\nBond: $B_u$\nOption: $C_u$", 2.5, 1.55),
-    "down": ("Down state\nBond: $B_d$\nOption: $C_d$", 2.5, 0.25),
+    "today": ("Today\nBond: 100\nCall: 5.8824", 0.0, 0.9),
+    "up": ("Up state\nBond: 110\nCall payoff: 10", 2.5, 1.55),
+    "down": ("Down state\nBond: 90\nCall payoff: 0", 2.5, 0.25),
 }
 
 for key, (label, x, y) in nodes.items():
@@ -89,8 +273,8 @@ for key, (label, x, y) in nodes.items():
     ax.text(x + 0.725, y + 0.35, label, ha="center", va="center", fontsize=8.3)
 
 arrows = [
-    ((1.45, 1.25), (2.5, 1.9), "$q$"),
-    ((1.45, 1.25), (2.5, 0.6), "$1-q$"),
+    ((1.45, 1.25), (2.5, 1.9), "$q=0.60$"),
+    ((1.45, 1.25), (2.5, 0.6), "$1-q=0.40$"),
 ]
 
 for start, end, label in arrows:
@@ -99,18 +283,62 @@ for start, end, label in arrows:
     mid_y = (start[1] + end[1]) / 2
     ax.text(mid_x, mid_y + 0.08, label, ha="center", va="center", fontsize=10)
 
-# ax.text(
-#     3.95, 0.9,
-#     "$C_0 = \\dfrac{qC_u+(1-q)C_d}{1+r}$",
-#     fontsize=11,
-#     va="center",
-# )
-
 ax.set_xlim(-0.15, 4.15)
 ax.set_ylim(0.0, 2.5)
 plt.tight_layout(pad=0.2)
 plt.show()
 ```
+
+### Why 60% is not a forecast
+
+The 60% weight makes the **current price** consistent with the model's future
+states. It does not assert that the bond has a 60% real-world chance of rising.
+A forecaster might assign another probability. Simply inserting that forecast
+probability and discounting at the risk-free rate would generally fail to price
+the underlying bond at $100.
+
+“Risk-neutral” does not mean investors ignore risk. It is a way of expressing
+prices after using the traded bond and risk-free borrowing to account for risk.
+The following replication calculation makes that concrete.
+
+## Build the same payoff without buying the option
+
+A **replicating portfolio** is a combination of other traded positions with the
+same payoff as the option in every modeled state. Here we can buy part of a
+bond and borrow cash.
+
+The call's payoff changes by $10 between states while the bond changes by $20.
+Buy half a bond:
+
+$$
+\Delta=\frac{C_u-C_d}{B_u-B_d}=\frac{10-0}{110-90}=0.5.
+$$
+
+Half a bond is worth $55 in the up state and $45 in the down state. Borrow
+$45/1.02=44.1176$ today, so repayment next year is exactly $45$.
+
+| Position at expiration | Up state | Down state |
+|---|---:|---:|
+| Half a bond | $55 | $45 |
+| Repay the borrowing | −$45 | −$45 |
+| Net payoff | **$10** | **$0** |
+| Call payoff | **$10** | **$0** |
+
+The two payoffs match, so their prices must match:
+
+$$
+C_0=0.5(100)-\frac{45}{1.02}=50-44.1176=5.8824.
+$$
+
+This is the same answer as risk-neutral pricing. If the option sold for $7,
+for example, a trader in this frictionless model could sell it, buy the
+replicating portfolio for $5.8824$, and keep the difference while the future
+cash flows cancel. This argument assumes short selling, borrowing, and trading
+are possible at the stated prices.
+
+The hedge ratio $\Delta$ is 0.5 **for this node and this model**. In a multi-step
+tree it generally changes as the underlying moves; replication then requires
+rebalancing.
 
 ## Backward induction
 
@@ -123,6 +351,54 @@ For options with several possible exercise dates, the tree has many steps. The p
 5. Continue backward until reaching today's value.
 
 This is called **backward induction**. It is central for valuing callable and putable bonds because the exercise decision must be checked at each possible future call or put date.
+
+### Example 4: roll a two-period tree backward
+
+Let the bond start at $100 and move up by 10% or down by 10% in **each** period.
+The risk-free rate is 2% per period and the European call strike is $100. The
+bond pays no cash before option expiration. At the end of two periods:
+
+| Path | Bond price | Call payoff |
+|---|---:|---:|
+| Up, then up | $100(1.10)^2=121$ | $21 |
+| Up, then down | $100(1.10)(0.90)=99$ | $0 |
+| Down, then up | $100(0.90)(1.10)=99$ | $0 |
+| Down, then down | $100(0.90)^2=81$ | $0 |
+
+The middle paths arrive at the same price, so the tree **recombines**. Because
+the proportional moves and interest rate are the same at each node,
+$q=(1.02-0.90)/(1.10-0.90)=0.60$ at every step.
+
+First calculate option values **one period before expiration**:
+
+$$
+C_u=\frac{0.60(21)+0.40(0)}{1.02}=12.3529,
+\qquad C_d=\frac{0.60(0)+0.40(0)}{1.02}=0.
+$$
+
+Then move back to today:
+
+$$
+C_0=\frac{0.60(12.352941\ldots)+0.40(0)}{1.02}=7.2664.
+$$
+
+Equivalently, the only positive terminal payoff has pricing weight
+$0.60^2=0.36$, so $C_0=0.36(21)/(1.02)^2$. Discount twice because two periods
+remain. Keep unrounded numbers during calculation.
+
+### If early exercise is allowed
+
+For an American call, compare immediate exercise value with the value of
+continuing to hold the option. The holder chooses the **larger**:
+
+$$
+\text{Option value}=\max(\text{exercise value},\text{continuation value}).
+$$
+
+At the up node in this example, immediate call exercise gives $110-100=10$,
+while continuation is $12.3529$. The holder waits. This calculation concerns the
+option holder's choice. The minimum rule for a **callable bond investor** below
+reflects a different party making the decision: the issuer.
 
 ## Why this matters for fixed income
 
@@ -164,10 +440,102 @@ The minimum appears because the issuer controls the call option. The bondholder 
 | 5. Continuation is below call price | Issuer leaves the bond outstanding. |
 | 6. Values are equal | Issuer is indifferent in the frictionless model. |
 
+### Example 5: who benefits from the embedded option?
+
+Suppose a callable bond can be redeemed for $101 immediately **after** a coupon
+has been paid. Compare the value of its remaining payments with that ex-coupon
+redemption price:
+
+| Future rate state | Value if bond continues | Issuer's choice | Investor's ex-coupon value |
+|---|---:|---|---:|
+| Lower rates | $108 | Call for $101 | $101 |
+| Higher rates | $96 | Leave outstanding | $96 |
+
+The investor loses $7 of continuation value in the lower-rate state. That $7
+is a **future state-specific reduction**, not today's embedded call value.
+Today's option cost requires modeling and discounting all relevant states.
+The current coupon is already paid and is not included a second time.
+
+For a **putable** bond, the investor owns the exercise right. With an ex-coupon
+put price of $101, the investor can choose $101 instead of continuing at $96,
+but would keep the bond if continuation were $108. Thus the putable investor's
+node value is $\max(V_{\mathrm{continue}},101)$.
+
+This difference in control explains the price relationships for otherwise
+identical bonds:
+
+$$
+V_{\mathrm{callable}}=V_{\mathrm{straight}}-V_{\mathrm{issuer\ call}},
+$$
+
+$$
+V_{\mathrm{putable}}=V_{\mathrm{straight}}+V_{\mathrm{investor\ put}}.
+$$
+
+## Common points of confusion
+
+- **Premium versus strike:** the premium buys the right today; the strike is the
+  contract price used upon exercise. They are different payments.
+- **Payoff versus profit:** a positive payoff does not imply a profitable trade.
+  Subtract the premium and, when relevant, financing and costs.
+- **Price today versus payoff later:** discount future payoffs before comparing
+  them with an upfront premium.
+- **Probability versus pricing weight:** risk-neutral weights reproduce traded
+  prices under the model; they are not forecasts of actual frequencies.
+- **Bond price versus yield:** for conventional fixed-rate bonds they generally
+  move in opposite directions. Name the option's underlying before interpreting it.
+- **Maximum versus minimum:** an option holder chooses the better exercise
+  outcome; a callable bond investor is exposed to the issuer choosing to call.
+
+## Check your understanding
+
+1. A call has strike $100 and costs $3. The bond finishes at $102. Does the
+   holder exercise? What are payoff and cash profit before financing?
+2. A put has strike $100 and costs $3. The bond finishes at $94. What are its
+   payoff, cash profit, and break-even bond price before financing?
+3. In Example 3, why is the call worth $5.8824 rather than $6? Does $q=0.60$
+   describe a 60% real-world chance of the up state?
+4. In Example 5, who chooses whether to call, and why does the investor receive
+   $101 rather than $108 in the lower-rate state?
+
+::: {.callout-note collapse="true" title="Worked answers"}
+
+1. Yes. Exercise recovers $2; cash profit is $2−3=−1$. The premium is already
+   spent, so a loss on the overall trade is no reason to forgo a positive payoff.
+2. The put pays $100−94=6$; cash profit is $6−3=3$. Break-even is $100−3=97$.
+3. The $6 weighted payoff arrives in one year. Discounting at 2% gives
+   $6/1.02=5.8824$. The 60% weight prices the underlying correctly; it is not
+   a real-world forecast.
+4. The issuer owns the right. Redeeming for $101 is cheaper than keeping an
+   obligation worth $108 outstanding, so the investor's ex-coupon value is capped.
+
+:::
+
+```{python}
+#| label: option-primer-numerical-checks
+#| include: false
+b0, bu, bd, strike, rate = 100., 110., 90., 100., .02
+q = ((1+rate)*b0-bd)/(bu-bd)
+cu, cd = max(bu-strike,0), max(bd-strike,0)
+call = (q*cu+(1-q)*cd)/(1+rate)
+delta = (cu-cd)/(bu-bd)
+loan = (delta*bd-cd)/(1+rate)
+assert 0 < q < 1
+assert np.isclose((q*bu+(1-q)*bd)/(1+rate), b0)
+assert np.isclose(call, delta*b0-loan)
+assert np.allclose(delta*np.array([bu,bd])-loan*(1+rate), [cu,cd])
+first_up = q*21/(1+rate)
+two_period_call = q*first_up/(1+rate)
+assert np.isclose(two_period_call,q*q*21/(1+rate)**2)
+assert np.isclose(round(two_period_call,4),7.2664)
+assert np.array_equal(np.minimum([108,96],101),[101,96])
+assert np.array_equal(np.maximum([108,96],101),[108,101])
+```
+
 This is why the short-rate models discussed in [Lecture 7](lec7.qmd) are useful. They provide the future rate tree needed to value fixed-income options and bonds with embedded options.
 
 ::: {.callout-note}
 ## Bridge to Lecture 8
 
-The next step is to apply this logic directly to bonds with embedded options. The key idea will be the same: build future interest-rate states, value the bond at future nodes, apply the exercise rule, and work backward to today.
+Continue with [Lecture 8](lec8.qmd) and its [callable-bond demo](../demos/demo_callable_bond_oas.qmd) to apply this logic to bonds with embedded options. The key idea will be the same: build future interest-rate states, value the bond at future nodes, apply the exercise rule, and work backward to today.
 :::

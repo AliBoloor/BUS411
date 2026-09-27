@@ -197,3 +197,12 @@ The matching forest website palette is shared across HTML pages through `forest-
 - Updated convexity calculations, added example setups and a volatility-measures overview, and removed the 13 slides identified by their original numbers. The revised Lecture 3 deck has 58 slides including its cover.
 - Reproduced the Section 4.2 tangent plot and added an explicitly illustrative short-end/long-end yield-spread chart.
 - Corrected arithmetic in the opening price example, the five-year 6% bond's PVBP, and the rounded-price numerical convexity example. Preserved the prior saved expansion of the convexity table calculations.
+
+## September 25, 2026: Lecture 4 curve construction
+
+- Worked on `lecture4-curve-construction`, branched from the clean saved baseline `27f5655`; unrelated lectures and private materials are unchanged.
+- Replaced the mandatory YTM-to-par-to-spot narrative with price-and-cash-flow calibration of discount factors, then conversion to spot rates. A published par curve remains a clearly identified alternative input.
+- Added one consistent four-security bootstrap, a new-bond valuation, interpolation assumptions, and input-repricing checks. Reduced par-curve coverage and corrected numerical spot, forward, spread, and valuation examples.
+- Updated the final roadmap and reviewed all 84 rendered slides. Removed instructor-review warnings, corrected the underlying examples, and removed title underlines in this deck only.
+- Added a folded-code bootstrapping demo with graphics, an interactive quote scenario, a dated Treasury par snapshot, validation checks, and a mini project with a folded worked solution. Added its demo-index link and render entry.
+- Validation includes independent matrix calibration, input repricing, spot/forward/par identities, invalid-input checks, all 41 interactive scenarios, slide-overflow checks, and desktop/mobile browser inspection. HTML and PDF outputs are included for review; publication and a pull request are deferred.

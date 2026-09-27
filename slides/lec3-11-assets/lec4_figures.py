@@ -1,4 +1,4 @@
-"""Reproduce Lecture 4 figures using the original note data; lecture notes are read-only."""
+"""Reproduce Lecture 4 figures from the corrected note inputs and calculations."""
 from build_figures import *
 from cycler import cycler
 plt.rcParams["axes.prop_cycle"] = cycler(color=[GREEN, GOLD, BLUE, "#85618b"])
@@ -85,41 +85,27 @@ ax.legend()
 save(fig, 'lec4-fig-yield-curves')
 
 #| label: fig-bootstrapped-spot-curve
-#| fig-cap: "Observed YTMs are smoothed and interpolated into a par curve, then bootstrapped into a spot curve."
+#| fig-cap: "Spot and par rates calculated from the same four illustrative bond prices."
 #| echo: false
-#| warning: false
-#| message: false
-
 import numpy as np
 import matplotlib.pyplot as plt
 
-observed_maturities = np.array([0.5, 1, 2, 3, 5, 7, 10])
-observed_ytm = np.array([3.58, 3.82, 4.08, 4.38, 4.57, 4.78, 4.88])
-par_maturities = np.arange(0.5, 10.5, 0.5)
-par_curve = np.array([
-    3.600, 3.800, 3.950, 4.100, 4.225,
-    4.350, 4.412, 4.475, 4.537, 4.600,
-    4.637, 4.675, 4.713, 4.750, 4.775,
-    4.800, 4.825, 4.850, 4.875, 4.900,
-])
-spot_curve = np.array([
-    3.600, 3.802, 3.954, 4.108, 4.237,
-    4.367, 4.432, 4.497, 4.564, 4.631,
-    4.671, 4.711, 4.752, 4.793, 4.820,
-    4.848, 4.876, 4.904, 4.933, 4.963,
-])
-
-fig, ax = plt.subplots(figsize=(13,5.4))
-ax.scatter(observed_maturities, observed_ytm, color="#666666", label="Observed Treasury YTMs", zorder=3)
-ax.plot(par_maturities, par_curve, marker="o", markersize=3, color=GREEN, label="Smoothed/interpolated par curve")
-ax.plot(par_maturities, spot_curve, marker="s", markersize=3, color=GOLD, label="Bootstrapped spot curve")
-ax.set_xlabel("Maturity (years)")
-ax.set_ylabel("Rate (%)")
-ax.set_title("From Observed YTMs to Semiannual Spot Rates")
-ax.set_xticks([0.5, 1, 2, 3, 5, 7, 10])
-ax.grid(alpha=0.25)
+curve_times = np.arange(1, 5) / 2
+curve_prices = np.array([98.20, 99.10, 100.30, 101.20])
+curve_coupons = np.array([0.0, 1.5, 2.0, 2.5])
+curve_dfs = np.empty(4)
+for i, (price, coupon) in enumerate(zip(curve_prices, curve_coupons)):
+    curve_dfs[i] = (price - coupon * curve_dfs[:i].sum()) / (100 + coupon)
+curve_spots = 2 * (curve_dfs ** (-1 / (2 * curve_times)) - 1)
+curve_par = 2 * (1 - curve_dfs) / np.cumsum(curve_dfs)
+fig, ax = plt.subplots(figsize=(13, 5.4))
+ax.plot(curve_times, 100 * curve_spots, "o-", color="#214b3e", label="Spot rates")
+ax.plot(curve_times, 100 * curve_par, "s--", color="#936724", label="Derived par coupons")
+ax.set(xlabel="Maturity (years)", ylabel="Annual semiannual quote (%)",
+       xticks=curve_times)
+ax.grid(alpha=.2)
 ax.legend()
-ax.spines[["top", "right"]].set_visible(False)
+fig.tight_layout()
 save(fig, 'lec4-fig-bootstrapped-spot-curve')
 
 #| label: fig-forward-rates
@@ -326,4 +312,3 @@ ax.grid(alpha=0.25)
 ax.legend()
 ax.spines[["top", "right"]].set_visible(False)
 save(fig, 'lec4-fig-butterfly-strategy')
-

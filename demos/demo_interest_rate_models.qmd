@@ -23,6 +23,8 @@ format:
         .demo-lab input { accent-color: #214b3e; }
         .demo-lab button { border: 1px solid #214b3e; border-radius: 3px;
           color: #214b3e; background: transparent; padding: .2rem .7rem; }
+        details.demo-solution { border-left: 4px solid #936724; padding: 1rem; margin: 1rem 0; }
+        details.demo-solution > summary { cursor: pointer; font-weight: 700; }
         details.code-fold { margin: .8rem 0; }
         main table { table-layout: fixed; width: 100%; }
         main th, main td { overflow-wrap: anywhere; }
@@ -44,6 +46,10 @@ execute:
 This reading copy shows the calculations' results and figures. The HTML demo
 contains the full code in folded blocks and interactive scenario controls.
 :::
+
+## The desk question {.unnumbered}
+
+How can one observed curve support several future bond values without treating those scenarios as forecasts?
 
 ## Goal
 
@@ -1008,7 +1014,7 @@ demo deliberately removes those layers so the economic logic stays visible.
 :::
 
 
-## Guided explorer
+## Interactive explorer
 
 Change the year-2 short rate relative to the reference forward rate. Keep today's Treasury curve and the fitted option parameters unchanged. The output is the ex-coupon value at year 2 of the remaining payments, not today's price or a holding-period return.
 
@@ -1026,3 +1032,38 @@ display(demo_explorer(state_shocks, {"Remaining bond value": state_values},
                       "Year-2 short-rate deviation (bp)", "Year-2 value per 100 face", 40))
 ```
 :::
+
+
+## Mini Project
+
+**Project brief.** Use the fitted Hull–White model and the year-2 bond in this demo. Produce a memo with (1) the largest initial-curve repricing error, (2) the fitted mean reversion and volatility, (3) year-2 ex-coupon values for short-rate states 1 percentage point below and above the central state, and (4) the value of $5 million face in each state. Explain why these are scenario values rather than expected physical returns.
+
+**Deliverable:** a one-page decision memo with a conventions statement, reproducible calculations, a scenario table, and a limitation that could change the decision.
+
+```{=html}
+<details class="demo-solution"><summary>Worked solution: calculations and decision memo</summary>
+```
+
+::: {.content-visible when-format="pdf"}
+**Worked solution: calculations and decision memo**
+:::
+
+```{python}
+#| label: mini-project-solution
+center = central_short_rate
+project_rates = np.array([center-.01, center, center+.01])
+project_prices = np.array([price_bond_at_time(future_time, payment_times,
+    remaining_cash_flows, r, calibrated_a, calibrated_sigma) for r in project_rates])
+project = pd.DataFrame({"Short rate (%)": 100*project_rates,
+    "Price per 100": project_prices, "Value of $5mm face": project_prices*50_000})
+display(project.round(4))
+display(pd.Series({"Mean reversion a": calibrated_a, "Volatility sigma": calibrated_sigma,
+    "Largest initial-curve error": np.max(np.abs(hw_discounts_today-bootstrapped_discounts))}))
+assert np.all(np.diff(project_prices)<0)
+```
+
+The initial curve pins down today's discounting; option premiums identify the model's risk-neutral dynamics. A higher year-2 short rate lowers the price of the same remaining payments. The $5 million position scales the per-100 result by 50,000. These states are not physical forecasts or investment returns: the two earlier coupons and their reinvestment are absent from this ex-coupon valuation. Calibration here uses synthetic option quotes, so the fitted parameters demonstrate recovery of teaching inputs, not a live market fit.
+
+```{=html}
+</details>
+```

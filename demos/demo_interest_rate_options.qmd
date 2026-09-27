@@ -22,6 +22,8 @@ format:
         .demo-lab input { accent-color: #214b3e; }
         .demo-lab button { border: 1px solid #214b3e; border-radius: 3px;
           color: #214b3e; background: transparent; padding: .2rem .7rem; }
+        details.demo-solution { border-left: 4px solid #936724; padding: 1rem; margin: 1rem 0; }
+        details.demo-solution > summary { cursor: pointer; font-weight: 700; }
         details.code-fold { margin: .8rem 0; }
         mjx-container[display="true"] { display: block; max-width: 100%;
           overflow-x: auto; overflow-y: hidden; padding-block: .35em; }
@@ -40,6 +42,10 @@ execute:
 This reading copy shows the calculations' results and figures. The HTML demo
 contains the full code in folded blocks and interactive scenario controls.
 :::
+
+## The desk question {.unnumbered}
+
+What downside protection does a put overlay buy, and what remains exposed after paying its premium?
 
 ## Learning Objectives {.unnumbered}
 
@@ -443,7 +449,7 @@ upside retained under -75 bp, and one reason the fitted European model may not
 match a listed option's valuation.
 
 
-## Guided explorer
+## Interactive explorer
 
 Change volatility while holding futures price, strike and interest rate fixed. Higher volatility makes the protection more expensive. Compare remaining maturities, then return to the fitted volatility reported above. The slider does not change the fixed premium already paid in the expiration-P&L example.
 
@@ -461,3 +467,42 @@ display(demo_explorer(vol_grid, {
     int(np.argmin(abs(vol_grid-100*implied_vol)))))
 ```
 :::
+
+
+## Mini Project
+
+**Project brief.** Use the demo's quoted premium and static contract count. Compare the actual portfolio (not just its rounded futures equivalent) with no hedge, with puts, and with short futures at expiry under -75, 0, and +75 bp shocks. Include the cost of funding the upfront premium at the risk-free rate. Report residual DV01 from contract rounding and explain why a terminal-payoff hedge is not a delta-neutral hedge today.
+
+**Deliverable:** a one-page decision memo with a conventions statement, reproducible calculations, a scenario table, and a limitation that could change the decision.
+
+```{=html}
+<details class="demo-solution"><summary>Worked solution: calculations and decision memo</summary>
+```
+
+::: {.content-visible when-format="pdf"}
+**Worked solution: calculations and decision memo**
+:::
+
+```{python}
+#| label: mini-project-solution
+project_shocks=np.array([-75.,0.,75.])
+terminal=futures_price-futures_dv01/dollars_per_point*project_shocks
+cash_pnl=-portfolio_dv01*project_shocks
+payoff=contracts*dollars_per_point*np.maximum(strike-terminal,0)
+funded_premium=premium_cost*np.exp(risk_free_rate*time_to_expiry)
+futures_gain=contracts*futures_dv01*project_shocks
+project=pd.DataFrame({"Yield shock (bp)":project_shocks,"Futures at expiry":terminal,
+    "Unhedged P&L ($)":cash_pnl,"Put payoff ($)":payoff,
+    "Put-protected P&L ($)":cash_pnl+payoff-funded_premium,
+    "Futures-hedged P&L ($)":cash_pnl+futures_gain})
+display(project.round(2))
+display(pd.Series({"Funded premium ($)":funded_premium,
+    "Residual DV01 ($/bp)":portfolio_dv01-contracts*futures_dv01}).round(2))
+assert np.allclose(project["Futures-hedged P&L ($)"],-residual_dv01*project_shocks)
+```
+
+The put pays only when the futures finish below strike. It preserves upside after premium cost, while short futures offset rate gains and losses symmetrically. The remaining cash-portfolio exposure equals the rounding residual under the constant-DV01 assumption. Before expiry, put delta has magnitude below one, so this static terminal protection is not a full current DV01 hedge. The European Black calculation is a teaching approximation for American-style Treasury options, and ignores exercise, basis, changing DV01, and trading frictions.
+
+```{=html}
+</details>
+```

@@ -353,13 +353,13 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../lecture_notes/lec3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Lecture 3: Bond Price Volatility, Duration, Convexity, and Bond Portfolio Strategies</span></a>
+ <span class="menu-text">Lecture 3: Bond Price Volatility, Duration, and Convexity</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../lecture_notes/lec4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Lecture 4: Benchmark Spreads and the Term Structure of Interest Rates</span></a>
+ <span class="menu-text">Lecture 4: Benchmark Spread, Term Structure of Interest Rate, and Curve Strategies</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -402,6 +402,12 @@ window.Quarto = {
   <div class="sidebar-item-container"> 
   <a href="../lecture_notes/lec11.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Lecture 11: Interest-Rate Options</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lecture_notes/introduction-to-option-pricing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Option Pricing</span></a>
   </div>
 </li>
     </ul>
@@ -556,12 +562,41 @@ window.Quarto = {
 <p>FRED reported the 10-year Treasury constant maturity yield at <strong>4.46% on June 2, 2026</strong> and the 10-year breakeven inflation rate at <strong>2.38% on June 3, 2026</strong>. On June 2, 2026, broad U.S. corporate option-adjusted spreads were about <strong>0.74%</strong>, while high-yield spreads were about <strong>2.71%</strong>. Nominal Treasury rates set the base rate, TIPS help reveal inflation compensation, and corporate spreads price credit risk.</p>
 </div>
 </div>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="lec5_files/figure-latex/mermaid-figure-1.png" height="380" class="figure-img"></p>
-<figcaption>Diagram</figcaption>
-</figure>
-</div>
+<p><strong>Treasury benchmark connections</strong></p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Instrument</th>
+<th>Pricing connection</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Agency debt</td>
+<td>Treasury base plus agency and liquidity compensation</td>
+</tr>
+<tr class="even">
+<td>Investment-grade corporates</td>
+<td>Treasury base plus credit and liquidity compensation</td>
+</tr>
+<tr class="odd">
+<td>High-yield bonds and loans</td>
+<td>Treasury or SOFR base plus credit and structural compensation</td>
+</tr>
+<tr class="even">
+<td>TIPS</td>
+<td>Real yield plus principal adjustment for inflation</td>
+</tr>
+<tr class="odd">
+<td>STRIPS</td>
+<td>Individual zero-coupon Treasury payments</td>
+</tr>
+</tbody>
+</table>
 <section id="types-of-treasury-securities" class="level2" data-number="1.1">
 <h2 data-number="1.1" class="anchored" data-anchor-id="types-of-treasury-securities"><span class="header-section-number">1.1</span> Types of Treasury Securities</h2>
 <p>The Treasury issues marketable and nonmarketable securities. This lecture focuses on marketable securities: instruments that investors can buy and sell in the secondary market.</p>
@@ -572,7 +607,7 @@ window.Quarto = {
 </ul>
 <p>This classification is based on cash-flow design. A bill is one future payment. A coupon note is many future payments. A TIPS is a coupon bond whose principal changes with inflation. A STRIP is one separated cash flow from a larger Treasury security.</p>
 <p>The reason the Treasury issues multiple security types is that the government has multiple financing needs and investors have multiple risk preferences. Bills help the Treasury manage short-term cash balances. Notes and bonds lock in longer-term funding. FRNs appeal to investors who want Treasury credit quality with less duration risk. TIPS help the Treasury reach investors who care about real purchasing power. STRIPS exist because some investors want one certain future cash flow rather than a package of coupon payments.</p>
-<div id="cbc64310" class="cell" data-message="false" data-execution_count="2">
+<div id="c3f26a36" class="cell" data-message="false" data-execution_count="2">
 <div class="cell-output cell-output-display" data-execution_count="2">
 <div>
 
@@ -684,17 +719,43 @@ window.Quarto = {
 <p>A Treasury bill is mostly a promise about <strong>one future dollar</strong>. A Treasury note or bond is a package of many future dollars. That is why a bill quote is naturally about the discount from par, while a coupon Treasury quote is naturally about the price of a stream of cash flows.</p>
 </div>
 </div>
-<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;align-items:center;width:100%;">
-<div style="min-width:0;overflow:hidden;">
-<img src="lec5_files/figure-latex/mermaid-figure-2.png" alt="Treasury bill cash-flow diagram" style="display:block;width:100%;height:220px;object-fit:contain;">
-</div>
-<div style="min-width:0;overflow:hidden;">
-<img src="lec5_files/figure-latex/mermaid-figure-3.png" alt="Treasury note cash-flow diagram" style="display:block;width:100%;height:220px;object-fit:contain;">
-</div>
-<div style="min-width:0;overflow:hidden;">
-<img src="lec5_files/figure-latex/mermaid-figure-4.png" alt="Treasury floating-rate note reset diagram" style="display:block;width:100%;height:220px;object-fit:contain;">
-</div>
-</div>
+<p><strong>Treasury payment patterns</strong></p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Security</th>
+<th>At purchase</th>
+<th>During holding</th>
+<th>At maturity</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Bill</td>
+<td>Pay discounted price</td>
+<td>No coupons</td>
+<td>Receive face value</td>
+</tr>
+<tr class="even">
+<td>Note or bond</td>
+<td>Pay clean price plus accrued interest</td>
+<td>Receive semiannual coupons</td>
+<td>Receive final coupon and principal</td>
+</tr>
+<tr class="odd">
+<td>FRN</td>
+<td>Pay purchase price</td>
+<td>Weekly index resets; quarterly interest</td>
+<td>Receive final interest and principal</td>
+</tr>
+</tbody>
+</table>
 <div class="callout callout-style-default callout-note callout-titled" title="Worked Example: Pricing a Treasury Bill">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -819,19 +880,48 @@ y_{\text{real}} \approx y_{\text{nominal}} - \text{breakeven inflation}.
 <p>Treasury regularly issues new securities, but it also sells additional amounts of already outstanding securities. This is called a <strong>reopening</strong>. Reopenings increase the size of an existing issue rather than creating a new CUSIP, and the Treasury has a regular reopening schedule for 5-year and 10-year issues.</p>
 <p>Two types of bids can be submitted:</p>
 <ul>
-<li><strong>Noncompetitive bids.</strong> The bidder specifies only the quantity and agrees to accept the auction-determined yield. A noncompetitive bid cannot exceed $5 million.</li>
+<li><strong>Noncompetitive bids.</strong> The bidder specifies only the quantity and agrees to accept the auction-determined yield. A noncompetitive bid cannot exceed $10 million per auction (<a href="https://www.treasurydirect.gov/auctions/how-auctions-work/">TreasuryDirect</a>).</li>
 <li><strong>Competitive bids.</strong> The bidder specifies both the quantity and the yield at which they are willing to buy the security.</li>
 </ul>
 <p>Auction awards are determined in stages. First, total noncompetitive tenders and nonpublic purchases, such as Federal Reserve purchases, are deducted from the total offering amount. The remaining amount is allocated to competitive bidders. Competitive bids are ranked from lowest yield to highest yield, which is equivalent to ranking from highest price to lowest price. The Treasury accepts bids from the lowest yield upward until the competitive allocation is filled.</p>
 <p>The highest accepted yield is the <strong>stop-out yield</strong>, also called the <strong>high yield</strong>. Competitive bids above the stop-out yield receive no allocation. Bids exactly at the stop-out yield may receive only a proportional allocation if there is not enough remaining supply to fill them completely.</p>
 <p>U.S. Treasury auctions are <strong>single-price auctions</strong>. All successful bidders receive the same yield: the stop-out yield. For notes and bonds, the Treasury also sets the coupon rate after the auction. The coupon is chosen in increments of 1/8 of 1% so that the price is as close as possible to par without being above par at the awarded yield.</p>
-<p>Within about an hour after the 1:00 p.m. auction deadline, Treasury announces the results. These include the stop-out yield, associated price, percentage awarded at the stop-out yield, amount of noncompetitive tenders, median-yield bid, bid-to-cover ratio, and, for notes and bonds, the coupon rate.</p>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="lec5_files/figure-latex/mermaid-figure-5.png" height="380" class="figure-img"></p>
-<figcaption>Diagram</figcaption>
-</figure>
-</div>
+<p>Treasury publishes results after the applicable auction deadline. Submission deadlines vary by security and bid type; use the auction announcement. These include the stop-out yield, associated price, percentage awarded at the stop-out yield, amount of noncompetitive tenders, median-yield bid, bid-to-cover ratio, and, for notes and bonds, the coupon rate.</p>
+<p><strong>Auction allocation</strong></p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Stage</th>
+<th>Decision</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1. Announce</td>
+<td>Publish supply, terms, and bid deadlines</td>
+</tr>
+<tr class="even">
+<td>2. Accept noncompetitive tenders</td>
+<td>Deduct accepted quantities from available supply</td>
+</tr>
+<tr class="odd">
+<td>3. Rank competitive bids</td>
+<td>Accept from lowest yield upward</td>
+</tr>
+<tr class="even">
+<td>4. Reach the stop-out yield</td>
+<td>Prorate marginal bids if necessary</td>
+</tr>
+<tr class="odd">
+<td>5. Award</td>
+<td>Apply the single auction price to successful bids</td>
+</tr>
+</tbody>
+</table>
 <div class="callout callout-style-default callout-note callout-titled" title="Auction Example: Finding the Stop-Out Yield">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1225,12 +1315,33 @@ P_{\text{STRIP}} = \frac{F}{(1+z_T)^T}.
 z_{10} = \left(\frac{100}{62}\right)^{1/10}-1 \approx 4.90\%.
 \]</span></p>
 <p>The economic reason for stripping is matching. A coupon Treasury delivers cash repeatedly; a STRIP delivers cash once. If an insurer knows it must pay a claim reserve in exactly 12 years, a 12-year principal STRIP is cleaner than buying a coupon bond and reinvesting intermediate coupons. STRIPS also make duration exposure more concentrated because no cash comes back before maturity.</p>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="lec5_files/figure-latex/mermaid-figure-6.png" height="360" class="figure-img"></p>
-<figcaption>Diagram</figcaption>
-</figure>
-</div>
+<p><strong>Separating Treasury cash flows</strong></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Instrument</th>
+<th>Payments</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Coupon Treasury</td>
+<td>Semiannual coupons and principal at maturity</td>
+</tr>
+<tr class="even">
+<td>Coupon STRIPS</td>
+<td>Each coupon becomes a separate zero-coupon security</td>
+</tr>
+<tr class="odd">
+<td>Principal STRIP</td>
+<td>Principal becomes a separate zero-coupon security</td>
+</tr>
+<tr class="even">
+<td>Reconstitution</td>
+<td>Eligible separated payments can be recombined</td>
+</tr>
+</tbody>
+</table>
 <section id="tax-treatment" class="level2" data-number="2.1">
 <h2 data-number="2.1" class="anchored" data-anchor-id="tax-treatment"><span class="header-section-number">2.1</span> Tax Treatment</h2>
 <p>STRIPS produce no cash coupon before maturity, but taxable investors generally must report imputed interest each year. This is often called <strong>phantom income</strong>: taxable income is recognized before cash is received.</p>
@@ -1314,7 +1425,7 @@ z_{10} = \left(\frac{100}{62}\right)^{1/10}-1 \approx 4.90\%.
 <p>TVA bonds also show that federal-related debt can finance real assets, not just financial intermediation. The underlying business is power generation and infrastructure.</p>
 <p>TVA debt is useful pedagogically because the source of repayment is tied to an operating public-power enterprise. That makes it different from housing GSEs and FHLBs, where the balance sheet is more directly connected to financial intermediation.</p>
 <hr>
-<div id="94cb187d" class="cell" data-message="false" data-execution_count="4">
+<div id="a59e1c0c" class="cell" data-message="false" data-execution_count="4">
 <div class="cell-output cell-output-display" data-execution_count="4">
 <div>
 
@@ -1390,21 +1501,67 @@ z_{10} = \left(\frac{100}{62}\right)^{1/10}-1 \approx 4.90\%.
 \]</span></p>
 <p>But the spread is not just default probability. It also reflects expected recovery, liquidity, covenants, seniority, optionality, taxes, investor demand, and market risk appetite.</p>
 <p>Corporate debt exists because it is often cheaper and less dilutive than equity. For investors, it creates a contractual claim with priority over equity but limited upside. This asymmetry explains why bondholders care less about maximum growth and more about downside protection, asset coverage, and restrictions on risk-shifting.</p>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="lec5_files/figure-latex/mermaid-figure-7.png" class="img-fluid figure-img"></p>
-<figcaption>Diagram</figcaption>
-</figure>
-</div>
+<p><strong>Corporate financing choices</strong></p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Debt form</th>
+<th>Main exposure</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Commercial paper</td>
+<td>Short-term funding and rollover risk</td>
+</tr>
+<tr class="even">
+<td>Bonds and notes</td>
+<td>Fixed or floating coupons; credit and duration risk</td>
+</tr>
+<tr class="odd">
+<td>Bank loans</td>
+<td>Negotiated terms, collateral, and covenants</td>
+</tr>
+<tr class="even">
+<td>Structured debt</td>
+<td>Contract-specific contingent payments</td>
+</tr>
+</tbody>
+</table>
 <section id="seniority-of-debt-in-a-corporations-capital-structure" class="level2" data-number="4.1">
 <h2 data-number="4.1" class="anchored" data-anchor-id="seniority-of-debt-in-a-corporations-capital-structure"><span class="header-section-number">4.1</span> Seniority of Debt in a Corporation’s Capital Structure</h2>
 <p>Seniority determines who gets paid first if the issuer cannot meet its obligations. A simplified capital structure is:</p>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="lec5_files/figure-latex/mermaid-figure-8.png" height="360" class="figure-img"></p>
-<figcaption>Diagram</figcaption>
-</figure>
-</div>
+<p><strong>Simplified priority of claims</strong></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Priority</th>
+<th>Claim</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>Senior secured creditors: claim on pledged collateral</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>Senior unsecured creditors: general claim on remaining assets</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>Subordinated creditors: paid after senior claims</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>Equity: residual claim, first to absorb losses</td>
+</tr>
+</tbody>
+</table>
 <p>Senior secured debt is backed by collateral. Senior unsecured debt has no specific collateral but has a general claim on the issuer’s assets after secured claims. Subordinated debt ranks below senior debt. Equity is last.</p>
 <p>Seniority affects expected loss:</p>
 <p><span class="math display">\[
@@ -1524,12 +1681,13 @@ z_{10} = \left(\frac{100}{62}\right)^{1/10}-1 \approx 4.90\%.
 </tr>
 <tr class="even">
 <td>Default</td>
-<td>D</td>
+<td>C (typically in default)</td>
 <td>D</td>
 <td>Default</td>
 </tr>
 </tbody>
 </table>
+<p>Moody’s lowest long-term category is C, typically associated with default; it does not use D on this scale (<a href="https://www.moodys.com/web/en/us/solutions/ratings/understanding-ratings.html">Moody’s</a>).</p>
 <p>Rating agencies also place issuers on watch for possible upgrades or downgrades. Markets often react before the rating change because spreads update continuously.</p>
 <p>The rating scale is ordinal, not a precise probability table. AAA is better than AA, and AA is better than A, but the market still prices each issuer separately. A BBB utility, a BBB cyclical manufacturer, and a BBB bank can trade at different spreads because their business risk, leverage, liquidity, and recovery prospects differ.</p>
 </section>
@@ -1617,12 +1775,33 @@ z_{10} = \left(\frac{100}{62}\right)^{1/10}-1 \approx 4.90\%.
 </ul>
 <p>Covenants are especially important in high-yield bonds and leveraged loans because small changes in creditor protections can materially affect recovery value.</p>
 <p>The reason covenants exist is agency conflict. After debt is issued, shareholders and managers may prefer actions that increase equity upside while increasing creditor downside: more debt, dividends, asset sales, risky acquisitions, or collateral pledges to new lenders. Covenants limit those transfers of value.</p>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="lec5_files/figure-latex/mermaid-figure-9.png" height="360" class="figure-img"></p>
-<figcaption>Diagram</figcaption>
-</figure>
-</div>
+<p><strong>Covenants protect creditor claims</strong></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Potential action</th>
+<th>Typical protection</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Additional borrowing</td>
+<td>Debt-incurrence limits</td>
+</tr>
+<tr class="even">
+<td>Dividend or repurchase</td>
+<td>Restricted-payment covenant</td>
+</tr>
+<tr class="odd">
+<td>Pledge assets to new lenders</td>
+<td>Negative pledge or lien limitation</td>
+</tr>
+<tr class="even">
+<td>Asset sale or merger</td>
+<td>Asset-sale and change-of-control provisions</td>
+</tr>
+</tbody>
+</table>
 </section>
 <section id="special-structures-for-high-yield-corporate-bonds" class="level3">
 <h3 class="anchored" data-anchor-id="special-structures-for-high-yield-corporate-bonds">Special Structures for High-Yield Corporate Bonds</h3>
@@ -1784,7 +1963,7 @@ P = 5{,}000{,}000\left(1-0.0540\frac{60}{360}\right)
 <section id="tier-1-and-tier-2-paper" class="level3">
 <h3 class="anchored" data-anchor-id="tier-1-and-tier-2-paper">Tier-1 and Tier-2 Paper</h3>
 <p>Commercial paper investors pay close attention to short-term credit ratings. Money market funds face restrictions on the credit quality of eligible paper.</p>
-<p>Tier-1 paper is the highest-quality eligible commercial paper. Tier-2 paper is still eligible but lower quality. A move from Tier 1 to Tier 2 can materially reduce investor demand and increase rollover risk.</p>
+<p>Tier 1 and Tier 2 are historical rating-based categories. They do not by themselves determine current U.S. money-market-fund eligibility: the SEC replaced rating references with a minimal-credit-risk assessment. A downgrade can still reduce investor demand and increase rollover risk (<a href="https://www.sec.gov/newsroom/press-releases/2015-193">SEC rule explanation</a>).</p>
 <p>This tier distinction matters because money-market investors are constrained by rules and risk limits. A downgrade can therefore change not only the price of funding but also the quantity of funding available.</p>
 </section>
 </section>
@@ -1905,12 +2084,43 @@ P = 5{,}000{,}000\left(1-0.0540\frac{60}{360}\right)
 <section id="collateralized-loan-obligations-clos" class="level3">
 <h3 class="anchored" data-anchor-id="collateralized-loan-obligations-clos">Collateralized Loan Obligations (CLOs)</h3>
 <p>CLOs are structured finance vehicles backed by pools of leveraged loans. They turn one pool of loans into multiple securities with different priority, ratings, and risk.</p>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="lec5_files/figure-latex/mermaid-figure-10.png" height="340" class="figure-img"></p>
-<figcaption>Diagram</figcaption>
-</figure>
-</div>
+<p><strong>CLO payment and loss priorities</strong></p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Layer</th>
+<th>Cash-flow claim</th>
+<th>Loss order</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Loan pool</td>
+<td>Collects interest and principal from borrowers</td>
+<td>Defaults reduce available cash</td>
+</tr>
+<tr class="even">
+<td>Senior notes</td>
+<td>Paid before junior notes</td>
+<td>Protected by junior subordination</td>
+</tr>
+<tr class="odd">
+<td>Mezzanine notes</td>
+<td>Paid after senior obligations</td>
+<td>Absorb losses after equity</td>
+</tr>
+<tr class="even">
+<td>Equity</td>
+<td>Receives residual after expenses and debt</td>
+<td>Absorbs first losses</td>
+</tr>
+</tbody>
+</table>
 <p>Senior CLO tranches are paid first and can receive investment-grade ratings even though the underlying loans are below investment grade. Equity receives the residual cash flow but absorbs first losses. CLOs exist because different investors want different versions of the same loan-pool exposure: senior rated floating-rate debt, mezzanine credit risk, or levered equity-like exposure.</p>
 <div class="callout callout-style-default callout-note callout-titled" title="CLO Waterfall Intuition">
 <div class="callout-header d-flex align-content-center">
@@ -1974,7 +2184,7 @@ P = 5{,}000{,}000\left(1-0.0540\frac{60}{360}\right)
 \]</span></p>
 <p>The credit spread must compensate investors not only for expected loss, but also for uncertainty, liquidity risk, downgrade risk, and the fact that defaults tend to cluster in bad economic states.</p>
 <p>Recovery depends on collateral, seniority, enterprise value, industry asset specificity, and the legal process. A secured loan backed by receivables and inventory may recover more than an unsecured bond issued by an asset-light business, even if both borrowers have the same rating before default.</p>
-<div id="686bc5e8" class="cell" data-message="false" data-execution_count="5">
+<div id="27c2a87c" class="cell" data-message="false" data-execution_count="5">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">

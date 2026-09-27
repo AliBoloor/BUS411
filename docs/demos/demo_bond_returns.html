@@ -1,0 +1,2090 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.27">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Practical Demo: Bond Returns and Horizon Analysis – BUS 411 — Fixed Income Security Analysis and Valuation</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-4d9afe2b8d18ee9fa5d0d57b5ed4214d.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-97afdd19a946a7800d02dd55b4e8b647.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-aeaf3e155c33cdd5728541c7b417a725.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-97afdd19a946a7800d02dd55b4e8b647.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+<style>
+main.content, .cell, .cell-output-display { min-width: 0; }
+.cell-output-display { overflow-x: auto; max-width: 100%; }
+.cell-output-display img { max-width: 100%; height: auto; }
+.demo-lab table { width: 100%; font-size: .95rem; }
+.demo-lab th, .demo-lab td { text-align: left; padding: .35rem .65rem .35rem 0; }
+.demo-lab th { border-bottom: 1px solid #b6bdb2; }
+.demo-lab input { accent-color: #214b3e; }
+.demo-lab button { border: 1px solid #214b3e; border-radius: 3px;
+  color: #214b3e; background: transparent; padding: .2rem .7rem; }
+details.code-fold { margin: .8rem 0; }
+details.demo-solution { border-left: 4px solid #936724; padding: 1rem;
+  margin: 1rem 0; background: #fafaf6; }
+details.demo-solution > summary { cursor: pointer; font-weight: 700;
+  color: #214b3e; }
+mjx-container[display="true"] { display: block; max-width: 100%;
+  overflow-x: auto; overflow-y: hidden; padding-block: .35em; }
+</style>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../forest-site.css">
+</head>
+
+<body class="docked nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">BUS 411 — Fixed Income Security Analysis and Valuation</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../lecture_notes/index.html"> 
+<span class="menu-text">Lecture Notes</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../slides/index.html"> 
+<span class="menu-text">Slides</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../demos/index.html"> 
+<span class="menu-text">Demos</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../assignments/index.html"> 
+<span class="menu-text">Assignments</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#the-desk-question" id="toc-the-desk-question" class="nav-link active" data-scroll-target="#the-desk-question">The desk question</a></li>
+  <li><a href="#purpose-and-assumptions" id="toc-purpose-and-assumptions" class="nav-link" data-scroll-target="#purpose-and-assumptions">Purpose and assumptions</a></li>
+  <li><a href="#price-the-promised-cash-flows" id="toc-price-the-promised-cash-flows" class="nav-link" data-scroll-target="#price-the-promised-cash-flows"><span class="header-section-number">1</span> Price the promised cash flows</a></li>
+  <li><a href="#distinguish-quoted-yields-from-realized-returns" id="toc-distinguish-quoted-yields-from-realized-returns" class="nav-link" data-scroll-target="#distinguish-quoted-yields-from-realized-returns"><span class="header-section-number">2</span> Distinguish quoted yields from realized returns</a></li>
+  <li><a href="#build-terminal-wealth-without-double-counting-coupons" id="toc-build-terminal-wealth-without-double-counting-coupons" class="nav-link" data-scroll-target="#build-terminal-wealth-without-double-counting-coupons"><span class="header-section-number">3</span> Build terminal wealth without double counting coupons</a></li>
+  <li><a href="#separate-price-risk-from-reinvestment-risk" id="toc-separate-price-risk-from-reinvestment-risk" class="nav-link" data-scroll-target="#separate-price-risk-from-reinvestment-risk"><span class="header-section-number">4</span> Separate price risk from reinvestment risk</a></li>
+  <li><a href="#predict-change-explain" id="toc-predict-change-explain" class="nav-link" data-scroll-target="#predict-change-explain"><span class="header-section-number">5</span> Predict, change, explain</a></li>
+  <li><a href="#validation-checks" id="toc-validation-checks" class="nav-link" data-scroll-target="#validation-checks"><span class="header-section-number">6</span> Validation checks</a></li>
+  <li><a href="#mini-project" id="toc-mini-project" class="nav-link" data-scroll-target="#mini-project"><span class="header-section-number">7</span> Mini Project</a></li>
+  </ul>
+<div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="demo_bond_returns.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></nav>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title">Practical Demo: Bond Returns and Horizon Analysis</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button">View Source</a></li></ul></div></div>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="the-desk-question" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="the-desk-question">The desk question</h2>
+<p>A client buys a bond yielding 5%. <strong>Will the client actually earn 5% over the next two years?</strong> Build a horizon-value report that separates coupon income, reinvestment income, and the change in the bond’s full price. Then explain which assumptions make a quoted yield an attainable compound return.</p>
+</section>
+<section id="purpose-and-assumptions" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="purpose-and-assumptions">Purpose and assumptions</h2>
+<p>Use an illustrative five-year, 6% coupon bond with face value $100. Coupons are semiannual. Buy immediately after a coupon at a 5% nominal annual YTM and sell immediately after the year-2 coupon. All cash flows are contractual; ignore default, calls, taxes, fees, and bid–ask spreads. Accrued interest is zero at both endpoints. Exit YTM and coupon reinvestment rates are independent scenario inputs, quoted as nominal annual rates compounded semiannually. No inputs are live quotes.</p>
+<p>Read alongside <a href="../lecture_notes/lec2.html">Lecture 2</a>. Dollar results below are per $100 face unless explicitly scaled to the client position.</p>
+</section>
+<section id="price-the-promised-cash-flows" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="price-the-promised-cash-flows"><span class="header-section-number">1</span> Price the promised cash flows</h2>
+<p>With <span class="math inline">\(n=10\)</span> half-year periods and <span class="math inline">\(C=100(0.06)/2=3\)</span>,</p>
+<p><span class="math display">\[
+P_0=\sum_{k=1}^{10}\frac{3}{(1+0.05/2)^k}
+       +\frac{100}{(1+0.05/2)^{10}}.
+\]</span></p>
+<div id="returns-setup" class="cell" data-execution_count="2">
+<details class="code-fold">
+<summary>Show calculation</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> IPython.display <span class="im">import</span> Markdown, display</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>plt.rcParams.update({<span class="st">"figure.figsize"</span>: (<span class="dv">8</span>, <span class="fl">4.2</span>), <span class="st">"font.size"</span>: <span class="dv">11</span>,</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"axes.spines.top"</span>: <span class="va">False</span>, <span class="st">"axes.spines.right"</span>: <span class="va">False</span>,</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"axes.grid"</span>: <span class="va">True</span>, <span class="st">"grid.alpha"</span>: <span class="fl">.2</span>})</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> bond_price(coupon_rate, periods, annual_yield, face<span class="op">=</span><span class="fl">100.</span>):</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Ex-coupon full price on a semiannual coupon date; rates are decimals.</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co">    `periods` is the number of remaining half years. A zero-period bond has</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co">    just matured and returns principal; coupon accounting is handled separately.</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co">    Yield can be scalar or an array. Payment dates occupy the final axis.</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    y <span class="op">=</span> np.asarray(annual_yield, dtype<span class="op">=</span><span class="bu">float</span>)</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="kw">not</span> np.<span class="bu">all</span>(np.isfinite(y)) <span class="kw">or</span> np.<span class="bu">any</span>(y <span class="op">&lt;=</span> <span class="op">-</span><span class="dv">2</span>):</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">"Semiannual yields must be finite and greater than -200%."</span>)</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="bu">int</span>(periods) <span class="op">!=</span> periods <span class="kw">or</span> periods <span class="op">&lt;</span> <span class="dv">0</span> <span class="kw">or</span> <span class="kw">not</span> <span class="dv">0</span> <span class="op">&lt;=</span> coupon_rate <span class="op">&lt;</span> <span class="dv">1</span> <span class="kw">or</span> face <span class="op">&lt;=</span> <span class="dv">0</span>:</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">"Use nonnegative integer periods, a valid coupon, and positive face."</span>)</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> periods <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> np.full_like(y, face, dtype<span class="op">=</span><span class="bu">float</span>)</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    k <span class="op">=</span> np.arange(<span class="dv">1</span>, periods <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    cf <span class="op">=</span> np.full(periods, face<span class="op">*</span>coupon_rate<span class="op">/</span><span class="dv">2</span>)</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    cf[<span class="op">-</span><span class="dv">1</span>] <span class="op">+=</span> face</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.<span class="bu">sum</span>(cf<span class="op">*</span>np.exp(<span class="op">-</span>np.log1p(y[...,<span class="va">None</span>]<span class="op">/</span><span class="dv">2</span>)<span class="op">*</span>k), axis<span class="op">=-</span><span class="dv">1</span>)</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> show_table(frame, decimals<span class="op">=</span><span class="dv">4</span>):</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Keep short reports together in PDF and retain clear column labels."""</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> frame.shape[<span class="dv">1</span>] <span class="op">&gt;</span> <span class="dv">4</span>:</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>        frame <span class="op">=</span> frame.set_index(frame.columns[<span class="dv">0</span>]).T.reset_index().rename(columns<span class="op">=</span>{<span class="st">"index"</span>:<span class="st">"Measure"</span>})</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>    reserve <span class="op">=</span> <span class="st">"```{=latex}</span><span class="ch">\n\\</span><span class="st">ReserveTableSpace{"</span> <span class="op">+</span> <span class="bu">str</span>(<span class="bu">len</span>(frame)<span class="op">+</span><span class="dv">4</span>) <span class="op">+</span> <span class="st">"</span><span class="ch">\\</span><span class="st">baselineskip}</span><span class="ch">\n</span><span class="st">```</span><span class="ch">\n\n</span><span class="st">"</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> cell(value):</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="bu">isinstance</span>(value, (<span class="bu">int</span>, <span class="bu">float</span>, np.number)):</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="ss">f"</span><span class="sc">{</span>value<span class="sc">:.</span>{decimals}f<span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="bu">str</span>(value).replace(<span class="st">"|"</span>, <span class="st">"</span><span class="ch">\\</span><span class="st">|"</span>)</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>    rows <span class="op">=</span> [<span class="st">"| "</span> <span class="op">+</span> <span class="st">" | "</span>.join(<span class="bu">map</span>(<span class="bu">str</span>, frame.columns)) <span class="op">+</span> <span class="st">" |"</span>,</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>            <span class="st">"| "</span> <span class="op">+</span> <span class="st">" | "</span>.join([<span class="st">"---"</span>]<span class="op">*</span><span class="bu">len</span>(frame.columns)) <span class="op">+</span> <span class="st">" |"</span>]</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>    rows <span class="op">+=</span> [<span class="st">"| "</span> <span class="op">+</span> <span class="st">" | "</span>.join(cell(v) <span class="cf">for</span> v <span class="kw">in</span> row) <span class="op">+</span> <span class="st">" |"</span></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>             <span class="cf">for</span> row <span class="kw">in</span> frame.itertuples(index<span class="op">=</span><span class="va">False</span>, name<span class="op">=</span><span class="va">None</span>)]</span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>    display(Markdown(reserve<span class="op">+</span><span class="st">"</span><span class="ch">\n</span><span class="st">"</span>.join(rows)))</span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>coupon_rate, maturity_periods, purchase_yield <span class="op">=</span> <span class="fl">.06</span>, <span class="dv">10</span>, <span class="fl">.05</span></span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>purchase_price <span class="op">=</span> <span class="bu">float</span>(bond_price(coupon_rate, maturity_periods, purchase_yield))</span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>periods <span class="op">=</span> np.arange(<span class="dv">1</span>, <span class="dv">11</span>)</span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>cf <span class="op">=</span> np.full(<span class="dv">10</span>, <span class="fl">3.</span>)<span class="op">;</span> cf[<span class="op">-</span><span class="dv">1</span>] <span class="op">+=</span> <span class="dv">100</span></span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>payments <span class="op">=</span> pd.DataFrame({<span class="st">"Year"</span>: periods<span class="op">/</span><span class="dv">2</span>, <span class="st">"Payment"</span>: cf,</span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Discount factor"</span>: (<span class="dv">1</span><span class="op">+</span>purchase_yield<span class="op">/</span><span class="dv">2</span>)<span class="op">**</span>(<span class="op">-</span>periods),</span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Present value"</span>: cf<span class="op">/</span>(<span class="dv">1</span><span class="op">+</span>purchase_yield<span class="op">/</span><span class="dv">2</span>)<span class="op">**</span>periods})</span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>show_table(payments,<span class="dv">5</span>)</span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>display(Markdown(<span class="ss">f"**Purchase full price: </span><span class="sc">{</span>purchase_price<span class="sc">:.6f}</span><span class="ss">.** The 6% coupon exceeds the 5% YTM, so the bond trades above par."</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div id="returns-setup-1" class="cell-output cell-output-display cell-output-markdown">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th>Year</th>
+<th>Payment</th>
+<th>Discount factor</th>
+<th>Present value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0.50000</td>
+<td>3.00000</td>
+<td>0.97561</td>
+<td>2.92683</td>
+</tr>
+<tr class="even">
+<td>1.00000</td>
+<td>3.00000</td>
+<td>0.95181</td>
+<td>2.85544</td>
+</tr>
+<tr class="odd">
+<td>1.50000</td>
+<td>3.00000</td>
+<td>0.92860</td>
+<td>2.78580</td>
+</tr>
+<tr class="even">
+<td>2.00000</td>
+<td>3.00000</td>
+<td>0.90595</td>
+<td>2.71785</td>
+</tr>
+<tr class="odd">
+<td>2.50000</td>
+<td>3.00000</td>
+<td>0.88385</td>
+<td>2.65156</td>
+</tr>
+<tr class="even">
+<td>3.00000</td>
+<td>3.00000</td>
+<td>0.86230</td>
+<td>2.58689</td>
+</tr>
+<tr class="odd">
+<td>3.50000</td>
+<td>3.00000</td>
+<td>0.84127</td>
+<td>2.52380</td>
+</tr>
+<tr class="even">
+<td>4.00000</td>
+<td>3.00000</td>
+<td>0.82075</td>
+<td>2.46224</td>
+</tr>
+<tr class="odd">
+<td>4.50000</td>
+<td>3.00000</td>
+<td>0.80073</td>
+<td>2.40219</td>
+</tr>
+<tr class="even">
+<td>5.00000</td>
+<td>103.00000</td>
+<td>0.78120</td>
+<td>80.46344</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="returns-setup-2" class="cell-output cell-output-display cell-output-markdown">
+<p><strong>Purchase full price: 104.376032.</strong> The 6% coupon exceeds the 5% YTM, so the bond trades above par.</p>
+</div>
+</div>
+</section>
+<section id="distinguish-quoted-yields-from-realized-returns" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="distinguish-quoted-yields-from-realized-returns"><span class="header-section-number">2</span> Distinguish quoted yields from realized returns</h2>
+<p>Current yield is annual coupon divided by today’s price. It ignores both reinvestment and the gain or loss when the bond is sold or redeemed. YTM is the internal rate of return of promised payments at the purchase price. It is not a forecast of a short-horizon sale price.</p>
+<div id="cell-return-quote-comparison" class="cell" data-execution_count="3">
+<details class="code-fold">
+<summary>Show calculation</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>display(pd.DataFrame({<span class="st">"Measure"</span>: [<span class="st">"Coupon rate"</span>, <span class="st">"Current yield"</span>, <span class="st">"Nominal annual YTM"</span>, <span class="st">"Effective annual YTM"</span>],</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Percent"</span>: [<span class="fl">6.</span>, <span class="dv">100</span><span class="op">*</span><span class="dv">6</span><span class="op">/</span>purchase_price, <span class="fl">5.</span>, <span class="dv">100</span><span class="op">*</span>((<span class="dv">1</span><span class="op">+</span><span class="fl">.05</span><span class="op">/</span><span class="dv">2</span>)<span class="op">**</span><span class="dv">2</span><span class="op">-</span><span class="dv">1</span>)]}).<span class="bu">round</span>(<span class="dv">4</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div id="return-quote-comparison" class="cell-output cell-output-display">
+<table class="dataframe caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 40%">
+<col style="width: 60%">
+</colgroup>
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Percent</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">Measure</th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">Coupon rate</th>
+<td>6.0000</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">Current yield</th>
+<td>5.7484</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">Nominal annual YTM</th>
+<td>5.0000</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">Effective annual YTM</th>
+<td>5.0625</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>A 5% semiannual-compounding YTM corresponds to an effective annual rate of <span class="math inline">\((1.025)^2-1=5.0625\%\)</span>. Realizing that compound rate requires the relevant reinvestment and terminal-value assumptions, as the next calculation shows.</p>
+</section>
+<section id="build-terminal-wealth-without-double-counting-coupons" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="build-terminal-wealth-without-double-counting-coupons"><span class="header-section-number">3</span> Build terminal wealth without double counting coupons</h2>
+<p>At <span class="math inline">\(H=2\)</span> years, four coupons have been received. The sale price is ex-coupon, with six half-year payments remaining. If <span class="math inline">\(j\)</span> is the annual reinvestment rate,</p>
+<p><span class="math display">\[
+FV_C=3\left[(1+j/2)^3+(1+j/2)^2+(1+j/2)+1\right],
+\]</span></p>
+<p><span class="math display">\[
+W_H=P_H+FV_C,\qquad
+HPR=\frac{W_H-P_0}{P_0},\qquad
+R_{\mathrm{annual}}=\left(\frac{W_H}{P_0}\right)^{1/H}-1.
+\]</span></p>
+<p>The coupon paid at year 2 enters <span class="math inline">\(FV_C\)</span> once and earns no reinvestment interest. The sale price excludes that coupon. This is a terminal-wealth return that assumes all coupon cash remains invested until the horizon.</p>
+<div id="cell-horizon-return-engine" class="cell" data-execution_count="4">
+<details class="code-fold">
+<summary>Show calculation</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> horizon_report(exit_yield, reinvest_rate, horizon_periods<span class="op">=</span><span class="dv">4</span>):</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Return a scenario table of terminal wealth and realized return.</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co">    Rates are decimal nominal annual rates; horizon is an integer number of</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co">    half years in [1, 10]. Scalars and arrays broadcast to a common shape.</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co">    Coupons are reinvested at a constant scenario rate, without withdrawals.</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="bu">int</span>(horizon_periods) <span class="op">!=</span> horizon_periods <span class="kw">or</span> <span class="kw">not</span> <span class="dv">1</span> <span class="op">&lt;=</span> horizon_periods <span class="op">&lt;=</span> maturity_periods:</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">"Horizon must be a coupon date through maturity."</span>)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    ey, ri <span class="op">=</span> np.broadcast_arrays(np.atleast_1d(exit_yield), np.atleast_1d(reinvest_rate))</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="kw">not</span> np.<span class="bu">all</span>(np.isfinite(ri)) <span class="kw">or</span> np.<span class="bu">any</span>(ri <span class="op">&lt;=</span> <span class="op">-</span><span class="dv">2</span>):</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">"Reinvestment rates must be finite and greater than -200%."</span>)</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    coupon_cash <span class="op">=</span> <span class="dv">3</span><span class="op">*</span>horizon_periods</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    powers <span class="op">=</span> np.arange(horizon_periods<span class="op">-</span><span class="dv">1</span>, <span class="op">-</span><span class="dv">1</span>, <span class="op">-</span><span class="dv">1</span>)</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    coupon_fv <span class="op">=</span> <span class="dv">3</span><span class="op">*</span>np.exp(np.log1p(ri[...,<span class="va">None</span>]<span class="op">/</span><span class="dv">2</span>)<span class="op">*</span>powers).<span class="bu">sum</span>(axis<span class="op">=-</span><span class="dv">1</span>)</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    sale <span class="op">=</span> bond_price(coupon_rate, maturity_periods<span class="op">-</span>horizon_periods, ey)</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    wealth <span class="op">=</span> sale<span class="op">+</span>coupon_fv</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> pd.DataFrame({<span class="st">"Exit YTM (%)"</span>: <span class="dv">100</span><span class="op">*</span>ey.ravel(), <span class="st">"Reinvest (%)"</span>: <span class="dv">100</span><span class="op">*</span>ri.ravel(),</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Sale / principal"</span>: sale.ravel(), <span class="st">"Coupon cash"</span>: np.full(ey.size,coupon_cash),</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Reinvestment income"</span>: (coupon_fv<span class="op">-</span>coupon_cash).ravel(),</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Price change"</span>: (sale<span class="op">-</span>purchase_price).ravel(), <span class="st">"Terminal wealth"</span>: wealth.ravel(),</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>        <span class="st">"HPR (%)"</span>: <span class="dv">100</span><span class="op">*</span>(wealth<span class="op">/</span>purchase_price<span class="op">-</span><span class="dv">1</span>).ravel(),</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Annual return (%)"</span>: <span class="dv">100</span><span class="op">*</span>np.expm1(np.log(wealth<span class="op">/</span>purchase_price)<span class="op">/</span>(horizon_periods<span class="op">/</span><span class="dv">2</span>)).ravel()})</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>base <span class="op">=</span> horizon_report(<span class="fl">.05</span>,<span class="fl">.05</span>)</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>show_table(base,<span class="dv">5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div id="horizon-return-engine" class="cell-output cell-output-display cell-output-markdown">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th>Measure</th>
+<th>5.0</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Reinvest (%)</td>
+<td>5.00000</td>
+</tr>
+<tr class="even">
+<td>Sale / principal</td>
+<td>102.75406</td>
+</tr>
+<tr class="odd">
+<td>Coupon cash</td>
+<td>12.00000</td>
+</tr>
+<tr class="even">
+<td>Reinvestment income</td>
+<td>0.45755</td>
+</tr>
+<tr class="odd">
+<td>Price change</td>
+<td>-1.62197</td>
+</tr>
+<tr class="even">
+<td>Terminal wealth</td>
+<td>115.21161</td>
+</tr>
+<tr class="odd">
+<td>HPR (%)</td>
+<td>10.38129</td>
+</tr>
+<tr class="even">
+<td>Annual return (%)</td>
+<td>5.06250</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>The unchanged-yield case includes a price decline toward par. Coupon income more than offsets that decline. A premium bond’s coupon rate therefore overstates its return even when market yields do not change.</p>
+</section>
+<section id="separate-price-risk-from-reinvestment-risk" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="separate-price-risk-from-reinvestment-risk"><span class="header-section-number">4</span> Separate price risk from reinvestment risk</h2>
+<p>Hold reinvestment at 3% while varying exit yields. Then hold the exit yield at 5% while varying reinvestment. This separation avoids assuming that sale yields and all past reinvestment rates move together.</p>
+<div id="returns-scenarios" class="cell" data-execution_count="5">
+<details class="code-fold">
+<summary>Show calculation</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>scenarios <span class="op">=</span> horizon_report([<span class="fl">.03</span>,<span class="fl">.05</span>,<span class="fl">.10</span>], <span class="fl">.03</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>show_table(scenarios,<span class="dv">4</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>show_table(horizon_report(<span class="fl">.05</span>,[<span class="fl">.01</span>,<span class="fl">.03</span>,<span class="fl">.05</span>]),<span class="dv">4</span>)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>,<span class="dv">2</span>,figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="dv">4</span>))</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> np.arange(<span class="dv">3</span>)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].bar(x, scenarios[<span class="st">"Coupon cash"</span>],label<span class="op">=</span><span class="st">"Coupon cash"</span>,color<span class="op">=</span><span class="st">"#214b3e"</span>)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].bar(x, scenarios[<span class="st">"Reinvestment income"</span>],bottom<span class="op">=</span>scenarios[<span class="st">"Coupon cash"</span>],label<span class="op">=</span><span class="st">"Reinvestment"</span>,color<span class="op">=</span><span class="st">"#936724"</span>)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].bar(x, scenarios[<span class="st">"Price change"</span>],label<span class="op">=</span><span class="st">"Price change"</span>,color<span class="op">=</span><span class="st">"#486d8c"</span>,alpha<span class="op">=</span><span class="fl">.8</span>)</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].<span class="bu">set</span>(xticks<span class="op">=</span>x,xticklabels<span class="op">=</span>[<span class="st">"3%"</span>,<span class="st">"5%"</span>,<span class="st">"10%"</span>] ,xlabel<span class="op">=</span><span class="st">"Exit YTM"</span>,ylabel<span class="op">=</span><span class="st">"Return component per $100 face"</span>)</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].axhline(<span class="dv">0</span>,color<span class="op">=</span><span class="st">"grey"</span>,lw<span class="op">=</span><span class="dv">1</span>)<span class="op">;</span>axes[<span class="dv">0</span>].legend(fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>yields<span class="op">=</span>np.linspace(<span class="fl">.01</span>,<span class="fl">.10</span>,<span class="dv">91</span>)</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> j <span class="kw">in</span> [<span class="fl">.01</span>,<span class="fl">.03</span>,<span class="fl">.05</span>]:</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    result<span class="op">=</span>horizon_report(yields,j)</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    axes[<span class="dv">1</span>].plot(<span class="dv">100</span><span class="op">*</span>yields,result[<span class="st">"Annual return (%)"</span>],label<span class="op">=</span><span class="ss">f"Reinvest </span><span class="sc">{</span><span class="dv">100</span><span class="op">*</span>j<span class="sc">:.0f}</span><span class="ss">%"</span>)</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].<span class="bu">set</span>(xlabel<span class="op">=</span><span class="st">"Exit YTM (%)"</span>,ylabel<span class="op">=</span><span class="st">"Realized annual return (%)"</span>)</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].legend(fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()<span class="op">;</span>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div id="returns-scenarios-1" class="cell-output cell-output-display cell-output-markdown">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th>Measure</th>
+<th>3.0</th>
+<th>5.0</th>
+<th>10.0</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Reinvest (%)</td>
+<td>3.0000</td>
+<td>3.0000</td>
+<td>3.0000</td>
+</tr>
+<tr class="even">
+<td>Sale / principal</td>
+<td>108.5458</td>
+<td>102.7541</td>
+<td>89.8486</td>
+</tr>
+<tr class="odd">
+<td>Coupon cash</td>
+<td>12.0000</td>
+<td>12.0000</td>
+<td>12.0000</td>
+</tr>
+<tr class="even">
+<td>Reinvestment income</td>
+<td>0.2727</td>
+<td>0.2727</td>
+<td>0.2727</td>
+</tr>
+<tr class="odd">
+<td>Price change</td>
+<td>4.1697</td>
+<td>-1.6220</td>
+<td>-14.5274</td>
+</tr>
+<tr class="even">
+<td>Terminal wealth</td>
+<td>120.8185</td>
+<td>115.0268</td>
+<td>102.1213</td>
+</tr>
+<tr class="odd">
+<td>HPR (%)</td>
+<td>15.7531</td>
+<td>10.2042</td>
+<td>-2.1602</td>
+</tr>
+<tr class="even">
+<td>Annual return (%)</td>
+<td>7.5886</td>
+<td>4.9782</td>
+<td>-1.0860</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="returns-scenarios-2" class="cell-output cell-output-display cell-output-markdown">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th>Measure</th>
+<th>5.0</th>
+<th>5.0</th>
+<th>5.0</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Reinvest (%)</td>
+<td>1.0000</td>
+<td>3.0000</td>
+<td>5.0000</td>
+</tr>
+<tr class="even">
+<td>Sale / principal</td>
+<td>102.7541</td>
+<td>102.7541</td>
+<td>102.7541</td>
+</tr>
+<tr class="odd">
+<td>Coupon cash</td>
+<td>12.0000</td>
+<td>12.0000</td>
+<td>12.0000</td>
+</tr>
+<tr class="even">
+<td>Reinvestment income</td>
+<td>0.0903</td>
+<td>0.2727</td>
+<td>0.4575</td>
+</tr>
+<tr class="odd">
+<td>Price change</td>
+<td>-1.6220</td>
+<td>-1.6220</td>
+<td>-1.6220</td>
+</tr>
+<tr class="even">
+<td>Terminal wealth</td>
+<td>114.8444</td>
+<td>115.0268</td>
+<td>115.2116</td>
+</tr>
+<tr class="odd">
+<td>HPR (%)</td>
+<td>10.0294</td>
+<td>10.2042</td>
+<td>10.3813</td>
+</tr>
+<tr class="even">
+<td>Annual return (%)</td>
+<td>4.8949</td>
+<td>4.9782</td>
+<td>5.0625</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="demo_bond_returns_files/figure-html/returns-scenarios-output-3.png" id="returns-scenarios-3" width="1242" height="543" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>For this two-year horizon, a higher sale yield lowers the value of the remaining three-year bond. Higher reinvestment rates increase accumulated coupons. These are opposing effects with different magnitudes and timing.</p>
+</section>
+<section id="predict-change-explain" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="predict-change-explain"><span class="header-section-number">5</span> Predict, change, explain</h2>
+<p>Predict whether a 100 bp increase in the <strong>exit</strong> yield raises or lowers realized return. Keep the reinvestment rate fixed at 3%. Move the HTML control, then explain why that change is not an increase in the return already earned.</p>
+<div id="cell-returns-explorer" class="cell" data-execution_count="6">
+<details class="code-fold">
+<summary>Show calculation</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>explorer<span class="op">=</span>horizon_report(yields,<span class="fl">.03</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>display(demo_explorer(<span class="dv">100</span><span class="op">*</span>yields,{</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Two-year HPR"</span>:explorer[<span class="st">"HPR (%)"</span>].to_numpy(),</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Annualized return"</span>:explorer[<span class="st">"Annual return (%)"</span>].to_numpy(),</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>},<span class="st">"Exit YTM (%)"</span>,<span class="st">"Realized return (%)"</span>,<span class="dv">40</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div id="returns-explorer" class="cell-output cell-output-display">
+<div class="demo-lab" style="border-left:4px solid #936724;padding:1rem;margin:1rem 0">
+  <label for="demo-control"><strong>Exit YTM (%)</strong></label>
+  <input id="demo-control" type="range" min="0" max="90" value="40" step="1" style="display:block;width:100%;margin:.8rem 0">
+  <button id="demo-reset" type="button">Reset</button>
+  <p id="demo-selection" aria-live="polite"></p>
+  <svg id="demo-plot" viewbox="0 0 760 350" role="img" aria-label="Realized return (%) as Exit YTM (%) changes" style="width:100%;height:auto"></svg>
+  <div style="overflow-x:auto">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">Model output</th>
+<th data-quarto-table-cell-role="th">Realized return (%)</th>
+</tr>
+</thead>
+<tbody id="demo-values">
+</tbody>
+</table>
+</div>
+  <small>The control selects computed scenario points, not live market observations.</small>
+</div>
+<script>
+(() => {
+const d = {"x": [1.0, 1.0999999999999999, 1.2, 1.3, 1.4000000000000001, 1.5, 1.6, 1.7000000000000002, 1.8000000000000003, 1.9000000000000004, 2.0, 2.0999999999999996, 2.1999999999999997, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8000000000000003, 2.9, 3.0, 3.1, 3.2, 3.3000000000000003, 3.4000000000000004, 3.5000000000000004, 3.6000000000000005, 3.6999999999999997, 3.8, 3.9, 4.0, 4.1000000000000005, 4.2, 4.300000000000001, 4.4, 4.500000000000001, 4.6000000000000005, 4.7, 4.8, 4.9, 5.0, 5.1000000000000005, 5.2, 5.300000000000001, 5.4, 5.5, 5.6000000000000005, 5.7, 5.800000000000001, 5.9, 6.000000000000001, 6.1000000000000005, 6.200000000000001, 6.3, 6.4, 6.5, 6.6000000000000005, 6.7, 6.800000000000001, 6.9, 6.999999999999999, 7.1, 7.199999999999999, 7.3, 7.3999999999999995, 7.5, 7.6, 7.7, 7.8, 7.9, 8.0, 8.1, 8.200000000000001, 8.299999999999999, 8.399999999999999, 8.5, 8.6, 8.7, 8.799999999999999, 8.9, 9.0, 9.1, 9.2, 9.3, 9.4, 9.5, 9.6, 9.700000000000001, 9.799999999999999, 9.899999999999999, 10.0], "series": {"Two-year HPR": [21.68854165884706, 21.382114493726046, 21.076727676020155, 20.77237712473794, 20.469058776972602, 20.16676858781281, 19.865502530254165, 19.565256595110792, 19.266026790927548, 18.967809143892843, 18.670599697751754, 18.374394513719672, 18.079189670396456, 17.784981263681065, 17.491765406686444, 17.19953822965521, 16.908295879875435, 16.618034521597313, 16.32875033594976, 16.040439520857852, 15.75309829096061, 15.466722877529238, 15.181309528385611, 14.896854507821477, 14.613354096518027, 14.330804591465697, 14.049202305884666, 13.768543569145697, 13.488824726691195, 13.210042139957046, 12.932192186294667, 12.655271258893407, 12.379275766703568, 12.104202134359632, 11.830046802104178, 11.556806225711757, 11.284476876413695, 11.0130552408229, 10.742537820859276, 10.472921133675461, 10.20420171158296, 9.93637610197875, 9.669440867272193, 9.403392584812265, 9.138227846815461, 8.873943260293737, 8.610535446983004, 8.348001043272134, 8.08633670013199, 7.825539083045285, 7.565604871936271, 7.306530761101437, 7.048313459139965, 6.790949688885006, 6.534436187335069, 6.278769705585829, 6.023947008762454, 5.769964875951938, 5.5168201001362105, 5.2645094881252685, 5.013029860490881, 4.762378051500438, 4.512550909051427, 4.263545294605953, 4.015358083125786, 3.767986163007775, 3.521426436019426, 3.2756758172350464, 3.0307312349720394, 2.786589630727576, 2.543247959115713, 2.3007031878047757, 2.0589522974548746, 1.8179922816561334, 1.5778201468669595, 1.3384329123526717, 1.0998276101245263, 0.8620012848791214, 0.624950993937845, 0.38867380718694555, 0.1531668070177794, -0.08157291173255254, -0.3155482418405131, -0.5487620637547708, -0.7812172456546529, -1.0129166435085324, -1.243863101131537, -1.4740594502432036, -1.7035085105248093, -1.9322130896762602, -2.160175983472845], "Annualized return": [10.312529505422484, 10.173551496593793, 10.0348706892593, 9.896486351811058, 9.758397754783484, 9.620604170845917, 9.483104874795254, 9.345899143548493, 9.208986256135326, 9.07236549369086, 8.936036139448252, 8.799997478731438, 8.66424879894788, 8.528789389581355, 8.393618542184688, 8.25873555037266, 8.124139709814772, 7.989830318228258, 7.8558066753708715, 7.722068083033873, 7.588613845035019, 7.455443267211567, 7.322555657413233, 7.18995032549529, 7.057626583311675, 6.925583744708027, 6.793821125514872, 6.662338043540794, 6.531133818565545, 6.400207772333342, 6.269559228546095, 6.13918751285663, 6.009091952862029, 5.87927187809691, 5.749726620026861, 5.620455512041681, 5.4914578894488955, 5.362733089467122, 5.2342804512195436, 5.1060993157273735, 4.978189025903357, 4.850548926545325, 4.723178364329734, 4.5960766878052, 4.469243247386195, 4.3426773953465965, 4.216378485813353, 4.090345874760228, 3.9645789200013977, 3.8390769811853085, 3.7138394197882687, 3.5888655991084, 3.464154884259295, 3.3397066421639336, 3.215520241548494, 3.091595052936216, 2.967930448641364, 2.844525802763046, 2.7213804911792505, 2.598493891540761, 2.475865383265186, 2.353494347530919, 2.231380167271256, 2.1095222271683887, 1.9879199136475116, 1.8665726148709565, 1.745479720732275, 1.624640622850444, 1.5040547145640086, 1.3837213909252672, 1.263640048694533, 1.1438100863343865, 1.0242309040038544, 0.9049019035527992, 0.7858224885161907, 0.6669920641084178, 0.5484100372176578, 0.43007581640029885, 0.31198881187524585, 0.19414843551840155, 0.07655410085709952, -0.040794776935402316, -0.1578987810455349, -0.27475849302483174, -0.39137449279538067, -0.5077473586553738, -0.62387766728445, -0.7397659937491401, -0.85541291150828, -0.9708189924183307, -1.0859848067387596]}, "xLabel": "Exit YTM (%)", "yLabel": "Realized return (%)", "initial": 40}, slider = document.getElementById('demo-control');
+const svg = document.getElementById('demo-plot'), ns = 'http://www.w3.org/2000/svg';
+const colors = ['#214b3e','#936724','#486d8c','#865c76'];
+const dash = ['', '8 4', '3 3', '10 3 2 3'];
+const all = Object.values(d.series).flat(), lo = Math.min(...all), hi = Math.max(...all);
+const pad = Math.max((hi-lo)*.12, .01), ymin = lo-pad, ymax = hi+pad;
+let width=760;
+const X = v => 70 + (width-100)*(v-d.x[0])/(d.x[d.x.length-1]-d.x[0]);
+const Y = v => 275 - 240*(v-ymin)/(ymax-ymin);
+/** Append an SVG element with attributes and optional accessible text. */
+const add = (name, attrs, content='') => {
+  const e=document.createElementNS(ns,name);
+  Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,v));
+  if(content) e.textContent=content; svg.appendChild(e); return e;
+};
+// Axis ticks stay compact; the result table preserves small differences.
+const fmt = v => v.toLocaleString('en-US',{maximumFractionDigits:3});
+const precise = v => (v === 0 ? 0 : v).toLocaleString('en-US',{minimumFractionDigits:6,maximumFractionDigits:6});
+/** Draw the selected scenario, marker, and accessible table values. */
+const render = () => {
+  const i=Number(slider.value); svg.replaceChildren();
+  width=Math.max(340, Math.min(760, svg.clientWidth));
+  svg.setAttribute('viewBox','0 0 '+width+' 350');
+  add('rect',{x:0,y:0,width:width,height:350,fill:'#ffffff'});
+  for(let j=0;j<5;j++){
+    const v=ymin+(ymax-ymin)*j/4, y=Y(v);
+    add('line',{x1:70,y1:y,x2:width-30,y2:y,stroke:'#e0e3df'});
+    add('text',{x:62,y:y+4,'text-anchor':'end',fill:'#333','font-size':12},fmt(v));
+  }
+  for(let j=0;j<3;j++){
+    const v=d.x[0]+(d.x[d.x.length-1]-d.x[0])*j/2;
+    add('text',{x:X(v),y:299,'text-anchor':'middle',fill:'#333','font-size':12},fmt(v));
+  }
+  add('text',{x:70,y:19,fill:'#333','font-size':13},d.yLabel);
+  add('text',{x:width/2,y:333,'text-anchor':'middle',fill:'#333','font-size':13},d.xLabel);
+  add('line',{x1:X(d.x[i]),y1:35,x2:X(d.x[i]),y2:275,stroke:'#666','stroke-dasharray':'4 4'});
+  const tbody=document.getElementById('demo-values'); tbody.replaceChildren();
+  Object.entries(d.series).forEach(([name,y],j)=>{
+    add('polyline',{points:d.x.map((v,k)=>X(v)+','+Y(y[k])).join(' '),fill:'none',
+                   stroke:colors[j%4],'stroke-width':2.5,'stroke-dasharray':dash[j%4]});
+    add('circle',{cx:X(d.x[i]),cy:Y(y[i]),r:5,fill:colors[j%4],stroke:'white'});
+    const tr=document.createElement('tr');
+    const label=document.createElement('td'), value=document.createElement('td');
+    label.textContent=name; label.style.color=colors[j%4]; value.textContent=precise(y[i]);
+    tr.append(label,value); tbody.appendChild(tr);
+  });
+  document.getElementById('demo-selection').textContent=d.xLabel+': '+fmt(d.x[i]);
+  slider.setAttribute('aria-valuetext',fmt(d.x[i])+' '+d.xLabel);
+};
+window.addEventListener('resize',render);
+slider.addEventListener('input',render);
+document.getElementById('demo-reset').addEventListener('click',()=>{slider.value=d.initial;render();});
+render();
+})();
+</script>
+</div>
+</div>
+<p>The static scenario table above gives the corresponding PDF reference.</p>
+</section>
+<section id="validation-checks" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="validation-checks"><span class="header-section-number">6</span> Validation checks</h2>
+<div id="cell-returns-checks" class="cell" data-execution_count="7">
+<details class="code-fold">
+<summary>Show calculation</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> np.isclose(bond_price(<span class="fl">.05</span>,<span class="dv">10</span>,<span class="fl">.05</span>),<span class="dv">100</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> np.isclose(base[<span class="st">"Annual return (%)"</span>].iloc[<span class="dv">0</span>],<span class="fl">5.0625</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> np.<span class="bu">all</span>(np.diff(scenarios[<span class="st">"Sale / principal"</span>])<span class="op">&lt;</span><span class="dv">0</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> scenarios[<span class="st">"HPR (%)"</span>].iloc[<span class="op">-</span><span class="dv">1</span>] <span class="op">&lt;</span> <span class="dv">0</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> np.allclose(scenarios[<span class="st">"Terminal wealth"</span>]<span class="op">-</span>purchase_price,</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    scenarios[<span class="st">"Coupon cash"</span>]<span class="op">+</span>scenarios[<span class="st">"Reinvestment income"</span>]<span class="op">+</span>scenarios[<span class="st">"Price change"</span>])</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>at_maturity<span class="op">=</span>horizon_report([<span class="fl">.01</span>,<span class="fl">.10</span>],<span class="fl">.05</span>,<span class="dv">10</span>)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> np.allclose(at_maturity[<span class="st">"Sale / principal"</span>],<span class="dv">100</span>)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> np.allclose(at_maturity[<span class="st">"Annual return (%)"</span>],<span class="fl">5.0625</span>)</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>display(Markdown(<span class="st">"**Passed:** par pricing, return-component reconciliation, sale-price monotonicity, and the YTM reinvestment benchmark through maturity."</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div id="returns-checks" class="cell-output cell-output-display cell-output-markdown">
+<p><strong>Passed:</strong> par pricing, return-component reconciliation, sale-price monotonicity, and the YTM reinvestment benchmark through maturity.</p>
+</div>
+</div>
+<p>At maturity the exit yield no longer matters: principal is fixed. The accumulated coupon value still depends on reinvestment rates. Between coupon dates, use full purchase and sale prices, including accrued interest, and actual payment dates.</p>
+</section>
+<section id="mini-project" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="mini-project"><span class="header-section-number">7</span> Mini Project</h2>
+<p><strong>Project brief.</strong> Prepare a one-page return memo for a client buying $2 million face of this bond and selling after two years. The client expects a 3% coupon reinvestment rate and considers exit YTMs of 3%, 5%, and 10%.</p>
+<ol type="1">
+<li>Report the cash purchase cost, terminal sale proceeds, coupons, reinvestment income, dollar profit, two-year HPR, and effective annual return for each case.</li>
+<li>Explain why the 6% coupon and 5% purchase YTM differ from realized return.</li>
+<li>Repeat the unchanged-exit-yield case with zero coupon reinvestment income.</li>
+<li>Recommend whether the bond suits a client who cannot tolerate a two-year loss. State the model’s limitations and identify a closer maturity match.</li>
+</ol>
+<details class="demo-solution"><summary>Worked solution: client return memo</summary>
+<div id="returns-mini-project" class="cell" data-execution_count="8">
+<details class="code-fold">
+<summary>Show calculation</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>position_face<span class="op">=</span><span class="dv">2_000_000</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>scale<span class="op">=</span>position_face<span class="op">/</span><span class="dv">100</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>report<span class="op">=</span>scenarios.copy()</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> col <span class="kw">in</span> [<span class="st">"Sale / principal"</span>,<span class="st">"Coupon cash"</span>,<span class="st">"Reinvestment income"</span>,<span class="st">"Price change"</span>,<span class="st">"Terminal wealth"</span>]:</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    report[col]<span class="op">*=</span>scale</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>report[<span class="st">"Profit ($)"</span>]<span class="op">=</span>(scenarios[<span class="st">"Terminal wealth"</span>]<span class="op">-</span>purchase_price)<span class="op">*</span>scale</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>display(Markdown(<span class="ss">f"Purchase cost is **$</span><span class="sc">{</span>purchase_price<span class="op">*</span>scale<span class="sc">:,.2f}</span><span class="ss">**. Coupons received are **$240,000** over two years."</span>))</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>show_table(report[[<span class="st">"Exit YTM (%)"</span>,<span class="st">"Sale / principal"</span>,<span class="st">"Coupon cash"</span>]],<span class="dv">2</span>)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>show_table(report[[<span class="st">"Exit YTM (%)"</span>,<span class="st">"Reinvestment income"</span>,<span class="st">"Profit ($)"</span>]],<span class="dv">2</span>)</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>show_table(report[[<span class="st">"Exit YTM (%)"</span>,<span class="st">"HPR (%)"</span>,<span class="st">"Annual return (%)"</span>]],<span class="dv">4</span>)</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>show_table(horizon_report(<span class="fl">.05</span>,<span class="dv">0</span>)[[<span class="st">"Reinvest (%)"</span>,<span class="st">"Terminal wealth"</span>,<span class="st">"HPR (%)"</span>,<span class="st">"Annual return (%)"</span>]],<span class="dv">5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div id="returns-mini-project-1" class="cell-output cell-output-display cell-output-markdown">
+<p>Purchase cost is <strong>$2,087,520.64</strong>. Coupons received are <strong>$240,000</strong> over two years.</p>
+</div>
+<div id="returns-mini-project-2" class="cell-output cell-output-display cell-output-markdown">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th>Exit YTM (%)</th>
+<th>Sale / principal</th>
+<th>Coupon cash</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>3.00</td>
+<td>2170915.61</td>
+<td>240000.00</td>
+</tr>
+<tr class="even">
+<td>5.00</td>
+<td>2055081.25</td>
+<td>240000.00</td>
+</tr>
+<tr class="odd">
+<td>10.00</td>
+<td>1796972.32</td>
+<td>240000.00</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="returns-mini-project-3" class="cell-output cell-output-display cell-output-markdown">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th>Exit YTM (%)</th>
+<th>Reinvestment income</th>
+<th>Profit ($)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>3.00</td>
+<td>5454.20</td>
+<td>328849.18</td>
+</tr>
+<tr class="even">
+<td>5.00</td>
+<td>5454.20</td>
+<td>213014.82</td>
+</tr>
+<tr class="odd">
+<td>10.00</td>
+<td>5454.20</td>
+<td>-45094.12</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="returns-mini-project-4" class="cell-output cell-output-display cell-output-markdown">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th>Exit YTM (%)</th>
+<th>HPR (%)</th>
+<th>Annual return (%)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>3.0000</td>
+<td>15.7531</td>
+<td>7.5886</td>
+</tr>
+<tr class="even">
+<td>5.0000</td>
+<td>10.2042</td>
+<td>4.9782</td>
+</tr>
+<tr class="odd">
+<td>10.0000</td>
+<td>-2.1602</td>
+<td>-1.0860</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="returns-mini-project-5" class="cell-output cell-output-display cell-output-markdown">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th>Reinvest (%)</th>
+<th>Terminal wealth</th>
+<th>HPR (%)</th>
+<th>Annual return (%)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0.00000</td>
+<td>114.75406</td>
+<td>9.94293</td>
+<td>4.85367</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p><strong>Interpretation and decision.</strong> The coupon rate determines contractual cash payments; it does not measure profit relative to the premium purchase price. The purchase YTM describes promised cash-flow discounting, while the horizon return also depends on sale price and reinvestment. The 10% exit scenario shows that coupon income need not prevent a loss. This five-year bond does not assure a positive two-year return. A default-free zero-coupon claim maturing at the client’s horizon better matches a fixed nominal liability and eliminates coupon reinvestment risk. Its purchase price still determines its return; inflation, transaction costs, and selling before maturity remain relevant.</p>
+</details>
+
+
+<!-- -->
+
+</section>
+
+</main> <!-- /main -->
+<!-- Cloudflare Web Analytics -->
+<script defer="" src="https://static.cloudflareinsights.com/beacon.min.js" data-external="1" data-cf-beacon="{&quot;token&quot;:&quot;c8dfe4328b9047b6b47b37d0adb378db&quot;}"></script>
+<!-- End Cloudflare Web Analytics -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/aliboloor\.github\.io\/BUS411\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Practical Demo: Bond Returns and Horizon Analysis"</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="co">    toc: true</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="co">    number-sections: true</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="co">    code-fold: true</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="co">    code-summary: "Show calculation"</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="co">    fig-align: center</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="co">    fig-dpi: 160</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="co">    code-tools: true</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="co">    include-in-header:</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="co">      text: |</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="co">        &lt;style&gt;</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a><span class="co">        main.content, .cell, .cell-output-display { min-width: 0; }</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="co">        .cell-output-display { overflow-x: auto; max-width: 100%; }</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a><span class="co">        .cell-output-display img { max-width: 100%; height: auto; }</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a><span class="co">        .demo-lab table { width: 100%; font-size: .95rem; }</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a><span class="co">        .demo-lab th, .demo-lab td { text-align: left; padding: .35rem .65rem .35rem 0; }</span></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a><span class="co">        .demo-lab th { border-bottom: 1px solid #b6bdb2; }</span></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a><span class="co">        .demo-lab input { accent-color: #214b3e; }</span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a><span class="co">        .demo-lab button { border: 1px solid #214b3e; border-radius: 3px;</span></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a><span class="co">          color: #214b3e; background: transparent; padding: .2rem .7rem; }</span></span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a><span class="co">        details.code-fold { margin: .8rem 0; }</span></span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a><span class="co">        details.demo-solution { border-left: 4px solid #936724; padding: 1rem;</span></span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a><span class="co">          margin: 1rem 0; background: #fafaf6; }</span></span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a><span class="co">        details.demo-solution &gt; summary { cursor: pointer; font-weight: 700;</span></span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a><span class="co">          color: #214b3e; }</span></span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a><span class="co">        mjx-container[display="true"] { display: block; max-width: 100%;</span></span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a><span class="co">          overflow-x: auto; overflow-y: hidden; padding-block: .35em; }</span></span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a><span class="co">        &lt;/style&gt;</span></span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a><span class="co">  pdf:</span></span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a><span class="co">    include-in-header:</span></span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a><span class="co">      text: |</span></span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a><span class="co">        \newcommand{\ReserveTableSpace}[1]{\par\begingroup\dimen0=\pagegoal\advance\dimen0 by -\pagetotal\ifdim\dimen0&lt;#1\newpage\fi\endgroup}</span></span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a><span class="co">    execute:</span></span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a><span class="co">      echo: false</span></span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a><span class="an">jupyter:</span><span class="co"> python3</span></span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a><span class="an">execute:</span></span>
+<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a><span class="co">  echo: true</span></span>
+<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a><span class="co">  warning: false</span></span>
+<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a><span class="co">  message: false</span></span>
+<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a>::: {.content-visible when-format="pdf"}</span>
+<span id="cb8-46"><a href="#cb8-46" aria-hidden="true" tabindex="-1"></a>This reading copy shows the calculations' results and figures. The HTML demo</span>
+<span id="cb8-47"><a href="#cb8-47" aria-hidden="true" tabindex="-1"></a>contains the full code in folded blocks and interactive scenario controls.</span>
+<span id="cb8-48"><a href="#cb8-48" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb8-49"><a href="#cb8-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-50"><a href="#cb8-50" aria-hidden="true" tabindex="-1"></a><span class="fu">## The desk question {.unnumbered}</span></span>
+<span id="cb8-51"><a href="#cb8-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-52"><a href="#cb8-52" aria-hidden="true" tabindex="-1"></a>A client buys a bond yielding 5%. **Will the client actually earn 5% over the</span>
+<span id="cb8-53"><a href="#cb8-53" aria-hidden="true" tabindex="-1"></a>next two years?** Build a horizon-value report that separates coupon income,</span>
+<span id="cb8-54"><a href="#cb8-54" aria-hidden="true" tabindex="-1"></a>reinvestment income, and the change in the bond's full price. Then explain</span>
+<span id="cb8-55"><a href="#cb8-55" aria-hidden="true" tabindex="-1"></a>which assumptions make a quoted yield an attainable compound return.</span>
+<span id="cb8-56"><a href="#cb8-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-57"><a href="#cb8-57" aria-hidden="true" tabindex="-1"></a><span class="fu">## Purpose and assumptions {.unnumbered}</span></span>
+<span id="cb8-58"><a href="#cb8-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-59"><a href="#cb8-59" aria-hidden="true" tabindex="-1"></a>Use an illustrative five-year, 6% coupon bond with face value $100. Coupons are</span>
+<span id="cb8-60"><a href="#cb8-60" aria-hidden="true" tabindex="-1"></a>semiannual. Buy immediately after a coupon at a 5% nominal annual YTM and sell</span>
+<span id="cb8-61"><a href="#cb8-61" aria-hidden="true" tabindex="-1"></a>immediately after the year-2 coupon. All cash flows are contractual; ignore</span>
+<span id="cb8-62"><a href="#cb8-62" aria-hidden="true" tabindex="-1"></a>default, calls, taxes, fees, and bid–ask spreads. Accrued interest is zero at both</span>
+<span id="cb8-63"><a href="#cb8-63" aria-hidden="true" tabindex="-1"></a>endpoints. Exit YTM and coupon reinvestment rates are independent scenario inputs,</span>
+<span id="cb8-64"><a href="#cb8-64" aria-hidden="true" tabindex="-1"></a>quoted as nominal annual rates compounded semiannually. No inputs are live quotes.</span>
+<span id="cb8-65"><a href="#cb8-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-66"><a href="#cb8-66" aria-hidden="true" tabindex="-1"></a>Read alongside <span class="co">[</span><span class="ot">Lecture 2</span><span class="co">](../lecture_notes/lec2.qmd)</span>. Dollar results below are</span>
+<span id="cb8-67"><a href="#cb8-67" aria-hidden="true" tabindex="-1"></a>per $100 face unless explicitly scaled to the client position.</span>
+<span id="cb8-68"><a href="#cb8-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-71"><a href="#cb8-71" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb8-72"><a href="#cb8-72" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: reader-tools</span></span>
+<span id="cb8-73"><a href="#cb8-73" aria-hidden="true" tabindex="-1"></a><span class="co">#| include: false</span></span>
+<span id="cb8-74"><a href="#cb8-74" aria-hidden="true" tabindex="-1"></a><span class="co">"""Configure display helpers and the shared plotting style for this demo."""</span></span>
+<span id="cb8-75"><a href="#cb8-75" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> json</span>
+<span id="cb8-76"><a href="#cb8-76" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> html</span>
+<span id="cb8-77"><a href="#cb8-77" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb8-78"><a href="#cb8-78" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb8-79"><a href="#cb8-79" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb8-80"><a href="#cb8-80" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> IPython.display <span class="im">import</span> HTML, Markdown, display</span>
+<span id="cb8-81"><a href="#cb8-81" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> cycler <span class="im">import</span> cycler</span>
+<span id="cb8-82"><a href="#cb8-82" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-83"><a href="#cb8-83" aria-hidden="true" tabindex="-1"></a>plt.rcParams.update({</span>
+<span id="cb8-84"><a href="#cb8-84" aria-hidden="true" tabindex="-1"></a>    <span class="st">"figure.figsize"</span>: (<span class="dv">8</span>, <span class="fl">4.5</span>), <span class="st">"figure.dpi"</span>: <span class="dv">140</span>,</span>
+<span id="cb8-85"><a href="#cb8-85" aria-hidden="true" tabindex="-1"></a>    <span class="st">"axes.spines.top"</span>: <span class="va">False</span>, <span class="st">"axes.spines.right"</span>: <span class="va">False</span>,</span>
+<span id="cb8-86"><a href="#cb8-86" aria-hidden="true" tabindex="-1"></a>    <span class="st">"axes.grid"</span>: <span class="va">True</span>, <span class="st">"axes.axisbelow"</span>: <span class="va">True</span>, <span class="st">"grid.alpha"</span>: <span class="fl">0.20</span>,</span>
+<span id="cb8-87"><a href="#cb8-87" aria-hidden="true" tabindex="-1"></a>    <span class="st">"axes.titleweight"</span>: <span class="st">"bold"</span>, <span class="st">"font.size"</span>: <span class="dv">11</span>,</span>
+<span id="cb8-88"><a href="#cb8-88" aria-hidden="true" tabindex="-1"></a>    <span class="st">"lines.linewidth"</span>: <span class="fl">2.2</span>, <span class="st">"lines.markersize"</span>: <span class="dv">6</span>,</span>
+<span id="cb8-89"><a href="#cb8-89" aria-hidden="true" tabindex="-1"></a>    <span class="st">"axes.prop_cycle"</span>: cycler(color<span class="op">=</span>[<span class="st">"#214b3e"</span>, <span class="st">"#936724"</span>, <span class="st">"#486d8c"</span>, <span class="st">"#865c76"</span>]),</span>
+<span id="cb8-90"><a href="#cb8-90" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb8-91"><a href="#cb8-91" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-92"><a href="#cb8-92" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-93"><a href="#cb8-93" aria-hidden="true" tabindex="-1"></a><span class="co"># Keep every field, but split wide tables into readable panels for HTML and PDF.</span></span>
+<span id="cb8-94"><a href="#cb8-94" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> readable_table(frame):</span>
+<span id="cb8-95"><a href="#cb8-95" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Format a teaching table without changing its underlying numerical values.</span></span>
+<span id="cb8-96"><a href="#cb8-96" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-97"><a href="#cb8-97" aria-hidden="true" tabindex="-1"></a><span class="co">    Parameters</span></span>
+<span id="cb8-98"><a href="#cb8-98" aria-hidden="true" tabindex="-1"></a><span class="co">    ----------</span></span>
+<span id="cb8-99"><a href="#cb8-99" aria-hidden="true" tabindex="-1"></a><span class="co">    frame : pandas.DataFrame</span></span>
+<span id="cb8-100"><a href="#cb8-100" aria-hidden="true" tabindex="-1"></a><span class="co">        Display data. attrs["whole_table"] requests a single reconciliation</span></span>
+<span id="cb8-101"><a href="#cb8-101" aria-hidden="true" tabindex="-1"></a><span class="co">        table; attrs["decimals"] chooses the number of displayed decimals.</span></span>
+<span id="cb8-102"><a href="#cb8-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-103"><a href="#cb8-103" aria-hidden="true" tabindex="-1"></a><span class="co">    Returns</span></span>
+<span id="cb8-104"><a href="#cb8-104" aria-hidden="true" tabindex="-1"></a><span class="co">    -------</span></span>
+<span id="cb8-105"><a href="#cb8-105" aria-hidden="true" tabindex="-1"></a><span class="co">    str</span></span>
+<span id="cb8-106"><a href="#cb8-106" aria-hidden="true" tabindex="-1"></a><span class="co">        HTML markup suitable for both Quarto HTML and PDF conversion.</span></span>
+<span id="cb8-107"><a href="#cb8-107" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-108"><a href="#cb8-108" aria-hidden="true" tabindex="-1"></a><span class="co">    Notes</span></span>
+<span id="cb8-109"><a href="#cb8-109" aria-hidden="true" tabindex="-1"></a><span class="co">    -----</span></span>
+<span id="cb8-110"><a href="#cb8-110" aria-hidden="true" tabindex="-1"></a><span class="co">    Wide, short tables are transposed. Other wide tables are split into panels.</span></span>
+<span id="cb8-111"><a href="#cb8-111" aria-hidden="true" tabindex="-1"></a><span class="co">    Formatting applies only at display time, preserving full-precision results.</span></span>
+<span id="cb8-112"><a href="#cb8-112" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb8-113"><a href="#cb8-113" aria-hidden="true" tabindex="-1"></a>    whole_table <span class="op">=</span> frame.attrs.get(<span class="st">"whole_table"</span>, <span class="va">False</span>)</span>
+<span id="cb8-114"><a href="#cb8-114" aria-hidden="true" tabindex="-1"></a>    decimals <span class="op">=</span> frame.attrs.get(<span class="st">"decimals"</span>, <span class="dv">4</span>)</span>
+<span id="cb8-115"><a href="#cb8-115" aria-hidden="true" tabindex="-1"></a>    frame <span class="op">=</span> frame.copy()</span>
+<span id="cb8-116"><a href="#cb8-116" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="kw">not</span> whole_table <span class="kw">and</span> <span class="bu">len</span>(frame.columns) <span class="kw">and</span> frame.iloc[:, <span class="dv">0</span>].dtype <span class="op">==</span> <span class="bu">object</span>:</span>
+<span id="cb8-117"><a href="#cb8-117" aria-hidden="true" tabindex="-1"></a>        frame <span class="op">=</span> frame.set_index(frame.columns[<span class="dv">0</span>])</span>
+<span id="cb8-118"><a href="#cb8-118" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="kw">not</span> whole_table <span class="kw">and</span> <span class="bu">len</span>(frame.columns) <span class="op">&gt;</span> <span class="dv">6</span> <span class="kw">and</span> <span class="bu">len</span>(frame) <span class="op">&lt;=</span> <span class="dv">4</span>:</span>
+<span id="cb8-119"><a href="#cb8-119" aria-hidden="true" tabindex="-1"></a>        frame <span class="op">=</span> frame.T</span>
+<span id="cb8-120"><a href="#cb8-120" aria-hidden="true" tabindex="-1"></a>    panels <span class="op">=</span> []</span>
+<span id="cb8-121"><a href="#cb8-121" aria-hidden="true" tabindex="-1"></a>    panel_width <span class="op">=</span> <span class="bu">len</span>(frame.columns) <span class="cf">if</span> whole_table <span class="cf">else</span> <span class="dv">3</span></span>
+<span id="cb8-122"><a href="#cb8-122" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> start <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">0</span>, <span class="bu">len</span>(frame.columns), panel_width):</span>
+<span id="cb8-123"><a href="#cb8-123" aria-hidden="true" tabindex="-1"></a>        part <span class="op">=</span> frame.iloc[:, start:start<span class="op">+</span>panel_width]</span>
+<span id="cb8-124"><a href="#cb8-124" aria-hidden="true" tabindex="-1"></a>        markup <span class="op">=</span> part.to_html(border<span class="op">=</span><span class="dv">0</span>, na_rep<span class="op">=</span><span class="st">""</span>, float_format<span class="op">=</span><span class="kw">lambda</span> v: <span class="ss">f"</span><span class="sc">{</span>v<span class="sc">:,.</span>{decimals}f<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb8-125"><a href="#cb8-125" aria-hidden="true" tabindex="-1"></a>        widths <span class="op">=</span> [<span class="dv">40</span>] <span class="op">+</span> [<span class="dv">60</span> <span class="op">/</span> <span class="bu">max</span>(<span class="dv">1</span>, <span class="bu">len</span>(part.columns))] <span class="op">*</span> <span class="bu">len</span>(part.columns)</span>
+<span id="cb8-126"><a href="#cb8-126" aria-hidden="true" tabindex="-1"></a>        cols <span class="op">=</span> <span class="st">"&lt;colgroup&gt;"</span> <span class="op">+</span> <span class="st">""</span>.join(<span class="ss">f'&lt;col style="width:</span><span class="sc">{</span>w<span class="sc">}</span><span class="ss">%"&gt;'</span> <span class="cf">for</span> w <span class="kw">in</span> widths) <span class="op">+</span> <span class="st">"&lt;/colgroup&gt;"</span></span>
+<span id="cb8-127"><a href="#cb8-127" aria-hidden="true" tabindex="-1"></a>        end <span class="op">=</span> markup.index(<span class="st">"&gt;"</span>) <span class="op">+</span> <span class="dv">1</span></span>
+<span id="cb8-128"><a href="#cb8-128" aria-hidden="true" tabindex="-1"></a>        panels.append(markup[:end] <span class="op">+</span> cols <span class="op">+</span> markup[end:])</span>
+<span id="cb8-129"><a href="#cb8-129" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="st">"</span><span class="ch">\n</span><span class="st">"</span>.join(panels)</span>
+<span id="cb8-130"><a href="#cb8-130" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-131"><a href="#cb8-131" aria-hidden="true" tabindex="-1"></a>get_ipython().display_formatter.formatters[<span class="st">"text/html"</span>].for_type(pd.DataFrame, readable_table)</span>
+<span id="cb8-132"><a href="#cb8-132" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-133"><a href="#cb8-133" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> demo_explorer(x, series, x_label, y_label, initial<span class="op">=</span><span class="dv">0</span>):</span>
+<span id="cb8-134"><a href="#cb8-134" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Build an accessible HTML explorer from precomputed price-change series.</span></span>
+<span id="cb8-135"><a href="#cb8-135" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-136"><a href="#cb8-136" aria-hidden="true" tabindex="-1"></a><span class="co">    Parameters</span></span>
+<span id="cb8-137"><a href="#cb8-137" aria-hidden="true" tabindex="-1"></a><span class="co">    ----------</span></span>
+<span id="cb8-138"><a href="#cb8-138" aria-hidden="true" tabindex="-1"></a><span class="co">    x : array-like</span></span>
+<span id="cb8-139"><a href="#cb8-139" aria-hidden="true" tabindex="-1"></a><span class="co">        Strictly increasing finite scenario grid, in the units of x_label.</span></span>
+<span id="cb8-140"><a href="#cb8-140" aria-hidden="true" tabindex="-1"></a><span class="co">    series : dict[str, array-like]</span></span>
+<span id="cb8-141"><a href="#cb8-141" aria-hidden="true" tabindex="-1"></a><span class="co">        Named outputs, with one finite value for every x entry.</span></span>
+<span id="cb8-142"><a href="#cb8-142" aria-hidden="true" tabindex="-1"></a><span class="co">    x_label, y_label : str</span></span>
+<span id="cb8-143"><a href="#cb8-143" aria-hidden="true" tabindex="-1"></a><span class="co">        Axis labels including units.</span></span>
+<span id="cb8-144"><a href="#cb8-144" aria-hidden="true" tabindex="-1"></a><span class="co">    initial : int, default 0</span></span>
+<span id="cb8-145"><a href="#cb8-145" aria-hidden="true" tabindex="-1"></a><span class="co">        Zero-based row selected initially and by the Reset button.</span></span>
+<span id="cb8-146"><a href="#cb8-146" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-147"><a href="#cb8-147" aria-hidden="true" tabindex="-1"></a><span class="co">    Returns</span></span>
+<span id="cb8-148"><a href="#cb8-148" aria-hidden="true" tabindex="-1"></a><span class="co">    -------</span></span>
+<span id="cb8-149"><a href="#cb8-149" aria-hidden="true" tabindex="-1"></a><span class="co">    IPython.display.HTML</span></span>
+<span id="cb8-150"><a href="#cb8-150" aria-hidden="true" tabindex="-1"></a><span class="co">        Self-contained chart, slider, reset control, and six-decimal table.</span></span>
+<span id="cb8-151"><a href="#cb8-151" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-152"><a href="#cb8-152" aria-hidden="true" tabindex="-1"></a><span class="co">    Notes</span></span>
+<span id="cb8-153"><a href="#cb8-153" aria-hidden="true" tabindex="-1"></a><span class="co">    -----</span></span>
+<span id="cb8-154"><a href="#cb8-154" aria-hidden="true" tabindex="-1"></a><span class="co">    The browser selects stored Python results without interpolating prices.</span></span>
+<span id="cb8-155"><a href="#cb8-155" aria-hidden="true" tabindex="-1"></a><span class="co">    Use one instance per page because this helper uses fixed control IDs.</span></span>
+<span id="cb8-156"><a href="#cb8-156" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb8-157"><a href="#cb8-157" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> np.asarray(x, dtype<span class="op">=</span><span class="bu">float</span>)</span>
+<span id="cb8-158"><a href="#cb8-158" aria-hidden="true" tabindex="-1"></a>    values <span class="op">=</span> {name: np.asarray(y, dtype<span class="op">=</span><span class="bu">float</span>).tolist() <span class="cf">for</span> name, y <span class="kw">in</span> series.items()}</span>
+<span id="cb8-159"><a href="#cb8-159" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="bu">len</span>(x) <span class="op">&gt;</span> <span class="dv">1</span> <span class="kw">and</span> np.isfinite(x).<span class="bu">all</span>() <span class="kw">and</span> np.<span class="bu">all</span>(np.diff(x) <span class="op">&gt;</span> <span class="dv">0</span>)</span>
+<span id="cb8-160"><a href="#cb8-160" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="dv">0</span> <span class="op">&lt;=</span> initial <span class="op">&lt;</span> <span class="bu">len</span>(x)</span>
+<span id="cb8-161"><a href="#cb8-161" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="bu">all</span>(<span class="bu">len</span>(y) <span class="op">==</span> <span class="bu">len</span>(x) <span class="kw">and</span> np.isfinite(y).<span class="bu">all</span>() <span class="cf">for</span> y <span class="kw">in</span> values.values())</span>
+<span id="cb8-162"><a href="#cb8-162" aria-hidden="true" tabindex="-1"></a>    payload <span class="op">=</span> json.dumps({<span class="st">"x"</span>: x.tolist(), <span class="st">"series"</span>: values,</span>
+<span id="cb8-163"><a href="#cb8-163" aria-hidden="true" tabindex="-1"></a>                          <span class="st">"xLabel"</span>: x_label, <span class="st">"yLabel"</span>: y_label,</span>
+<span id="cb8-164"><a href="#cb8-164" aria-hidden="true" tabindex="-1"></a>                          <span class="st">"initial"</span>: <span class="bu">int</span>(initial)}, allow_nan<span class="op">=</span><span class="va">False</span>).replace(<span class="st">"&lt;"</span>, <span class="st">"</span><span class="ch">\\</span><span class="st">u003c"</span>)</span>
+<span id="cb8-165"><a href="#cb8-165" aria-hidden="true" tabindex="-1"></a>    markup <span class="op">=</span> <span class="st">"""</span></span>
+<span id="cb8-166"><a href="#cb8-166" aria-hidden="true" tabindex="-1"></a><span class="st">&lt;div class="demo-lab" style="border-left:4px solid #936724;padding:1rem;margin:1rem 0"&gt;</span></span>
+<span id="cb8-167"><a href="#cb8-167" aria-hidden="true" tabindex="-1"></a><span class="st">  &lt;label for="demo-control"&gt;&lt;strong&gt;__XLABEL__&lt;/strong&gt;&lt;/label&gt;</span></span>
+<span id="cb8-168"><a href="#cb8-168" aria-hidden="true" tabindex="-1"></a><span class="st">  &lt;input id="demo-control" type="range" min="0" max="__MAX__" value="__INITIAL__" step="1"</span></span>
+<span id="cb8-169"><a href="#cb8-169" aria-hidden="true" tabindex="-1"></a><span class="st">         style="display:block;width:100%;margin:.8rem 0"&gt;</span></span>
+<span id="cb8-170"><a href="#cb8-170" aria-hidden="true" tabindex="-1"></a><span class="st">  &lt;button id="demo-reset" type="button"&gt;Reset&lt;/button&gt;</span></span>
+<span id="cb8-171"><a href="#cb8-171" aria-hidden="true" tabindex="-1"></a><span class="st">  &lt;p id="demo-selection" aria-live="polite"&gt;&lt;/p&gt;</span></span>
+<span id="cb8-172"><a href="#cb8-172" aria-hidden="true" tabindex="-1"></a><span class="st">  &lt;svg id="demo-plot" viewBox="0 0 760 350" role="img"</span></span>
+<span id="cb8-173"><a href="#cb8-173" aria-hidden="true" tabindex="-1"></a><span class="st">       aria-label="__YLABEL__ as __XLABEL__ changes" style="width:100%;height:auto"&gt;&lt;/svg&gt;</span></span>
+<span id="cb8-174"><a href="#cb8-174" aria-hidden="true" tabindex="-1"></a><span class="st">  &lt;div style="overflow-x:auto"&gt;&lt;table&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;Model output&lt;/th&gt;&lt;th&gt;__YLABEL__&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;</span></span>
+<span id="cb8-175"><a href="#cb8-175" aria-hidden="true" tabindex="-1"></a><span class="st">  &lt;tbody id="demo-values"&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/div&gt;</span></span>
+<span id="cb8-176"><a href="#cb8-176" aria-hidden="true" tabindex="-1"></a><span class="st">  &lt;small&gt;The control selects computed scenario points, not live market observations.&lt;/small&gt;</span></span>
+<span id="cb8-177"><a href="#cb8-177" aria-hidden="true" tabindex="-1"></a><span class="st">&lt;/div&gt;</span></span>
+<span id="cb8-178"><a href="#cb8-178" aria-hidden="true" tabindex="-1"></a><span class="st">&lt;script&gt;</span></span>
+<span id="cb8-179"><a href="#cb8-179" aria-hidden="true" tabindex="-1"></a><span class="st">(() =&gt; {</span></span>
+<span id="cb8-180"><a href="#cb8-180" aria-hidden="true" tabindex="-1"></a><span class="st">const d = __DATA__, slider = document.getElementById('demo-control');</span></span>
+<span id="cb8-181"><a href="#cb8-181" aria-hidden="true" tabindex="-1"></a><span class="st">const svg = document.getElementById('demo-plot'), ns = 'http://www.w3.org/2000/svg';</span></span>
+<span id="cb8-182"><a href="#cb8-182" aria-hidden="true" tabindex="-1"></a><span class="st">const colors = ['#214b3e','#936724','#486d8c','#865c76'];</span></span>
+<span id="cb8-183"><a href="#cb8-183" aria-hidden="true" tabindex="-1"></a><span class="st">const dash = ['', '8 4', '3 3', '10 3 2 3'];</span></span>
+<span id="cb8-184"><a href="#cb8-184" aria-hidden="true" tabindex="-1"></a><span class="st">const all = Object.values(d.series).flat(), lo = Math.min(...all), hi = Math.max(...all);</span></span>
+<span id="cb8-185"><a href="#cb8-185" aria-hidden="true" tabindex="-1"></a><span class="st">const pad = Math.max((hi-lo)*.12, .01), ymin = lo-pad, ymax = hi+pad;</span></span>
+<span id="cb8-186"><a href="#cb8-186" aria-hidden="true" tabindex="-1"></a><span class="st">let width=760;</span></span>
+<span id="cb8-187"><a href="#cb8-187" aria-hidden="true" tabindex="-1"></a><span class="st">const X = v =&gt; 70 + (width-100)*(v-d.x[0])/(d.x[d.x.length-1]-d.x[0]);</span></span>
+<span id="cb8-188"><a href="#cb8-188" aria-hidden="true" tabindex="-1"></a><span class="st">const Y = v =&gt; 275 - 240*(v-ymin)/(ymax-ymin);</span></span>
+<span id="cb8-189"><a href="#cb8-189" aria-hidden="true" tabindex="-1"></a><span class="st">/** Append an SVG element with attributes and optional accessible text. */</span></span>
+<span id="cb8-190"><a href="#cb8-190" aria-hidden="true" tabindex="-1"></a><span class="st">const add = (name, attrs, content='') =&gt; {</span></span>
+<span id="cb8-191"><a href="#cb8-191" aria-hidden="true" tabindex="-1"></a><span class="st">  const e=document.createElementNS(ns,name);</span></span>
+<span id="cb8-192"><a href="#cb8-192" aria-hidden="true" tabindex="-1"></a><span class="st">  Object.entries(attrs).forEach(([k,v])=&gt;e.setAttribute(k,v));</span></span>
+<span id="cb8-193"><a href="#cb8-193" aria-hidden="true" tabindex="-1"></a><span class="st">  if(content) e.textContent=content; svg.appendChild(e); return e;</span></span>
+<span id="cb8-194"><a href="#cb8-194" aria-hidden="true" tabindex="-1"></a><span class="st">};</span></span>
+<span id="cb8-195"><a href="#cb8-195" aria-hidden="true" tabindex="-1"></a><span class="st">// Axis ticks stay compact; the result table preserves small differences.</span></span>
+<span id="cb8-196"><a href="#cb8-196" aria-hidden="true" tabindex="-1"></a><span class="st">const fmt = v =&gt; v.toLocaleString('en-US',</span><span class="sc">{maximumFractionDigits:3}</span><span class="st">);</span></span>
+<span id="cb8-197"><a href="#cb8-197" aria-hidden="true" tabindex="-1"></a><span class="st">const precise = v =&gt; (v === 0 ? 0 : v).toLocaleString('en-US',{minimumFractionDigits:6,maximumFractionDigits:6});</span></span>
+<span id="cb8-198"><a href="#cb8-198" aria-hidden="true" tabindex="-1"></a><span class="st">/** Draw the selected scenario, marker, and accessible table values. */</span></span>
+<span id="cb8-199"><a href="#cb8-199" aria-hidden="true" tabindex="-1"></a><span class="st">const render = () =&gt; {</span></span>
+<span id="cb8-200"><a href="#cb8-200" aria-hidden="true" tabindex="-1"></a><span class="st">  const i=Number(slider.value); svg.replaceChildren();</span></span>
+<span id="cb8-201"><a href="#cb8-201" aria-hidden="true" tabindex="-1"></a><span class="st">  width=Math.max(340, Math.min(760, svg.clientWidth));</span></span>
+<span id="cb8-202"><a href="#cb8-202" aria-hidden="true" tabindex="-1"></a><span class="st">  svg.setAttribute('viewBox','0 0 '+width+' 350');</span></span>
+<span id="cb8-203"><a href="#cb8-203" aria-hidden="true" tabindex="-1"></a><span class="st">  add('rect',{x:0,y:0,width:width,height:350,fill:'#ffffff'});</span></span>
+<span id="cb8-204"><a href="#cb8-204" aria-hidden="true" tabindex="-1"></a><span class="st">  for(let j=0;j&lt;5;j++){</span></span>
+<span id="cb8-205"><a href="#cb8-205" aria-hidden="true" tabindex="-1"></a><span class="st">    const v=ymin+(ymax-ymin)*j/4, y=Y(v);</span></span>
+<span id="cb8-206"><a href="#cb8-206" aria-hidden="true" tabindex="-1"></a><span class="st">    add('line',{x1:70,y1:y,x2:width-30,y2:y,stroke:'#e0e3df'});</span></span>
+<span id="cb8-207"><a href="#cb8-207" aria-hidden="true" tabindex="-1"></a><span class="st">    add('text',{x:62,y:y+4,'text-anchor':'end',fill:'#333','font-size':12},fmt(v));</span></span>
+<span id="cb8-208"><a href="#cb8-208" aria-hidden="true" tabindex="-1"></a><span class="st">  }</span></span>
+<span id="cb8-209"><a href="#cb8-209" aria-hidden="true" tabindex="-1"></a><span class="st">  for(let j=0;j&lt;3;j++){</span></span>
+<span id="cb8-210"><a href="#cb8-210" aria-hidden="true" tabindex="-1"></a><span class="st">    const v=d.x[0]+(d.x[d.x.length-1]-d.x[0])*j/2;</span></span>
+<span id="cb8-211"><a href="#cb8-211" aria-hidden="true" tabindex="-1"></a><span class="st">    add('text',{x:X(v),y:299,'text-anchor':'middle',fill:'#333','font-size':12},fmt(v));</span></span>
+<span id="cb8-212"><a href="#cb8-212" aria-hidden="true" tabindex="-1"></a><span class="st">  }</span></span>
+<span id="cb8-213"><a href="#cb8-213" aria-hidden="true" tabindex="-1"></a><span class="st">  add('text',{x:70,y:19,fill:'#333','font-size':13},d.yLabel);</span></span>
+<span id="cb8-214"><a href="#cb8-214" aria-hidden="true" tabindex="-1"></a><span class="st">  add('text',{x:width/2,y:333,'text-anchor':'middle',fill:'#333','font-size':13},d.xLabel);</span></span>
+<span id="cb8-215"><a href="#cb8-215" aria-hidden="true" tabindex="-1"></a><span class="st">  add('line',{x1:X(d.x[i]),y1:35,x2:X(d.x[i]),y2:275,stroke:'#666','stroke-dasharray':'4 4'});</span></span>
+<span id="cb8-216"><a href="#cb8-216" aria-hidden="true" tabindex="-1"></a><span class="st">  const tbody=document.getElementById('demo-values'); tbody.replaceChildren();</span></span>
+<span id="cb8-217"><a href="#cb8-217" aria-hidden="true" tabindex="-1"></a><span class="st">  Object.entries(d.series).forEach(([name,y],j)=&gt;{</span></span>
+<span id="cb8-218"><a href="#cb8-218" aria-hidden="true" tabindex="-1"></a><span class="st">    add('polyline',{points:d.x.map((v,k)=&gt;X(v)+','+Y(y[k])).join(' '),fill:'none',</span></span>
+<span id="cb8-219"><a href="#cb8-219" aria-hidden="true" tabindex="-1"></a><span class="st">                   stroke:colors[j%4],'stroke-width':2.5,'stroke-dasharray':dash[j%4]});</span></span>
+<span id="cb8-220"><a href="#cb8-220" aria-hidden="true" tabindex="-1"></a><span class="st">    add('circle',{cx:X(d.x[i]),cy:Y(y[i]),r:5,fill:colors[j%4],stroke:'white'});</span></span>
+<span id="cb8-221"><a href="#cb8-221" aria-hidden="true" tabindex="-1"></a><span class="st">    const tr=document.createElement('tr');</span></span>
+<span id="cb8-222"><a href="#cb8-222" aria-hidden="true" tabindex="-1"></a><span class="st">    const label=document.createElement('td'), value=document.createElement('td');</span></span>
+<span id="cb8-223"><a href="#cb8-223" aria-hidden="true" tabindex="-1"></a><span class="st">    label.textContent=name; label.style.color=colors[j%4]; value.textContent=precise(y[i]);</span></span>
+<span id="cb8-224"><a href="#cb8-224" aria-hidden="true" tabindex="-1"></a><span class="st">    tr.append(label,value); tbody.appendChild(tr);</span></span>
+<span id="cb8-225"><a href="#cb8-225" aria-hidden="true" tabindex="-1"></a><span class="st">  });</span></span>
+<span id="cb8-226"><a href="#cb8-226" aria-hidden="true" tabindex="-1"></a><span class="st">  document.getElementById('demo-selection').textContent=d.xLabel+': '+fmt(d.x[i]);</span></span>
+<span id="cb8-227"><a href="#cb8-227" aria-hidden="true" tabindex="-1"></a><span class="st">  slider.setAttribute('aria-valuetext',fmt(d.x[i])+' '+d.xLabel);</span></span>
+<span id="cb8-228"><a href="#cb8-228" aria-hidden="true" tabindex="-1"></a><span class="st">};</span></span>
+<span id="cb8-229"><a href="#cb8-229" aria-hidden="true" tabindex="-1"></a><span class="st">window.addEventListener('resize',render);</span></span>
+<span id="cb8-230"><a href="#cb8-230" aria-hidden="true" tabindex="-1"></a><span class="st">slider.addEventListener('input',render);</span></span>
+<span id="cb8-231"><a href="#cb8-231" aria-hidden="true" tabindex="-1"></a><span class="st">document.getElementById('demo-reset').addEventListener('click',()=&gt;{slider.value=d.initial;render();});</span></span>
+<span id="cb8-232"><a href="#cb8-232" aria-hidden="true" tabindex="-1"></a><span class="st">render();</span></span>
+<span id="cb8-233"><a href="#cb8-233" aria-hidden="true" tabindex="-1"></a><span class="st">})();</span></span>
+<span id="cb8-234"><a href="#cb8-234" aria-hidden="true" tabindex="-1"></a><span class="st">&lt;/script&gt;</span></span>
+<span id="cb8-235"><a href="#cb8-235" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span></span>
+<span id="cb8-236"><a href="#cb8-236" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> HTML(markup.replace(<span class="st">"__DATA__"</span>, payload)</span>
+<span id="cb8-237"><a href="#cb8-237" aria-hidden="true" tabindex="-1"></a>                .replace(<span class="st">"__XLABEL__"</span>, html.escape(x_label))</span>
+<span id="cb8-238"><a href="#cb8-238" aria-hidden="true" tabindex="-1"></a>                .replace(<span class="st">"__YLABEL__"</span>, html.escape(y_label))</span>
+<span id="cb8-239"><a href="#cb8-239" aria-hidden="true" tabindex="-1"></a>                .replace(<span class="st">"__MAX__"</span>, <span class="bu">str</span>(<span class="bu">len</span>(x)<span class="op">-</span><span class="dv">1</span>)).replace(<span class="st">"__INITIAL__"</span>, <span class="bu">str</span>(initial)))</span>
+<span id="cb8-240"><a href="#cb8-240" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb8-241"><a href="#cb8-241" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-242"><a href="#cb8-242" aria-hidden="true" tabindex="-1"></a><span class="fu">## Price the promised cash flows</span></span>
+<span id="cb8-243"><a href="#cb8-243" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-244"><a href="#cb8-244" aria-hidden="true" tabindex="-1"></a>With $n=10$ half-year periods and $C=100(0.06)/2=3$,</span>
+<span id="cb8-245"><a href="#cb8-245" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-246"><a href="#cb8-246" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb8-247"><a href="#cb8-247" aria-hidden="true" tabindex="-1"></a>P_0=\sum_{k=1}^{10}\frac{3}{(1+0.05/2)^k}</span>
+<span id="cb8-248"><a href="#cb8-248" aria-hidden="true" tabindex="-1"></a>       +\frac{100}{(1+0.05/2)^{10}}.</span>
+<span id="cb8-249"><a href="#cb8-249" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb8-250"><a href="#cb8-250" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-253"><a href="#cb8-253" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb8-254"><a href="#cb8-254" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: returns-setup</span></span>
+<span id="cb8-255"><a href="#cb8-255" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb8-256"><a href="#cb8-256" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb8-257"><a href="#cb8-257" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb8-258"><a href="#cb8-258" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> IPython.display <span class="im">import</span> Markdown, display</span>
+<span id="cb8-259"><a href="#cb8-259" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-260"><a href="#cb8-260" aria-hidden="true" tabindex="-1"></a>plt.rcParams.update({<span class="st">"figure.figsize"</span>: (<span class="dv">8</span>, <span class="fl">4.2</span>), <span class="st">"font.size"</span>: <span class="dv">11</span>,</span>
+<span id="cb8-261"><a href="#cb8-261" aria-hidden="true" tabindex="-1"></a>    <span class="st">"axes.spines.top"</span>: <span class="va">False</span>, <span class="st">"axes.spines.right"</span>: <span class="va">False</span>,</span>
+<span id="cb8-262"><a href="#cb8-262" aria-hidden="true" tabindex="-1"></a>    <span class="st">"axes.grid"</span>: <span class="va">True</span>, <span class="st">"grid.alpha"</span>: <span class="fl">.2</span>})</span>
+<span id="cb8-263"><a href="#cb8-263" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-264"><a href="#cb8-264" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> bond_price(coupon_rate, periods, annual_yield, face<span class="op">=</span><span class="fl">100.</span>):</span>
+<span id="cb8-265"><a href="#cb8-265" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Ex-coupon full price on a semiannual coupon date; rates are decimals.</span></span>
+<span id="cb8-266"><a href="#cb8-266" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-267"><a href="#cb8-267" aria-hidden="true" tabindex="-1"></a><span class="co">    `periods` is the number of remaining half years. A zero-period bond has</span></span>
+<span id="cb8-268"><a href="#cb8-268" aria-hidden="true" tabindex="-1"></a><span class="co">    just matured and returns principal; coupon accounting is handled separately.</span></span>
+<span id="cb8-269"><a href="#cb8-269" aria-hidden="true" tabindex="-1"></a><span class="co">    Yield can be scalar or an array. Payment dates occupy the final axis.</span></span>
+<span id="cb8-270"><a href="#cb8-270" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb8-271"><a href="#cb8-271" aria-hidden="true" tabindex="-1"></a>    y <span class="op">=</span> np.asarray(annual_yield, dtype<span class="op">=</span><span class="bu">float</span>)</span>
+<span id="cb8-272"><a href="#cb8-272" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="kw">not</span> np.<span class="bu">all</span>(np.isfinite(y)) <span class="kw">or</span> np.<span class="bu">any</span>(y <span class="op">&lt;=</span> <span class="op">-</span><span class="dv">2</span>):</span>
+<span id="cb8-273"><a href="#cb8-273" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">"Semiannual yields must be finite and greater than -200%."</span>)</span>
+<span id="cb8-274"><a href="#cb8-274" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="bu">int</span>(periods) <span class="op">!=</span> periods <span class="kw">or</span> periods <span class="op">&lt;</span> <span class="dv">0</span> <span class="kw">or</span> <span class="kw">not</span> <span class="dv">0</span> <span class="op">&lt;=</span> coupon_rate <span class="op">&lt;</span> <span class="dv">1</span> <span class="kw">or</span> face <span class="op">&lt;=</span> <span class="dv">0</span>:</span>
+<span id="cb8-275"><a href="#cb8-275" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">"Use nonnegative integer periods, a valid coupon, and positive face."</span>)</span>
+<span id="cb8-276"><a href="#cb8-276" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> periods <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb8-277"><a href="#cb8-277" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> np.full_like(y, face, dtype<span class="op">=</span><span class="bu">float</span>)</span>
+<span id="cb8-278"><a href="#cb8-278" aria-hidden="true" tabindex="-1"></a>    k <span class="op">=</span> np.arange(<span class="dv">1</span>, periods <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb8-279"><a href="#cb8-279" aria-hidden="true" tabindex="-1"></a>    cf <span class="op">=</span> np.full(periods, face<span class="op">*</span>coupon_rate<span class="op">/</span><span class="dv">2</span>)</span>
+<span id="cb8-280"><a href="#cb8-280" aria-hidden="true" tabindex="-1"></a>    cf[<span class="op">-</span><span class="dv">1</span>] <span class="op">+=</span> face</span>
+<span id="cb8-281"><a href="#cb8-281" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.<span class="bu">sum</span>(cf<span class="op">*</span>np.exp(<span class="op">-</span>np.log1p(y[...,<span class="va">None</span>]<span class="op">/</span><span class="dv">2</span>)<span class="op">*</span>k), axis<span class="op">=-</span><span class="dv">1</span>)</span>
+<span id="cb8-282"><a href="#cb8-282" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-283"><a href="#cb8-283" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> show_table(frame, decimals<span class="op">=</span><span class="dv">4</span>):</span>
+<span id="cb8-284"><a href="#cb8-284" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Keep short reports together in PDF and retain clear column labels."""</span></span>
+<span id="cb8-285"><a href="#cb8-285" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> frame.shape[<span class="dv">1</span>] <span class="op">&gt;</span> <span class="dv">4</span>:</span>
+<span id="cb8-286"><a href="#cb8-286" aria-hidden="true" tabindex="-1"></a>        frame <span class="op">=</span> frame.set_index(frame.columns[<span class="dv">0</span>]).T.reset_index().rename(columns<span class="op">=</span>{<span class="st">"index"</span>:<span class="st">"Measure"</span>})</span>
+<span id="cb8-287"><a href="#cb8-287" aria-hidden="true" tabindex="-1"></a>    reserve <span class="op">=</span> <span class="st">"```{=latex}</span><span class="ch">\n\\</span><span class="st">ReserveTableSpace{"</span> <span class="op">+</span> <span class="bu">str</span>(<span class="bu">len</span>(frame)<span class="op">+</span><span class="dv">4</span>) <span class="op">+</span> <span class="st">"</span><span class="ch">\\</span><span class="st">baselineskip}</span><span class="ch">\n</span><span class="st">```</span><span class="ch">\n\n</span><span class="st">"</span></span>
+<span id="cb8-288"><a href="#cb8-288" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> cell(value):</span>
+<span id="cb8-289"><a href="#cb8-289" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="bu">isinstance</span>(value, (<span class="bu">int</span>, <span class="bu">float</span>, np.number)):</span>
+<span id="cb8-290"><a href="#cb8-290" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="ss">f"</span><span class="sc">{</span>value<span class="sc">:.</span>{decimals}f<span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb8-291"><a href="#cb8-291" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="bu">str</span>(value).replace(<span class="st">"|"</span>, <span class="st">"</span><span class="ch">\\</span><span class="st">|"</span>)</span>
+<span id="cb8-292"><a href="#cb8-292" aria-hidden="true" tabindex="-1"></a>    rows <span class="op">=</span> [<span class="st">"| "</span> <span class="op">+</span> <span class="st">" | "</span>.join(<span class="bu">map</span>(<span class="bu">str</span>, frame.columns)) <span class="op">+</span> <span class="st">" |"</span>,</span>
+<span id="cb8-293"><a href="#cb8-293" aria-hidden="true" tabindex="-1"></a>            <span class="st">"| "</span> <span class="op">+</span> <span class="st">" | "</span>.join([<span class="st">"---"</span>]<span class="op">*</span><span class="bu">len</span>(frame.columns)) <span class="op">+</span> <span class="st">" |"</span>]</span>
+<span id="cb8-294"><a href="#cb8-294" aria-hidden="true" tabindex="-1"></a>    rows <span class="op">+=</span> [<span class="st">"| "</span> <span class="op">+</span> <span class="st">" | "</span>.join(cell(v) <span class="cf">for</span> v <span class="kw">in</span> row) <span class="op">+</span> <span class="st">" |"</span></span>
+<span id="cb8-295"><a href="#cb8-295" aria-hidden="true" tabindex="-1"></a>             <span class="cf">for</span> row <span class="kw">in</span> frame.itertuples(index<span class="op">=</span><span class="va">False</span>, name<span class="op">=</span><span class="va">None</span>)]</span>
+<span id="cb8-296"><a href="#cb8-296" aria-hidden="true" tabindex="-1"></a>    display(Markdown(reserve<span class="op">+</span><span class="st">"</span><span class="ch">\n</span><span class="st">"</span>.join(rows)))</span>
+<span id="cb8-297"><a href="#cb8-297" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-298"><a href="#cb8-298" aria-hidden="true" tabindex="-1"></a>coupon_rate, maturity_periods, purchase_yield <span class="op">=</span> <span class="fl">.06</span>, <span class="dv">10</span>, <span class="fl">.05</span></span>
+<span id="cb8-299"><a href="#cb8-299" aria-hidden="true" tabindex="-1"></a>purchase_price <span class="op">=</span> <span class="bu">float</span>(bond_price(coupon_rate, maturity_periods, purchase_yield))</span>
+<span id="cb8-300"><a href="#cb8-300" aria-hidden="true" tabindex="-1"></a>periods <span class="op">=</span> np.arange(<span class="dv">1</span>, <span class="dv">11</span>)</span>
+<span id="cb8-301"><a href="#cb8-301" aria-hidden="true" tabindex="-1"></a>cf <span class="op">=</span> np.full(<span class="dv">10</span>, <span class="fl">3.</span>)<span class="op">;</span> cf[<span class="op">-</span><span class="dv">1</span>] <span class="op">+=</span> <span class="dv">100</span></span>
+<span id="cb8-302"><a href="#cb8-302" aria-hidden="true" tabindex="-1"></a>payments <span class="op">=</span> pd.DataFrame({<span class="st">"Year"</span>: periods<span class="op">/</span><span class="dv">2</span>, <span class="st">"Payment"</span>: cf,</span>
+<span id="cb8-303"><a href="#cb8-303" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Discount factor"</span>: (<span class="dv">1</span><span class="op">+</span>purchase_yield<span class="op">/</span><span class="dv">2</span>)<span class="op">**</span>(<span class="op">-</span>periods),</span>
+<span id="cb8-304"><a href="#cb8-304" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Present value"</span>: cf<span class="op">/</span>(<span class="dv">1</span><span class="op">+</span>purchase_yield<span class="op">/</span><span class="dv">2</span>)<span class="op">**</span>periods})</span>
+<span id="cb8-305"><a href="#cb8-305" aria-hidden="true" tabindex="-1"></a>show_table(payments,<span class="dv">5</span>)</span>
+<span id="cb8-306"><a href="#cb8-306" aria-hidden="true" tabindex="-1"></a>display(Markdown(<span class="ss">f"**Purchase full price: </span><span class="sc">{</span>purchase_price<span class="sc">:.6f}</span><span class="ss">.** The 6% coupon exceeds the 5% YTM, so the bond trades above par."</span>))</span>
+<span id="cb8-307"><a href="#cb8-307" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb8-308"><a href="#cb8-308" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-309"><a href="#cb8-309" aria-hidden="true" tabindex="-1"></a><span class="fu">## Distinguish quoted yields from realized returns</span></span>
+<span id="cb8-310"><a href="#cb8-310" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-311"><a href="#cb8-311" aria-hidden="true" tabindex="-1"></a>Current yield is annual coupon divided by today's price. It ignores both</span>
+<span id="cb8-312"><a href="#cb8-312" aria-hidden="true" tabindex="-1"></a>reinvestment and the gain or loss when the bond is sold or redeemed. YTM is the</span>
+<span id="cb8-313"><a href="#cb8-313" aria-hidden="true" tabindex="-1"></a>internal rate of return of promised payments at the purchase price. It is not a</span>
+<span id="cb8-314"><a href="#cb8-314" aria-hidden="true" tabindex="-1"></a>forecast of a short-horizon sale price.</span>
+<span id="cb8-315"><a href="#cb8-315" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-318"><a href="#cb8-318" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb8-319"><a href="#cb8-319" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: return-quote-comparison</span></span>
+<span id="cb8-320"><a href="#cb8-320" aria-hidden="true" tabindex="-1"></a>display(pd.DataFrame({<span class="st">"Measure"</span>: [<span class="st">"Coupon rate"</span>, <span class="st">"Current yield"</span>, <span class="st">"Nominal annual YTM"</span>, <span class="st">"Effective annual YTM"</span>],</span>
+<span id="cb8-321"><a href="#cb8-321" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Percent"</span>: [<span class="fl">6.</span>, <span class="dv">100</span><span class="op">*</span><span class="dv">6</span><span class="op">/</span>purchase_price, <span class="fl">5.</span>, <span class="dv">100</span><span class="op">*</span>((<span class="dv">1</span><span class="op">+</span><span class="fl">.05</span><span class="op">/</span><span class="dv">2</span>)<span class="op">**</span><span class="dv">2</span><span class="op">-</span><span class="dv">1</span>)]}).<span class="bu">round</span>(<span class="dv">4</span>))</span>
+<span id="cb8-322"><a href="#cb8-322" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb8-323"><a href="#cb8-323" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-324"><a href="#cb8-324" aria-hidden="true" tabindex="-1"></a>A 5% semiannual-compounding YTM corresponds to an effective annual rate of</span>
+<span id="cb8-325"><a href="#cb8-325" aria-hidden="true" tabindex="-1"></a>$(1.025)^2-1=5.0625\%$. Realizing that compound rate requires the relevant</span>
+<span id="cb8-326"><a href="#cb8-326" aria-hidden="true" tabindex="-1"></a>reinvestment and terminal-value assumptions, as the next calculation shows.</span>
+<span id="cb8-327"><a href="#cb8-327" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-328"><a href="#cb8-328" aria-hidden="true" tabindex="-1"></a><span class="fu">## Build terminal wealth without double counting coupons</span></span>
+<span id="cb8-329"><a href="#cb8-329" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-330"><a href="#cb8-330" aria-hidden="true" tabindex="-1"></a>At $H=2$ years, four coupons have been received. The sale price is ex-coupon,</span>
+<span id="cb8-331"><a href="#cb8-331" aria-hidden="true" tabindex="-1"></a>with six half-year payments remaining. If $j$ is the annual reinvestment rate,</span>
+<span id="cb8-332"><a href="#cb8-332" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-333"><a href="#cb8-333" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb8-334"><a href="#cb8-334" aria-hidden="true" tabindex="-1"></a>FV_C=3\left<span class="co">[</span><span class="ot">(1+j/2)^3+(1+j/2)^2+(1+j/2)+1\right</span><span class="co">]</span>,</span>
+<span id="cb8-335"><a href="#cb8-335" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb8-336"><a href="#cb8-336" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-337"><a href="#cb8-337" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb8-338"><a href="#cb8-338" aria-hidden="true" tabindex="-1"></a>W_H=P_H+FV_C,\qquad</span>
+<span id="cb8-339"><a href="#cb8-339" aria-hidden="true" tabindex="-1"></a>HPR=\frac{W_H-P_0}{P_0},\qquad</span>
+<span id="cb8-340"><a href="#cb8-340" aria-hidden="true" tabindex="-1"></a>R_{\mathrm{annual}}=\left(\frac{W_H}{P_0}\right)^{1/H}-1.</span>
+<span id="cb8-341"><a href="#cb8-341" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb8-342"><a href="#cb8-342" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-343"><a href="#cb8-343" aria-hidden="true" tabindex="-1"></a>The coupon paid at year 2 enters $FV_C$ once and earns no reinvestment interest.</span>
+<span id="cb8-344"><a href="#cb8-344" aria-hidden="true" tabindex="-1"></a>The sale price excludes that coupon. This is a terminal-wealth return that</span>
+<span id="cb8-345"><a href="#cb8-345" aria-hidden="true" tabindex="-1"></a>assumes all coupon cash remains invested until the horizon.</span>
+<span id="cb8-346"><a href="#cb8-346" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-349"><a href="#cb8-349" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb8-350"><a href="#cb8-350" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: horizon-return-engine</span></span>
+<span id="cb8-351"><a href="#cb8-351" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> horizon_report(exit_yield, reinvest_rate, horizon_periods<span class="op">=</span><span class="dv">4</span>):</span>
+<span id="cb8-352"><a href="#cb8-352" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Return a scenario table of terminal wealth and realized return.</span></span>
+<span id="cb8-353"><a href="#cb8-353" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-354"><a href="#cb8-354" aria-hidden="true" tabindex="-1"></a><span class="co">    Rates are decimal nominal annual rates; horizon is an integer number of</span></span>
+<span id="cb8-355"><a href="#cb8-355" aria-hidden="true" tabindex="-1"></a><span class="co">    half years in [1, 10]. Scalars and arrays broadcast to a common shape.</span></span>
+<span id="cb8-356"><a href="#cb8-356" aria-hidden="true" tabindex="-1"></a><span class="co">    Coupons are reinvested at a constant scenario rate, without withdrawals.</span></span>
+<span id="cb8-357"><a href="#cb8-357" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb8-358"><a href="#cb8-358" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="bu">int</span>(horizon_periods) <span class="op">!=</span> horizon_periods <span class="kw">or</span> <span class="kw">not</span> <span class="dv">1</span> <span class="op">&lt;=</span> horizon_periods <span class="op">&lt;=</span> maturity_periods:</span>
+<span id="cb8-359"><a href="#cb8-359" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">"Horizon must be a coupon date through maturity."</span>)</span>
+<span id="cb8-360"><a href="#cb8-360" aria-hidden="true" tabindex="-1"></a>    ey, ri <span class="op">=</span> np.broadcast_arrays(np.atleast_1d(exit_yield), np.atleast_1d(reinvest_rate))</span>
+<span id="cb8-361"><a href="#cb8-361" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="kw">not</span> np.<span class="bu">all</span>(np.isfinite(ri)) <span class="kw">or</span> np.<span class="bu">any</span>(ri <span class="op">&lt;=</span> <span class="op">-</span><span class="dv">2</span>):</span>
+<span id="cb8-362"><a href="#cb8-362" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">"Reinvestment rates must be finite and greater than -200%."</span>)</span>
+<span id="cb8-363"><a href="#cb8-363" aria-hidden="true" tabindex="-1"></a>    coupon_cash <span class="op">=</span> <span class="dv">3</span><span class="op">*</span>horizon_periods</span>
+<span id="cb8-364"><a href="#cb8-364" aria-hidden="true" tabindex="-1"></a>    powers <span class="op">=</span> np.arange(horizon_periods<span class="op">-</span><span class="dv">1</span>, <span class="op">-</span><span class="dv">1</span>, <span class="op">-</span><span class="dv">1</span>)</span>
+<span id="cb8-365"><a href="#cb8-365" aria-hidden="true" tabindex="-1"></a>    coupon_fv <span class="op">=</span> <span class="dv">3</span><span class="op">*</span>np.exp(np.log1p(ri[...,<span class="va">None</span>]<span class="op">/</span><span class="dv">2</span>)<span class="op">*</span>powers).<span class="bu">sum</span>(axis<span class="op">=-</span><span class="dv">1</span>)</span>
+<span id="cb8-366"><a href="#cb8-366" aria-hidden="true" tabindex="-1"></a>    sale <span class="op">=</span> bond_price(coupon_rate, maturity_periods<span class="op">-</span>horizon_periods, ey)</span>
+<span id="cb8-367"><a href="#cb8-367" aria-hidden="true" tabindex="-1"></a>    wealth <span class="op">=</span> sale<span class="op">+</span>coupon_fv</span>
+<span id="cb8-368"><a href="#cb8-368" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> pd.DataFrame({<span class="st">"Exit YTM (%)"</span>: <span class="dv">100</span><span class="op">*</span>ey.ravel(), <span class="st">"Reinvest (%)"</span>: <span class="dv">100</span><span class="op">*</span>ri.ravel(),</span>
+<span id="cb8-369"><a href="#cb8-369" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Sale / principal"</span>: sale.ravel(), <span class="st">"Coupon cash"</span>: np.full(ey.size,coupon_cash),</span>
+<span id="cb8-370"><a href="#cb8-370" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Reinvestment income"</span>: (coupon_fv<span class="op">-</span>coupon_cash).ravel(),</span>
+<span id="cb8-371"><a href="#cb8-371" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Price change"</span>: (sale<span class="op">-</span>purchase_price).ravel(), <span class="st">"Terminal wealth"</span>: wealth.ravel(),</span>
+<span id="cb8-372"><a href="#cb8-372" aria-hidden="true" tabindex="-1"></a>        <span class="st">"HPR (%)"</span>: <span class="dv">100</span><span class="op">*</span>(wealth<span class="op">/</span>purchase_price<span class="op">-</span><span class="dv">1</span>).ravel(),</span>
+<span id="cb8-373"><a href="#cb8-373" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Annual return (%)"</span>: <span class="dv">100</span><span class="op">*</span>np.expm1(np.log(wealth<span class="op">/</span>purchase_price)<span class="op">/</span>(horizon_periods<span class="op">/</span><span class="dv">2</span>)).ravel()})</span>
+<span id="cb8-374"><a href="#cb8-374" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-375"><a href="#cb8-375" aria-hidden="true" tabindex="-1"></a>base <span class="op">=</span> horizon_report(<span class="fl">.05</span>,<span class="fl">.05</span>)</span>
+<span id="cb8-376"><a href="#cb8-376" aria-hidden="true" tabindex="-1"></a>show_table(base,<span class="dv">5</span>)</span>
+<span id="cb8-377"><a href="#cb8-377" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb8-378"><a href="#cb8-378" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-379"><a href="#cb8-379" aria-hidden="true" tabindex="-1"></a>The unchanged-yield case includes a price decline toward par. Coupon income</span>
+<span id="cb8-380"><a href="#cb8-380" aria-hidden="true" tabindex="-1"></a>more than offsets that decline. A premium bond's coupon rate therefore overstates</span>
+<span id="cb8-381"><a href="#cb8-381" aria-hidden="true" tabindex="-1"></a>its return even when market yields do not change.</span>
+<span id="cb8-382"><a href="#cb8-382" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-383"><a href="#cb8-383" aria-hidden="true" tabindex="-1"></a><span class="fu">## Separate price risk from reinvestment risk</span></span>
+<span id="cb8-384"><a href="#cb8-384" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-385"><a href="#cb8-385" aria-hidden="true" tabindex="-1"></a>Hold reinvestment at 3% while varying exit yields. Then hold the exit yield at 5%</span>
+<span id="cb8-386"><a href="#cb8-386" aria-hidden="true" tabindex="-1"></a>while varying reinvestment. This separation avoids assuming that sale yields and</span>
+<span id="cb8-387"><a href="#cb8-387" aria-hidden="true" tabindex="-1"></a>all past reinvestment rates move together.</span>
+<span id="cb8-388"><a href="#cb8-388" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-391"><a href="#cb8-391" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb8-392"><a href="#cb8-392" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: returns-scenarios</span></span>
+<span id="cb8-393"><a href="#cb8-393" aria-hidden="true" tabindex="-1"></a>scenarios <span class="op">=</span> horizon_report([<span class="fl">.03</span>,<span class="fl">.05</span>,<span class="fl">.10</span>], <span class="fl">.03</span>)</span>
+<span id="cb8-394"><a href="#cb8-394" aria-hidden="true" tabindex="-1"></a>show_table(scenarios,<span class="dv">4</span>)</span>
+<span id="cb8-395"><a href="#cb8-395" aria-hidden="true" tabindex="-1"></a>show_table(horizon_report(<span class="fl">.05</span>,[<span class="fl">.01</span>,<span class="fl">.03</span>,<span class="fl">.05</span>]),<span class="dv">4</span>)</span>
+<span id="cb8-396"><a href="#cb8-396" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>,<span class="dv">2</span>,figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="dv">4</span>))</span>
+<span id="cb8-397"><a href="#cb8-397" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> np.arange(<span class="dv">3</span>)</span>
+<span id="cb8-398"><a href="#cb8-398" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].bar(x, scenarios[<span class="st">"Coupon cash"</span>],label<span class="op">=</span><span class="st">"Coupon cash"</span>,color<span class="op">=</span><span class="st">"#214b3e"</span>)</span>
+<span id="cb8-399"><a href="#cb8-399" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].bar(x, scenarios[<span class="st">"Reinvestment income"</span>],bottom<span class="op">=</span>scenarios[<span class="st">"Coupon cash"</span>],label<span class="op">=</span><span class="st">"Reinvestment"</span>,color<span class="op">=</span><span class="st">"#936724"</span>)</span>
+<span id="cb8-400"><a href="#cb8-400" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].bar(x, scenarios[<span class="st">"Price change"</span>],label<span class="op">=</span><span class="st">"Price change"</span>,color<span class="op">=</span><span class="st">"#486d8c"</span>,alpha<span class="op">=</span><span class="fl">.8</span>)</span>
+<span id="cb8-401"><a href="#cb8-401" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].<span class="bu">set</span>(xticks<span class="op">=</span>x,xticklabels<span class="op">=</span>[<span class="st">"3%"</span>,<span class="st">"5%"</span>,<span class="st">"10%"</span>] ,xlabel<span class="op">=</span><span class="st">"Exit YTM"</span>,ylabel<span class="op">=</span><span class="st">"Return component per $100 face"</span>)</span>
+<span id="cb8-402"><a href="#cb8-402" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].axhline(<span class="dv">0</span>,color<span class="op">=</span><span class="st">"grey"</span>,lw<span class="op">=</span><span class="dv">1</span>)<span class="op">;</span>axes[<span class="dv">0</span>].legend(fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb8-403"><a href="#cb8-403" aria-hidden="true" tabindex="-1"></a>yields<span class="op">=</span>np.linspace(<span class="fl">.01</span>,<span class="fl">.10</span>,<span class="dv">91</span>)</span>
+<span id="cb8-404"><a href="#cb8-404" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> j <span class="kw">in</span> [<span class="fl">.01</span>,<span class="fl">.03</span>,<span class="fl">.05</span>]:</span>
+<span id="cb8-405"><a href="#cb8-405" aria-hidden="true" tabindex="-1"></a>    result<span class="op">=</span>horizon_report(yields,j)</span>
+<span id="cb8-406"><a href="#cb8-406" aria-hidden="true" tabindex="-1"></a>    axes[<span class="dv">1</span>].plot(<span class="dv">100</span><span class="op">*</span>yields,result[<span class="st">"Annual return (%)"</span>],label<span class="op">=</span><span class="ss">f"Reinvest </span><span class="sc">{</span><span class="dv">100</span><span class="op">*</span>j<span class="sc">:.0f}</span><span class="ss">%"</span>)</span>
+<span id="cb8-407"><a href="#cb8-407" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].<span class="bu">set</span>(xlabel<span class="op">=</span><span class="st">"Exit YTM (%)"</span>,ylabel<span class="op">=</span><span class="st">"Realized annual return (%)"</span>)</span>
+<span id="cb8-408"><a href="#cb8-408" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].legend(fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb8-409"><a href="#cb8-409" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()<span class="op">;</span>plt.show()</span>
+<span id="cb8-410"><a href="#cb8-410" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb8-411"><a href="#cb8-411" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-412"><a href="#cb8-412" aria-hidden="true" tabindex="-1"></a>For this two-year horizon, a higher sale yield lowers the value of the remaining</span>
+<span id="cb8-413"><a href="#cb8-413" aria-hidden="true" tabindex="-1"></a>three-year bond. Higher reinvestment rates increase accumulated coupons. These</span>
+<span id="cb8-414"><a href="#cb8-414" aria-hidden="true" tabindex="-1"></a>are opposing effects with different magnitudes and timing.</span>
+<span id="cb8-415"><a href="#cb8-415" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-416"><a href="#cb8-416" aria-hidden="true" tabindex="-1"></a><span class="fu">## Predict, change, explain</span></span>
+<span id="cb8-417"><a href="#cb8-417" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-418"><a href="#cb8-418" aria-hidden="true" tabindex="-1"></a>Predict whether a 100 bp increase in the **exit** yield raises or lowers realized</span>
+<span id="cb8-419"><a href="#cb8-419" aria-hidden="true" tabindex="-1"></a>return. Keep the reinvestment rate fixed at 3%. Move the HTML control, then explain</span>
+<span id="cb8-420"><a href="#cb8-420" aria-hidden="true" tabindex="-1"></a>why that change is not an increase in the return already earned.</span>
+<span id="cb8-421"><a href="#cb8-421" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-422"><a href="#cb8-422" aria-hidden="true" tabindex="-1"></a>::: {.content-visible when-format="html"}</span>
+<span id="cb8-425"><a href="#cb8-425" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb8-426"><a href="#cb8-426" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: returns-explorer</span></span>
+<span id="cb8-427"><a href="#cb8-427" aria-hidden="true" tabindex="-1"></a>explorer<span class="op">=</span>horizon_report(yields,<span class="fl">.03</span>)</span>
+<span id="cb8-428"><a href="#cb8-428" aria-hidden="true" tabindex="-1"></a>display(demo_explorer(<span class="dv">100</span><span class="op">*</span>yields,{</span>
+<span id="cb8-429"><a href="#cb8-429" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Two-year HPR"</span>:explorer[<span class="st">"HPR (%)"</span>].to_numpy(),</span>
+<span id="cb8-430"><a href="#cb8-430" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Annualized return"</span>:explorer[<span class="st">"Annual return (%)"</span>].to_numpy(),</span>
+<span id="cb8-431"><a href="#cb8-431" aria-hidden="true" tabindex="-1"></a>},<span class="st">"Exit YTM (%)"</span>,<span class="st">"Realized return (%)"</span>,<span class="dv">40</span>))</span>
+<span id="cb8-432"><a href="#cb8-432" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb8-433"><a href="#cb8-433" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb8-434"><a href="#cb8-434" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-435"><a href="#cb8-435" aria-hidden="true" tabindex="-1"></a>The static scenario table above gives the corresponding PDF reference.</span>
+<span id="cb8-436"><a href="#cb8-436" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-437"><a href="#cb8-437" aria-hidden="true" tabindex="-1"></a><span class="fu">## Validation checks</span></span>
+<span id="cb8-438"><a href="#cb8-438" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-441"><a href="#cb8-441" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb8-442"><a href="#cb8-442" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: returns-checks</span></span>
+<span id="cb8-443"><a href="#cb8-443" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> np.isclose(bond_price(<span class="fl">.05</span>,<span class="dv">10</span>,<span class="fl">.05</span>),<span class="dv">100</span>)</span>
+<span id="cb8-444"><a href="#cb8-444" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> np.isclose(base[<span class="st">"Annual return (%)"</span>].iloc[<span class="dv">0</span>],<span class="fl">5.0625</span>)</span>
+<span id="cb8-445"><a href="#cb8-445" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> np.<span class="bu">all</span>(np.diff(scenarios[<span class="st">"Sale / principal"</span>])<span class="op">&lt;</span><span class="dv">0</span>)</span>
+<span id="cb8-446"><a href="#cb8-446" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> scenarios[<span class="st">"HPR (%)"</span>].iloc[<span class="op">-</span><span class="dv">1</span>] <span class="op">&lt;</span> <span class="dv">0</span></span>
+<span id="cb8-447"><a href="#cb8-447" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> np.allclose(scenarios[<span class="st">"Terminal wealth"</span>]<span class="op">-</span>purchase_price,</span>
+<span id="cb8-448"><a href="#cb8-448" aria-hidden="true" tabindex="-1"></a>    scenarios[<span class="st">"Coupon cash"</span>]<span class="op">+</span>scenarios[<span class="st">"Reinvestment income"</span>]<span class="op">+</span>scenarios[<span class="st">"Price change"</span>])</span>
+<span id="cb8-449"><a href="#cb8-449" aria-hidden="true" tabindex="-1"></a>at_maturity<span class="op">=</span>horizon_report([<span class="fl">.01</span>,<span class="fl">.10</span>],<span class="fl">.05</span>,<span class="dv">10</span>)</span>
+<span id="cb8-450"><a href="#cb8-450" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> np.allclose(at_maturity[<span class="st">"Sale / principal"</span>],<span class="dv">100</span>)</span>
+<span id="cb8-451"><a href="#cb8-451" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> np.allclose(at_maturity[<span class="st">"Annual return (%)"</span>],<span class="fl">5.0625</span>)</span>
+<span id="cb8-452"><a href="#cb8-452" aria-hidden="true" tabindex="-1"></a>display(Markdown(<span class="st">"**Passed:** par pricing, return-component reconciliation, sale-price monotonicity, and the YTM reinvestment benchmark through maturity."</span>))</span>
+<span id="cb8-453"><a href="#cb8-453" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb8-454"><a href="#cb8-454" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-455"><a href="#cb8-455" aria-hidden="true" tabindex="-1"></a>At maturity the exit yield no longer matters: principal is fixed. The accumulated</span>
+<span id="cb8-456"><a href="#cb8-456" aria-hidden="true" tabindex="-1"></a>coupon value still depends on reinvestment rates. Between coupon dates, use full</span>
+<span id="cb8-457"><a href="#cb8-457" aria-hidden="true" tabindex="-1"></a>purchase and sale prices, including accrued interest, and actual payment dates.</span>
+<span id="cb8-458"><a href="#cb8-458" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-459"><a href="#cb8-459" aria-hidden="true" tabindex="-1"></a><span class="fu">## Mini Project</span></span>
+<span id="cb8-460"><a href="#cb8-460" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-461"><a href="#cb8-461" aria-hidden="true" tabindex="-1"></a>**Project brief.** Prepare a one-page return memo for a client buying $2 million</span>
+<span id="cb8-462"><a href="#cb8-462" aria-hidden="true" tabindex="-1"></a>face of this bond and selling after two years. The client expects a 3% coupon</span>
+<span id="cb8-463"><a href="#cb8-463" aria-hidden="true" tabindex="-1"></a>reinvestment rate and considers exit YTMs of 3%, 5%, and 10%.</span>
+<span id="cb8-464"><a href="#cb8-464" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-465"><a href="#cb8-465" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Report the cash purchase cost, terminal sale proceeds, coupons, reinvestment</span>
+<span id="cb8-466"><a href="#cb8-466" aria-hidden="true" tabindex="-1"></a>   income, dollar profit, two-year HPR, and effective annual return for each case.</span>
+<span id="cb8-467"><a href="#cb8-467" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>Explain why the 6% coupon and 5% purchase YTM differ from realized return.</span>
+<span id="cb8-468"><a href="#cb8-468" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>Repeat the unchanged-exit-yield case with zero coupon reinvestment income.</span>
+<span id="cb8-469"><a href="#cb8-469" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>Recommend whether the bond suits a client who cannot tolerate a two-year loss.</span>
+<span id="cb8-470"><a href="#cb8-470" aria-hidden="true" tabindex="-1"></a>   State the model's limitations and identify a closer maturity match.</span>
+<span id="cb8-471"><a href="#cb8-471" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-472"><a href="#cb8-472" aria-hidden="true" tabindex="-1"></a><span class="in">```{=html}</span></span>
+<span id="cb8-473"><a href="#cb8-473" aria-hidden="true" tabindex="-1"></a><span class="in">&lt;details class="demo-solution"&gt;&lt;summary&gt;Worked solution: client return memo&lt;/summary&gt;</span></span>
+<span id="cb8-474"><a href="#cb8-474" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb8-475"><a href="#cb8-475" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-476"><a href="#cb8-476" aria-hidden="true" tabindex="-1"></a>::: {.content-visible when-format="pdf"}</span>
+<span id="cb8-477"><a href="#cb8-477" aria-hidden="true" tabindex="-1"></a>**Worked solution: client return memo**</span>
+<span id="cb8-478"><a href="#cb8-478" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb8-479"><a href="#cb8-479" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-482"><a href="#cb8-482" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb8-483"><a href="#cb8-483" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: returns-mini-project</span></span>
+<span id="cb8-484"><a href="#cb8-484" aria-hidden="true" tabindex="-1"></a>position_face<span class="op">=</span><span class="dv">2_000_000</span></span>
+<span id="cb8-485"><a href="#cb8-485" aria-hidden="true" tabindex="-1"></a>scale<span class="op">=</span>position_face<span class="op">/</span><span class="dv">100</span></span>
+<span id="cb8-486"><a href="#cb8-486" aria-hidden="true" tabindex="-1"></a>report<span class="op">=</span>scenarios.copy()</span>
+<span id="cb8-487"><a href="#cb8-487" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> col <span class="kw">in</span> [<span class="st">"Sale / principal"</span>,<span class="st">"Coupon cash"</span>,<span class="st">"Reinvestment income"</span>,<span class="st">"Price change"</span>,<span class="st">"Terminal wealth"</span>]:</span>
+<span id="cb8-488"><a href="#cb8-488" aria-hidden="true" tabindex="-1"></a>    report[col]<span class="op">*=</span>scale</span>
+<span id="cb8-489"><a href="#cb8-489" aria-hidden="true" tabindex="-1"></a>report[<span class="st">"Profit ($)"</span>]<span class="op">=</span>(scenarios[<span class="st">"Terminal wealth"</span>]<span class="op">-</span>purchase_price)<span class="op">*</span>scale</span>
+<span id="cb8-490"><a href="#cb8-490" aria-hidden="true" tabindex="-1"></a>display(Markdown(<span class="ss">f"Purchase cost is **$</span><span class="sc">{</span>purchase_price<span class="op">*</span>scale<span class="sc">:,.2f}</span><span class="ss">**. Coupons received are **$240,000** over two years."</span>))</span>
+<span id="cb8-491"><a href="#cb8-491" aria-hidden="true" tabindex="-1"></a>show_table(report[[<span class="st">"Exit YTM (%)"</span>,<span class="st">"Sale / principal"</span>,<span class="st">"Coupon cash"</span>]],<span class="dv">2</span>)</span>
+<span id="cb8-492"><a href="#cb8-492" aria-hidden="true" tabindex="-1"></a>show_table(report[[<span class="st">"Exit YTM (%)"</span>,<span class="st">"Reinvestment income"</span>,<span class="st">"Profit ($)"</span>]],<span class="dv">2</span>)</span>
+<span id="cb8-493"><a href="#cb8-493" aria-hidden="true" tabindex="-1"></a>show_table(report[[<span class="st">"Exit YTM (%)"</span>,<span class="st">"HPR (%)"</span>,<span class="st">"Annual return (%)"</span>]],<span class="dv">4</span>)</span>
+<span id="cb8-494"><a href="#cb8-494" aria-hidden="true" tabindex="-1"></a>show_table(horizon_report(<span class="fl">.05</span>,<span class="dv">0</span>)[[<span class="st">"Reinvest (%)"</span>,<span class="st">"Terminal wealth"</span>,<span class="st">"HPR (%)"</span>,<span class="st">"Annual return (%)"</span>]],<span class="dv">5</span>)</span>
+<span id="cb8-495"><a href="#cb8-495" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb8-496"><a href="#cb8-496" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-497"><a href="#cb8-497" aria-hidden="true" tabindex="-1"></a>**Interpretation and decision.** The coupon rate determines contractual cash</span>
+<span id="cb8-498"><a href="#cb8-498" aria-hidden="true" tabindex="-1"></a>payments; it does not measure profit relative to the premium purchase price.</span>
+<span id="cb8-499"><a href="#cb8-499" aria-hidden="true" tabindex="-1"></a>The purchase YTM describes promised cash-flow discounting, while the horizon</span>
+<span id="cb8-500"><a href="#cb8-500" aria-hidden="true" tabindex="-1"></a>return also depends on sale price and reinvestment. The 10% exit scenario shows</span>
+<span id="cb8-501"><a href="#cb8-501" aria-hidden="true" tabindex="-1"></a>that coupon income need not prevent a loss. This five-year bond does not assure</span>
+<span id="cb8-502"><a href="#cb8-502" aria-hidden="true" tabindex="-1"></a>a positive two-year return. A default-free zero-coupon claim maturing at the</span>
+<span id="cb8-503"><a href="#cb8-503" aria-hidden="true" tabindex="-1"></a>client's horizon better matches a fixed nominal liability and eliminates coupon</span>
+<span id="cb8-504"><a href="#cb8-504" aria-hidden="true" tabindex="-1"></a>reinvestment risk. Its purchase price still determines its return; inflation,</span>
+<span id="cb8-505"><a href="#cb8-505" aria-hidden="true" tabindex="-1"></a>transaction costs, and selling before maturity remain relevant.</span>
+<span id="cb8-506"><a href="#cb8-506" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-507"><a href="#cb8-507" aria-hidden="true" tabindex="-1"></a><span class="in">```{=html}</span></span>
+<span id="cb8-508"><a href="#cb8-508" aria-hidden="true" tabindex="-1"></a><span class="in">&lt;/details&gt;</span></span>
+<span id="cb8-509"><a href="#cb8-509" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

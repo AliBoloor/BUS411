@@ -353,13 +353,13 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../lecture_notes/lec3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Lecture 3: Bond Price Volatility, Duration, Convexity, and Bond Portfolio Strategies</span></a>
+ <span class="menu-text">Lecture 3: Bond Price Volatility, Duration, and Convexity</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../lecture_notes/lec4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Lecture 4: Benchmark Spreads and the Term Structure of Interest Rates</span></a>
+ <span class="menu-text">Lecture 4: Benchmark Spread, Term Structure of Interest Rate, and Curve Strategies</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -402,6 +402,12 @@ window.Quarto = {
   <div class="sidebar-item-container"> 
   <a href="../lecture_notes/lec11.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Lecture 11: Interest-Rate Options</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lecture_notes/introduction-to-option-pricing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Option Pricing</span></a>
   </div>
 </li>
     </ul>
@@ -761,12 +767,33 @@ Figure&nbsp;1: Stylized mean-variance frontier. The efficient frontier contains 
 <p>A 75-basis-point rise in Treasury yields is systematic for a high-quality bond portfolio because many bonds lose value together. A surprise downgrade of one bank bond is idiosyncratic because it mainly affects that issuer. A portfolio can be nearly neutral to Treasury duration and still have large idiosyncratic risk if it holds concentrated issuer positions.</p>
 </div>
 </div>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="lec6_files/figure-latex/mermaid-figure-1.png" class="img-fluid figure-img"></p>
-<figcaption>Diagram</figcaption>
-</figure>
-</div>
+<p><strong>Sources of portfolio risk</strong></p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Risk</th>
+<th>Common example</th>
+<th>Main control</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Systematic</td>
+<td>Treasury curve or sector spread movement</td>
+<td>Factor exposure and hedging</td>
+</tr>
+<tr class="even">
+<td>Idiosyncratic</td>
+<td>Issuer downgrade or issue liquidity</td>
+<td>Diversification and position limits</td>
+</tr>
+</tbody>
+</table>
 <section id="application-of-portfolio-theory-to-bond-portfolio-construction" class="level2" data-number="1.1">
 <h2 data-number="1.1" class="anchored" data-anchor-id="application-of-portfolio-theory-to-bond-portfolio-construction"><span class="header-section-number">1.1</span> Application of Portfolio Theory to Bond Portfolio Construction</h2>
 <p>Markowitz theory is conceptually useful, but direct mean-variance optimization over thousands of bonds is difficult. If there are <span class="math inline">\(N\)</span> candidate bonds, the manager needs <span class="math inline">\(N\)</span> expected returns, <span class="math inline">\(N\)</span> variances, and</p>
@@ -873,7 +900,7 @@ R_i = \alpha_i + x_{i1}F_1+x_{i2}F_2+\cdots+x_{iK}F_K+\epsilon_i.
 </div>
 <div class="callout-body-container callout-body">
 <p>The example uses monthly returns for two hypothetical portfolios. Portfolio A stays close to the benchmark. Portfolio B takes larger active positions.</p>
-<div id="e9ffb4a4" class="cell" data-message="false" data-execution_count="5">
+<div id="674eaefc" class="cell" data-message="false" data-execution_count="5">
 <div class="cell-output cell-output-display" data-execution_count="5">
 <div>
 
@@ -982,11 +1009,11 @@ Figure&nbsp;2: Monthly active returns for two portfolios. Portfolio B has much l
 \sqrt{
 \frac{\sum_{t=1}^{6}(a_t-\bar{a})^2}{6-1}
 }
-=14.7\text{ bps/month}.
+=14.20\text{ bps/month}.
 \]</span></p>
 <p>Annualized:</p>
 <p><span class="math display">\[
-14.7\sqrt{12}=50.9\text{ bps/year}.
+14.20\sqrt{12}\approx49.21\text{ bps/year}.
 \]</span></p>
 <p>This is a low-to-moderate active-risk profile for a benchmark-aware fixed-income mandate.</p>
 </div>
@@ -1040,12 +1067,33 @@ x_{b,k}=\sum_i w_{b,i}x_{i,k}.
 \]</span></p>
 <p>For example, if a bond has duration of 6.0 years and a 2% portfolio weight, it contributes <span class="math inline">\(0.02 \times 6.0=0.12\)</span> years to portfolio duration. Adding this across all bonds gives total portfolio duration.</p>
 <p>If active returns are approximately normal, tracking error gives a rough range of outcomes. If expected active return is zero and annual tracking error is 100 bps, then active return is within about +/-100 bps in roughly two-thirds of years and within about +/-200 bps in roughly 95% of years. This is a model-based statement, not a guarantee.</p>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="lec6_files/figure-latex/mermaid-figure-5.png" class="img-fluid figure-img"></p>
-<figcaption>Diagram</figcaption>
-</figure>
-</div>
+<p><strong>Tracking-error workflow</strong></p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Measure</th>
+<th>Inputs</th>
+<th>Use</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Historical tracking error</td>
+<td>Realized portfolio-minus-benchmark returns</td>
+<td>Assess past active risk</td>
+</tr>
+<tr class="even">
+<td>Predicted tracking error</td>
+<td>Current active exposures, factor covariance, residual risk</td>
+<td>Set forward-looking risk budgets</td>
+</tr>
+</tbody>
+</table>
 <blockquote class="blockquote">
 <p>Historical tracking error is a realized statistic, while predicted tracking error is a current-position risk estimate. A manager controls future risk with the second measure, and assesses past performance with the first.</p>
 </blockquote>
@@ -1076,7 +1124,7 @@ x_{b,k}=\sum_i w_{b,i}x_{i,k}.
 <p>If the optimizer predicts 65 bps of monthly tracking error, the portfolio violates the client’s risk budget even if the manager likes the trades.</p>
 </div>
 </div>
-<div id="c4a60ba6" class="cell" data-message="false" data-execution_count="7">
+<div id="6fe9af70" class="cell" data-message="false" data-execution_count="7">
 <div class="cell-output cell-output-display" data-execution_count="7">
 <div>
 
@@ -1782,7 +1830,7 @@ Figure&nbsp;4: Isolated tracking error shows which active exposures are large be
 <p><span class="math display">\[
 6.0+2.5+5.25+10.8+4.0=28.55\text{ bps}.
 \]</span></p>
-<div id="1e8b0ec5" class="cell" data-message="false" data-execution_count="12">
+<div id="4d64b3a4" class="cell" data-message="false" data-execution_count="12">
 <div class="cell-output cell-output-display" data-execution_count="12">
 <div>
 
@@ -1887,7 +1935,7 @@ Figure&nbsp;5: Correlation changes total tracking error even when isolated facto
 =\sqrt{14.23^2+8.0^2}
 =16.33\text{ bps/month}.
 \]</span></p>
-<div id="55a083eb" class="cell" data-message="false" data-execution_count="14">
+<div id="1efbbc13" class="cell" data-message="false" data-execution_count="14">
 <div class="cell-output cell-output-display" data-execution_count="14">
 <div>
 
@@ -1989,7 +2037,7 @@ Figure&nbsp;6: Total tracking error combines systematic factor risk and idiosync
 </tbody>
 </table>
 <p>The total approximate active return is:</p>
-<div id="73b06788" class="cell" data-message="false" data-execution_count="17">
+<div id="5ffbb97b" class="cell" data-message="false" data-execution_count="17">
 <div class="cell-output cell-output-display" data-execution_count="17">
 <div>
 
@@ -2035,7 +2083,7 @@ Figure&nbsp;7: Scenario analysis converts active exposures into signed active re
 <h4 class="anchored" data-anchor-id="step-6-key-rate-decomposition-shows-curve-shape-risk">Step 6: Key Rate Decomposition Shows Curve-Shape Risk</h4>
 <p>Total duration can hide curve-shape risk. Two portfolios can both have duration 5.4, but one may be overweight the 2-year point while the other is overweight the 10-year point.</p>
 <p>Suppose the portfolio and benchmark have these key rate durations:</p>
-<div id="4362e944" class="cell" data-message="false" data-execution_count="19">
+<div id="7dac3ba6" class="cell" data-message="false" data-execution_count="19">
 <div class="cell-output cell-output-display" data-execution_count="19">
 <div>
 
@@ -2348,7 +2396,7 @@ E(R_p-R_b)
 </div>
 <div class="callout-body-container callout-body">
 <p>Suppose a manager has $10 million to invest and wants to approximate a benchmark with duration near 5.0, spread duration near 3.0, at least 30% in Treasuries for liquidity, and no more than 40% in corporates. The table shows a small tradable universe and one feasible set of chosen weights:</p>
-<div id="dff013c1" class="cell" data-message="false" data-execution_count="21">
+<div id="356aaab5" class="cell" data-message="false" data-execution_count="21">
 <div class="cell-output cell-output-display" data-execution_count="21">
 <div>
 
@@ -2449,12 +2497,41 @@ Figure&nbsp;9: Toy portfolio construction: chosen exposures compared with target
 </div>
 </div>
 </div>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="lec6_files/figure-latex/mermaid-figure-2.png" class="img-fluid figure-img"></p>
-<figcaption>Diagram</figcaption>
-</figure>
-</div>
+<p><strong>Portfolio construction workflow</strong></p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Stage</th>
+<th>Decision</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1. Define mandate</td>
+<td>Benchmark, return objective, and risk budget</td>
+</tr>
+<tr class="even">
+<td>2. Measure exposures</td>
+<td>Duration, key rates, spreads, sectors, and issuers</td>
+</tr>
+<tr class="odd">
+<td>3. Apply constraints</td>
+<td>Liquidity, concentration, turnover, and eligible holdings</td>
+</tr>
+<tr class="even">
+<td>4. Optimize and review</td>
+<td>Compare expected benefit with costs and risk</td>
+</tr>
+<tr class="odd">
+<td>5. Implement and monitor</td>
+<td>Size trades, verify exposures, and reassess</td>
+</tr>
+</tbody>
+</table>
 <p>The reason optimization is valuable is not that it replaces judgment. It makes tradeoffs explicit. If the manager wants more corporate spread exposure, the optimizer shows which bonds add that exposure with the least tracking error, issuer concentration, and transaction cost.</p>
 <p>A manager should read the optimizer output as a diagnostic report:</p>
 <table class="caption-top table">

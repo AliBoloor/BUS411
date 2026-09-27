@@ -22,6 +22,8 @@ format:
         .demo-lab input { accent-color: #214b3e; }
         .demo-lab button { border: 1px solid #214b3e; border-radius: 3px;
           color: #214b3e; background: transparent; padding: .2rem .7rem; }
+        details.demo-solution { border-left: 4px solid #936724; padding: 1rem; margin: 1rem 0; }
+        details.demo-solution > summary { cursor: pointer; font-weight: 700; }
         details.code-fold { margin: .8rem 0; }
         mjx-container[display="true"] { display: block; max-width: 100%;
           overflow-x: auto; overflow-y: hidden; padding-block: .35em; }
@@ -40,6 +42,10 @@ execute:
 This reading copy shows the calculations' results and figures. The HTML demo
 contains the full code in folded blocks and interactive scenario controls.
 :::
+
+## The desk question {.unnumbered}
+
+How many Treasury futures offset the portfolio’s rate exposure, and which losses remain after that hedge?
 
 ## Learning Objectives {.unnumbered}
 
@@ -527,7 +533,7 @@ could count that co-movement twice.
 residual DV01, stress P&L, and the unhedged risk that matters most.
 
 
-## Guided explorer
+## Interactive explorer
 
 Choose how much of Treasury DV01 to hedge in the +35 bp scenario. Contract counts are rounded at every setting. At 100%, spread losses remain. Above 100%, the position becomes net short the modeled Treasury exposure; it is no longer simply reducing that exposure.
 
@@ -546,3 +552,44 @@ display(demo_explorer(hedge_targets, {
 }, "Target Treasury DV01 hedged (%)", "Scenario P&L ($ thousands)", 20))
 ```
 :::
+
+
+## Mini Project
+
+**Project brief.** Reduce the portfolio's beta-adjusted Treasury DV01 by 60%, leaving 40% in place. Report the exact and rounded short-futures count, residual Treasury DV01, and P&L under +25 and -25 bp Treasury moves combined with +40 bp corporate spread widening. Use the demo's unchanged CTD and conversion factor. Explain whether the hedge meets its objective and what a CTD switch could change.
+
+**Deliverable:** a one-page decision memo with a conventions statement, reproducible calculations, a scenario table, and a limitation that could change the decision.
+
+```{=html}
+<details class="demo-solution"><summary>Worked solution: calculations and decision memo</summary>
+```
+
+::: {.content-visible when-format="pdf"}
+**Worked solution: calculations and decision memo**
+:::
+
+```{python}
+#| label: mini-project-solution
+target_fraction=.60
+n_exact=target_fraction*treasury_dv01/futures_dv01
+n_short=int(np.rint(n_exact))
+remaining=treasury_dv01-n_short*futures_dv01
+shocks=np.array([-25.,25.])
+rate_pnl=-treasury_dv01*shocks
+hedge_pnl=n_short*futures_dv01*shocks
+credit_pnl=-spread_dv01*40
+project=pd.DataFrame({"Treasury shock (bp)":shocks,"Cash rate P&L":rate_pnl,
+    "Futures P&L":hedge_pnl,"Spread P&L":credit_pnl,
+    "Net P&L":rate_pnl+hedge_pnl+credit_pnl})
+display(pd.Series({"Exact short contracts":n_exact,"Rounded short contracts":n_short,
+    "Residual Treasury DV01":remaining,"Residual fraction":remaining/treasury_dv01}).round(4))
+display(project.round(2))
+assert abs(remaining-.4*treasury_dv01)<=futures_dv01/2+1e-8
+assert np.allclose(project["Net P&L"],-remaining*shocks+credit_pnl)
+```
+
+Short futures offset Treasury-rate losses but also give up part of the gain in a rally. The remaining rate exposure is 40% of the original, up to half a contract's DV01 from rounding. Corporate spread widening remains unhedged in both scenarios. A CTD switch or a change in yield beta changes effective futures or portfolio DV01 and requires resizing. Basis, convexity, daily margin cash flows, and transaction costs are omitted.
+
+```{=html}
+</details>
+```

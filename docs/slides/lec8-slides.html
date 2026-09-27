@@ -525,6 +525,14 @@ margin: 0 0.8em 0.2em -1em;  vertical-align: middle;
 .reveal .slides .visual-widget input[type=range] {width:260px;}
 .reveal .slides .visual-widget .metrics {font-size:25px;line-height:1.7;}
 </style>
+  <style type="text/css">
+.reveal .slides h2 { border-bottom: 0; padding-bottom: 0; }
+.reveal .slides .flow { gap: 18px; margin: 30px 0; align-items: stretch; }
+.reveal .slides .flow > span { min-width: 0; padding: 16px; background: #e7ebdf; overflow-wrap: break-word; }
+.reveal .slides .flow i { align-self: center; }
+.reveal .slides .comparison > div { border-top: 0; }
+.reveal .slides .figure { max-height: 510px; height: auto; width: 100%; object-fit: contain; }
+</style>
   <style type="text/css">.reveal
 div.sourceCode
 pre
@@ -1348,10 +1356,8 @@ V_{\mathrm{putable}}=V_{\mathrm{straight}}+V_{\mathrm{put}}
 <p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>H</mi><mrow><mi>i</mi><mo>,</mo><mi>j</mi></mrow></msub><mo>=</mo><mfrac><mrow><mi>p</mi><msub><mi>V</mi><mrow><mi>i</mi><mo>+</mo><mn>1</mn><mo>,</mo><mi>j</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>+</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>p</mi><mo stretchy="true" form="postfix">)</mo></mrow><msub><mi>V</mi><mrow><mi>i</mi><mo>+</mo><mn>1</mn><mo>,</mo><mi>j</mi></mrow></msub></mrow><mrow><mn>1</mn><mo>+</mo><msub><mi>r</mi><mrow><mi>i</mi><mo>,</mo><mi>j</mi></mrow></msub></mrow></mfrac><mo>+</mo><mi>C</mi><msub><mi>F</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">
 H_{i,j}=\frac{pV_{i+1,j+1}+(1-p)V_{i+1,j}}{1+r_{i,j}}+CF_i
 </annotation></semantics></math></p>
-Here <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math> is the risk-neutral up probability; <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>r</mi><mrow><mi>i</mi><mo>,</mo><mi>j</mi></mrow></msub><annotation encoding="application/x-tex">r_{i,j}</annotation></semantics></math> discounts the next interval; <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><msub><mi>F</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">CF_i</annotation></semantics></math> is paid at the current node.
-<div class="source-issue">
-Instructor review: The worked examples also add CF₀ at time zero. Their quoted prices therefore include an immediate coupon. Keep coupon and redemption timing explicit.
-</div>
+<p>Here <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math> is the risk-neutral up probability; <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>r</mi><mrow><mi>i</mi><mo>,</mo><mi>j</mi></mrow></msub><annotation encoding="application/x-tex">r_{i,j}</annotation></semantics></math> discounts the next interval; <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><msub><mi>F</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">CF_i</annotation></semantics></math> is paid at the current node.</p>
+<p>Values here include the coupon paid at the node. Ex-coupon continuation and call prices must be compared on the same basis.</p>
 </section>
 <section id="exercise-replaces-continuation-value" class="slide level2">
 <h2>Exercise replaces continuation value</h2>
@@ -1406,7 +1412,7 @@ Hold = $99.40; call price = $101.<br>No call: value remains $99.40.
 Contract
 </h3>
 <p>
-Face 100; annual coupon 8; maturity 3 years; call price 107 from year 2.
+Face 100; annual coupon 8; maturity 3 years; total coupon-inclusive call payment 107 from year 2.
 </p>
 </div>
 <div>
@@ -1418,9 +1424,7 @@ Annual steps; risk-neutral p = 0.5; initial short rate 6%.
 </p>
 </div>
 </div>
-<div class="source-issue">
-Instructor review: The following calculations reproduce the notes’ coupon-inclusive convention, including the time-zero coupon.
-</div>
+<p>The worked example includes an immediate time-zero coupon. Its call cap 107 includes coupon 8 and redemption 99. Subtract 8 from the time-zero value for an ex-coupon purchase price.</p>
 </section>
 <section id="the-short-rate-lattice" class="slide level2">
 <h2>The short-rate lattice</h2>
@@ -1676,7 +1680,7 @@ r_{t,j}=a_t e^{(2j-t)\sigma}
 <tr class="even">
 <td style="text-align: right;">4 years</td>
 <td style="text-align: right;">5.25%</td>
-<td style="text-align: right;">0.81469</td>
+<td style="text-align: right;">0.81491</td>
 </tr>
 </tbody>
 </table>
@@ -1732,10 +1736,7 @@ r_{t,j}=a_t e^{(2j-t)\sigma}
 </tr>
 </tbody>
 </table>
-Volatility sets the relative distance between states; level parameters anchor the tree to today’s zero prices.
-<div class="source-issue">
-Instructor review: The written four-year discount factor is 0.81469; the source code and 5.25% zero rate imply 0.81491.
-</div>
+<p>Volatility sets the relative distance between states; level parameters anchor the tree to today’s zero prices.</p>
 </section>
 <section id="credit-can-enter-the-valuation-in-different-ways" class="slide level2">
 <h2>Credit can enter the valuation in different ways</h2>
@@ -1946,9 +1947,7 @@ C_e=\frac{103.5+98.5-2(102)}{102(0.005)^2}=-784.31
 
   <div id="lec8-lattice-results" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.6em; margin-top: 1em;"></div>
 </div>
-<div class="source-issue">
-Instructor review: Teaching-only, uncalibrated tree. The source widget includes a time-zero coupon; its OAS and node-shock risks illustrate mechanics, not a curve-calibrated market valuation.
-</div>
+<p>This uncalibrated teaching tree includes an immediate coupon. Its OAS and node-shock risks illustrate mechanics; they are not curve-calibrated market estimates.</p>
 <script>
 function lec8FormatPct(x) {
   return (100 * x).toFixed(2) + "%";

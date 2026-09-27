@@ -206,3 +206,44 @@ The matching forest website palette is shared across HTML pages through `forest-
 - Updated the final roadmap and reviewed all 84 rendered slides. Removed instructor-review warnings, corrected the underlying examples, and removed title underlines in this deck only.
 - Added a folded-code bootstrapping demo with graphics, an interactive quote scenario, a dated Treasury par snapshot, validation checks, and a mini project with a folded worked solution. Added its demo-index link and render entry.
 - Validation includes independent matrix calibration, input repricing, spot/forward/par identities, invalid-input checks, all 41 interactive scenarios, slide-overflow checks, and desktop/mobile browser inspection. HTML and PDF outputs are included for review; publication and a pull request are deferred.
+
+
+## 2026-09-26 — Bond returns, later demos, appendix, and slide reconciliation
+
+- Added the Lecture 2 bond-return demo: full-price purchase and sale, coupon
+  reinvestment, horizon and annual returns, rate scenarios, interactive explorer,
+  and a folded client-memo mini project. Distinguishes YTM from a realized
+  compound return and checks the loss scenario numerically.
+- Preserved Lecture 3 and 4 demo sources and published HTML/PDF byte-for-byte.
+  Added desk framing and worked, folded mini projects to both Lecture 7 demos
+  and the Lecture 8–11 demos, retaining their numerical engines and provenance.
+- Moved the option-pricing introduction out of Lecture 7 into its own HTML/PDF
+  appendix. Added the no-arbitrage probability condition and explicit coupon
+  timing. The lecture index links lecture names directly, with the appendix
+  last; the sidebar and project render list include it.
+- Reconciled Lectures 5–11 slides with the notes and removed instructor-review
+  flags and title underlines. Corrected tracking-error and weekly-volatility
+  arithmetic, the four-year discount factor, dollar-duration totals and graph,
+  Treasury quote fractions, and Treasury futures face units. Assigned the
+  otherwise unallocated 3.1% in the Lecture 6 example to explicit cash.
+- Updated the Treasury noncompetitive limit and deadline explanation from
+  TreasuryDirect; distinguished weekly FRN index resets from quarterly payments;
+  corrected Moody’s lowest category and explained historical commercial-paper
+  tiers using Moody’s and SEC sources linked in the teaching material.
+- Replaced clipped/mismatched legacy Lecture 5–6 raster diagrams with wrapping
+  source tables, reflowed Lecture 7–8 workflow diagrams, and replaced the narrow
+  appendix call-decision graphic with an explicit decision table. Scoped slide
+  layout overrides to Lectures 5–11.
+- Made Lecture 8's coupon-inclusive worked-example exercise payment explicit;
+  its 107 cap includes coupon 8 and redemption 99. The demo uses ex-coupon
+  node values and call prices. Both conventions count each coupon once.
+
+Validation: all changed teaching notes and demos rendered successfully as HTML
+and PDF; all seven revised decks rendered as reveal.js. Executed 95 Python cells
+across the seven demos, including numerical assertions. Browser tests opened each
+folded solution and exercised each demo slider, checked changed pages for missing
+images and JavaScript errors, and scanned 557 slides for content overflow.
+Reviewed slide screenshots and PDF samples containing revised diagrams and
+mini-project solutions. Checked local page links and confirmed the reference
+demos are unchanged. Source whitespace checks exclude generated Quarto HTML.
+Private exams, assignment answers, and team-project solutions remain ignored.

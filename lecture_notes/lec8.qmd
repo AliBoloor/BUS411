@@ -60,8 +60,7 @@ A bond with an embedded option asks: "What might rates be in the future, what wo
 #| fig-cap: "Why embedded options require a model of future rates"
 #| echo: false
 import matplotlib.pyplot as plt
-from matplotlib.patches import FancyBboxPatch, FancyArrowPatch
-
+from matplotlib.patches import FancyArrowPatch
 steps = [
     "Today's\ncurve",
     "Future\nrate states",
@@ -69,43 +68,27 @@ steps = [
     "Exercise\ndecision",
     "Value\ntoday",
 ]
-
-fig, ax = plt.subplots(figsize=(6.7, 2.25))
+n = len(steps)
+rows = (n + 1) // 2
+fig, ax = plt.subplots(figsize=(8, 1.12*rows))
+ax.set(xlim=(-.15, 2.15), ylim=(-.6, rows-.4))
 ax.set_axis_off()
-
-box_width = 0.95
-box_height = 0.65
-spacing = 1.32
-y0 = 0.75
-
+positions = []
 for i, label in enumerate(steps):
-    x0 = i * spacing
-    box = FancyBboxPatch(
-        (x0, y0), box_width, box_height,
-        boxstyle="round,pad=0.08",
-        linewidth=1.1,
-        edgecolor="black",
-        facecolor="#E8F1FA",
-    )
-    ax.add_patch(box)
-    ax.text(x0 + box_width / 2, y0 + box_height / 2, label, ha="center", va="center", fontsize=8.0)
-    if i < len(steps) - 1:
-        ax.add_patch(
-            FancyArrowPatch(
-                (x0 + box_width + 0.05, y0 + box_height / 2),
-                ((i + 1) * spacing - 0.08, y0 + box_height / 2),
-                arrowstyle="-|>",
-                mutation_scale=15,
-                linewidth=1.4,
-                color="black",
-            )
-        )
-
-ax.text(0.05, 0.25, "Plain bonds usually stop at today's curve.", fontsize=8.2, color="#444444")
-ax.text(2.35, 0.25, "Embedded options require future states and exercise decisions.", fontsize=8.2, color="#444444")
-ax.set_xlim(-0.1, (len(steps) - 1) * spacing + box_width + 0.1)
-ax.set_ylim(0, 1.9)
-plt.tight_layout(pad=0.2)
+    row, col = divmod(i, 2)
+    x = col if row % 2 == 0 else 1-col
+    y = rows-1-row
+    positions.append((x,y))
+    ax.text(x, y, f"{i+1}. " + label, ha="center", va="center", fontsize=10,
+            bbox=dict(boxstyle="round,pad=.65", facecolor="#e7ebdf", edgecolor="#214b3e"))
+for (x1,y1),(x2,y2) in zip(positions[:-1],positions[1:]):
+    if y1 == y2:
+        direction = 1 if x2>x1 else -1
+        start, end = (x1+.37*direction,y1),(x2-.37*direction,y2)
+    else:
+        start,end=(x1,y1-.30),(x2,y2+.30)
+    ax.add_patch(FancyArrowPatch(start,end,arrowstyle="-|>",mutation_scale=13,color="#936724"))
+fig.tight_layout(pad=1)
 plt.show()
 ```
 
@@ -629,6 +612,8 @@ Assume:
 * callable at 107
 * first callable date = year 2
 * risk-neutral probability $p=0.5$
+
+**Cash-flow convention.** The following numerical example reports values immediately before the coupon, including the coupon at each node and at time zero. Its exercise cap of 107 is a total coupon-inclusive payment (8 coupon plus 99 redemption), not a clean call price of 107 plus another coupon. Subtract 8 from the time-zero value for the ex-coupon purchase price. The [Lecture 8 demo](../demos/demo_callable_bond_oas.qmd) instead uses ex-coupon node values and call prices; either convention works when coupons are counted exactly once.
 
 This table puts time horizontally and states vertically. At each date, the node value is computed from the two adjacent nodes one year ahead.
 
@@ -1191,7 +1176,7 @@ Suppose the annual zero curve is:
 | 1 year | 4.00% | 0.96154 |
 | 2 years | 4.50% | 0.91573 |
 | 3 years | 5.00% | 0.86384 |
-| 4 years | 5.25% | 0.81469 |
+| 4 years | 5.25% | 0.81491 |
 
 A tree with only $r_0$, $\sigma$, and $\Delta t$ cannot generally fit all four discount factors. A calibrated tree adds one level parameter per time step. A simple way to write this is:
 

@@ -1,9 +1,9 @@
 ---
-title: "Lecture 7: Interest-Rate Models and Option Pricing"
+title: "Lecture 7: Interest-Rate Models"
 subtitle: "From stochastic short rates to trees and backward induction"
 format:
   revealjs:
-    css: lec3-11-slides.css
+    css: [lec3-11-slides.css, lec5-11-layout.css]
     html-math-method: mathml
     include-in-header:
       text: |
@@ -312,7 +312,9 @@ The 10% division is a historical description in the notes, not a universal model
 
 The notes cite U.S. Great Depression Treasury bills and late-1990s yen deposits.
 
-<div class="source-issue">Instructor review: The notes’ claim that negative rates are rare and pricing effects are small is parameter- and regime-dependent. It should not be taught as a general guarantee.</div>
+
+
+Negative-rate probabilities and valuation effects depend on parameters, horizon, and regime.
 
 ## Select the model for the payoff, data, and computation
 
@@ -364,9 +366,11 @@ $$
 s^2=\frac1{9-1}\sum_{i=1}^9(\Delta r_i-\bar{\Delta r})^2
 $$
 
-The notes print squared-deviation sum **94.22**, sample variance **11.78 bp²**, weekly SD **3.43 bp**, and annual SD **24.7 bp**.
+Nine changes give eight degrees of freedom in the sample variance. Keep rate changes in basis points throughout this calculation.
 
-<div class="source-issue">Instructor review: There are nine changes, not eight. The listed data give squared-deviation sum 140.22, variance 17.53 bp², weekly SD 4.19 bp, and annual SD 30.19 bp.</div>
+
+
+
 
 ## Annualize the reproducible calculation
 
@@ -386,7 +390,7 @@ $$
 s_{annual}=4.1866\sqrt{52}=30.1901\text{ bp}
 $$
 
-These calculations use the exact nine changes shown on the preceding slides; source values remain visible for instructor review.
+Annualization assumes weekly changes are uncorrelated with stable variance; it does not remove estimation uncertainty.
 
 ## Implied volatility inverts a pricing model
 
@@ -400,77 +404,11 @@ These calculations use the exact nine changes shown on the preceding slides; sou
 
 Use it to separate historical estimation from market calibration. The deck’s simulations are reproducible source illustrations, not estimated forecasts.
 
-## An option is a right, not an obligation
+## Preparation for embedded-option valuation
 
-Fixed-income underlyings can be bonds, future bond prices, short rates, yield curves, swap rates, or mortgage pools.
+The appendix [Introduction to Option Pricing](../lecture_notes/introduction-to-option-pricing.html) develops risk-neutral probabilities, backward induction, and issuer exercise.
 
-Future states determine the payoff. Today’s price must account for several possible outcomes.
-
-## A one-period call has a payoff in each state
-
-$$
-C_u=\max(B_u-K,0),\qquad C_d=\max(B_d-K,0)
-$$
-
-B₀ is today’s bond value; Bᵤ and B_d are possible future values; K is the exercise price.
-
-## The option tree maps states to payoffs
-
-![](lec3-11-assets/lec7-fig-one-period-option-tree.svg){.figure}
-
-q and 1−q are pricing probabilities. They are not predictions of the physical frequency of up and down moves.
-
-## Discount the risk-neutral expected payoff
-
-$$
-C_0=\frac{qC_u+(1-q)C_d}{1+r}
-$$
-
-
-
-$$
-q=\frac{(1+r)-d}{u-d}
-$$
-
-The second formula is the existing deck’s simple stock-style binomial case: Bᵤ = uB₀, B_d = dB₀, no interim payment, and d < 1+r < u. It is not a universal bond-tree probability formula.
-
-## Backward induction works from the final nodes
-
-<div class="flow"><span><b>Terminal states</b>Compute final payoffs</span><i>→</i><span><b>One step earlier</b>Expected value, then discount</span><i>→</i><span><b>Exercise date?</b>Compare continuation and exercise</span><i>→</i><span><b>Repeat</b>Work back to time zero</span></div>
-
-At multiple exercise dates, the decision is checked at every eligible node.
-
-## Future curves value the remaining payments
-
-$$
-V_{continue}(t)=\sum_iCF_iP(t,t_i)
-$$
-
-For a callable bond, the issuer owns the exercise right. The future curve determines how expensive it is to leave the old coupon bond outstanding.
-
-## Issuer control creates a minimum for the bondholder
-
-$$
-V(t)=\min\{V_{continue}(t),\ \text{call price}\}
-$$
-
-<div class="comparison"><div><h3>Rates fall</h3><p>Remaining high coupons become valuable; if continuation exceeds call price, the issuer calls.</p></div><div><h3>Rates rise</h3><p>Continuation usually falls below call price; the issuer leaves the bond outstanding.</p></div></div>
-
-Apply consistent coupon timing at the exercise date.
-
-## The callable-bond decision is a branch
-
-<div class="flow"><span><b>Future curve</b>Discount remaining cash flows</span><i>→</i><span><b>Continuation value</b>Compare with call price</span></div>
-
-<div class="comparison"><div><h3>Continuation > call price</h3><p>Call: bondholder receives the call price.</p></div><div><h3>Continuation < call price</h3><p>Do not call: bondholder keeps the continuation claim.</p></div></div>
-
-## From models to embedded-option valuation
-
-$$
-V_{callable}=V_{option\text{-}free}-V_{issuer\ call}
-$$
-
-Lecture 8 applies the same chain: future states → remaining values → exercise rule → backward induction. The rate model supplies the future decision states.
+Lecture 8 applies that logic to callable and putable bonds.
 
 ## Keep the modeling questions in order
 

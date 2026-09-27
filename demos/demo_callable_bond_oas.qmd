@@ -22,6 +22,8 @@ format:
         .demo-lab input { accent-color: #214b3e; }
         .demo-lab button { border: 1px solid #214b3e; border-radius: 3px;
           color: #214b3e; background: transparent; padding: .2rem .7rem; }
+        details.demo-solution { border-left: 4px solid #936724; padding: 1rem; margin: 1rem 0; }
+        details.demo-solution > summary { cursor: pointer; font-weight: 700; }
         details.code-fold { margin: .8rem 0; }
         mjx-container[display="true"] { display: block; max-width: 100%;
           overflow-x: auto; overflow-y: hidden; padding-block: .35em; }
@@ -40,6 +42,10 @@ execute:
 This reading copy shows the calculations' results and figures. The HTML demo
 contains the full code in folded blocks and interactive scenario controls.
 :::
+
+## The desk question {.unnumbered}
+
+How much of a callable bond’s apparent yield advantage compensates the investor for the issuer’s exercise right?
 
 ## Learning Objectives {.unnumbered}
 
@@ -560,7 +566,7 @@ shows the separate benchmark-curve calibration step.
 two-sentence explanation of which inputs must be refreshed before trading.
 
 
-## Guided explorer
+## Interactive explorer
 
 Move the benchmark tree while holding the recovered OAS fixed. Compare the callable and option-free bonds. In falling-rate states the issuer takes away part of the upside. This is a parallel shift of the teaching tree, not a recalibration of a market yield curve.
 
@@ -579,3 +585,38 @@ display(demo_explorer(explorer_bp, {
 }, "Parallel tree-rate shock (bp)", "Price per 100 face", 30))
 ```
 :::
+
+
+## Mini Project
+
+**Project brief.** Using the same annual tree, compare option-free and callable values at spreads of 0, 50, and 100 bp. For $3 million face, report each price, the embedded option cost per 100 and in dollars, and the price change from 0 to 100 bp. Explain why the two bonds must be valued at the same spread when isolating option cost. Distinguish this spread shock from a recalibrated benchmark-curve shock.
+
+**Deliverable:** a one-page decision memo with a conventions statement, reproducible calculations, a scenario table, and a limitation that could change the decision.
+
+```{=html}
+<details class="demo-solution"><summary>Worked solution: calculations and decision memo</summary>
+```
+
+::: {.content-visible when-format="pdf"}
+**Worked solution: calculations and decision memo**
+:::
+
+```{python}
+#| label: mini-project-solution
+project_spreads=np.array([0.,.005,.01])
+straight=np.array([price_bond(rate_tree,s) for s in project_spreads])
+callable_values=np.array([price_bond(rate_tree,s,callable_bond=True) for s in project_spreads])
+project=pd.DataFrame({"Spread (bp)":project_spreads*10_000,"Straight":straight,
+    "Callable":callable_values,"Call cost per 100":straight-callable_values,
+    "Call cost on $3mm":(straight-callable_values)*30_000})
+display(project.round(5))
+display(pd.Series({"Straight 0-to-100 bp P&L ($)":(straight[-1]-straight[0])*30_000,
+    "Callable 0-to-100 bp P&L ($)":(callable_values[-1]-callable_values[0])*30_000}).round(2))
+assert np.all(straight>=callable_values) and np.all(np.diff(callable_values)<0)
+```
+
+Subtract callable value from straight value using identical cash-flow conventions, rates, and spread. Otherwise the difference includes a spread effect as well as optionality. The issuer's minimum rule limits the investor's upside. The spread exercise holds the tree fixed; a benchmark-curve shock requires rebuilding or recalibrating the tree and holding OAS fixed for effective risk. This illustrative tree does not fit a supplied market curve, so it supports mechanics rather than a production OAS estimate.
+
+```{=html}
+</details>
+```

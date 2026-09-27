@@ -72,7 +72,16 @@ This benchmark role exists for practical reasons, not just theoretical ones. The
 FRED reported the 10-year Treasury constant maturity yield at **4.46% on June 2, 2026** and the 10-year breakeven inflation rate at **2.38% on June 3, 2026**. On June 2, 2026, broad U.S. corporate option-adjusted spreads were about **0.74%**, while high-yield spreads were about **2.71%**. Nominal Treasury rates set the base rate, TIPS help reveal inflation compensation, and corporate spreads price credit risk.
 :::
 
-![Diagram](lec5_files/figure-latex/mermaid-figure-1.png){fig-align="center" height="380px"}
+**Treasury benchmark connections**
+
+| Instrument | Pricing connection |
+| --- | --- |
+| Agency debt | Treasury base plus agency and liquidity compensation |
+| Investment-grade corporates | Treasury base plus credit and liquidity compensation |
+| High-yield bonds and loans | Treasury or SOFR base plus credit and structural compensation |
+| TIPS | Real yield plus principal adjustment for inflation |
+| STRIPS | Individual zero-coupon Treasury payments |
+
 
 ## Types of Treasury Securities
 
@@ -136,23 +145,13 @@ The maturity labels also tell you which risk dominates. Bills have little durati
 A Treasury bill is mostly a promise about **one future dollar**. A Treasury note or bond is a package of many future dollars. That is why a bill quote is naturally about the discount from par, while a coupon Treasury quote is naturally about the price of a stream of cash flows.
 :::
 
-::: {.content-visible when-format="html"}
-<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;align-items:center;width:100%;">
-  <div style="min-width:0;overflow:hidden;"><img src="lec5_files/figure-latex/mermaid-figure-2.png" alt="Treasury bill cash-flow diagram" style="display:block;width:100%;height:220px;object-fit:contain;"></div>
-  <div style="min-width:0;overflow:hidden;"><img src="lec5_files/figure-latex/mermaid-figure-3.png" alt="Treasury note cash-flow diagram" style="display:block;width:100%;height:220px;object-fit:contain;"></div>
-  <div style="min-width:0;overflow:hidden;"><img src="lec5_files/figure-latex/mermaid-figure-4.png" alt="Treasury floating-rate note reset diagram" style="display:block;width:100%;height:220px;object-fit:contain;"></div>
-</div>
-:::
+**Treasury payment patterns**
 
-::: {.content-visible when-format="pdf"}
-::: {layout-ncol=3}
-![Treasury bill cash-flow diagram](lec5_files/figure-latex/mermaid-figure-2.png){width="100%"}
-
-![Treasury note cash-flow diagram](lec5_files/figure-latex/mermaid-figure-3.png){width="100%"}
-
-![Treasury floating-rate note reset diagram](lec5_files/figure-latex/mermaid-figure-4.png){height="2.2in"}
-:::
-:::
+| Security | At purchase | During holding | At maturity |
+| --- | --- | --- | --- |
+| Bill | Pay discounted price | No coupons | Receive face value |
+| Note or bond | Pay clean price plus accrued interest | Receive semiannual coupons | Receive final coupon and principal |
+| FRN | Pay purchase price | Weekly index resets; quarterly interest | Receive final interest and principal |
 
 ::: {.callout-note title="Worked Example: Pricing a Treasury Bill"}
 A 13-week Treasury bill with face value \$10,000 is quoted at a discount yield of 4.75%. The price is calculated using:
@@ -270,7 +269,7 @@ Treasury regularly issues new securities, but it also sells additional amounts o
 
 Two types of bids can be submitted:
 
-- **Noncompetitive bids.** The bidder specifies only the quantity and agrees to accept the auction-determined yield. A noncompetitive bid cannot exceed \$5 million.
+- **Noncompetitive bids.** The bidder specifies only the quantity and agrees to accept the auction-determined yield. A noncompetitive bid cannot exceed \$10 million per auction ([TreasuryDirect](https://www.treasurydirect.gov/auctions/how-auctions-work/)).
 - **Competitive bids.** The bidder specifies both the quantity and the yield at which they are willing to buy the security.
 
 Auction awards are determined in stages. First, total noncompetitive tenders and nonpublic purchases, such as Federal Reserve purchases, are deducted from the total offering amount. The remaining amount is allocated to competitive bidders. Competitive bids are ranked from lowest yield to highest yield, which is equivalent to ranking from highest price to lowest price. The Treasury accepts bids from the lowest yield upward until the competitive allocation is filled.
@@ -279,9 +278,18 @@ The highest accepted yield is the **stop-out yield**, also called the **high yie
 
 U.S. Treasury auctions are **single-price auctions**. All successful bidders receive the same yield: the stop-out yield. For notes and bonds, the Treasury also sets the coupon rate after the auction. The coupon is chosen in increments of 1/8 of 1% so that the price is as close as possible to par without being above par at the awarded yield.
 
-Within about an hour after the 1:00 p.m. auction deadline, Treasury announces the results. These include the stop-out yield, associated price, percentage awarded at the stop-out yield, amount of noncompetitive tenders, median-yield bid, bid-to-cover ratio, and, for notes and bonds, the coupon rate.
+Treasury publishes results after the applicable auction deadline. Submission deadlines vary by security and bid type; use the auction announcement. These include the stop-out yield, associated price, percentage awarded at the stop-out yield, amount of noncompetitive tenders, median-yield bid, bid-to-cover ratio, and, for notes and bonds, the coupon rate.
 
-![Diagram](lec5_files/figure-latex/mermaid-figure-5.png){fig-align="center" height="380px"}
+**Auction allocation**
+
+| Stage | Decision |
+| --- | --- |
+| 1. Announce | Publish supply, terms, and bid deadlines |
+| 2. Accept noncompetitive tenders | Deduct accepted quantities from available supply |
+| 3. Rank competitive bids | Accept from lowest yield upward |
+| 4. Reach the stop-out yield | Prorate marginal bids if necessary |
+| 5. Award | Apply the single auction price to successful bids |
+
 
 ::: {.callout-note title="Auction Example: Finding the Stop-Out Yield"}
 **Setup**
@@ -521,7 +529,15 @@ $$
 
 The economic reason for stripping is matching. A coupon Treasury delivers cash repeatedly; a STRIP delivers cash once. If an insurer knows it must pay a claim reserve in exactly 12 years, a 12-year principal STRIP is cleaner than buying a coupon bond and reinvesting intermediate coupons. STRIPS also make duration exposure more concentrated because no cash comes back before maturity.
 
-![Diagram](lec5_files/figure-latex/mermaid-figure-6.png){fig-align="center" height="360px"}
+**Separating Treasury cash flows**
+
+| Instrument | Payments |
+| --- | --- |
+| Coupon Treasury | Semiannual coupons and principal at maturity |
+| Coupon STRIPS | Each coupon becomes a separate zero-coupon security |
+| Principal STRIP | Principal becomes a separate zero-coupon security |
+| Reconstitution | Eligible separated payments can be recombined |
+
 
 ## Tax Treatment
 
@@ -659,13 +675,29 @@ But the spread is not just default probability. It also reflects expected recove
 
 Corporate debt exists because it is often cheaper and less dilutive than equity. For investors, it creates a contractual claim with priority over equity but limited upside. This asymmetry explains why bondholders care less about maximum growth and more about downside protection, asset coverage, and restrictions on risk-shifting.
 
-![Diagram](lec5_files/figure-latex/mermaid-figure-7.png){fig-align="center"}
+**Corporate financing choices**
+
+| Debt form | Main exposure |
+| --- | --- |
+| Commercial paper | Short-term funding and rollover risk |
+| Bonds and notes | Fixed or floating coupons; credit and duration risk |
+| Bank loans | Negotiated terms, collateral, and covenants |
+| Structured debt | Contract-specific contingent payments |
+
 
 ## Seniority of Debt in a Corporation's Capital Structure
 
 Seniority determines who gets paid first if the issuer cannot meet its obligations. A simplified capital structure is:
 
-![Diagram](lec5_files/figure-latex/mermaid-figure-8.png){fig-align="center" height="360px"}
+**Simplified priority of claims**
+
+| Priority | Claim |
+| --- | --- |
+| 1 | Senior secured creditors: claim on pledged collateral |
+| 2 | Senior unsecured creditors: general claim on remaining assets |
+| 3 | Subordinated creditors: paid after senior claims |
+| 4 | Equity: residual claim, first to absorb losses |
+
 
 Senior secured debt is backed by collateral. Senior unsecured debt has no specific collateral but has a general claim on the issuer's assets after secured claims. Subordinated debt ranks below senior debt. Equity is last.
 
@@ -725,7 +757,9 @@ The three major global rating agencies are Moody's, S&P Global Ratings, and Fitc
 | Speculative | Ba | BB | High yield |
 | Highly speculative | B | B | High yield |
 | Substantial risk | Caa/Ca/C | CCC/CC/C | Distressed or near default |
-| Default | D | D | Default |
+| Default | C (typically in default) | D | Default |
+
+Moody’s lowest long-term category is C, typically associated with default; it does not use D on this scale ([Moody’s](https://www.moodys.com/web/en/us/solutions/ratings/understanding-ratings.html)).
 
 Rating agencies also place issuers on watch for possible upgrades or downgrades. Markets often react before the rating change because spreads update continuously.
 
@@ -808,7 +842,15 @@ Covenants are especially important in high-yield bonds and leveraged loans becau
 
 The reason covenants exist is agency conflict. After debt is issued, shareholders and managers may prefer actions that increase equity upside while increasing creditor downside: more debt, dividends, asset sales, risky acquisitions, or collateral pledges to new lenders. Covenants limit those transfers of value.
 
-![Diagram](lec5_files/figure-latex/mermaid-figure-9.png){fig-align="center" height="360px"}
+**Covenants protect creditor claims**
+
+| Potential action | Typical protection |
+| --- | --- |
+| Additional borrowing | Debt-incurrence limits |
+| Dividend or repurchase | Restricted-payment covenant |
+| Pledge assets to new lenders | Negative pledge or lien limitation |
+| Asset sale or merger | Asset-sale and change-of-control provisions |
+
 
 ### Special Structures for High-Yield Corporate Bonds
 
@@ -939,7 +981,7 @@ Direct placement lowers distribution cost for frequent, highly rated issuers wit
 
 Commercial paper investors pay close attention to short-term credit ratings. Money market funds face restrictions on the credit quality of eligible paper.
 
-Tier-1 paper is the highest-quality eligible commercial paper. Tier-2 paper is still eligible but lower quality. A move from Tier 1 to Tier 2 can materially reduce investor demand and increase rollover risk.
+Tier 1 and Tier 2 are historical rating-based categories. They do not by themselves determine current U.S. money-market-fund eligibility: the SEC replaced rating references with a minimal-credit-risk assessment. A downgrade can still reduce investor demand and increase rollover risk ([SEC rule explanation](https://www.sec.gov/newsroom/press-releases/2015-193)).
 
 This tier distinction matters because money-market investors are constrained by rules and risk limits. A downgrade can therefore change not only the price of funding but also the quantity of funding available.
 
@@ -983,7 +1025,15 @@ The issuer's choice depends on the rate environment, desired flexibility, and in
 
 CLOs are structured finance vehicles backed by pools of leveraged loans. They turn one pool of loans into multiple securities with different priority, ratings, and risk.
 
-![Diagram](lec5_files/figure-latex/mermaid-figure-10.png){fig-align="center" height="340px"}
+**CLO payment and loss priorities**
+
+| Layer | Cash-flow claim | Loss order |
+| --- | --- | --- |
+| Loan pool | Collects interest and principal from borrowers | Defaults reduce available cash |
+| Senior notes | Paid before junior notes | Protected by junior subordination |
+| Mezzanine notes | Paid after senior obligations | Absorb losses after equity |
+| Equity | Receives residual after expenses and debt | Absorbs first losses |
+
 
 Senior CLO tranches are paid first and can receive investment-grade ratings even though the underlying loans are below investment grade. Equity receives the residual cash flow but absorbs first losses. CLOs exist because different investors want different versions of the same loan-pool exposure: senior rated floating-rate debt, mezzanine credit risk, or levered equity-like exposure.
 

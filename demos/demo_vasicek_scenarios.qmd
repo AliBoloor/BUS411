@@ -21,6 +21,8 @@ format:
         .demo-lab input { accent-color: #214b3e; }
         .demo-lab button { border: 1px solid #214b3e; border-radius: 3px;
           color: #214b3e; background: transparent; padding: .2rem .7rem; }
+        details.demo-solution { border-left: 4px solid #936724; padding: 1rem; margin: 1rem 0; }
+        details.demo-solution > summary { cursor: pointer; font-weight: 700; }
         details.code-fold { margin: .8rem 0; }
         mjx-container[display="true"] { display: block; max-width: 100%;
           overflow-x: auto; overflow-y: hidden; padding-block: .35em; }
@@ -39,6 +41,10 @@ execute:
 This reading copy shows the calculations' results and figures. The HTML demo
 contains the full code in folded blocks and interactive scenario controls.
 :::
+
+## The desk question {.unnumbered}
+
+How much of next year’s funding-rate uncertainty comes from mean reversion, and how much comes from volatility?
 
 ## Purpose and Assumptions {.unnumbered}
 
@@ -503,7 +509,7 @@ pd.Series({
 Mean reversion makes the expected rate move toward $\theta$, while volatility keeps future rates dispersed. $\kappa$ determines how quickly today's rate loses influence; $\sigma$ determines scenario width. The model is a disciplined scenario generator, not a forecast guarantee. Calibration window, probability measure, structural breaks, and the normal model's negative-rate tail all affect how its output should be used.
 
 
-## Guided explorer
+## Interactive explorer
 
 Change the forecast horizon, keeping the historical fit fixed. The mean moves toward the estimated long-run rate while dispersion approaches a limit. The 5th–95th percentile band is conditional model uncertainty, not parameter uncertainty and not a confidence interval for the mean.
 
@@ -523,3 +529,38 @@ display(demo_explorer(horizons, {
 }, "Horizon (years)", "Short rate (%)", 3))
 ```
 :::
+
+
+## Mini Project
+
+**Project brief.** Use the historical fit in this demo to compare the conditional mean and 5th–95th percentile short-rate range at 0.5, 1, and 2 years. Translate each terminal rate into an annualized interest run rate on $10 million floating-rate borrowing with a fixed 100 bp spread. Explain why this is not the distribution of total interest paid over the horizon. Report one reason the fitted historical model is unsuitable for pricing an option without further work.
+
+**Deliverable:** a one-page decision memo with a conventions statement, reproducible calculations, a scenario table, and a limitation that could change the decision.
+
+```{=html}
+<details class="demo-solution"><summary>Worked solution: calculations and decision memo</summary>
+```
+
+::: {.content-visible when-format="pdf"}
+**Worked solution: calculations and decision memo**
+:::
+
+```{python}
+#| label: mini-project-solution
+h = np.array([.5,1.,2.])
+mu = theta+(r0-theta)*np.exp(-kappa*h)
+sd = sigma*np.sqrt(-np.expm1(-2*kappa*h)/(2*kappa))
+project = pd.DataFrame({"Horizon (years)":h,"Mean rate (%)":100*mu,
+    "5th rate (%)":100*(mu-1.644853626951*sd),
+    "95th rate (%)":100*(mu+1.644853626951*sd),
+    "Mean annual run rate ($)":10_000_000*(mu+.01),
+    "95th annual run rate ($)":10_000_000*(mu+1.644853626951*sd+.01)})
+display(project.round(4))
+assert np.all(sd>0) and np.all(np.diff(sd)>0)
+```
+
+The range widens toward the stationary distribution while the conditional mean approaches theta. Multiplying the terminal rate plus spread by notional gives an annualized expense at that future instant. Total interest requires integrating or summing rates along each path. Historical parameters describe a physical-measure approximation; option pricing needs risk-neutral dynamics and a fit to current pricing inputs. This short, policy-driven sample also understates parameter and regime uncertainty.
+
+```{=html}
+</details>
+```

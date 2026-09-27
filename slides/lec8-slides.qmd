@@ -3,7 +3,7 @@ title: "Lecture 8: Bonds with Embedded Options"
 subtitle: "State-dependent cash flows, lattice valuation, OAS and effective risk"
 format:
   revealjs:
-    css: lec3-11-slides.css
+    css: [lec3-11-slides.css, lec5-11-layout.css]
     html-math-method: mathml
     include-in-header:
       text: |
@@ -166,7 +166,9 @@ $$
 H_{i,j}=\frac{pV_{i+1,j+1}+(1-p)V_{i+1,j}}{1+r_{i,j}}+CF_i
 $$
 
-Here $p$ is the risk-neutral up probability; $r_{i,j}$ discounts the next interval; $CF_i$ is paid at the current node.<div class="source-issue">Instructor review: The worked examples also add CF₀ at time zero. Their quoted prices therefore include an immediate coupon. Keep coupon and redemption timing explicit.</div>
+Here $p$ is the risk-neutral up probability; $r_{i,j}$ discounts the next interval; $CF_i$ is paid at the current node.
+
+Values here include the coupon paid at the node. Ex-coupon continuation and call prices must be compared on the same basis.
 
 ## Exercise replaces continuation value
 
@@ -202,9 +204,11 @@ The rate path can change the payment schedule. For the simple callable bond, a r
 
 ## Three-year example: contract and assumptions
 
-<div class="comparison"><div><h3>Contract</h3><p>Face 100; annual coupon 8; maturity 3 years; call price 107 from year 2.</p></div><div><h3>Tree</h3><p>Annual steps; risk-neutral p = 0.5; initial short rate 6%.</p></div></div>
+<div class="comparison"><div><h3>Contract</h3><p>Face 100; annual coupon 8; maturity 3 years; total coupon-inclusive call payment 107 from year 2.</p></div><div><h3>Tree</h3><p>Annual steps; risk-neutral p = 0.5; initial short rate 6%.</p></div></div>
 
-<div class="source-issue">Instructor review: The following calculations reproduce the notes’ coupon-inclusive convention, including the time-zero coupon.</div>
+
+
+The worked example includes an immediate time-zero coupon. Its call cap 107 includes coupon 8 and redemption 99. Subtract 8 from the time-zero value for an ex-coupon purchase price.
 
 ## The short-rate lattice
 
@@ -385,7 +389,7 @@ $$
 | 1 year | 4.00% | 0.96154 |
 | 2 years | 4.50% | 0.91573 |
 | 3 years | 5.00% | 0.86384 |
-| 4 years | 5.25% | 0.81469 |
+| 4 years | 5.25% | 0.81491 |
 
 The source uses annual steps and σ = 10%. Each aₜ fits one additional market discount factor.
 
@@ -398,7 +402,9 @@ The source uses annual steps and σ = 10%. Each aₜ fits one additional market 
 | 3 years | 0.86384 | 5.96% | 4.88%, 5.96%, 7.28% | 0.86384 |
 | 4 years | 0.81491 | 5.93% | 4.40%, 5.37%, 6.56%, 8.01% | 0.81491 |
 
-Volatility sets the relative distance between states; level parameters anchor the tree to today’s zero prices.<div class="source-issue">Instructor review: The written four-year discount factor is 0.81469; the source code and 5.25% zero rate imply 0.81491.</div>
+Volatility sets the relative distance between states; level parameters anchor the tree to today’s zero prices.
+
+
 
 ## Credit can enter the valuation in different ways
 
@@ -538,7 +544,9 @@ These are the risks of the source’s illustrative three-price set, not a calibr
 </div>
 ```
 
-<div class="source-issue">Instructor review: Teaching-only, uncalibrated tree. The source widget includes a time-zero coupon; its OAS and node-shock risks illustrate mechanics, not a curve-calibrated market valuation.</div>
+
+
+This uncalibrated teaching tree includes an immediate coupon. Its OAS and node-shock risks illustrate mechanics; they are not curve-calibrated market estimates.
 
 
 ```{=html}

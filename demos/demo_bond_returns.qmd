@@ -1,0 +1,493 @@
+---
+title: "Practical Demo: Bond Returns and Horizon Analysis"
+format:
+  html:
+    toc: true
+    number-sections: true
+    code-fold: true
+    code-summary: "Show calculation"
+    fig-align: center
+    fig-dpi: 160
+    code-tools: true
+    include-in-header:
+      text: |
+        <style>
+        main.content, .cell, .cell-output-display { min-width: 0; }
+        .cell-output-display { overflow-x: auto; max-width: 100%; }
+        .cell-output-display img { max-width: 100%; height: auto; }
+        .demo-lab table { width: 100%; font-size: .95rem; }
+        .demo-lab th, .demo-lab td { text-align: left; padding: .35rem .65rem .35rem 0; }
+        .demo-lab th { border-bottom: 1px solid #b6bdb2; }
+        .demo-lab input { accent-color: #214b3e; }
+        .demo-lab button { border: 1px solid #214b3e; border-radius: 3px;
+          color: #214b3e; background: transparent; padding: .2rem .7rem; }
+        details.code-fold { margin: .8rem 0; }
+        details.demo-solution { border-left: 4px solid #936724; padding: 1rem;
+          margin: 1rem 0; background: #fafaf6; }
+        details.demo-solution > summary { cursor: pointer; font-weight: 700;
+          color: #214b3e; }
+        mjx-container[display="true"] { display: block; max-width: 100%;
+          overflow-x: auto; overflow-y: hidden; padding-block: .35em; }
+        </style>
+  pdf:
+    include-in-header:
+      text: |
+        \newcommand{\ReserveTableSpace}[1]{\par\begingroup\dimen0=\pagegoal\advance\dimen0 by -\pagetotal\ifdim\dimen0<#1\newpage\fi\endgroup}
+    execute:
+      echo: false
+jupyter: python3
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+::: {.content-visible when-format="pdf"}
+This reading copy shows the calculations' results and figures. The HTML demo
+contains the full code in folded blocks and interactive scenario controls.
+:::
+
+## The desk question {.unnumbered}
+
+A client buys a bond yielding 5%. **Will the client actually earn 5% over the
+next two years?** Build a horizon-value report that separates coupon income,
+reinvestment income, and the change in the bond's full price. Then explain
+which assumptions make a quoted yield an attainable compound return.
+
+## Purpose and assumptions {.unnumbered}
+
+Use an illustrative five-year, 6% coupon bond with face value $100. Coupons are
+semiannual. Buy immediately after a coupon at a 5% nominal annual YTM and sell
+immediately after the year-2 coupon. All cash flows are contractual; ignore
+default, calls, taxes, fees, and bid–ask spreads. Accrued interest is zero at both
+endpoints. Exit YTM and coupon reinvestment rates are independent scenario inputs,
+quoted as nominal annual rates compounded semiannually. No inputs are live quotes.
+
+Read alongside [Lecture 2](../lecture_notes/lec2.qmd). Dollar results below are
+per $100 face unless explicitly scaled to the client position.
+
+```{python}
+#| label: reader-tools
+#| include: false
+"""Configure display helpers and the shared plotting style for this demo."""
+import json
+import html
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from IPython.display import HTML, Markdown, display
+from cycler import cycler
+
+plt.rcParams.update({
+    "figure.figsize": (8, 4.5), "figure.dpi": 140,
+    "axes.spines.top": False, "axes.spines.right": False,
+    "axes.grid": True, "axes.axisbelow": True, "grid.alpha": 0.20,
+    "axes.titleweight": "bold", "font.size": 11,
+    "lines.linewidth": 2.2, "lines.markersize": 6,
+    "axes.prop_cycle": cycler(color=["#214b3e", "#936724", "#486d8c", "#865c76"]),
+})
+
+
+# Keep every field, but split wide tables into readable panels for HTML and PDF.
+def readable_table(frame):
+    """Format a teaching table without changing its underlying numerical values.
+
+    Parameters
+    ----------
+    frame : pandas.DataFrame
+        Display data. attrs["whole_table"] requests a single reconciliation
+        table; attrs["decimals"] chooses the number of displayed decimals.
+
+    Returns
+    -------
+    str
+        HTML markup suitable for both Quarto HTML and PDF conversion.
+
+    Notes
+    -----
+    Wide, short tables are transposed. Other wide tables are split into panels.
+    Formatting applies only at display time, preserving full-precision results.
+    """
+    whole_table = frame.attrs.get("whole_table", False)
+    decimals = frame.attrs.get("decimals", 4)
+    frame = frame.copy()
+    if not whole_table and len(frame.columns) and frame.iloc[:, 0].dtype == object:
+        frame = frame.set_index(frame.columns[0])
+    if not whole_table and len(frame.columns) > 6 and len(frame) <= 4:
+        frame = frame.T
+    panels = []
+    panel_width = len(frame.columns) if whole_table else 3
+    for start in range(0, len(frame.columns), panel_width):
+        part = frame.iloc[:, start:start+panel_width]
+        markup = part.to_html(border=0, na_rep="", float_format=lambda v: f"{v:,.{decimals}f}")
+        widths = [40] + [60 / max(1, len(part.columns))] * len(part.columns)
+        cols = "<colgroup>" + "".join(f'<col style="width:{w}%">' for w in widths) + "</colgroup>"
+        end = markup.index(">") + 1
+        panels.append(markup[:end] + cols + markup[end:])
+    return "\n".join(panels)
+
+get_ipython().display_formatter.formatters["text/html"].for_type(pd.DataFrame, readable_table)
+
+def demo_explorer(x, series, x_label, y_label, initial=0):
+    """Build an accessible HTML explorer from precomputed price-change series.
+
+    Parameters
+    ----------
+    x : array-like
+        Strictly increasing finite scenario grid, in the units of x_label.
+    series : dict[str, array-like]
+        Named outputs, with one finite value for every x entry.
+    x_label, y_label : str
+        Axis labels including units.
+    initial : int, default 0
+        Zero-based row selected initially and by the Reset button.
+
+    Returns
+    -------
+    IPython.display.HTML
+        Self-contained chart, slider, reset control, and six-decimal table.
+
+    Notes
+    -----
+    The browser selects stored Python results without interpolating prices.
+    Use one instance per page because this helper uses fixed control IDs.
+    """
+    x = np.asarray(x, dtype=float)
+    values = {name: np.asarray(y, dtype=float).tolist() for name, y in series.items()}
+    assert len(x) > 1 and np.isfinite(x).all() and np.all(np.diff(x) > 0)
+    assert 0 <= initial < len(x)
+    assert all(len(y) == len(x) and np.isfinite(y).all() for y in values.values())
+    payload = json.dumps({"x": x.tolist(), "series": values,
+                          "xLabel": x_label, "yLabel": y_label,
+                          "initial": int(initial)}, allow_nan=False).replace("<", "\\u003c")
+    markup = """
+<div class="demo-lab" style="border-left:4px solid #936724;padding:1rem;margin:1rem 0">
+  <label for="demo-control"><strong>__XLABEL__</strong></label>
+  <input id="demo-control" type="range" min="0" max="__MAX__" value="__INITIAL__" step="1"
+         style="display:block;width:100%;margin:.8rem 0">
+  <button id="demo-reset" type="button">Reset</button>
+  <p id="demo-selection" aria-live="polite"></p>
+  <svg id="demo-plot" viewBox="0 0 760 350" role="img"
+       aria-label="__YLABEL__ as __XLABEL__ changes" style="width:100%;height:auto"></svg>
+  <div style="overflow-x:auto"><table><thead><tr><th>Model output</th><th>__YLABEL__</th></tr></thead>
+  <tbody id="demo-values"></tbody></table></div>
+  <small>The control selects computed scenario points, not live market observations.</small>
+</div>
+<script>
+(() => {
+const d = __DATA__, slider = document.getElementById('demo-control');
+const svg = document.getElementById('demo-plot'), ns = 'http://www.w3.org/2000/svg';
+const colors = ['#214b3e','#936724','#486d8c','#865c76'];
+const dash = ['', '8 4', '3 3', '10 3 2 3'];
+const all = Object.values(d.series).flat(), lo = Math.min(...all), hi = Math.max(...all);
+const pad = Math.max((hi-lo)*.12, .01), ymin = lo-pad, ymax = hi+pad;
+let width=760;
+const X = v => 70 + (width-100)*(v-d.x[0])/(d.x[d.x.length-1]-d.x[0]);
+const Y = v => 275 - 240*(v-ymin)/(ymax-ymin);
+/** Append an SVG element with attributes and optional accessible text. */
+const add = (name, attrs, content='') => {
+  const e=document.createElementNS(ns,name);
+  Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,v));
+  if(content) e.textContent=content; svg.appendChild(e); return e;
+};
+// Axis ticks stay compact; the result table preserves small differences.
+const fmt = v => v.toLocaleString('en-US',{maximumFractionDigits:3});
+const precise = v => (v === 0 ? 0 : v).toLocaleString('en-US',{minimumFractionDigits:6,maximumFractionDigits:6});
+/** Draw the selected scenario, marker, and accessible table values. */
+const render = () => {
+  const i=Number(slider.value); svg.replaceChildren();
+  width=Math.max(340, Math.min(760, svg.clientWidth));
+  svg.setAttribute('viewBox','0 0 '+width+' 350');
+  add('rect',{x:0,y:0,width:width,height:350,fill:'#ffffff'});
+  for(let j=0;j<5;j++){
+    const v=ymin+(ymax-ymin)*j/4, y=Y(v);
+    add('line',{x1:70,y1:y,x2:width-30,y2:y,stroke:'#e0e3df'});
+    add('text',{x:62,y:y+4,'text-anchor':'end',fill:'#333','font-size':12},fmt(v));
+  }
+  for(let j=0;j<3;j++){
+    const v=d.x[0]+(d.x[d.x.length-1]-d.x[0])*j/2;
+    add('text',{x:X(v),y:299,'text-anchor':'middle',fill:'#333','font-size':12},fmt(v));
+  }
+  add('text',{x:70,y:19,fill:'#333','font-size':13},d.yLabel);
+  add('text',{x:width/2,y:333,'text-anchor':'middle',fill:'#333','font-size':13},d.xLabel);
+  add('line',{x1:X(d.x[i]),y1:35,x2:X(d.x[i]),y2:275,stroke:'#666','stroke-dasharray':'4 4'});
+  const tbody=document.getElementById('demo-values'); tbody.replaceChildren();
+  Object.entries(d.series).forEach(([name,y],j)=>{
+    add('polyline',{points:d.x.map((v,k)=>X(v)+','+Y(y[k])).join(' '),fill:'none',
+                   stroke:colors[j%4],'stroke-width':2.5,'stroke-dasharray':dash[j%4]});
+    add('circle',{cx:X(d.x[i]),cy:Y(y[i]),r:5,fill:colors[j%4],stroke:'white'});
+    const tr=document.createElement('tr');
+    const label=document.createElement('td'), value=document.createElement('td');
+    label.textContent=name; label.style.color=colors[j%4]; value.textContent=precise(y[i]);
+    tr.append(label,value); tbody.appendChild(tr);
+  });
+  document.getElementById('demo-selection').textContent=d.xLabel+': '+fmt(d.x[i]);
+  slider.setAttribute('aria-valuetext',fmt(d.x[i])+' '+d.xLabel);
+};
+window.addEventListener('resize',render);
+slider.addEventListener('input',render);
+document.getElementById('demo-reset').addEventListener('click',()=>{slider.value=d.initial;render();});
+render();
+})();
+</script>
+"""
+    return HTML(markup.replace("__DATA__", payload)
+                .replace("__XLABEL__", html.escape(x_label))
+                .replace("__YLABEL__", html.escape(y_label))
+                .replace("__MAX__", str(len(x)-1)).replace("__INITIAL__", str(initial)))
+```
+
+## Price the promised cash flows
+
+With $n=10$ half-year periods and $C=100(0.06)/2=3$,
+
+$$
+P_0=\sum_{k=1}^{10}\frac{3}{(1+0.05/2)^k}
+       +\frac{100}{(1+0.05/2)^{10}}.
+$$
+
+```{python}
+#| label: returns-setup
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from IPython.display import Markdown, display
+
+plt.rcParams.update({"figure.figsize": (8, 4.2), "font.size": 11,
+    "axes.spines.top": False, "axes.spines.right": False,
+    "axes.grid": True, "grid.alpha": .2})
+
+def bond_price(coupon_rate, periods, annual_yield, face=100.):
+    """Ex-coupon full price on a semiannual coupon date; rates are decimals.
+
+    `periods` is the number of remaining half years. A zero-period bond has
+    just matured and returns principal; coupon accounting is handled separately.
+    Yield can be scalar or an array. Payment dates occupy the final axis.
+    """
+    y = np.asarray(annual_yield, dtype=float)
+    if not np.all(np.isfinite(y)) or np.any(y <= -2):
+        raise ValueError("Semiannual yields must be finite and greater than -200%.")
+    if int(periods) != periods or periods < 0 or not 0 <= coupon_rate < 1 or face <= 0:
+        raise ValueError("Use nonnegative integer periods, a valid coupon, and positive face.")
+    if periods == 0:
+        return np.full_like(y, face, dtype=float)
+    k = np.arange(1, periods + 1)
+    cf = np.full(periods, face*coupon_rate/2)
+    cf[-1] += face
+    return np.sum(cf*np.exp(-np.log1p(y[...,None]/2)*k), axis=-1)
+
+def show_table(frame, decimals=4):
+    """Keep short reports together in PDF and retain clear column labels."""
+    if frame.shape[1] > 4:
+        frame = frame.set_index(frame.columns[0]).T.reset_index().rename(columns={"index":"Measure"})
+    reserve = "```{=latex}\n\\ReserveTableSpace{" + str(len(frame)+4) + "\\baselineskip}\n```\n\n"
+    def cell(value):
+        if isinstance(value, (int, float, np.number)):
+            return f"{value:.{decimals}f}"
+        return str(value).replace("|", "\\|")
+    rows = ["| " + " | ".join(map(str, frame.columns)) + " |",
+            "| " + " | ".join(["---"]*len(frame.columns)) + " |"]
+    rows += ["| " + " | ".join(cell(v) for v in row) + " |"
+             for row in frame.itertuples(index=False, name=None)]
+    display(Markdown(reserve+"\n".join(rows)))
+
+coupon_rate, maturity_periods, purchase_yield = .06, 10, .05
+purchase_price = float(bond_price(coupon_rate, maturity_periods, purchase_yield))
+periods = np.arange(1, 11)
+cf = np.full(10, 3.); cf[-1] += 100
+payments = pd.DataFrame({"Year": periods/2, "Payment": cf,
+    "Discount factor": (1+purchase_yield/2)**(-periods),
+    "Present value": cf/(1+purchase_yield/2)**periods})
+show_table(payments,5)
+display(Markdown(f"**Purchase full price: {purchase_price:.6f}.** The 6% coupon exceeds the 5% YTM, so the bond trades above par."))
+```
+
+## Distinguish quoted yields from realized returns
+
+Current yield is annual coupon divided by today's price. It ignores both
+reinvestment and the gain or loss when the bond is sold or redeemed. YTM is the
+internal rate of return of promised payments at the purchase price. It is not a
+forecast of a short-horizon sale price.
+
+```{python}
+#| label: return-quote-comparison
+display(pd.DataFrame({"Measure": ["Coupon rate", "Current yield", "Nominal annual YTM", "Effective annual YTM"],
+    "Percent": [6., 100*6/purchase_price, 5., 100*((1+.05/2)**2-1)]}).round(4))
+```
+
+A 5% semiannual-compounding YTM corresponds to an effective annual rate of
+$(1.025)^2-1=5.0625\%$. Realizing that compound rate requires the relevant
+reinvestment and terminal-value assumptions, as the next calculation shows.
+
+## Build terminal wealth without double counting coupons
+
+At $H=2$ years, four coupons have been received. The sale price is ex-coupon,
+with six half-year payments remaining. If $j$ is the annual reinvestment rate,
+
+$$
+FV_C=3\left[(1+j/2)^3+(1+j/2)^2+(1+j/2)+1\right],
+$$
+
+$$
+W_H=P_H+FV_C,\qquad
+HPR=\frac{W_H-P_0}{P_0},\qquad
+R_{\mathrm{annual}}=\left(\frac{W_H}{P_0}\right)^{1/H}-1.
+$$
+
+The coupon paid at year 2 enters $FV_C$ once and earns no reinvestment interest.
+The sale price excludes that coupon. This is a terminal-wealth return that
+assumes all coupon cash remains invested until the horizon.
+
+```{python}
+#| label: horizon-return-engine
+def horizon_report(exit_yield, reinvest_rate, horizon_periods=4):
+    """Return a scenario table of terminal wealth and realized return.
+
+    Rates are decimal nominal annual rates; horizon is an integer number of
+    half years in [1, 10]. Scalars and arrays broadcast to a common shape.
+    Coupons are reinvested at a constant scenario rate, without withdrawals.
+    """
+    if int(horizon_periods) != horizon_periods or not 1 <= horizon_periods <= maturity_periods:
+        raise ValueError("Horizon must be a coupon date through maturity.")
+    ey, ri = np.broadcast_arrays(np.atleast_1d(exit_yield), np.atleast_1d(reinvest_rate))
+    if not np.all(np.isfinite(ri)) or np.any(ri <= -2):
+        raise ValueError("Reinvestment rates must be finite and greater than -200%.")
+    coupon_cash = 3*horizon_periods
+    powers = np.arange(horizon_periods-1, -1, -1)
+    coupon_fv = 3*np.exp(np.log1p(ri[...,None]/2)*powers).sum(axis=-1)
+    sale = bond_price(coupon_rate, maturity_periods-horizon_periods, ey)
+    wealth = sale+coupon_fv
+    return pd.DataFrame({"Exit YTM (%)": 100*ey.ravel(), "Reinvest (%)": 100*ri.ravel(),
+        "Sale / principal": sale.ravel(), "Coupon cash": np.full(ey.size,coupon_cash),
+        "Reinvestment income": (coupon_fv-coupon_cash).ravel(),
+        "Price change": (sale-purchase_price).ravel(), "Terminal wealth": wealth.ravel(),
+        "HPR (%)": 100*(wealth/purchase_price-1).ravel(),
+        "Annual return (%)": 100*np.expm1(np.log(wealth/purchase_price)/(horizon_periods/2)).ravel()})
+
+base = horizon_report(.05,.05)
+show_table(base,5)
+```
+
+The unchanged-yield case includes a price decline toward par. Coupon income
+more than offsets that decline. A premium bond's coupon rate therefore overstates
+its return even when market yields do not change.
+
+## Separate price risk from reinvestment risk
+
+Hold reinvestment at 3% while varying exit yields. Then hold the exit yield at 5%
+while varying reinvestment. This separation avoids assuming that sale yields and
+all past reinvestment rates move together.
+
+```{python}
+#| label: returns-scenarios
+scenarios = horizon_report([.03,.05,.10], .03)
+show_table(scenarios,4)
+show_table(horizon_report(.05,[.01,.03,.05]),4)
+fig, axes = plt.subplots(1,2,figsize=(9,4))
+x = np.arange(3)
+axes[0].bar(x, scenarios["Coupon cash"],label="Coupon cash",color="#214b3e")
+axes[0].bar(x, scenarios["Reinvestment income"],bottom=scenarios["Coupon cash"],label="Reinvestment",color="#936724")
+axes[0].bar(x, scenarios["Price change"],label="Price change",color="#486d8c",alpha=.8)
+axes[0].set(xticks=x,xticklabels=["3%","5%","10%"] ,xlabel="Exit YTM",ylabel="Return component per $100 face")
+axes[0].axhline(0,color="grey",lw=1);axes[0].legend(fontsize=8)
+yields=np.linspace(.01,.10,91)
+for j in [.01,.03,.05]:
+    result=horizon_report(yields,j)
+    axes[1].plot(100*yields,result["Annual return (%)"],label=f"Reinvest {100*j:.0f}%")
+axes[1].set(xlabel="Exit YTM (%)",ylabel="Realized annual return (%)")
+axes[1].legend(fontsize=8)
+fig.tight_layout();plt.show()
+```
+
+For this two-year horizon, a higher sale yield lowers the value of the remaining
+three-year bond. Higher reinvestment rates increase accumulated coupons. These
+are opposing effects with different magnitudes and timing.
+
+## Predict, change, explain
+
+Predict whether a 100 bp increase in the **exit** yield raises or lowers realized
+return. Keep the reinvestment rate fixed at 3%. Move the HTML control, then explain
+why that change is not an increase in the return already earned.
+
+::: {.content-visible when-format="html"}
+```{python}
+#| label: returns-explorer
+explorer=horizon_report(yields,.03)
+display(demo_explorer(100*yields,{
+    "Two-year HPR":explorer["HPR (%)"].to_numpy(),
+    "Annualized return":explorer["Annual return (%)"].to_numpy(),
+},"Exit YTM (%)","Realized return (%)",40))
+```
+:::
+
+The static scenario table above gives the corresponding PDF reference.
+
+## Validation checks
+
+```{python}
+#| label: returns-checks
+assert np.isclose(bond_price(.05,10,.05),100)
+assert np.isclose(base["Annual return (%)"].iloc[0],5.0625)
+assert np.all(np.diff(scenarios["Sale / principal"])<0)
+assert scenarios["HPR (%)"].iloc[-1] < 0
+assert np.allclose(scenarios["Terminal wealth"]-purchase_price,
+    scenarios["Coupon cash"]+scenarios["Reinvestment income"]+scenarios["Price change"])
+at_maturity=horizon_report([.01,.10],.05,10)
+assert np.allclose(at_maturity["Sale / principal"],100)
+assert np.allclose(at_maturity["Annual return (%)"],5.0625)
+display(Markdown("**Passed:** par pricing, return-component reconciliation, sale-price monotonicity, and the YTM reinvestment benchmark through maturity."))
+```
+
+At maturity the exit yield no longer matters: principal is fixed. The accumulated
+coupon value still depends on reinvestment rates. Between coupon dates, use full
+purchase and sale prices, including accrued interest, and actual payment dates.
+
+## Mini Project
+
+**Project brief.** Prepare a one-page return memo for a client buying $2 million
+face of this bond and selling after two years. The client expects a 3% coupon
+reinvestment rate and considers exit YTMs of 3%, 5%, and 10%.
+
+1. Report the cash purchase cost, terminal sale proceeds, coupons, reinvestment
+   income, dollar profit, two-year HPR, and effective annual return for each case.
+2. Explain why the 6% coupon and 5% purchase YTM differ from realized return.
+3. Repeat the unchanged-exit-yield case with zero coupon reinvestment income.
+4. Recommend whether the bond suits a client who cannot tolerate a two-year loss.
+   State the model's limitations and identify a closer maturity match.
+
+```{=html}
+<details class="demo-solution"><summary>Worked solution: client return memo</summary>
+```
+
+::: {.content-visible when-format="pdf"}
+**Worked solution: client return memo**
+:::
+
+```{python}
+#| label: returns-mini-project
+position_face=2_000_000
+scale=position_face/100
+report=scenarios.copy()
+for col in ["Sale / principal","Coupon cash","Reinvestment income","Price change","Terminal wealth"]:
+    report[col]*=scale
+report["Profit ($)"]=(scenarios["Terminal wealth"]-purchase_price)*scale
+display(Markdown(f"Purchase cost is **${purchase_price*scale:,.2f}**. Coupons received are **$240,000** over two years."))
+show_table(report[["Exit YTM (%)","Sale / principal","Coupon cash"]],2)
+show_table(report[["Exit YTM (%)","Reinvestment income","Profit ($)"]],2)
+show_table(report[["Exit YTM (%)","HPR (%)","Annual return (%)"]],4)
+show_table(horizon_report(.05,0)[["Reinvest (%)","Terminal wealth","HPR (%)","Annual return (%)"]],5)
+```
+
+**Interpretation and decision.** The coupon rate determines contractual cash
+payments; it does not measure profit relative to the premium purchase price.
+The purchase YTM describes promised cash-flow discounting, while the horizon
+return also depends on sale price and reinvestment. The 10% exit scenario shows
+that coupon income need not prevent a loss. This five-year bond does not assure
+a positive two-year return. A default-free zero-coupon claim maturing at the
+client's horizon better matches a fixed nominal liability and eliminates coupon
+reinvestment risk. Its purchase price still determines its return; inflation,
+transaction costs, and selling before maturity remain relevant.
+
+```{=html}
+</details>
+```

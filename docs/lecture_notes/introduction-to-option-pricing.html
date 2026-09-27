@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Practical Fixed-Income Demos – BUS 411 — Fixed Income Security Analysis and Valuation</title>
+<title>Introduction to Option Pricing – BUS 411 — Fixed Income Security Analysis and Valuation</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -73,11 +73,40 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="../forest-site.css">
 </head>
 
-<body class="docked nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+<body class="nav-sidebar docked nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
     const toggleBodyColorMode = (bsSheetEl) => {
       const mode = bsSheetEl.getAttribute("data-mode");
       const bodyEl = window.document.querySelector("body");
@@ -261,7 +290,7 @@ ul.task-list li input[type="checkbox"] {
 <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../lecture_notes/index.html"> 
+    <a class="nav-link active" href="../lecture_notes/index.html" aria-current="page"> 
 <span class="menu-text">Lecture Notes</span></a>
   </li>  
   <li class="nav-item">
@@ -269,7 +298,7 @@ ul.task-list li input[type="checkbox"] {
 <span class="menu-text">Slides</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link active" href="../demos/index.html" aria-current="page"> 
+    <a class="nav-link" href="../demos/index.html"> 
 <span class="menu-text">Demos</span></a>
   </li>  
   <li class="nav-item">
@@ -283,24 +312,124 @@ ul.task-list li input[type="checkbox"] {
 </div>
       </div> <!-- /container-fluid -->
     </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../lecture_notes/introduction-to-option-pricing.html">Introduction to Option Pricing</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
 </header>
 <!-- content -->
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
-    
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lecture_notes/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture Notes</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lecture_notes/lec1.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 1: Introduction</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lecture_notes/lec2.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 2: Bond Pricing and Yield Measures</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lecture_notes/lec3.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 3: Bond Price Volatility, Duration, and Convexity</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lecture_notes/lec4.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 4: Benchmark Spread, Term Structure of Interest Rate, and Curve Strategies</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lecture_notes/lec5.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 5: Treasury and Corporate Debt Markets</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lecture_notes/lec6.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 6: Bond Portfolio Construction</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lecture_notes/lec7.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 7: Interest‑Rate Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lecture_notes/lec8.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 8: Valuation of Bonds with Embedded Options and Option-Adjusted Measures</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lecture_notes/lec9.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 9: Interest-Rate Futures Contracts</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lecture_notes/lec10.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 10: Credit Spread Exposure and Credit Risk Modeling</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lecture_notes/lec11.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 11: Interest-Rate Options</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lecture_notes/introduction-to-option-pricing.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Introduction to Option Pricing</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+    <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#a-one-period-binomial-tree" id="toc-a-one-period-binomial-tree" class="nav-link active" data-scroll-target="#a-one-period-binomial-tree"><span class="header-section-number">1</span> A one-period binomial tree</a></li>
+  <li><a href="#backward-induction" id="toc-backward-induction" class="nav-link" data-scroll-target="#backward-induction"><span class="header-section-number">2</span> Backward induction</a></li>
+  <li><a href="#why-this-matters-for-fixed-income" id="toc-why-this-matters-for-fixed-income" class="nav-link" data-scroll-target="#why-this-matters-for-fixed-income"><span class="header-section-number">3</span> Why this matters for fixed income</a></li>
+  </ul>
+<div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="introduction-to-option-pricing.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></nav>
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-    <div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="index.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></div>
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+    </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Practical Fixed-Income Demos</h1>
+<h1 class="title">Introduction to Option Pricing</h1>
 </div>
 
 
@@ -317,71 +446,156 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>These executable demonstrations connect the lecture models to realistic analyst and portfolio-management workflows.</p>
+<p>Before analyzing bonds with embedded options, it is useful to understand the basic option pricing logic. An <strong>option</strong> gives one party a right, but not an obligation, to take an action in the future. The value of that right depends on what the underlying asset may be worth at the exercise date.</p>
+<p>In equity markets, the underlying asset is often a stock. In fixed income, the underlying asset may be:</p>
+<ul>
+<li>a bond;</li>
+<li>a future bond price;</li>
+<li>a future interest rate;</li>
+<li>a future yield curve;</li>
+<li>a swap rate;</li>
+<li>a mortgage pool whose cash flows depend on future rates.</li>
+</ul>
+<p>The important idea is the same: the option payoff depends on future states, so today’s valuation must account for multiple possible future outcomes.</p>
+<section id="a-one-period-binomial-tree" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="a-one-period-binomial-tree"><span class="header-section-number">1</span> A one-period binomial tree</h2>
+<p>A simple way to introduce option pricing is with a <strong>binomial tree</strong>. Suppose a bond is worth <span class="math inline">\(B_0\)</span> today. Over one period, it can move to one of two possible values:</p>
+<ul>
+<li>an up state, <span class="math inline">\(B_u\)</span>;</li>
+<li>a down state, <span class="math inline">\(B_d\)</span>.</li>
+</ul>
+<p>An option on the bond has a payoff in each state. For example, a call option with strike price <span class="math inline">\(K\)</span> has payoff:</p>
+<p><span class="math display">\[
+C_u = \max(B_u-K,0),
+\qquad
+C_d = \max(B_d-K,0).
+\]</span></p>
+<p>The option value today is the discounted expected payoff under <strong>risk-neutral probabilities</strong>:</p>
+<p><span class="math display">\[
+C_0 = \frac{qC_u+(1-q)C_d}{1+r},
+\]</span></p>
+<p>where <span class="math inline">\(q\)</span> is the risk-neutral probability of the up state and <span class="math inline">\(r\)</span> is the one-period risk-free rate. For a tradable bond with no payment during this interval,</p>
+<p><span class="math display">\[
+q=\frac{(1+r)B_0-B_d}{B_u-B_d},\qquad B_d&lt;(1+r)B_0&lt;B_u.
+\]</span></p>
+<p>The inequality rules out arbitrage and gives <span class="math inline">\(0&lt;q&lt;1\)</span>. Any coupon within the interval must be included in the replication cash flows. At a callable-bond decision below, continuation and redemption values are measured immediately after the coupon; the coupon is accounted for separately.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Intuition
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The risk-neutral probability is not a forecast of what will actually happen. It is the probability that makes the model consistent with no-arbitrage pricing. We use it to price cash flows consistently with today’s market prices.</p>
+</div>
+</div>
+<div id="cell-fig-one-period-option-tree" class="cell" data-execution_count="1">
+<div class="cell-output cell-output-display">
+<div id="fig-one-period-option-tree" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-one-period-option-tree-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="introduction-to-option-pricing_files/figure-html/fig-one-period-option-tree-output-1.png" width="686" height="359" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-one-period-option-tree-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: A one-period binomial tree for an option on a fixed-income underlying asset
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="backward-induction" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="backward-induction"><span class="header-section-number">2</span> Backward induction</h2>
+<p>For options with several possible exercise dates, the tree has many steps. The pricing method works <strong>backward</strong>:</p>
+<ol type="1">
+<li>Build possible future states of the underlying asset.</li>
+<li>Compute the option payoff at the final nodes.</li>
+<li>Move one step backward by discounting the expected future option value.</li>
+<li>If the option can be exercised early, compare the continuation value with the exercise value at each node.</li>
+<li>Continue backward until reaching today’s value.</li>
+</ol>
+<p>This is called <strong>backward induction</strong>. It is central for valuing callable and putable bonds because the exercise decision must be checked at each possible future call or put date.</p>
+</section>
+<section id="why-this-matters-for-fixed-income" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="why-this-matters-for-fixed-income"><span class="header-section-number">3</span> Why this matters for fixed income</h2>
+<p>For a plain fixed-rate bond, the cash flows are fixed, so we can usually value the bond directly from today’s discount curve:</p>
+<p><span class="math display">\[
+P = \sum_i CF_i P(0,t_i).
+\]</span></p>
+<p>For a bond with an embedded option, the future cash flows depend on future rates. The tree must therefore generate future interest-rate states, future discount factors, and future bond values. At each exercise date, the model asks whether the option should be exercised.</p>
+<p>For a callable bond, the issuer owns the option. At a future call date, the model produces a future yield curve <span class="math inline">\(P(t,T)\)</span>. That curve is used to value the remaining coupon and principal payments:</p>
+<p><span class="math display">\[
+V_{\text{continue}}(t) = \sum_i CF_i \times P(t,t_i).
+\]</span></p>
+<p>The issuer compares this continuation value with the call price:</p>
+<ul>
+<li>the value of leaving the bond outstanding;</li>
+<li>the call price.</li>
+</ul>
+<p>If rates have fallen, the old high-coupon bond is valuable to investors but expensive for the issuer to keep outstanding. The continuation value is likely to exceed the call price, so the issuer calls the bond. If rates have risen, the continuation value is usually below the call price, so the issuer does not call.</p>
+<p>From the bondholder’s perspective:</p>
+<p><span class="math display">\[
+V(t) = \min\left(V_{\text{continue}}(t), \text{call price}\right).
+\]</span></p>
+<p>The minimum appears because the issuer controls the call option. The bondholder receives the lower of keeping the valuable bond alive or being paid the call price.</p>
 <table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
 <thead>
 <tr class="header">
-<th style="text-align: right;">Lecture</th>
-<th>Workflow</th>
-<th>Demo</th>
+<th>Step</th>
+<th>Valuation or decision</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: right;">2</td>
-<td>Coupon income, reinvestment, sale price, and realized returns</td>
-<td><a href="../demos/demo_bond_returns.html">Bond returns workflow</a></td>
+<td>1. Generate the future curve</td>
+<td>Obtain discount factors <span class="math inline">\(P(t,T)\)</span> for remaining payments.</td>
 </tr>
 <tr class="even">
-<td style="text-align: right;">3</td>
-<td>Duration, DV01, convexity, and full-repricing comparisons</td>
-<td><a href="../demos/demo_duration_convexity.html">Duration and convexity workflow</a></td>
+<td>2. Value remaining cash flows</td>
+<td>Sum each promised payment times its discount factor.</td>
 </tr>
 <tr class="odd">
-<td style="text-align: right;">4</td>
-<td>Prices, discount factors, spot and forward rates, interpolation, and repricing</td>
-<td><a href="../demos/demo_bootstrapping.html">Treasury bootstrapping workflow</a></td>
+<td>3. Compare ex-coupon values</td>
+<td>Compare continuation value with the redemption price.</td>
 </tr>
 <tr class="even">
-<td style="text-align: right;">6</td>
-<td>Benchmark-aware sampling, constrained optimization, trades, and stress tests</td>
-<td><a href="../demos/demo_bond_portfolio_construction.html">Bond portfolio construction workflow</a></td>
+<td>4. Continuation exceeds call price</td>
+<td>Issuer calls; investor receives the call price.</td>
 </tr>
 <tr class="odd">
-<td style="text-align: right;">7</td>
-<td>Dated Treasury curve, bootstrapping, Hull–White calibration, and future valuation</td>
-<td><a href="../demos/demo_interest_rate_models.html">From observed yields to Hull–White future yield curves</a></td>
+<td>5. Continuation is below call price</td>
+<td>Issuer leaves the bond outstanding.</td>
 </tr>
 <tr class="even">
-<td style="text-align: right;">7</td>
-<td>Effective-fed-funds estimation, Vasicek scenarios, and funding-risk application</td>
-<td><a href="../demos/demo_vasicek_scenarios.html">Vasicek scenario workflow</a></td>
-</tr>
-<tr class="odd">
-<td style="text-align: right;">8</td>
-<td>Callable-bond valuation, option cost, OAS, and effective risk</td>
-<td><a href="../demos/demo_callable_bond_oas.html">Callable-bond and OAS workflow</a></td>
-</tr>
-<tr class="even">
-<td style="text-align: right;">9</td>
-<td>DV01-based Treasury futures hedging and residual risks</td>
-<td><a href="../demos/demo_treasury_futures_hedging.html">Treasury futures hedging workflow</a></td>
-</tr>
-<tr class="odd">
-<td style="text-align: right;">10</td>
-<td>Spread duration, DTS, carry, expected loss, and stress tests</td>
-<td><a href="../demos/demo_credit_spread_risk.html">Credit-spread risk workflow</a></td>
-</tr>
-<tr class="even">
-<td style="text-align: right;">11</td>
-<td>Treasury futures options and asymmetric portfolio protection</td>
-<td><a href="../demos/demo_interest_rate_options.html">Interest-rate options workflow</a></td>
+<td>6. Values are equal</td>
+<td>Issuer is indifferent in the frictionless model.</td>
 </tr>
 </tbody>
 </table>
-<p>The examples are teaching tools rather than trading recommendations. Production valuation requires current market conventions, instrument terms, liquidity inputs, and independent model validation.</p>
+<p>This is why the short-rate models discussed in <a href="../lecture_notes/lec7.html">Lecture 7</a> are useful. They provide the future rate tree needed to value fixed-income options and bonds with embedded options.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Bridge to Lecture 8
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The next step is to apply this logic directly to bonds with embedded options. The key idea will be the same: build future interest-rate states, value the bond at future nodes, apply the exercise rule, and work backward to today.</p>
+</div>
+</div>
 
 
+</section>
 
 </main> <!-- /main -->
 <!-- Cloudflare Web Analytics -->

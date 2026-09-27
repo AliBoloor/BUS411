@@ -22,6 +22,8 @@ format:
         .demo-lab input { accent-color: #214b3e; }
         .demo-lab button { border: 1px solid #214b3e; border-radius: 3px;
           color: #214b3e; background: transparent; padding: .2rem .7rem; }
+        details.demo-solution { border-left: 4px solid #936724; padding: 1rem; margin: 1rem 0; }
+        details.demo-solution > summary { cursor: pointer; font-weight: 700; }
         details.code-fold { margin: .8rem 0; }
         mjx-container[display="true"] { display: block; max-width: 100%;
           overflow-x: auto; overflow-y: hidden; padding-block: .35em; }
@@ -40,6 +42,10 @@ execute:
 This reading copy shows the calculations' results and figures. The HTML demo
 contains the full code in folded blocks and interactive scenario controls.
 :::
+
+## The desk question {.unnumbered}
+
+Which positions dominate credit risk, and how quickly can spread widening consume their carry?
 
 ## Learning Objectives {.unnumbered}
 
@@ -428,7 +434,7 @@ interchangeable inputs. Keep the embedded four-bond case if a comparable securit
 or permitted dataset is unavailable; the supplied PDs are assumptions, not ratings-agency estimates.
 
 
-## Guided explorer
+## Interactive explorer
 
 Apply the same proportional spread change to all four bonds while keeping Treasury yields fixed. At +25%, the 78 bp utility spread widens by 19.5 bp, while the 410 bp telecom spread widens by 102.5 bp. These are immediate price changes, with no annual carry or default loss added.
 
@@ -445,3 +451,39 @@ display(demo_explorer(relative_shocks, {
 }, "Proportional spread change (%)", "Approximate bond price change (%)", 10))
 ```
 :::
+
+
+## Mini Project
+
+**Project brief.** Compare a uniform +25 bp widening with a 25% proportional widening in each position's spread. Report bond-level and total losses for both shocks. Rank each bond's DTS contribution, then compute the carry cushion after expected loss and the supplied liquidity reserve. Recommend one exposure to review, distinguishing physical expected loss from market-implied compensation.
+
+**Deliverable:** a one-page decision memo with a conventions statement, reproducible calculations, a scenario table, and a limitation that could change the decision.
+
+```{=html}
+<details class="demo-solution"><summary>Worked solution: calculations and decision memo</summary>
+```
+
+::: {.content-visible when-format="pdf"}
+**Worked solution: calculations and decision memo**
+:::
+
+```{python}
+#| label: mini-project-solution
+mv=bonds["Market value ($mm)"]*1_000_000
+absolute_loss=bonds["Spread DV01 ($/bp)"]*25
+relative_loss=mv*bonds["DTS"]*.25
+net_carry=mv*(bonds["Spread (bp)"]/10_000-bonds["One-year PD"]*(1-bonds["Recovery rate"])-bonds["Liquidity reserve (bp/year)"]/10_000)
+project=pd.DataFrame({"Bond":bonds["Bond"],"25 bp loss ($)":absolute_loss,
+    "25% widening loss ($)":relative_loss,"DTS contribution":bonds["Contribution to DTS"],
+    "Net annual carry proxy ($)":net_carry})
+display(project.round(4))
+display(project.select_dtypes(include="number").sum().round(4))
+assert np.isclose(relative_loss.sum(),portfolio_value*portfolio_dts*.25)
+assert np.isclose(absolute_loss.sum(),spread_dv01*25)
+```
+
+A fixed basis-point move is measured by spread DV01; a proportional move is measured by DTS. Wider spreads create a larger absolute shock in the proportional scenario. Review the largest DTS contributor alongside its capital weight and net carry rather than ranking by yield alone. The carry calculation is a rough annual compensation proxy, not a predicted total return: spread repricing, defaults, and liquidity are distinct risks. Physical default estimates need not equal risk-neutral default probabilities implied by market prices.
+
+```{=html}
+</details>
+```

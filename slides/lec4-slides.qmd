@@ -1,6 +1,7 @@
 ---
 title: "Lecture 4: Benchmark Spread, Term Structure of Interest Rate, and Curve Strategies"
 subtitle: "Base rates, spot curves, forwards, and curve strategies"
+jupyter: python3
 format:
   revealjs:
     css: lec3-11-slides.css
@@ -8,10 +9,14 @@ format:
     include-in-header:
       text: |
         <script src="lec3-11-visuals.js" defer></script>
-        <style>.reveal h2 { border-bottom: 0; }</style>
+        <style>
+        .reveal .slides h2 { border: 0 !important; box-shadow: none; }
+        .reveal .slides .comparison > div { border-top: 0; padding-top: 0; }
+        .reveal .slides .cell-output-display img { height: 500px; width: 100%; object-fit: contain; margin: auto; }
+        </style>
 ---
 
-## Required yield has two building blocks
+## Base interest rate
 
 $$
 \text{Required yield}=\text{base interest rate}+\text{benchmark spread}
@@ -21,13 +26,17 @@ $$
 
 Common bases: Treasuries, Treasury spots, swaps, and OIS for collateralized derivatives.
 
-## A spread is a yield difference
+## Benchmark spread
+
+The benchmark spread is the bond yield minus the yield of the benchmark security or curve.
+
+**Five-year example:** corporate yield 5.05%, Treasury yield 3.80%.
 
 $$
 5.05\%-3.80\%=1.25\%=125\text{ bp}
 $$
 
-
+A second bond yields 6.20% against a 4.70% Treasury benchmark:
 
 $$
 6.20\%-4.70\%=1.50\%=150\text{ bp}
@@ -85,13 +94,9 @@ $$
 y_{\text{after tax}}=y_{\text{taxable}}(1-t)
 $$
 
-
-
 $$
 y_{\text{taxable equivalent}}=\frac{y_{\text{tax exempt}}}{1-t}
 $$
-
-
 
 $$
 \frac{3.00\%}{1-0.35}=4.62\%
@@ -141,19 +146,13 @@ $$
 \text{Financing carry}=\text{bond yield}-\text{repo rate}
 $$
 
-
-
 $$
 \text{On-the-run}:4.18\%-3.70\%=0.48\%
 $$
 
-
-
 $$
 \text{Off-the-run}:4.28\%-4.10\%=0.18\%
 $$
-
-
 
 $$
 0.48\%-0.18\%=30\text{ bp carry advantage}
@@ -181,7 +180,9 @@ Longer cash-flow horizons generally increase price volatility. Comparable securi
 
 Maturity spread: $4.75\%-3.80\%=0.95\%$.
 
-## Different curve measures
+## Term structure of interest rates
+
+The term structure describes how rates vary with maturity. Each curve answers a different question.
 
 | Curve | What it reports |
 |---|---|
@@ -220,13 +221,13 @@ Central-bank purchases, liquidity, Treasury supply, and maturity-specific demand
 
 <div class="cash-timeline" data-times='["Today", "6 months", "1 year", "\u2026", "5 years"]' data-flows='["Price", "Coupon", "Coupon", "Coupons", "Coupon + face"]'></div>
 
-
-
 $$
 P=\sum_{j=1}^{n}CF_jD(t_j)
 $$
 
-A spot rate is the annualized yield for one payment at one maturity. A 5-year semiannual coupon bond needs ten date-specific discount rates.
+- A spot rate prices one payment at one maturity.
+- A five-year semiannual coupon bond has ten payment dates.
+- Its own YTM reproduces its own price, but cannot supply a discount curve for other payment packages.
 
 ## Why one discount rate can misprice the package
 
@@ -236,14 +237,12 @@ $$
 P_{\text{spot}}=\frac{50}{1.03}+\frac{1050}{1.05^2}=1000.92
 $$
 
-
-
 $$
 P_{\text{one rate}}=\frac{50}{1.05}+\frac{1050}{1.05^2}=1000.00
 $$
 
 
-## Market inputs for a Treasury curve
+## Constructing the theoretical Treasury spot curve
 
 - Full prices: quoted clean prices plus accrued interest
 - Coupon amounts, principal, and exact payment dates
@@ -266,19 +265,6 @@ $$
 
 The two curves contain the same information. Here $z(t)$ is a decimal annual rate with semiannual compounding.
 
-## Four input securities
-
-Illustrative Treasury-like securities, \$100 face value, coupon-date settlement.
-
-| Maturity | Annual coupon | Full price | Semiannual coupon |
-|---:|---:|---:|---:|
-| 0.5 year | 0% | 98.20 | 0.00 |
-| 1.0 year | 3% | 99.10 | 1.50 |
-| 1.5 years | 4% | 100.30 | 2.00 |
-| 2.0 years | 5% | 101.20 | 2.50 |
-
-The six-month instrument pays \$100 once. All other payments fall on the same half-year grid.
-
 ## Bootstrapping from full prices
 
 For the bond maturing at $t_n=n/2$, $C_n$ is its coupon in dollars per half year.
@@ -292,6 +278,19 @@ D(t_n)=\frac{P_n-C_n\sum_{j=1}^{n-1}D(t_j)}{100+C_n}
 $$
 
 Subtract the earlier coupons' present value. The remaining price belongs to the final payment.
+
+## Worked example: four prices, four discount factors
+
+Illustrative Treasury-like securities, \$100 face value, coupon-date settlement.
+
+| Maturity | Annual coupon | Full price | Semiannual coupon |
+|---:|---:|---:|---:|
+| 0.5 year | 0% | 98.20 | 0.00 |
+| 1.0 year | 3% | 99.10 | 1.50 |
+| 1.5 years | 4% | 100.30 | 2.00 |
+| 2.0 years | 5% | 101.20 | 2.50 |
+
+The six-month instrument pays \$100 once. All other payments fall on the same half-year grid.
 
 ## The first two discount factors
 
@@ -322,7 +321,7 @@ $$
 
 Each successive security adds one unknown. A missing payment-date factor requires more information or an interpolation assumption.
 
-## The bootstrapped curve and its check
+## The bootstrapped spot curve
 
 | Maturity | Discount factor | Annual semiannual spot quote |
 |---:|---:|---:|
@@ -331,11 +330,7 @@ Each successive security adds one unknown. A missing payment-date factor require
 | 1.5 years | 0.945218777 | 3.791414% |
 | 2.0 years | 0.916852167 | 4.387893% |
 
-Repricing the last input with unrounded factors:
-
-$$
-2.50[D(0.5)+D(1)+D(1.5)]+102.50D(2)=101.20
-$$
+The 1.5-year spot is below the one-year spot. A valid curve need not rise at every maturity.
 
 ## Valuing a different coupon
 
@@ -364,6 +359,20 @@ $$
 The example's two-year par coupon is **4.369402%**.
 
 A published par curve can alternatively supply bootstrap inputs: set each price to 100 and each coupon to $100c_{\mathrm{par}}/2$. A par curve is not a required intermediate step when starting from bond prices.
+
+## An existing par curve as an input
+
+Suppose the supplied six-month and one-year par coupons are 3.60% and 3.80%, quoted annually with semiannual payments. Each hypothetical bond costs 100.
+
+$$
+D(0.5)=\frac{100}{101.80}=0.982318271
+$$
+
+$$
+D(1)=\frac{100-1.90D(0.5)}{101.90}\approx0.963038227
+$$
+
+This converts a supplied par curve into discount factors. When starting from security prices, the direct price bootstrap already supplies those factors.
 
 ## Spot rates and derived par coupons
 
@@ -433,14 +442,24 @@ This illustrative annual-pay bond uses annual effective spot rates. Treasury not
 
 <div class="comparison"><div><h3>Advantages</h3><p>Single-payment yields directly reveal spot rates, remove coupon effects, and support long-maturity estimates.</p></div><div><h3>Limitations</h3><p>Lower liquidity, pension demand, and incomplete maturity coverage can affect prices.</p></div></div>
 
-
-
 $$
 z_{10}=\left(\frac{100}{62}\right)^{1/10}-1=4.90\%
 $$
 
 A \$100 payment in ten years trades for \$62. The formula reports an annual effective rate.
 
+
+## Using the theoretical spot rate curve
+
+For annual-pay cash flows and annual effective spot rates:
+
+$$
+P=\sum_{t=1}^{n}\frac{CF_t}{(1+z_t)^t}
+$$
+
+- Match each discount rate to its payment date.
+- Include principal in the final cash flow.
+- Use consistent credit quality and compounding conventions.
 
 ## Spot valuation: a three-year Treasury
 
@@ -457,7 +476,7 @@ P=\frac4{1.035}+\frac4{1.04^2}+\frac{104}{1.044^3}=98.96
 $$
 
 
-## A constant spread applies to each spot rate
+## Spot rates and the base interest rate
 
 $$
 P=\sum_{t=1}^{n}\frac{CF_t}{(1+z_t+s)^t}
@@ -483,8 +502,6 @@ $$
 3.00\%+1.20\%=4.20\%,\qquad3.50\%+1.20\%=4.70\%
 $$
 
-
-
 $$
 P_{\text{risky}}=\frac5{1.042}+\frac{105}{1.047^2}=100.58
 $$
@@ -493,8 +510,6 @@ $$
 ## Forward rates connect two investment routes
 
 <div class="flow"><span><b>Two-year route</b>Invest now at the two-year spot</span><i>→</i><span><b>Rollover route</b>Invest one year, then lock the forward</span><i>→</i><span><b>No arbitrage</b>Both routes end with the same value</span></div>
-
-
 
 $$
 (1+z_2)^2=(1+z_1)(1+f_{1,2})
@@ -506,13 +521,9 @@ $$
 f_{1,2}=\frac{(1+z_2)^2}{1+z_1}-1
 $$
 
-
-
 $$
 z_1=4.00\%,\quad z_2=4.80\%
 $$
-
-
 
 $$
 f_{1,2}=\frac{1.048^2}{1.04}-1=5.61\%
@@ -526,8 +537,6 @@ Now use $z_1=4\%$ and $z_2=5\%$. The fair forward is 6.01%. Suppose the market f
 
 <div class="flow"><span><b>Borrow two years</b>At 5%</span><i>→</i><span><b>Invest one year</b>At 4%</span><i>→</i><span><b>Lock year-two reinvestment</b>At 7%</span></div>
 
-
-
 $$
 \text{Owed}=100(1.05)^2=110.25
 $$
@@ -537,8 +546,6 @@ $$
 $$
 \text{Investment}=100(1.04)(1.07)=111.28
 $$
-
-
 
 $$
 \text{Profit}=111.28-110.25=1.03
@@ -553,8 +560,6 @@ The example assumes the same frictionless borrowing and lending rates.
 $$
 (1+z_t)^t=(1+z_1)(1+f_1)\cdots(1+f_{t-1})
 $$
-
-
 
 $$
 z_t=\left[(1+z_1)\prod_{i=1}^{t-1}(1+f_i)\right]^{1/t}-1
@@ -600,8 +605,6 @@ $$
 f_1=\frac{1.02750^2}{1.02625}-1=2.875\%
 $$
 
-
-
 $$
 f_2=\frac{1.02880^3}{1.02750^2}-1=3.140\%
 $$
@@ -632,24 +635,48 @@ $$
 G=(1+z_1)\prod_{i=1}^{9}(1+f_i)=(1.03660)^{10}
 $$
 
-
-
-
-
-
 $$
 G=1.432557,\qquad z_{10}=G^{1/10}-1=3.660\%
 $$
 
 Bond-equivalent quote: $2(3.660\%)=7.320\%$.
 
-The printed inputs are rounded. Recalculating forwards from the displayed spots can produce small rounding differences.
+The calculation uses unrounded forwards derived from the displayed spot rates.
 
-## The forward curve reveals the reinvestment path
+## Forward rates implied by the example
 
-![](lec3-11-assets/lec4-fig-forward-rates.svg){.figure}
+```{python}
+#| label: slide-forward-rates
+#| echo: false
+#| fig-width: 10
+#| fig-height: 4.4
+import numpy as np
+import matplotlib.pyplot as plt
+# Use the ten periodic spot rates in the preceding worked example.
+periods = np.arange(1, 11)
+spot = np.array([2.625, 2.750, 2.880, 3.077, 3.250,
+                 3.427, 3.453, 3.578, 3.635, 3.660]) / 100
+discounts_forward = (1 + spot) ** (-periods)
+forward = np.r_[spot[0], discounts_forward[:-1] / discounts_forward[1:] - 1]
+np.testing.assert_allclose(np.cumprod(1 + forward), 1 / discounts_forward)
 
-Separate illustration from the notes: annualized spots and annualized six-month forwards. An upward spot curve can imply higher forwards.
+fig, ax = plt.subplots(figsize=(8, 4.4))
+ax.plot(periods / 2, spot * 200, "o-", linewidth=2.5,
+        color="#214b3e", label="Spot rate")
+ax.plot(periods[1:] / 2, forward[1:] * 200, "s--", linewidth=2.5,
+        color="#936724", label="Six-month forward (f1 to f9)")
+ax.set_xlabel("Spot maturity / forward interval end (years)")
+ax.set_ylabel("Bond-equivalent annual rate (%)")
+ax.set_title("Forward Rates Implied by an Upward-Sloping Spot Curve")
+ax.set_xticks(periods / 2)
+ax.grid(alpha=0.2)
+ax.spines[["top", "right"]].set_visible(False)
+ax.legend(loc="upper left")
+fig.tight_layout()
+plt.show()
+```
+
+Both series use the preceding ten spot inputs. Forward points mark interval ends. The decline at year 3.5 corresponds to $f_6$.
 
 ## Forwards can cover any future interval
 
@@ -693,19 +720,50 @@ Below that expected future rate: prefer the locked one-year investment. Above it
 
 No single theory explains the curve at every date.
 
-## Pure expectations and liquidity theory
+## Pure expectations theory
 
-<div class="comparison"><div><h3>Pure expectations</h3><p>Risk-neutral investors require no maturity premium. Upward slopes imply expected rate increases; inversions imply expected cuts.</p></div><div><h3>Liquidity theory</h3><p>Investors prefer short maturities. A positive long-maturity premium can produce an upward curve even with unchanged expected short rates.</p></div></div>
+- Forward rates reflect expected future short rates alone.
+- Investors require no maturity risk premium.
+- An upward slope signals expected rate increases under this theory.
+- An inverted curve signals expected cuts.
+- **Limitation:** duration risk and risk premiums complicate this interpretation.
 
+## Liquidity theory
 
+- Investors prefer short maturities because of lower price risk and greater liquidity.
+- Longer maturities require a positive premium.
+- An upward curve can persist even when expected short rates are unchanged.
 
 $$
-y_{\text{long}}=\text{expected average short rates}+\text{liquidity premium}
+y_{\mathrm{long}}\approx\text{expected average short rates}+\text{liquidity premium}
 $$
 
-## Preferred habitat and market segmentation
+## Preferred habitat theory
 
-<div class="comparison"><div><h3>Preferred habitat</h3><p>Money funds prefer short maturities; banks may prefer intermediate; insurers and pensions prefer long. Compensation can induce them to move.</p></div><div><h3>Market segmentation</h3><p>Supply and demand largely determine yields within separate maturity sectors. Arbitrage and relative-value trading limit this separation.</p></div></div>
+- Investors and borrowers prefer particular maturity ranges.
+- Money funds favor short maturities.
+- Banks may favor intermediate maturities.
+- Insurers and pensions often seek long maturities to match liabilities.
+- Sufficient compensation can induce investors to leave their preferred range.
+
+Strong long-maturity demand can lower long yields relative to expectations alone.
+
+## Market segmentation theory
+
+- Supply and demand determine yields within relatively separate maturity sectors.
+- The 2-year sector may reflect policy expectations.
+- The 30-year sector may reflect pension demand, inflation uncertainty, and long-duration supply.
+- **Limitation:** arbitrage and relative-value trading connect the sectors.
+
+## Main influences on the yield curve
+
+| Influence | Main intuition |
+|---|---|
+| Expected future rate changes | Longer investments compete with rolling short investments |
+| Bond risk premiums | Investors demand compensation for duration and other risks |
+| Convexity bias | Nonlinear price sensitivity affects value and required yields |
+
+The observed curve combines these effects.
 
 ## Expectations can reshape the curve
 
@@ -730,11 +788,9 @@ Expected short rates can be unchanged while risk premiums move.
 
 The observed curve combines expectations, risk premiums, and convexity effects.
 
-## A swap exchanges interest payments
+## Swap rate yield curve
 
 <div class="flow"><span><b>Party A</b>Pays fixed 4.50%</span><i>→</i><span><b>\$100m notional</b>Principal is not exchanged</span><i>→</i><span><b>Party B</b>Pays floating compounded SOFR</span></div>
-
-
 
 $$
 \text{Semiannual fixed payment}=\$100m\times4.50\%/2=\$2.25m
@@ -756,13 +812,9 @@ Higher realized SOFR raises A's floating receipt. These illustrative payments as
 
 The par swap rate makes the initial swap value approximately zero. Active trading across maturities makes the curve useful for corporate and structured-product valuation and hedging.
 
-
-
 $$
 \text{Swap spread}=\text{swap rate}-\text{Treasury yield}
 $$
-
-
 
 $$
 4.65\%-4.25\%=0.40\%=40\text{ bp}
@@ -770,13 +822,26 @@ $$
 
 Swap spreads reflect collateralized derivatives, bank balance sheets, reference rates, and relative market conditions.
 
+## From swap rates to a spot curve
+
+- Treasury prices and swap quotes come from different markets.
+- Each can support calibration of discount factors and conversion to zero or spot rates.
+- A quoted **par swap rate** is a fixed coupon rate, not itself a spot rate.
+- In a single-curve teaching model with accrual fractions $\alpha_i$:
+
+$$
+S(T)=\frac{1-D(T)}{\sum_i\alpha_iD(t_i)}
+$$
+
+Collateralized market valuation can use distinct discount and floating-rate projection curves. Their conventions and risks differ from Treasury cash flows.
+
 ## Treasury and swap curves
 
 ![](lec3-11-assets/lec4-fig-swap-curve.svg){.figure}
 
 The swap curve is not identical to the Treasury curve. Many users hedge with swaps, making swap rates a useful benchmark for their cash flows.
 
-## Curve trades isolate the intended exposure
+## Curve strategies: level, slope, and curvature
 
 <div class="flow"><span><b>Level</b>Broad rate move</span><i>→</i><span><b>Slope</b>Short versus long rates</span><i>→</i><span><b>Curvature</b>Belly versus wings</span></div>
 
@@ -792,7 +857,10 @@ Long 2-year notes and short 10-year notes in duration-adjusted amounts.
 | After | 4.10% | 3.95% | −15 bp |
 | Move | −70 bp | −25 bp | +45 bp |
 
-The long short-end position gains more than the long-end short loses.
+- **Position:** long 2Y and short 10Y with equal initial dollar DV01.
+- **Profit:** the slope increases. Here it increases by 45 bp.
+- **Loss:** the slope decreases, before carry and other effects.
+- First-order price P&L is common DV01 times the slope change in bp.
 
 ## Bull steepener: the curve move
 
@@ -808,7 +876,9 @@ Short 30-year bonds and long 5-year notes in duration-adjusted amounts.
 | After | 4.10% | 4.80% | 70 bp |
 | Move | +10 bp | +40 bp | +30 bp |
 
-The long-end short gains more than the 5-year long loses.
+- **Position:** long 5Y and short 30Y with matched dollar DV01.
+- **Profit:** long yields rise more, widening the slope by 30 bp here.
+- **Loss:** the slope narrows. Financing and curve-basis changes can also hurt.
 
 ## Bear steepener: the curve move
 
@@ -818,9 +888,10 @@ The long-end short gains more than the 5-year long loses.
 
 Long 10-year notes; short 2-year notes in duration-adjusted amounts.
 
-The 10-year yield falls **50 bp** and the 2-year yield falls **15 bp**. The long-end gain exceeds the short-end loss.
-
-Declining inflation expectations or demand for duration can motivate this view.
+- **Example:** 10Y falls 50 bp while 2Y falls 15 bp, narrowing the slope by 35 bp.
+- **Profit:** the long-end gain exceeds the short-end loss when dollar DV01s match.
+- **Loss:** the slope steepens, before carry and other effects.
+- Declining inflation expectations or demand for duration can motivate the trade.
 
 ## Bull flattener: the curve move
 
@@ -830,9 +901,10 @@ Declining inflation expectations or demand for duration can motivate this view.
 
 Short 2-year notes; long 10-year notes in duration-adjusted amounts.
 
-The 2-year yield rises **75 bp** and the 10-year yield rises **25 bp**. The short-end gain exceeds the long-end loss.
-
-Expected monetary tightening can motivate this view.
+- **Example:** 2Y rises 75 bp while 10Y rises 25 bp, narrowing the slope by 50 bp.
+- **Profit:** the short-end gain exceeds the long-end loss when dollar DV01s match.
+- **Loss:** the slope steepens, before carry and other effects.
+- Expected monetary tightening can motivate the trade.
 
 ## Bear flattener: the curve move
 
@@ -844,13 +916,25 @@ $$
 \text{Butterfly}=2y_5-y_2-y_{10}
 $$
 
-
-
 $$
 2(4.50\%)-4.00\%-4.30\%=0.70\%
 $$
 
 The 5-year point is high relative to the 2-year and 10-year wings. A trader expecting it to richen buys 5Y and shorts the wings in duration-adjusted amounts.
+
+## Butterfly: position and outcome
+
+- **Position:** long 5Y, short 2Y and 10Y.
+- To track $2y_5-y_2-y_{10}$, allocate dollar DV01 in the ratio $-1:+2:-1$.
+- **Profit:** the belly yield falls relative to the wings, reducing the butterfly.
+- **Loss:** the belly cheapens relative to the wings.
+- In the plotted scenario, yields become 4.05%, 4.15%, and 4.25%.
+
+$$
+2(4.15\%)-4.05\%-4.25\%=0.00\%
+$$
+
+The butterfly falls from 70 bp to zero. Neutrality to a parallel move does not remove every slope or curvature exposure.
 
 ## Butterfly: relative richening of the belly
 
@@ -864,6 +948,25 @@ The 5-year point is high relative to the 2-year and 10-year wings. A trader expe
 
 The 30 bp roll-down can add a price gain. An adverse curve move can overwhelm both carry and roll-down.
 
+## Carry and roll-down: the unchanged-curve example
+
+```{python}
+#| label: slide-roll-down
+#| echo: false
+fig, ax = plt.subplots(figsize=(9, 4.3))
+ax.plot([4, 5], [4.0, 4.3], "o-", color="#214b3e", linewidth=2.5, markersize=9)
+ax.annotate("One year of aging", xy=(4.05, 4.015), xytext=(4.65, 4.2),
+            arrowprops={"arrowstyle": "->", "color": "#936724"}, color="#936724")
+ax.set(xticks=[4, 5], xlabel="Remaining maturity (years)", ylabel="Yield (%)",
+       title="Unchanged curve: 5-year bond becomes a 4-year bond", ylim=(3.95, 4.4))
+ax.grid(alpha=.2)
+fig.tight_layout()
+plt.show()
+```
+
+- **Profit contribution:** coupon income, less financing, plus potential price gain from a 30 bp roll-down.
+- **Loss risk:** higher yields or financing costs can outweigh both benefits.
+
 ## Curve risk controls extend beyond total duration
 
 | Exposure or cost | Control |
@@ -875,27 +978,243 @@ The 30 bp roll-down can add a price gain. An adverse curve move can overwhelm bo
 
 Duration neutrality applies only locally to parallel shifts. Volatility, financing changes, unexpected curve moves, and hedge basis risk can still create losses.
 
-## Broad picture: constructing the pricing curve
+## Broad picture
 
-<div class="flow"><span><b>Observe</b>Full prices and payment schedules</span><i>→</i><span><b>Calibrate</b>Bootstrap or fit discount factors</span><i>→</i><span><b>Convert</b>Express discount factors as spot rates</span></div>
+```{=html}
+<style>
+.lecture-roadmap {
+  --blue-bg: #d9eaf7;
+  --blue-border: #3a6ea5;
+  --red-bg: #f8d7da;
+  --red-border: #b94a48;
+  --yellow-bg: #fff3cd;
+  --yellow-border: #b08a00;
+  --green-bg: #d4edda;
+  --green-border: #4f8a5b;
+  --purple-bg: #d6d8f5;
+  --purple-border: #595daa;
+  --orange-bg: #fce4d6;
+  --orange-border: #b6612e;
+  max-width: 1250px;
+  margin: 1rem auto 1.5rem auto;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #1f2933;
+}
+.lecture-roadmap * { box-sizing: border-box; }
+.lecture-roadmap__title {
+  text-align: center;
+  font-weight: 750;
+  font-size: 1.15rem;
+  margin-bottom: 0.25rem;
+}
+.lecture-roadmap__subtitle {
+  text-align: center;
+  color: #4b5563;
+  font-size: 0.78rem;
+  margin-bottom: 1rem;
+}
+.lecture-roadmap__canvas {
+  display: grid;
+  grid-template-columns: 1fr 0.20fr 1fr 0.20fr 1.8fr;
+  grid-template-rows: auto auto auto auto auto;
+  gap: 0.45rem 0.46rem;
+  align-items: center;
+}
+.lecture-card {
+  border: 1.5px solid;
+  border-radius: 10px;
+  padding: 0.7rem 22px;
+  box-shadow: 0 4px 9px rgba(15, 23, 42, 0.13);
+  min-height: 112px;
+}
+.lecture-card h3 {
+  margin: 0 0 0.35rem 0;
+  font-size: 27px;
+  line-height: 1.12;
+  text-align: center;
+}
+.lecture-card p {
+  margin: 0;
+  font-size: 22px;
+  line-height: 1.27;
+  text-align: center;
+}
+.lecture-card--blue { background: var(--blue-bg); border-color: var(--blue-border); }
+.lecture-card--green { background: var(--green-bg); border-color: var(--green-border); }
+.lecture-card--purple { background: var(--purple-bg); border-color: var(--purple-border); }
+.lecture-card--orange { background: var(--orange-bg); border-color: var(--orange-border); }
+.lecture-card--small { min-height: 78px; padding: 0.52rem 0.6rem; }
+.lecture-cloud {
+  border: 1.4px solid;
+  border-radius: 999px;
+  padding: 0.58rem 22px;
+  min-height: 78px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-shadow: 0 3px 8px rgba(15, 23, 42, 0.10);
+}
+.lecture-cloud h3 {
+  margin: 0 0 0.25rem 0;
+  font-size: 24px;
+  text-align: center;
+  line-height: 1.1;
+}
+.lecture-cloud p {
+  margin: 0;
+  font-size: 20px;
+  line-height: 1.2;
+  text-align: center;
+}
+.lecture-cloud--red { background: var(--red-bg); border-color: var(--red-border); }
+.lecture-cloud--yellow { background: var(--yellow-bg); border-color: var(--yellow-border); }
+.lecture-chip-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.18rem;
+  margin-top: 0.34rem;
+}
+.lecture-chip {
+  border: 1px solid var(--yellow-border);
+  background: #fff8db;
+  border-radius: 999px;
+  padding: 0.1rem 0.18rem;
+  font-size: 17px;
+  text-align: center;
+  white-space: nowrap;
+}
+.lecture-arrow {
+  align-self: center;
+  justify-self: center;
+  color: #374151;
+  font-weight: 800;
+  font-size: 1.28rem;
+  line-height: 1;
+  text-align: center;
+}
+.lecture-arrow span {
+  display: block;
+  margin-top: 0.18rem;
+  font-size: 17px;
+  font-weight: 650;
+  line-height: 1.08;
+  color: #4b5563;
+}
+.lecture-connector {
+  align-self: center;
+  justify-self: center;
+  color: #6b7280;
+  font-weight: 800;
+  font-size: 1.02rem;
+  line-height: 1;
+  text-align: center;
+}
+.lecture-connector span {
+  display: block;
+  font-size: 16px;
+  font-weight: 650;
+  margin-top: 0.06rem;
+}
+.lecture-branch {
+  grid-column: 5;
+  grid-row: 3 / 6;
+  display: grid;
+  grid-template-columns: 1fr 0.18fr 1fr;
+  grid-template-rows: auto auto auto auto;
+  gap: 0.28rem 0.35rem;
+  align-items: stretch;
+}
+.lecture-down-arrow {
+  color: #374151;
+  font-weight: 800;
+  font-size: 1.15rem;
+  text-align: center;
+  line-height: 1;
+}
+.lecture-down-arrow span {
+  display: block;
+  font-size: 16px;
+  color: #4b5563;
+  margin-top: 0.05rem;
+}
+@media (max-width: 780px) {
+  .lecture-roadmap__canvas,
+  .lecture-branch {
+    grid-template-columns: 1fr;
+  }
+  .lecture-branch { grid-column: auto; grid-row: auto; }
+  .lecture-arrow,
+  .lecture-connector { transform: rotate(90deg); margin: 0.2rem 0; }
+  .lecture-arrow span,
+  .lecture-connector span { display: none; }
+}
+</style>
 
-Reprice the inputs and inspect forwards. A supplied par curve is an alternative starting dataset, not a necessary step.
+<div class="lecture-roadmap" role="img" aria-label="Treasury prices and payment schedules determine discount factors and spot rates, which support valuation, par yields, forwards, and risk management.">
 
-## Broad picture: using the pricing curve
+  <div class="lecture-roadmap__canvas">
+    <div class="lecture-card lecture-card--blue" style="grid-column: 1; grid-row: 2;">
+      <h3>1. Observe</h3>
+      <p>Full Treasury prices, coupons, and payment dates at a common settlement date.</p>
+    </div>
 
-| Use of discount factors | Application |
-|---|---|
-| Valuation | Price comparable Treasury cash flows |
-| Par coupons | Solve the coupon for a hypothetical price of 100 |
-| Forward rates | Calculate future-start break-even rates |
-| Risk management | Implement hedges or views with suitable instruments |
+    <div class="lecture-cloud lecture-cloud--red" style="grid-column: 1; grid-row: 3;">
+      <h3>YTM Is a Summary</h3>
+      <p>A YTM is one IRR for a bundle of cash flows, not a one-date discount rate.</p>
+    </div>
 
-Spreads add issuer and security features. Curve trades target level, slope, curvature, carry, and roll-down.
+    <div class="lecture-cloud lecture-cloud--yellow" style="grid-column: 1; grid-row: 4;">
+      <p>Observed Treasury yields are heterogeneous.</p>
+      <div class="lecture-chip-grid">
+        <div class="lecture-chip">coupon</div>
+        <div class="lecture-chip">maturity</div>
+        <div class="lecture-chip">cash-flow</div>
+        <div class="lecture-chip">liquidity</div>
+        <div class="lecture-chip">tax</div>
+        <div class="lecture-chip">financing</div>
+      </div>
+    </div>
 
-## Readings and market resources
+    <div class="lecture-arrow" style="grid-column: 2; grid-row: 2;">&rarr;<span>calibrate</span></div>
 
-Fabozzi, **Chapter 5: Factors Affecting Bond Yields and the Term Structure of Interest Rates**.
+    <div class="lecture-card lecture-card--green" style="grid-column: 3; grid-row: 2;">
+      <h3>2. Discount Factors</h3>
+      <p>Bootstrap or fit payment-date discount factors. Specify interpolation and check input repricing.</p>
+    </div>
 
-- [U.S. Treasury interest-rate statistics](https://home.treasury.gov/resource-center/data-chart-center/interest-rates): observable Treasury curves.
-- [New York Fed term-premium estimates](https://www.newyorkfed.org/research/data_indicators/term-premia-tabs): expectations and premiums.
-- [New York Fed reference rates](https://www.newyorkfed.org/markets/reference-rates): overnight reference-rate publications.
+    <div class="lecture-arrow" style="grid-column: 4; grid-row: 2;">&rarr;<span>convert</span></div>
+
+    <div class="lecture-card lecture-card--purple" style="grid-column: 5; grid-row: 2;">
+      <h3>3. Spot Rate Curve</h3>
+      <p>Express each discount factor as a spot rate under a stated compounding convention.</p>
+    </div>
+
+    <div class="lecture-branch">
+      <div class="lecture-down-arrow" style="grid-column: 1; grid-row: 1;">&#8595;<span>use spots</span></div>
+      <div></div>
+      <div class="lecture-down-arrow" style="grid-column: 3; grid-row: 1;">&#8595;<span>derive</span></div>
+
+      <div class="lecture-card lecture-card--purple lecture-card--small" style="grid-column: 1; grid-row: 2;">
+        <h3>4. Price Cash Flows</h3>
+        <p>Value comparable Treasury cash flows. Derive the coupon that prices a hypothetical bond at par.</p>
+      </div>
+      <div></div>
+      <div class="lecture-card lecture-card--orange lecture-card--small" style="grid-column: 3; grid-row: 2;">
+        <h3>5. Forward Rates</h3>
+        <p>Forward rates describe future start dates and tenors implied by spot rates.</p>
+      </div>
+
+      <div></div>
+      <div></div>
+      <div class="lecture-down-arrow" style="grid-column: 3; grid-row: 3;">&#8595;<span>apply</span></div>
+
+      <div></div>
+      <div></div>
+      <div class="lecture-card lecture-card--orange lecture-card--small" style="grid-column: 1 / 4; grid-row: 4;">
+        <h3>6. Hedge or Trade</h3>
+        <p>Use suitable bonds or derivatives to hedge exposure or express a rate view. Implied forwards are break-even rates.</p>
+      </div>
+    </div>
+  </div>
+</div>
+```

@@ -30,6 +30,7 @@ format:
           overflow-x: auto; overflow-y: hidden; padding-block: .35em; }
         </style>
   pdf:
+    fig-pos: H
     include-in-header:
       text: |
         \newcommand{\ReserveTableSpace}[1]{\par\begingroup\dimen0=\pagegoal\advance\dimen0 by -\pagetotal\ifdim\dimen0<#1\newpage\fi\endgroup}
@@ -52,12 +53,12 @@ contains the full code in folded blocks and interactive scenario controls.
 
 A fixed-income analyst has Treasury prices. **What is today's value of each
 future dollar, and how can those values price a bond outside the input set?**
-This demo follows the Lecture 4 example from payment schedules through curve
+This demo extends Lecture 4 with a different five-year dataset from payment schedules through curve
 construction, valuation, forward rates, and validation.
 
 ## Purpose and assumptions {.unnumbered}
 
-Sections 1–5 use four **illustrative Treasury-like securities**, not market
+Sections 1–5 use ten **illustrative Treasury-like securities**, not market
 quotes. Face value is \$100, settlement is on a coupon date, accrued interest
 is zero, and payments align every six months. Rates are decimal annual nominal
 rates compounded semiannually unless stated otherwise. Default, options, taxes,
@@ -96,7 +97,7 @@ plt.rcParams.update({
     "axes.prop_cycle": cycler(color=["#214b3e", "#936724", "#486d8c", "#865c76"]),
 })
 
-def show_table(frame, decimals=6):
+def show_table(frame, decimals=6, caption=None):
     """Emit a readable Markdown table for HTML and PDF.
 
     Parameters
@@ -105,6 +106,8 @@ def show_table(frame, decimals=6):
         Bounded results with descriptive column labels and units.
     decimals : int
         Display precision only; underlying numerical arrays are unchanged.
+    caption : str, optional
+        Short label kept with the table in the PDF reading copy.
 
     Returns
     -------
@@ -112,41 +115,51 @@ def show_table(frame, decimals=6):
         Displays the formatted table.
     """
     # Reserve enough PDF space for each short table; HTML ignores raw LaTeX.
-    reserve = "```{=latex}\n\\ReserveTableSpace{" + str(len(frame) + 4) + "\\baselineskip}\n```\n\n"
-    display(Markdown(reserve + frame.to_markdown(index=False, floatfmt=f".{decimals}f")))
+    reserve = "```{=latex}\n\\ReserveTableSpace{" + str(len(frame) + (6 if caption else 4)) + "\\baselineskip}\n```\n\n"
+    label = f"**{caption}**\n\n" if caption else ""
+    display(Markdown(reserve + label + frame.to_markdown(index=False, floatfmt=f".{decimals}f")))
 
-times = np.arange(1, 5) / 2
-prices = np.array([98.20, 99.10, 100.30, 101.20])
-coupon_rates = np.array([0.00, 0.03, 0.04, 0.05])
+times = np.arange(1, 11) / 2
+prices = np.array([98.10, 99.55, 100.10, 99.75, 100.35,
+                   101.00, 100.80, 101.35, 102.10, 102.40])
+coupon_rates = np.array([0., 3.50, 4.00, 4.00, 4.25,
+                         4.50, 4.50, 4.75, 5.00, 5.125]) / 100
+n_inputs = len(times)
 coupons = 100 * coupon_rates / 2
 # Coupons fill each row through maturity; principal enters the diagonal.
-cashflows = np.tril(np.broadcast_to(coupons[:, None], (4, 4))).copy()
-cashflows[np.diag_indices(4)] += 100
+cashflows = np.tril(np.broadcast_to(coupons[:, None], (n_inputs, n_inputs))).copy()
+cashflows[np.diag_indices(n_inputs)] += 100
 inputs = pd.DataFrame({
     "Maturity (years)": times, "Coupon (%)": 100 * coupon_rates,
     "Full price": prices,
 })
-show_table(inputs, 2)
-matrix = pd.DataFrame(cashflows, columns=[f"{t:g}Y payment" for t in times])
-matrix.insert(0, "Bond maturity", times)
-show_table(matrix, 2)
+show_table(inputs, 3)
+matrix = pd.DataFrame(cashflows, columns=[f"{t:g}Y" for t in times])
+matrix.insert(0, "Maturity", times)
+def show_cashflow_matrix(frame):
+    """Display all ten payment columns in two readable five-column panels."""
+    for first in (1, 6):
+        show_table(frame.iloc[:, [0] + list(range(first, first+5))], 4,
+                   caption=f"Cash flows at payment dates {first}–{first+4}")
+
+show_cashflow_matrix(matrix)
 ```
 
-The six-month input pays only \$100. The one-year bond pays \$1.50 in six
-months and \$101.50 in one year. We must value each payment at its own date.
+The six-month input pays only \$100. The one-year bond pays \$1.75 in six
+months and \$101.75 in one year. We must value each payment at its own date.
 
 ```{python}
 #| label: fig-bootstrap-payments
 #| fig-cap: "Dated payments in dollars per $100 face value."
-fig, ax = plt.subplots(figsize=(8, 3.6))
+fig, ax = plt.subplots(figsize=(10, 6.5))
 ax.imshow(cashflows, cmap="Greens", aspect="auto", vmin=0, vmax=105)
-for i in range(4):
-    for j in range(4):
+for i in range(n_inputs):
+    for j in range(n_inputs):
         ax.text(j, i, f"{cashflows[i,j]:.2f}", ha="center", va="center",
-                color="white" if cashflows[i,j] > 50 else "#183b32")
-ax.set(xticks=range(4), xticklabels=[f"{t:g} years" for t in times],
-       yticks=range(4), yticklabels=[f"{t:g}Y bond" for t in times],
-       xlabel="Payment date")
+                color="white" if cashflows[i,j] > 50 else "#183b32", fontsize=8)
+ax.set(xticks=range(n_inputs), xticklabels=[f"{t:g}" for t in times],
+       yticks=range(n_inputs), yticklabels=[f"{t:g}Y bond" for t in times],
+       xlabel="Payment date (years)")
 ax.grid(False)
 fig.tight_layout()
 plt.show()
@@ -165,17 +178,26 @@ Subtract the value of the earlier coupons, whose discount factors are known.
 The residual price belongs to the final payment. Dividing by that payment gives
 its discount factor. The recursion needs one new unknown per instrument.
 
-### The first two steps by hand
+### The first three steps by hand
 
 $$
-D(0.5)=98.20/100=0.982,
-\qquad
-D(1)=\frac{99.10-1.50(0.982)}{101.50}=0.961842365.
+D(0.5)=98.10/100=0.981000.
 $$
 
 $$
-z(1)=2[D(1)^{-1/2}-1]=3.928556\%.
+D(1)=\frac{99.55-1.75(0.981000)}{101.75}=0.961506143.
 $$
+
+$$
+D(1.5)=\frac{100.10-2[0.981000+0.961506143]}{102}=0.943284193.
+$$
+
+$$
+z(1)=2[D(1)^{-1/2}-1]=3.964208\%.
+$$
+
+The remaining seven securities use the same recursion through year 5.
+The tables below retain unrounded factors and show every step.
 
 ### The complete calculation trail
 
@@ -295,16 +317,17 @@ show_table(pd.DataFrame({
 Near-zero residuals confirm the recursion. They do not establish that the
 input prices are synchronized, liquid, or economically reasonable.
 
-Now value a two-year **6% coupon bond**, absent from the input file:
+Now value a five-year **5.50% coupon bond**, absent from the input file:
 
 $$
-P_{\mathrm{new}}=3D(0.5)+3D(1)+3D(1.5)+103D(2),
+P_{\mathrm{new}}=2.75\sum_{j=1}^{9}D(j/2)+102.75D(5),
 \qquad V=\frac{\text{face value}}{100}P_{\mathrm{new}}.
 $$
 
 ```{python}
 #| label: bootstrap-new-bond
-new_cashflows = np.array([3., 3., 3., 103.])
+new_cashflows = np.full(n_inputs, 2.75)
+new_cashflows[-1] += 100
 new_pv = new_cashflows * discounts
 new_price = new_pv.sum()
 position_face = 2_000_000
@@ -357,17 +380,17 @@ fig.tight_layout()
 plt.show()
 ```
 
-The two-year par coupon is about **4.3694%**. The input bond pays 5%, so its
-price exceeds 100. The last forward is about **6.1878% annualized** and covers
-1.5 to 2 years. It is a break-even rate, not a forecast.
+The five-year par coupon is about **4.5864%**. The input bond pays 5.125%, so its
+price exceeds 100. The last forward is about **5.6459% annualized** and covers
+4.5 to 5 years. It is a break-even rate, not a forecast.
 
 ### Interactive quote sensitivity
 
-Change only the two-year input price. Every setting rebuilds the curve.
+Change only the five-year input price. Every setting rebuilds the curve.
 Earlier discount factors remain fixed, so this is **not a parallel rate shift**.
 
 ::: {.callout-tip title="Predict, change, explain"}
-Predict what a higher two-year input price does to its discount factor, spot
+Predict what a higher five-year input price does to its discount factor, spot
 rate, final forward rate, and the new bond's value. Move the control, then explain
 why only the final payment's present value changes.
 :::
@@ -388,7 +411,7 @@ for change in np.linspace(-1, 1, 41):
                           curve=(100*z).tolist()))
 widget = """
 <div class="demo-lab">
-<label for="quote-shock">Two-year price change per $100 face</label>
+<label for="quote-shock">Five-year price change per $100 face</label>
 <input id="quote-shock" type="range" min="0" max="40" value="20" step="1">
 <button id="quote-reset" type="button">Reset</button>
 <div id="quote-values" aria-live="polite"></div>
@@ -399,7 +422,8 @@ widget = """
 (() => {
  const data=__DATA__, control=document.getElementById('quote-shock');
  const svg=document.getElementById('quote-chart');
- const x=[90,260,430,600], y=v=>215-(v-3)*100;
+ const tenors=__TENORS__, x=tenors.map((_,i)=>75+i*550/(tenors.length-1));
+ const y=v=>215-(v-3.5)*110;
  function line(values,color,dash) {
   return '<polyline fill="none" stroke="'+color+'" stroke-width="3" '+dash+
    ' points="'+values.map((v,i)=>x[i]+','+y(v)).join(' ')+'"/>'+
@@ -409,15 +433,15 @@ widget = """
   const d=data[Number(control.value)];
   document.getElementById('quote-values').innerHTML=
    '<p>Input: '+d.input.toFixed(2)+' ('+(d.change>=0?'+':'')+d.change.toFixed(2)+
-   '). Discount factor: '+d.df.toFixed(6)+'.</p><p>Two-year spot: '+
+   '). Discount factor: '+d.df.toFixed(6)+'.</p><p>Five-year spot: '+
    d.spot.toFixed(6)+'%. Final forward: '+d.forward.toFixed(6)+
    '%. New bond price: '+d.price.toFixed(6)+'.</p>';
-  svg.innerHTML=[3,3.5,4,4.5,5].map(v=>'<line x1="65" x2="625" y1="'+y(v)+
+  svg.innerHTML=[3.5,4,4.5,5].map(v=>'<line x1="65" x2="625" y1="'+y(v)+
    '" y2="'+y(v)+'" stroke="#ddd"/><text x="12" y="'+(y(v)+5)+'" font-size="14">'+v+'%</text>').join('')+
    line(data[20].curve,'#936724','stroke-dasharray="7 5"')+
    line(d.curve,'#214b3e','')+
    x.map((v,i)=>'<text x="'+v+'" y="244" text-anchor="middle" font-size="14">'+
-   [.5,1,1.5,2][i]+'Y</text>').join('')+
+   tenors[i]+'Y</text>').join('')+
    '<text x="75" y="20" font-size="14">Annual spots: green scenario, dashed brass baseline</text>';
  }
  control.addEventListener('input',update);
@@ -426,7 +450,7 @@ widget = """
 })();
 </script>
 """
-display({"text/html": widget.replace("__DATA__", json.dumps(scenarios)),
+display({"text/html": widget.replace("__DATA__", json.dumps(scenarios)).replace("__TENORS__", json.dumps(times.tolist())),
          "text/latex": ""}, raw=True)
 ```
 
@@ -436,14 +460,14 @@ reference for the PDF reading copy.
 ```{python}
 #| label: bootstrap-sensitivity-table
 show_table(pd.DataFrame([{
-    "Price change": scenarios[i]["change"], "2Y spot (%)": scenarios[i]["spot"],
+    "Price change": scenarios[i]["change"], "5Y spot (%)": scenarios[i]["spot"],
     "Last forward (%)": scenarios[i]["forward"], "New bond price": scenarios[i]["price"]
 } for i in [0, 20, 40]]))
 ```
 
 ## Interpolation and Model Risk
 
-Suppose a claim pays \$100 at 1.25 years. There is no input at that date.
+Suppose a claim pays \$100 at 3.25 years. There is no input at that date.
 Between known dates $a,b$, define $w=(t-a)/(b-a)$:
 
 $$
@@ -500,14 +524,14 @@ def interpolate_discount(payment_times, known_times, known_discounts, method="lo
     raise ValueError("Unknown interpolation method.")
 
 knots, knot_discounts = np.r_[0.,times], np.r_[1.,discounts]
-offgrid_log = interpolate_discount([1.25],knots,knot_discounts)[0]
-offgrid_linear = interpolate_discount([1.25],knots,knot_discounts,"linear")[0]
+offgrid_log = interpolate_discount([3.25],knots,knot_discounts)[0]
+offgrid_linear = interpolate_discount([3.25],knots,knot_discounts,"linear")[0]
 show_table(pd.DataFrame({
     "Method": ["Log-linear","Linear discounts"],
-    "D(1.25)": [offgrid_log,offgrid_linear],
+    "D(3.25)": [offgrid_log,offgrid_linear],
     "PV of 100": [100*offgrid_log,100*offgrid_linear],
 }),8)
-grid = np.linspace(1,1.5,101)
+grid = np.linspace(3,3.5,101)
 difference = 100*(interpolate_discount(grid,knots,knot_discounts,"linear") -
                   interpolate_discount(grid,knots,knot_discounts))
 fig,ax = plt.subplots()
@@ -602,7 +626,7 @@ for scenario in scenarios:
 rejected = 0
 for operation in [
     lambda: bootstrap([100,1],[0,5]),
-    lambda: interpolate_discount([3],knots,knot_discounts),
+    lambda: interpolate_discount([6],knots,knot_discounts),
 ]:
     try:
         operation()
@@ -622,9 +646,9 @@ does not establish market-data quality.
 
 ## Mini Project
 
-Prepare a curve-validation memo for a portfolio manager. Use the four
-illustrative inputs to value a two-year 6% coupon bond with \$2 million face.
-Then raise only the two-year calibration price by \$0.50 and repeat.
+Prepare a curve-validation memo for a portfolio manager. Use the ten
+illustrative inputs to value a five-year 5.50% coupon bond with \$2 million face.
+Then raise only the five-year calibration price by \$0.50 and repeat.
 
 Deliver:
 
@@ -632,7 +656,7 @@ Deliver:
 2. Discount factors, spot rates, par coupons and forwards.
 3. Input repricing errors and payment-by-payment valuation of the new bond.
 4. Base-versus-shocked results, dollar P&L and an explanation.
-5. The 1.25-year \$100 claim under both interpolation rules and limitations
+5. The 3.25-year \$100 claim under both interpolation rules and limitations
    relevant to a live trade.
 
 ```{=html}
@@ -655,8 +679,8 @@ project_value = position_face/100*project_price
 base_value = position_face/100*new_price
 display(Markdown(
     f"**Decision summary.** The baseline bond is worth {new_price:.6f} per 100, "
-    f"or {base_value:,.2f} dollars for 2 million face. Raising the two-year input "
-    f"price from 101.20 to 101.70 raises the position value to "
+    f"or {base_value:,.2f} dollars for 2 million face. Raising the five-year input "
+    f"price from {prices[-1]:.2f} to {project_prices[-1]:.2f} raises the position value to "
     f"{project_value:,.2f} dollars, a gain of {project_value-base_value:,.2f} dollars. "
     "This is an instantaneous quote scenario, not a forecast.\n\n"
     "**Inputs and conventions.** Prices are illustrative full prices per 100. "
@@ -664,8 +688,8 @@ display(Markdown(
     "cash flows share one payment grid. Rate quotes are annual nominal with "
     "semiannual compounding."
 ))
-show_table(inputs,2)
-show_table(matrix,2)
+show_table(inputs,3)
+show_cashflow_matrix(matrix)
 show_table(pd.DataFrame({
     "Years":times,"D(t)":discounts,"Spot (%)":100*spots,
     "Par (%)":100*par,"Forward (%)":100*forwards
@@ -676,18 +700,18 @@ show_table(pd.DataFrame({
     "Years":times,"Payment":new_cashflows,"D(t)":discounts,"PV":new_pv
 }))
 show_table(pd.DataFrame({
-    "Measure":["D(2)","2Y spot (%)","Last forward (%)","New bond price"],
+    "Measure":["D(5)","5Y spot (%)","Last forward (%)","New bond price"],
     "Base":[discounts[-1],100*spots[-1],100*forwards[-1],new_price],
     "Input price +0.50":[project_d[-1],100*project_z[-1],100*project_f[-1],project_price]
 }))
 display(Markdown(
     "**Calculation and interpretation.** Earlier discounts stay fixed. "
-    "The final factor increases by $0.50/102.50=0.004878049$. "
+    f"The final factor increases by $0.50/{100+coupons[-1]:.4f}={.50/(100+coupons[-1]):.9f}$. "
     "Only the new bond's final payment changes in present value: "
-    "$\\Delta P=103(0.50/102.50)=0.502439024$ per 100. "
+    f"$\\Delta P=102.75(0.50/{100+coupons[-1]:.4f})={project_price-new_price:.9f}$ per 100. "
     "Multiply by 20,000 to obtain the position gain. The higher discount factor "
     "corresponds to a lower spot and a lower final forward rate.\n\n"
-    f"**Interpolation.** The 1.25-year claim is worth {100*offgrid_log:.8f} "
+    f"**Interpolation.** The 3.25-year claim is worth {100*offgrid_log:.8f} "
     f"under log-linear interpolation and {100*offgrid_linear:.8f} under linear "
     "discount interpolation. Both reproduce the endpoints. Their difference "
     "is model risk, not evidence of executable arbitrage.\n\n"

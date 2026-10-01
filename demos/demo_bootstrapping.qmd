@@ -142,7 +142,6 @@ def show_cashflow_matrix(frame):
         show_table(frame.iloc[:, [0] + list(range(first, first+5))], 4,
                    caption=f"Cash flows at payment dates {first}–{first+4}")
 
-show_cashflow_matrix(matrix)
 ```
 
 The six-month input pays only \$100. The one-year bond pays \$1.75 in six
@@ -346,8 +345,7 @@ fig.tight_layout()
 plt.show()
 ```
 
-The final payment dominates because it includes principal. This valuation
-assumes cash flows comparable to those underlying the Treasury curve.
+This valuation assumes cash flows comparable to those underlying the Treasury curve.
 Credit risk and embedded options require additional modeling.
 
 ## Derived Par Coupons and Forward Rates
@@ -597,15 +595,10 @@ plt.show()
 The six-month par and spot quotes coincide because there is only one payment.
 At longer maturities, the par coupon generally differs from the terminal spot.
 
-For live implementation, obtain synchronized security-level quotes, schedules,
-accrued interest, settlement and day-count conventions. Convert bill quotes
-correctly. An interpolated point is not a new market observation, and a dated
-snapshot does not represent today's market.
 
 ## Validation Checks
 
-The checks answer separate questions: does the recursion reproduce prices,
-does an independent matrix solution agree, do rate conventions reconcile,
+The checks answer separate questions: does the recursion reproduce prices, do rate conventions reconcile,
 and do hypothetical par bonds return to 100?
 
 ```{python}
@@ -633,16 +626,15 @@ for operation in [
     except ValueError:
         rejected += 1
 assert rejected == 2
-display(Markdown("**All checks passed:** input repricing, independent matrix "
-                 "solution, spot/forward identities, par reconstruction, "
+display(Markdown("**All checks passed:** input repricing, "
+                 "spot/forward identities, par reconstruction, "
                  "all 41 quote scenarios, and both invalid-input tests."))
 ```
 
 Positive discount factors are essential. Decreasing factors hold in this
 positive-rate example but are not universal: negative rates can produce
 increasing factors. Extreme forward jumps warrant investigation of stale
-prices, inconsistent inputs or interpolation. A successful repricing check
-does not establish market-data quality.
+prices, inconsistent inputs or interpolation. 
 
 ## Mini Project
 

@@ -43,10 +43,6 @@ $$
 
 Spreads change with credit conditions, liquidity, risk appetite, and the bond’s features. Match the benchmark to the cash-flow exposure.
 
-## Base rate plus benchmark spread
-
-![](lec3-11-assets/lec4-fig-benchmark-spread.svg){.figure}
-
 ## Issuer type shapes the spread
 
 Sovereigns, agencies, supranationals, municipalities, financials, industrials, utilities, structured finance, and MBS issuers have different risks and protections.
@@ -57,11 +53,11 @@ Sovereigns, agencies, supranationals, municipalities, financials, industrials, u
 | Utility company | 4.95% | 95 bps |
 | High-yield industrial company | 7.25% | 325 bps |
 
-Illustration: 10-year Treasury yield 4.00%. Sovereign backing and liquidity support the Treasury benchmark.
+Illustration: 10-year Treasury yield 4.00%.
 
-## Creditworthiness is forward looking
+## Creditworthiness
 
-| Credit driver | Comparison in the notes |
+| Credit driver | Examples |
 |---|---|
 | Leverage and coverage | High debt/EBITDA versus low; weak versus strong coverage |
 | Earnings and business risk | Cyclical commodity earnings versus stable utilities |
@@ -157,7 +153,6 @@ $$
 0.48\%-0.18\%=30\text{ bp carry advantage}
 $$
 
-This simplified comparison isolates financing economics; actual leveraged returns also depend on price changes and position terms.
 
 ## Maturity creates a term structure
 
@@ -197,9 +192,9 @@ $$
 P=\sum_{t=1}^{n}\frac{CF_t}{(1+y)^t}
 $$
 
-YTM is the internal rate of return for promised cash flows and is usually solved numerically.
-
-Realizing the quoted compounded return requires holding to maturity, receiving all payments on time, and reinvesting coupons at YTM. A coupon-bond YTM summarizes many payment dates.
+- YTM is the internal rate of return for promised cash flows, usually solved numerically.
+- A coupon-bond YTM summarizes many payment dates in one rate.
+- Realizing that compounded return requires holding to maturity, receiving all payments on time, and reinvesting coupons at YTM.
 
 ## Common yield-curve shapes
 
@@ -243,12 +238,11 @@ $$
 
 ## Constructing the theoretical Treasury spot curve
 
-- Full prices: quoted clean prices plus accrued interest
-- Coupon amounts, principal, and exact payment dates
-- A common observation and settlement date
-- Consistent day-count and compounding conventions
-
-A coupon-bond YTM summarizes its payment package. It does not supply a separate discount rate for each coupon.
+- **Goal:** find the value today of $1 paid at each selected future payment date, then express those discount factors as spot rates.
+- **Securities:** use Treasury bills for the short end and Treasury coupon securities across the maturities we want to cover.
+- **Inputs:** use full prices (clean prices plus accrued interest), coupon amounts, principal, and exact payment dates.
+- **Consistency:** use a common observation and settlement date, with consistent day-count and compounding conventions.
+- **Check:** the curve should reproduce the input securities' full prices. Missing payment dates require interpolation or additional securities.
 
 ## Discount factors and spot rates
 
@@ -293,8 +287,16 @@ The six-month instrument pays \$100 once. All other payments fall on the same ha
 
 ## The first two discount factors
 
+**Six-month bill:** its full price equals the present value of its only payment.
+
 $$
-D(0.5)=98.20/100=0.982000
+98.20=100D(0.5)\quad\Rightarrow\quad D(0.5)=\frac{98.20}{100}=0.982000
+$$
+
+**One-year bond:** discount its first coupon and final coupon plus principal separately.
+
+$$
+99.10=1.50D(0.5)+101.50D(1)
 $$
 
 $$
@@ -304,8 +306,6 @@ $$
 $$
 z(1)=2\left[D(1)^{-1/2}-1\right]=3.928556\%
 $$
-
-The one-year bond's first coupon uses the six-month discount factor.
 
 ## The next two discount factors
 
@@ -485,7 +485,7 @@ $z_t$ is the Treasury spot for payment date $t$; $s$ is a constant spread over t
 
 This respects cash-flow timing more closely than subtracting one Treasury YTM from the bond’s YTM.
 
-## Spot rates as base rates: Treasury value
+## Spot rates as base rates: adding a credit spread
 
 Corporate promised payments: \$5 in year 1 and \$105 in year 2. Treasury spots: 3.00% and 3.50%.
 
@@ -495,7 +495,7 @@ $$
 
 This is the value of those payments discounted at Treasury base rates.
 
-## Adding 120 bp to the same payment dates
+Add a constant **120 bp spread** to the same payment-date rates:
 
 $$
 3.00\%+1.20\%=4.20\%,\qquad3.50\%+1.20\%=4.70\%
@@ -508,7 +508,16 @@ $$
 
 ## Forward rates connect two investment routes
 
-<div class="flow"><span><b>Two-year route</b>Invest now at the two-year spot</span><i>→</i><span><b>Rollover route</b>Invest one year, then lock the forward</span><i>→</i><span><b>No arbitrage</b>Both routes end with the same value</span></div>
+<div style="display:grid;grid-template-columns:1.5fr .12fr 1fr;align-items:center;gap:20px;font-size:.8em">
+<div><p><strong>Two-year route:</strong> invest now at the two-year spot.</p><p><strong>Rollover route:</strong> invest one year, then reinvest at the forward rate locked today.</p></div>
+<div style="font-size:5em;font-family:serif;font-weight:normal">}</div>
+<div><strong>No arbitrage</strong><br>Both routes must end with the same value.</div>
+</div>
+
+<svg viewBox="0 0 1100 210" role="img" aria-label="Two-year spot investment spans years zero to two. Rollover invests at the one-year spot from zero to one and the locked forward from one to two." style="display:block;width:85%;height:195px;margin:auto">
+<g fill="none" stroke="#214b3e" stroke-width="3"><path d="M100 65 H1000 M100 55 V75 M550 55 V75 M1000 55 V75"/><path d="M100 130 V145 H1000 V130"/><path d="M100 190 V175 H550 V190 M550 190 V175 H1000 V190"/></g>
+<g fill="#183b32" font-size="25" text-anchor="middle"><text x="100" y="40">Year 0</text><text x="550" y="40">Year 1</text><text x="1000" y="40">Year 2</text><text x="550" y="118">Two-year spot: 0 to 2</text><text x="325" y="208">One-year spot: 0 to 1</text><text x="775" y="208">Locked forward: 1 to 2</text></g>
+</svg>
 
 $$
 (1+z_2)^2=(1+z_1)(1+f_{1,2})
@@ -539,8 +548,6 @@ Now use $z_1=4\%$ and $z_2=5\%$. The fair forward is 6.01%. Suppose the market f
 $$
 \text{Owed}=100(1.05)^2=110.25
 $$
-
-## Arbitrage cash flows at the common end date
 
 $$
 \text{Investment}=100(1.04)(1.07)=111.28
@@ -691,6 +698,11 @@ $$
 
 This locks a two-year rate beginning three years from now.
 
+<svg viewBox="0 0 1100 200" role="img" aria-label="Five-year spot investment from zero to five equals three-year spot investment from zero to three followed by the two-year forward from three to five." style="display:block;width:85%;height:180px;margin:auto">
+<g fill="none" stroke="#214b3e" stroke-width="3"><path d="M100 55 H1000 M100 45 V65 M640 45 V65 M1000 45 V65"/><path d="M100 115 V130 H1000 V115 M100 175 V160 H640 V175 M640 175 V160 H1000 V175"/></g>
+<g fill="#183b32" font-size="25" text-anchor="middle"><text x="100" y="30">Year 0</text><text x="640" y="30">Year 3</text><text x="1000" y="30">Year 5</text><text x="550" y="105">Five-year spot: 4.60%</text><text x="370" y="195">Three-year spot: 4.00%</text><text x="820" y="195">Two-year forward: 5.51%</text></g>
+</svg>
+
 ## A forward rate is a hedgeable break-even rate
 
 Forward rates can differ from realized future rates because of risk premiums, liquidity, and changing economic conditions.
@@ -821,19 +833,6 @@ $$
 
 Swap spreads reflect collateralized derivatives, bank balance sheets, reference rates, and relative market conditions.
 
-## From swap rates to a spot curve
-
-- Treasury prices and swap quotes come from different markets.
-- Each can support calibration of discount factors and conversion to zero or spot rates.
-- A quoted **par swap rate** is a fixed coupon rate, not itself a spot rate.
-- In a single-curve teaching model with accrual fractions $\alpha_i$:
-
-$$
-S(T)=\frac{1-D(T)}{\sum_i\alpha_iD(t_i)}
-$$
-
-Collateralized market valuation can use distinct discount and floating-rate projection curves. Their conventions and risks differ from Treasury cash flows.
-
 ## Treasury and swap curves
 
 ![](lec3-11-assets/lec4-fig-swap-curve.svg){.figure}
@@ -844,7 +843,8 @@ The swap curve is not identical to the Treasury curve. Many users hedge with swa
 
 <div class="flow"><span><b>Level</b>Broad rate move</span><i>→</i><span><b>Slope</b>Short versus long rates</span><i>→</i><span><b>Curvature</b>Belly versus wings</span></div>
 
-Use bonds, futures, or swaps. Duration-adjusted positions aim to reduce unintended parallel-shift exposure.
+- Express views on level, slope, or curvature using **bonds, futures, or swaps**.
+- Use **duration-adjusted positions** to reduce unintended parallel-shift exposure.
 
 ## Bull steepener: short rates fall more
 
@@ -944,24 +944,6 @@ The butterfly falls from 70 bp to zero. Neutrality to a parallel move does not r
 <div class="comparison"><div><h3>Carry</h3><p>Coupon income less financing cost from holding the position.</p></div><div><h3>Roll-down</h3><p>Price effect as the bond ages to a shorter maturity on an unchanged curve.</p></div></div>
 
 <div class="cash-timeline" data-times='["Buy 5Y bond", "Hold one year", "Now a 4Y bond"]' data-flows='["Yield 4.30%", "Coupon income", "Curve yield 4.00%"]'></div>
-
-The 30 bp roll-down can add a price gain. An adverse curve move can overwhelm both carry and roll-down.
-
-## Carry and roll-down: the unchanged-curve example
-
-```{python}
-#| label: slide-roll-down
-#| echo: false
-fig, ax = plt.subplots(figsize=(9, 4.3))
-ax.plot([4, 5], [4.0, 4.3], "o-", color="#214b3e", linewidth=2.5, markersize=9)
-ax.annotate("One year of aging", xy=(4.05, 4.015), xytext=(4.65, 4.2),
-            arrowprops={"arrowstyle": "->", "color": "#936724"}, color="#936724")
-ax.set(xticks=[4, 5], xlabel="Remaining maturity (years)", ylabel="Yield (%)",
-       title="Unchanged curve: 5-year bond becomes a 4-year bond", ylim=(3.95, 4.4))
-ax.grid(alpha=.2)
-fig.tight_layout()
-plt.show()
-```
 
 - **Profit contribution:** coupon income, less financing, plus potential price gain from a 30 bp roll-down.
 - **Loss risk:** higher yields or financing costs can outweigh both benefits.

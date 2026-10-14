@@ -3,12 +3,22 @@ title: "Lecture 6: Bond Portfolio Construction"
 subtitle: "Tracking error, cell matching, and factor-based risk control"
 format:
   revealjs:
-    css: [lec3-11-slides.css, lec5-11-layout.css]
+    css: [lec3-11-slides.css, lec6-tools.css]
     html-math-method: mathml
     include-in-header:
       text: |
-        <script src="lec3-11-visuals.js" defer></script>
+        <script src="lec6-tools.js" defer></script>
 ---
+
+## Today’s portfolio-construction workflow
+
+<div class="flow"><span><b>Measure</b>Return, covariance, tracking error</span><i>→</i><span><b>Match</b>Cells and factor exposures</span><i>→</i><span><b>Construct</b>Constraints, trades, costs</span><i>→</i><span><b>Rebalance</b>Monitor drift and stress outcomes</span></div>
+
+Use the notes’ worked examples first, then build the **$50 million demo portfolio**.
+
+::: {.notes}
+This is a complete teaching deck, not a fixed-duration script. Pause at the interactive examples; use the demo as the applied capstone. All figures and inputs are illustrative course examples, not current market data.
+:::
 
 ## Start with the investor’s objective
 
@@ -222,6 +232,10 @@ $$
 
 ```
 
+::: {.notes}
+At 50/50 weights compare correlations +1, 0 and −1. At correlation −1 move the weight away from 50%: risk returns. The zero-risk case assumes equal fixed volatilities and perfect negative correlation, not an attainable bond-market hedge.
+:::
+
 ## The efficient frontier selects better combinations
 
 ![](lec3-11-assets/lec6-fig-efficient-frontier.svg){.figure}
@@ -367,6 +381,19 @@ $$
 
 
 
+
+## Explore the mean and dispersion separately
+
+<div id="lec6-historical" class="lec6-lab" data-tool="historical">
+<div class="lec6-controls"></div>
+<div class="lec6-results" role="status" aria-live="polite"></div>
+<svg role="img" aria-label="Explore the mean and dispersion separately"></svg>
+<p class="lec6-hint"></p>
+</div>
+
+::: {.notes}
+Start with the six-month mandate. Add 50 bp to every month: mean rises but TE does not. Choose constant +10 bp to show zero TE. Compare Portfolios A and B, then double deviations. Annualization assumes uncorrelated monthly observations.
+:::
 
 ## Historical and predicted tracking error answer different questions
 
@@ -540,6 +567,19 @@ Small reported differences suggest close matching, but covariance and concentrat
 
 The +2 percentage-point BBB allocation is funded by −2 points in Treasuries. Preserve duration, maturity distribution, diversification, low turnover, and realistic costs.
 
+## Change a cell tilt; reveal issuer concentration
+
+<div id="lec6-cells" class="lec6-lab" data-tool="cells">
+<div class="lec6-controls"></div>
+<div class="lec6-results" role="status" aria-live="polite"></div>
+<svg role="img" aria-label="Change a cell tilt; reveal issuer concentration"></svg>
+<p class="lec6-hint"></p>
+</div>
+
+::: {.notes}
+Use the 72-cell example: move two percentage points from the Treasury cell to BBB credit. Then separately change issuer count in a 20% cell from 4 to 40; concentration drops from 5% to 0.5% per issuer without changing the cell weight.
+:::
+
 ## Multi-factor models replace millions of pairwise estimates
 
 <div class="flow"><span><b>Rates</b>Level, slope, curvature, key rates</span><i>→</i><span><b>Spreads</b>Swap, corporate rating/sector, securitized</span><i>→</i><span><b>Other risk</b>Volatility, currency, residuals</span></div>
@@ -673,7 +713,7 @@ $$
 | Correlation | Combined TE, bp/month |
 |---:|---:|
 | 0 | 12.35 |
-| +0.50 | 14.73 |
+| +0.50 | 14.75 |
 | −0.50 | 9.37 |
 
 ## Correlation changes the combined risk
@@ -681,6 +721,19 @@ $$
 ![](lec3-11-assets/lec6-fig-correlation-effect.svg){.figure}
 
 Use correlations of signed factor return contributions consistently; isolated TE itself discards the sign of exposure.
+
+## Explore two-factor covariance
+
+<div id="lec6-correlation" class="lec6-lab" data-tool="correlation">
+<div class="lec6-controls"></div>
+<div class="lec6-results" role="status" aria-live="polite"></div>
+<svg role="img" aria-label="Explore two-factor covariance"></svg>
+<p class="lec6-hint"></p>
+</div>
+
+::: {.notes}
+Check rho 0, +0.5 and −0.5 against the worked example. At +1 TE is 16.8 bp; at −1 it is 4.8 bp. Isolated risks are unchanged.
+:::
 
 ## Step 4: add idiosyncratic variance separately
 
@@ -691,7 +744,7 @@ $$
 
 
 $$
-\sqrt{14.23^2+8.0^2}=16.33\text{ bp/month}
+\sqrt{14.23^2+8.0^2}=16.32\text{ bp/month}
 $$
 
 The model assumes independent systematic and idiosyncratic components. Matching sectors and duration does not remove issuer concentration.
@@ -705,6 +758,19 @@ $$
 ![](lec3-11-assets/lec6-fig-systematic-idio-risk.svg){.figure}
 
 The components add in variance terms. Their standard deviations do not add.
+
+## Change signed exposures and predicted risk
+
+<div id="lec6-factor" class="lec6-lab" data-tool="factor">
+<div class="lec6-controls"></div>
+<div class="lec6-results" role="status" aria-live="polite"></div>
+<svg role="img" aria-label="Change signed exposures and predicted risk"></svg>
+<p class="lec6-hint"></p>
+</div>
+
+::: {.notes}
+Default settings reproduce the five-factor example plus 8 bp residual risk. Raise IG spread duration, change the correlation, then flip its sign. Other three factors are independent; use this valid block covariance model rather than applying one correlation to every pair.
+:::
 
 ## Step 5: scenario returns retain direction
 
@@ -726,6 +792,19 @@ $$
 ![](lec3-11-assets/lec6-fig-scenario-active-return.svg){.figure}
 
 Rate rises and spread widening hurt the long exposures. Underweight securitized spread risk helps. Isolated TE shows size; scenarios show direction.
+
+## Stress the five active factor bets
+
+<div id="lec6-scenario" class="lec6-lab" data-tool="scenario">
+<div class="lec6-controls"></div>
+<div class="lec6-results" role="status" aria-live="polite"></div>
+<svg role="img" aria-label="Stress the five active factor bets"></svg>
+<p class="lec6-hint"></p>
+</div>
+
+::: {.notes}
+The default shocks reproduce −24.75 bp. Reverse credit widening into tightening and compare the signed effect. This is a first-order teaching model with distinct factor shocks, not a second overlapping level/key-rate representation of the same move.
+:::
 
 ## Step 6: equal duration can hide curve-shape risk
 
@@ -752,6 +831,19 @@ $$
 $$
 
 This is before smaller 5Y and 30Y effects. Duration matching would miss the loss.
+
+## Twist the curve with matched total duration
+
+<div id="lec6-curve" class="lec6-lab" data-tool="curve">
+<div class="lec6-controls"></div>
+<div class="lec6-results" role="status" aria-live="polite"></div>
+<svg role="img" aria-label="Twist the curve with matched total duration"></svg>
+<p class="lec6-hint"></p>
+</div>
+
+::: {.notes}
+Default shocks reproduce the notes’ −22 bp. Set all four shocks to +40 bp to recover zero first-order active return, then change only the 10-year node. This comparison explains why a total-duration constraint cannot substitute for key-rate controls.
+:::
 
 ## Step 7: turn decomposition into action
 
@@ -865,7 +957,7 @@ $$
 \sum_iw_iD_i\approx5.0,\qquad\sum_iw_iSD_i\approx3.0
 $$
 
-The stated weights are a feasible illustration, not output from a full industrial optimizer.
+The stated weights satisfy the budget and sector limits. Duration and spread-duration targets are approximate; these weights are an illustration rather than an optimizer solution.
 
 ## Compute the chosen portfolio’s exposures
 
@@ -879,13 +971,26 @@ $$
 SD_p=.25(0)+.15(0)+.25(3.2)+.20(5.4)+.15(5.8)=2.75
 $$
 
-Weighted yield **5.02%**; Treasury weight **40%**; corporate weight **35%**. Targets are approximate; real constraints also include lot sizes, costs, taxes, and predicted TE.
+Weighted yield proxy **5.02%**; Treasury weight **40%**; corporate weight **35%**. Targets are approximate; real constraints also include lot sizes, costs, taxes, and predicted TE.
 
 ## Compare achieved and desired exposures
 
 ![](lec3-11-assets/lec6-fig-toy-portfolio-exposures.svg){.figure}
 
 Yield is in percent; duration measures are in years. Portfolio construction combines weights to approach several targets together.
+
+## Choose weights in the five-bond universe
+
+<div id="lec6-toy" class="lec6-lab" data-tool="toy">
+<div class="lec6-controls"></div>
+<div class="lec6-results" role="status" aria-live="polite"></div>
+<svg role="img" aria-label="Choose weights in the five-bond universe"></svg>
+<p class="lec6-hint"></p>
+</div>
+
+::: {.notes}
+Start at the notes’ 25/15/25/20/15 allocation. Shift 5 points from 10Y Treasury to 5Y Treasury: duration falls by 0.18 years with no spread-duration change. Change corporate weights, keeping total investment at 100%; the tool rejects invalid totals rather than normalizing silently.
+:::
 
 ## Read optimizer output as a diagnostic report
 
@@ -947,6 +1052,185 @@ A ratio above one breaches the limit. The after-trade portfolio retains a corpor
 ![](lec3-11-assets/lec6-fig-rebalance-frontier.svg){.figure}
 
 Illustrative source curves: early trades remove the largest unwanted risks; later trades add cost for smaller TE reductions.
+
+## Explore the cost of additional trades
+
+<div id="lec6-rebalance" class="lec6-lab" data-tool="rebalance">
+<div class="lec6-controls"></div>
+<div class="lec6-results" role="status" aria-live="polite"></div>
+<svg role="img" aria-label="Explore the cost of additional trades"></svg>
+<p class="lec6-hint"></p>
+</div>
+
+::: {.notes}
+Compare 0, 5, 10 and 20 trades. The initial trades achieve the largest incremental reduction. Ask whether the last five trades justify their extra cost. Monthly TE is dispersion, not an expected loss or cash flow, so avoid a payback calculation.
+:::
+
+## Applied demo: invest $50 million near a benchmark
+
+**Decision:** compare current holdings, a cell sample, and a constrained active portfolio.
+
+| Mandate | Limit |
+|---|---:|
+| Budget / shorts | Fully invested / long-only |
+| Security cap | 18% |
+| Treasury minimum | 25% |
+| Corporate maximum | 45% |
+| Absolute duration gap | ≤0.05 years |
+
+Illustrative 12-bond universe. Factor volatilities and predicted TE are **annualized** in this demo; the earlier notes’ risk examples use monthly TE.
+
+::: {.notes}
+The benchmark has 48% corporates and need not satisfy the client portfolio’s 45% cap. The current portfolio has 52% corporates, so rebalance is needed. These are the existing demo inputs and solution, not a new optimization model.
+:::
+
+## A holding creates dollar sensitivity
+
+Put **10% of $50m** into the UST 5Y with duration **4.45**.
+
+$$MV=0.10(50{,}000{,}000)=\$5{,}000{,}000$$
+
+$$DV01=MV\times D\times10^{-4}=\$2{,}225/\text{bp}$$
+
+$$\text{Contribution to portfolio duration}=0.10(4.45)=0.445\text{ years}$$
+
+Dollar sensitivity adds across holdings; individual durations first need portfolio weights.
+
+## Cell sampling can breach a security cap
+
+| Cell | Representative | Weight |
+|---|---|---:|
+| Gov 1–4 | UST 2Y | 19% |
+| Gov 5–8 | UST 5Y | 23% |
+| Gov 9+ | UST 10Y | 10% |
+| Corp 1–4 | Bank A 3Y | 7% |
+| Corp 5–8 | Bank B 5Y | 29% |
+| Corp 9+ | Industrial A 10Y | 12% |
+
+The sample matches broad cell weights but **three positions exceed 18%**. Government cells combine Treasury and agency bonds; the sample replaces agencies with Treasuries.
+
+## The demo optimizer balances risk, carry, and implementation
+
+$$\min_w\;TE^2+0.002\sum_i(w_i-w_i^{current})^2
++0.20\sum_i c_i|w_i-w_i^{current}|-0.0015w'y$$
+
+- Risk uses three key-rate exposures, spread duration, and specific risk.
+- The covariance matrix retains factor correlations.
+- Turnover, transaction costs, and carry use fixed teaching coefficients.
+- The optimizer enforces the mandate; carry is a weighted yield proxy.
+
+::: {.notes}
+The risk model’s spread-duration factor applies across non-Treasury bonds; scenario agency spread shocks are separately scaled to one quarter of corporate spread shocks. The model and scenarios answer different questions. Cost is applied to absolute buys and sells, while one-way turnover divides by two.
+:::
+
+## Compare risk and concentration before carry
+
+| Portfolio | Duration (years) | Corporate % | Largest position % | Annual TE (bp) |
+|---|---|---|---|---|
+| Benchmark | 4.842 | 48.00 | 13.00 | 0.00 |
+| Current | 4.610 | 52.00 | 12.00 | 24.69 |
+| Cell sampled | 4.495 | 48.00 | 29.00 | 69.42 |
+| Optimized | 4.792 | 45.00 | 12.42 | 10.37 |
+
+The constrained target passes all limits. The cell sample is a diagnostic starting point, not an admissible portfolio.
+
+## Implementation uses the same current holdings
+
+| Portfolio | Weighted yield proxy % | One-way turnover % | Cost ($) |
+|---|---|---|---|
+| Benchmark | 4.944 | 11.00 | 7,250 |
+| Current | 4.962 | 0.00 | 0 |
+| Cell sampled | 4.831 | 48.00 | 30,750 |
+| Optimized | 4.915 | 7.00 | 3,462 |
+
+Costs compare alternative trade plans from current holdings. Benchmark weights are a comparison portfolio, not an instruction to trade.
+
+## Target weights become dollar trades: 1/2
+
+| Bond | Current % | Target % | Trade ($m) |
+|---|---|---|---|
+| UST 2Y | 12.00 | 12.42 | 0.208 |
+| UST 5Y | 10.00 | 11.36 | 0.680 |
+| UST 10Y | 8.00 | 11.03 | 1.515 |
+| Agency 3Y | 10.00 | 10.38 | 0.190 |
+| Agency 7Y | 8.00 | 9.81 | 0.907 |
+| Bank A 3Y | 8.00 | 4.34 | -1.830 |
+
+Positive = buy; negative = sell. These are market values, not face amounts. Buys and sells reconcile before transaction costs.
+
+## Target weights become dollar trades: 2/2
+
+| Bond | Current % | Target % | Trade ($m) |
+|---|---|---|---|
+| Bank B 5Y | 10.00 | 8.13 | -0.936 |
+| Utility A 7Y | 7.00 | 7.00 | -0.000 |
+| Industrial A 10Y | 5.00 | 5.00 | -0.000 |
+| Industrial B 5Y | 8.00 | 6.53 | -0.735 |
+| Telecom A 10Y | 4.00 | 4.00 | -0.000 |
+| Consumer A 7Y | 10.00 | 10.00 | -0.000 |
+
+Positive = buy; negative = sell. These are market values, not face amounts. Buys and sells reconcile before transaction costs.
+
+## Stress the decision before approving trades
+
+| Scenario | Current ($m) | Cell sample ($m) | Optimized ($m) |
+|---|---|---|---|
+| Parallel rates +50 bp | -1.134 | -1.106 | -1.179 |
+| Bear steepener | -1.411 | -1.375 | -1.482 |
+| Bull flattener | 1.535 | 1.508 | 1.624 |
+| Credit selloff | -1.326 | -1.121 | -1.225 |
+
+Parallel shocks include convexity. Curve twists use first-order key-rate exposures; no cross-key-rate convexity matrix is supplied. Scenarios exclude carry and trading costs.
+
+## Explore the demo’s rate and spread shocks
+
+<div id="lec6-demo" class="lec6-lab" data-tool="demo">
+<div class="lec6-controls"></div><div class="lec6-results" role="status" aria-live="polite"></div>
+<svg role="img" aria-label="Explore the demo’s rate and spread shocks"></svg><p class="lec6-hint"></p></div>
+
+## Compare portfolios in a corporate spread selloff
+
+<div id="lec6-demo-credit" class="lec6-lab" data-tool="demo-credit">
+<div class="lec6-controls"></div><div class="lec6-results" role="status" aria-live="polite"></div>
+<svg role="img" aria-label="Compare portfolios in a corporate spread selloff"></svg><p class="lec6-hint"></p></div>
+
+## Revised mandate: cut the corporate cap to 35%
+
+Keep the same current holdings, benchmark, universe, model, costs, and objective. Only the corporate cap changes.
+
+1. Predict how Treasury weights, carry, and active risk may change.
+2. Compare two independently optimized targets from the same starting holdings.
+3. Check every constraint and compare stress outcomes after implementation cost.
+
+::: {.notes}
+Pause for student predictions, then switch the interactive tools to 35% cap. The former 45% target is no longer permissible. Lower credit exposure may increase tracking error relative to a 48% corporate benchmark.
+:::
+
+## The revised solution exposes the tradeoff
+
+| Cap | Corporate % | Treasury % | Duration | Annual TE (bp) | Cost ($) |
+|---|---|---|---|---|---|
+| 45% cap | 45.00 | 34.80 | 4.792 | 10.37 | 3,462 |
+| 35% cap | 35.00 | 39.19 | 4.792 | 19.47 | 8,915 |
+
+Use the **35% target** under the revised mandate. Lower credit-selloff loss does not establish higher expected profit; scenarios have no assigned probabilities.
+
+## Hand the target to the trading desk
+
+- Verify executable prices, accrued interest, issuer aggregation, and liquidity.
+- Convert market-value trades into face amounts and round to feasible lots.
+- Recheck constraints after rounding and reserve cash if fees must fit inside $50m.
+- Deduct implementation costs from stress P&L when comparing net scenarios.
+
+[Open the full Lecture 6 demo](../demos/demo_bond_portfolio_construction.html) for the universe, calculation code, and worked mini-project solution.
+
+::: {.notes}
+This link points to the published demo when viewing docs/slides/lec6-slides.html. All interactive controls in this deck run locally and do not require the demo page or a live feed.
+:::
+
+```{=html}
+<script type="application/json" id="lec6-demo-data">{"value":50000000,"portfolios":{"Benchmark":{"weights":[0.1,0.13,0.1,0.09,0.1,0.07,0.09,0.08,0.07,0.07,0.05,0.05],"duration":4.8419,"convexity":31.455000000000002,"spread":2.5671500000000003,"corporate":48.0,"te":0.0,"yield":4.944500000000001,"cost":7250.0,"krd":[0.7225,2.2723,1.8471]},"Current":{"weights":[0.12,0.1,0.08,0.1,0.08,0.08,0.1,0.07,0.05,0.08,0.04,0.1],"duration":4.6096,"convexity":28.776000000000003,"spread":2.6525999999999996,"corporate":52.0,"te":24.687934670198725,"yield":4.962,"cost":0.0,"krd":[0.802,2.2351,1.5725]},"Cell sampled":{"weights":[0.19,0.23,0.1,0.0,0.0,0.07,0.29000000000000004,0.0,0.12000000000000001,0.0,0.0,0.0],"duration":4.4947,"convexity":27.932000000000006,"spread":2.2425,"corporate":48.00000000000001,"te":69.41946011832705,"yield":4.830699999999999,"cost":30750.0,"krd":[0.7050000000000001,2.1697,1.62]},"Optimized":{"weights":[0.12415552892870697,0.11360177335397083,0.11029128794294182,0.10380314641250794,0.09814826336187259,0.043406475111515345,0.08128479496486339,0.06999986856028102,0.04999999771334698,0.06530928543193522,0.03999992771723478,0.09999965050082323],"duration":4.791900000000054,"convexity":31.023685114190343,"spread":2.4497293897432297,"corporate":44.99999999999999,"te":10.366462983049509,"yield":4.915398681539136,"cost":3462.413569907656,"krd":[0.7323508114148852,2.2781329490245814,1.7814162395605881]},"35% cap":{"weights":[0.14256144144893365,0.129030073103982,0.12029669556622592,0.12898985544842775,0.12912193443243067,0.01915515699008263,0.060363016257830644,0.05296145416780871,0.0499999522226036,0.044117243428509804,0.039999997518688976,0.08340317941447561],"duration":4.79190000000035,"convexity":31.33297948675697,"spread":2.0949560391785558,"corporate":35.0,"te":19.474096929711237,"yield":4.826114045466472,"cost":8914.9831805085,"krd":[0.7542933670371541,2.223054373614975,1.8145522593482224]}}}</script>
+```
 
 ## Portfolio construction connects risk to implementable choices
 

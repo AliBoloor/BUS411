@@ -102,7 +102,7 @@ import json
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from scipy.optimize import linprog, minimize
+from scipy.optimize import linprog, minimize, brentq
 from IPython.display import Markdown, HTML, display
 plt.rcParams.update({"figure.figsize":(7.3,3.9),"axes.spines.top":False,
                      "axes.spines.right":False,"axes.grid":True,"grid.alpha":.2,
@@ -115,7 +115,7 @@ def show_table(frame, decimals=3):
 #| label: universe-and-mandate
 import numpy as np
 import pandas as pd
-from scipy.optimize import linprog, minimize
+from scipy.optimize import linprog, minimize, brentq
 budget = 50_000_000.0
 position_cap = .18
 treasury_minimum = .25
@@ -130,27 +130,44 @@ universe = pd.DataFrame({
     "Sector": ["Treasury", "Treasury", "Treasury", "Agency", "Agency",
                "Corporate", "Corporate", "Corporate", "Corporate",
                "Corporate", "Corporate", "Corporate"],
-    "Cell": ["Gov 1-4", "Gov 5-8", "Gov 9+", "Gov 1-4", "Gov 5-8",
-             "Corp 1-4", "Corp 5-8", "Corp 5-8", "Corp 9+",
-             "Corp 5-8", "Corp 9+", "Corp 5-8"],
-    "Yield": [0.0415, 0.0435, 0.0455, 0.0442, 0.0470, 0.0505,
+    "Coupon rate": [0.0415, 0.0435, 0.0455, 0.0442, 0.0470, 0.0505,
               0.0528, 0.0555, 0.0585, 0.0540, 0.0600, 0.0562],
     "Spread (bp)": [0, 0, 0, 38, 55, 92, 112, 138, 165, 125, 182, 148],
-    "Duration": [1.88, 4.45, 7.85, 2.72, 5.82, 2.65, 4.35, 5.65,
-                 7.35, 4.18, 7.10, 5.45],
-    "Convexity": [4.8, 23.5, 72.0, 9.0, 39.5, 8.5, 22.0, 37.0,
-                  62.0, 20.5, 58.0, 35.0],
-    "Spread duration": [0, 0, 0, 2.60, 5.65, 2.55, 4.20, 5.45,
-                        7.05, 4.02, 6.75, 5.25],
-    "KRD 2": [1.70, 0.35, 0.05, 2.30, 0.25, 2.20, 0.45, 0.20, 0.10, 0.50, 0.10, 0.25],
-    "KRD 5": [0.18, 3.75, 1.20, 0.42, 4.30, 0.45, 3.35, 3.80, 1.25, 3.10, 1.10, 3.65],
-    "KRD 10": [0.00, 0.35, 6.60, 0.00, 1.27, 0.00, 0.55, 1.65, 6.00, 0.58, 5.90, 1.55],
     "Trading cost (bp)": [1, 2, 3, 3, 5, 6, 7, 9, 12, 8, 14, 10],
     "Benchmark weight": [0.10, 0.13, 0.10, 0.09, 0.10, 0.07,
                          0.09, 0.08, 0.07, 0.07, 0.05, 0.05],
 })
 universe['Maturity (years)'] = [2,5,10,3,7,3,5,7,10,5,10,7]
 universe['Cell'] = universe['Sector'] + ' / ' + pd.cut(universe['Maturity (years)'],[0,4,8,np.inf],labels=['0-4Y','4-8Y','8Y+'],right=True).astype(str)
+# Curve quotes and coupons are annualized, with semiannual compounding/payments.
+node_times = np.array([2., 5., 10.])
+node_zero_rates = np.array([.0415, .0435, .0455])
+payment_times = np.arange(1, 2 * int(universe['Maturity (years)'].max()) + 1) / 2
+maturities = universe['Maturity (years)'].to_numpy()
+coupon_rates = universe['Coupon rate'].to_numpy()
+cashflows = np.where(payment_times[None, :] <= maturities[:, None],
+                     100 * coupon_rates[:, None] / 2, 0.)
+cashflows += 100 * (payment_times[None, :] == maturities[:, None])
+# Unit node bumps interpolate linearly; the 2Y bump is flat before 2Y.
+key_basis = np.column_stack([np.interp(payment_times, node_times, np.eye(3)[k])
+                             for k in range(3)])
+treasury_zeros = np.interp(payment_times, node_times, node_zero_rates)
+base_rates = treasury_zeros[None, :] + universe['Spread (bp)'].to_numpy()[:, None] / 10000
+pv_cashflows = cashflows / (1 + base_rates / 2)**(2 * payment_times)
+full_prices = pv_cashflows.sum(axis=1)
+weighted_sensitivities = (pv_cashflows / full_prices[:, None]
+                         * payment_times / (1 + base_rates / 2))
+key_durations = weighted_sensitivities @ key_basis
+universe[['KRD 2', 'KRD 5', 'KRD 10']] = key_durations
+universe['Duration'] = weighted_sensitivities.sum(axis=1)
+universe['Convexity'] = (pv_cashflows * payment_times * (payment_times + .5)
+                         / (1 + base_rates / 2)**2).sum(axis=1) / full_prices
+universe['Full price'] = full_prices
+# Each YTM discounts that bond's own cash flows back to its computed full price.
+universe['Yield'] = [brentq(lambda y: np.sum(cf / (1 + y / 2)**(2 * payment_times)) - price,
+                           -.5, .5) for cf, price in zip(cashflows, full_prices)]
+universe['Spread duration'] = np.where(universe['Sector'].eq('Treasury'), 0., universe['Duration'])
+
 benchmark = universe['Benchmark weight'].to_numpy()
 yields = universe['Yield'].to_numpy()
 durations = universe['Duration'].to_numpy()
@@ -167,11 +184,21 @@ index, not an existing client portfolio. Both constructors may buy any of the
 12 securities below. Each corporate label represents a different issuer, so
 bond concentration and issuer concentration coincide within this universe.
 
-All bonds are treated as dollar-denominated, option-free securities. Yields are
-annual yield proxies. Spread means the supplied spread above the reference
-Treasury curve, measured consistently across bonds; Treasuries have zero spread.
-The market-value-weighted spread is an average-spread proxy, not a separately
-solved portfolio option-adjusted spread.
+All bonds are illustrative dollar-denominated, option-free, fixed-coupon bonds
+with semiannual payments and $100 face value. Settlement is immediately after
+a coupon date, so accrued interest is zero. Coupons are supplied inputs;
+prices, yields, durations, and convexities are calculated from those cash flows.
+
+The Treasury zero curve has rates of **4.15%, 4.35%, and 4.55% at 2, 5, and
+10 years**, quoted annually with semiannual compounding. Zero rates interpolate
+linearly between nodes and stay flat before 2 years. Every payment is within
+10 years. The supplied spread is a constant addition to this zero curve, in
+basis points under the same compounding convention; Treasury spreads are zero.
+
+Individual yields to maturity are quoted annually with semiannual compounding.
+The weighted yield remains a proxy, not the portfolio cash-flow internal rate
+of return. The weighted average zero-curve spread is likewise a proxy, not a
+separately solved portfolio spread.
 
 ### Benchmark weights and classification
 
@@ -195,13 +222,36 @@ fee is added elsewhere in the budget.
 view = universe[['Bond','Spread (bp)','Trading cost (bp)']].copy()
 view.insert(1,'Yield (%)',100*yields)
 show_table(view,2)
+price_view = universe[['Bond','Full price']].copy()
+price_view.insert(1,'Coupon (%)',100*coupon_rates)
+show_table(price_view,3)
 ```
 
 ### Treasury and spread sensitivities
 
 Key-rate durations and spread durations are measured in years. Convexity is
-measured in years squared. For each bond, the three key-rate durations sum to
-its effective duration in this simplified model.
+measured in years squared. These are **calculated sensitivities**, not assigned
+allocations of a supplied duration.
+
+For cash flows $CF_{i,t}$, the price per $100 face is
+
+$$P_i=\sum_t CF_{i,t}\left(1+\frac{z(t)+s_i}{2}\right)^{-2t}.$$
+
+A key-rate shock moves one zero-curve node and linearly interpolates that move
+between neighboring nodes, holding the other node quotes fixed. The 2Y node
+also controls rates before 2 years. The three unit bump functions sum to one,
+so the three key-rate durations add to parallel zero-curve duration.
+
+The **2Y Treasury has zero 5Y and 10Y sensitivity**: neither bump changes any
+rate used to discount its cash flows. Every bond maturing at 5 years or earlier
+has zero 10Y sensitivity. A 3Y bond can have 5Y sensitivity because its later
+cash flows fall between the 2Y and 5Y nodes. A 5Y bond can have 2Y sensitivity
+through its earlier coupons.
+
+For these option-free bonds, shifting the full Treasury zero curve or the
+bond's constant spread has the same discount-rate effect. Non-Treasury spread
+duration therefore equals parallel rate duration in this model. Treasury
+spread sensitivity is zero because Treasury spreads are held at zero.
 
 ```{python}
 #| label: security-exposures
@@ -238,10 +288,13 @@ points is
 $$r_i\approx-KRD_{i,2}\Delta y_2-KRD_{i,5}\Delta y_5
 -KRD_{i,10}\Delta y_{10}-\beta_iSD_i\Delta s+\epsilon_i.$$
 
-For example, a bond with 5Y key-rate duration 3.75 loses approximately
-**37.5 bp** when only the 5Y Treasury yield rises 10 bp. A corporate bond with
-spread duration 4.20 loses approximately **42 bp** when the common spread rises
-10 bp, with Treasury yields unchanged.
+For example, the 5Y Treasury has 5Y key-rate duration
+**`{python} f"{universe.loc[1, 'KRD 5']:.3f}"` years**. A 10 bp increase at that
+node implies a first-order loss of approximately
+**`{python} f"{10 * universe.loc[1, 'KRD 5']:.2f}"` bp**.
+Bank B's spread duration is **`{python} f"{universe.loc[6, 'Spread duration']:.3f}"`
+years**, implying approximately **`{python} f"{10 * universe.loc[6, 'Spread duration']:.2f}"`
+bp** of loss for a 10 bp common-spread increase with Treasury yields unchanged.
 
 Here $\epsilon_i$ is security-specific return. Residuals are assumed mutually
 independent and independent of all four common factors. The model omits
@@ -259,8 +312,9 @@ correlation = np.array([[1,.82,.62,.05],[.82,1,.85,.08],[.62,.85,1,.10],[.05,.08
 factor_covariance_bp2 = np.outer(factor_vol_bp,factor_vol_bp)*correlation
 specific_vol_bp = np.where(corporate,100.,30.)
 security_covariance_bp2 = loadings @ factor_covariance_bp2 @ loadings.T + np.diag(specific_vol_bp**2)
-cell_matrix = pd.get_dummies(universe['Cell'],dtype=float).to_numpy().T
-cell_names = sorted(universe['Cell'].unique())
+cell_indicators = pd.get_dummies(universe['Cell'],dtype=float)
+cell_matrix = cell_indicators.to_numpy().T
+cell_names = cell_indicators.columns.tolist()
 cell_targets = cell_matrix @ benchmark
 benchmark_duration = benchmark @ durations
 benchmark_yield = benchmark @ yields
@@ -483,9 +537,9 @@ portfolio. Bond market values plus acquisition costs must equal $50 million.
 
 Market value is the full settlement value, including accrued interest.
 Converting it to face amount requires the full price per $100 face, feasible
-lots, and available inventory. No prices or lot-size assumptions are supplied
-here, so the table is a market-value allocation plan rather than executable
-face-amount tickets.
+lots, and available inventory. The calculated model prices are not executable quotes, and no lot-size or
+inventory assumptions are supplied, so the table remains a market-value
+allocation plan rather than executable face-amount tickets.
 
 ```{python}
 #| label: purchase-orders
@@ -510,26 +564,36 @@ show_table(pd.DataFrame(budget_rows),2)
 
 ## Stress the completed portfolios
 
-A parallel Treasury shock uses the three key rates together. For that special
-case, add the supplied parallel convexity correction:
+A parallel Treasury shock changes all three zero-curve nodes equally. A twist
+changes them by different amounts. For a parallel rate change, duration and
+convexity provide the familiar approximation:
 
 $$\Delta P_i/P_i\approx-D_i\Delta y-\beta_iSD_i\Delta s
 +\tfrac12 C_i(\Delta y)^2.$$
 
-For nonparallel curve twists, use first-order key-rate exposures. The inputs do
-not supply cross-key-rate convexities. The scenarios are instantaneous price
-changes, excluding carry, defaults, and reinvestment. No probabilities are
-assigned to them.
+The **scenario tables and interactive controls reprice every cash flow** using
+the shocked zero curve and spread. They do not switch approximations when the
+curve changes shape. Full repricing includes rate and spread convexity and their
+interaction under this fixed-cash-flow model.
+
+The scenarios are instantaneous price changes, excluding carry, defaults,
+residual-return shocks, and reinvestment. No probabilities are assigned.
 
 ```{python}
 #| label: scenarios-and-validation
+def reprice_bonds(shocks):
+    # Three localized zero-node changes and one common-spread change, all in bp.
+    shocks = np.asarray(shocks, dtype=float)
+    if shocks.shape != (4,) or not np.isfinite(shocks).all():
+        raise ValueError('Supply four finite factor shocks in basis points.')
+    rates = (base_rates + (key_basis @ shocks[:3])[None, :] / 10000
+             + spread_beta[:, None] * shocks[3] / 10000)
+    if np.any(1 + rates / 2 <= 0):
+        raise ValueError('Shocked discount factors require positive compounding bases.')
+    return np.sum(cashflows / (1 + rates / 2)**(2 * payment_times), axis=1)
+
 def scenario_return(weights,shocks):
-    # Input shocks: 2Y, 5Y, 10Y Treasury yield changes and common spread change, bp.
-    shocks=np.asarray(shocks,dtype=float)
-    changes=loadings@shocks/10000
-    if np.ptp(shocks[:3])<1e-10:
-        changes=changes+.5*universe['Convexity'].to_numpy()*(shocks[0]/10000)**2
-    return weights@changes
+    return weights @ (reprice_bonds(shocks) / full_prices - 1)
 
 scenarios={'Parallel +50 bp':[50,50,50,0],'Bear steepener':[20,45,80,15],
            'Bull flattener':[-20,-55,-90,-10],'Spread +100 bp':[0,0,0,100]}
@@ -548,6 +612,25 @@ assert np.linalg.eigvalsh(security_covariance_bp2).min()>0
 assert np.allclose(universe[['KRD 2','KRD 5','KRD 10']].sum(axis=1),durations)
 assert tracking_variance(benchmark)==0
 assert tracking_variance(factor_weights)<=tracking_variance(cell_weights)+1e-5
+# Check the curve convention and analytical sensitivities against full repricing.
+assert np.allclose(key_basis.sum(axis=1), 1, atol=1e-12, rtol=0)
+assert np.allclose(universe.loc[maturities <= 2, ['KRD 5','KRD 10']], 0, atol=1e-12, rtol=0)
+assert np.allclose(universe.loc[maturities <= 5, 'KRD 10'], 0, atol=1e-12, rtol=0)
+assert np.allclose(reprice_bonds(np.zeros(4)), full_prices, atol=1e-10, rtol=0)
+assert (cashflows >= 0).all() and (full_prices > 0).all()
+assert np.isfinite(universe[['Yield','Duration','Convexity']].to_numpy()).all()
+h = 1e-5  # A 0.1 bp node bump, expressed as an annualized decimal rate.
+for k in range(4):
+    shock = np.zeros(4); shock[k] = h * 10000
+    measured = -(reprice_bonds(shock)-reprice_bonds(-shock))/(2*h*full_prices)
+    assert np.allclose(measured, exposures[:,k], atol=1e-7, rtol=1e-6)
+parallel = np.array([1.,1.,1.,0.])
+hc = 1e-4
+p_up = reprice_bonds(parallel*hc*10000)
+p_down = reprice_bonds(-parallel*hc*10000)
+measured_convexity = (p_up+p_down-2*full_prices)/(hc**2*full_prices)
+assert np.allclose(measured_convexity, universe['Convexity'], atol=1e-5, rtol=5e-6)
+
 ```
 
 ### Gross price changes and wealth changes after costs
@@ -625,7 +708,9 @@ payload={
     'budget':budget,'benchmark':benchmark.tolist(),'cell':cell_weights.tolist(),'factor':factor_weights.tolist(),
     'exposures':exposures.tolist(),'loadings':loadings.tolist(),'covariance':security_covariance_bp2.tolist(),
     'costs':cost_rates.tolist(),'yields':yields.tolist(),'durations':durations.tolist(),
-    'convexity':universe['Convexity'].tolist(),'names':universe['Bond'].tolist()
+    'convexity':universe['Convexity'].tolist(),'names':universe['Bond'].tolist(),
+    'times':payment_times.tolist(),'cashflows':cashflows.tolist(),'baseRates':base_rates.tolist(),
+    'keyBasis':key_basis.tolist(),'prices':full_prices.tolist(),'spreadBeta':spread_beta.tolist()
 }
 # Independent Python scenario values are also used in browser verification.
 expected_scenarios={name:{label:stress_values(w,shock)[1] for label,shock in scenarios.items()}
@@ -700,14 +785,18 @@ display(HTML(markup))
       const shocks=inputs.map(e=>Number(e.value));
       inputs.forEach((e,i)=>{document.getElementById('label-'+keys[i]).value=fmt(shocks[i],0)+' bp';
         e.setAttribute('aria-valuetext',fmt(shocks[i],0)+' basis points');});
-      const parallel=shocks[0]===shocks[1]&&shocks[1]===shocks[2];
-      const returns=d.loadings.map((row,i)=>dot(row,shocks)/10000+
-        (parallel?.5*d.convexity[i]*(shocks[0]/10000)**2:0));
-      const p=evaluate(w),gross=p.invested*dot(w,returns),net=gross-p.cost;
+      const priceReturns=d.cashflows.map((cf,i)=>{
+        const price=cf.reduce((sum,cash,j)=>{
+          const rate=d.baseRates[i][j]+(dot(d.keyBasis[j],shocks.slice(0,3))+d.spreadBeta[i]*shocks[3])/10000;
+          return sum+cash/(1+rate/2)**(2*d.times[j]);
+        },0);
+        return price/d.prices[i]-1;
+      });
+      const p=evaluate(w),gross=p.invested*dot(w,priceReturns),net=gross-p.cost;
       report('shock-results',[['Gross price P&L','$'+fmt(gross)],['Net wealth change','$'+fmt(net)],
         ['Net change / initial cash',fmt(100*net/d.budget)+'%']]);
       document.getElementById('shock-convention').textContent=
-        (parallel?'Parallel Treasury move: convexity included. ':'Curve twist: first-order key-rate effects only. ')+
+        'Cash flows repriced using the localized zero-curve shocks. '+
         'Agency spread change '+fmt(shocks[3]*.25,2)+' bp; corporate spread change '+fmt(shocks[3],0)+' bp. Net wealth includes acquisition costs and excludes carry.';
     }
     inputs.forEach(e=>e.addEventListener('input',updateShock));method.addEventListener('change',updateShock);
@@ -725,7 +814,9 @@ display(HTML(markup))
 
 ## Validate and interpret the decision
 
-The calculations check that weights sum to one, no short positions appear,
+The calculations compare all four analytical factor sensitivities and parallel
+convexity with numerical repricing, including zero exposure beyond a short
+bond's maturity. They also check that weights sum to one, no short positions appear,
 every common mandate limit passes, exact cells match under the cell method,
 the covariance matrices are positive definite, and acquisition budgets reconcile.
 The multi-factor portfolio is also checked to have no more modeled TE than the

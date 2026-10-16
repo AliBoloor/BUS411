@@ -32,6 +32,7 @@ format:
   pdf:
     pdf-engine: xelatex
     toc: true
+    toc-depth: 1
     number-sections: true
     fontsize: 10pt
     geometry: margin=0.85in
@@ -50,7 +51,7 @@ A manager receives **$50 million in cash and owns no bonds**. Construct a
 benchmark-aware bond portfolio in two ways:
 
 1. **Cell-based construction:** match the benchmark's sector/maturity buckets,
-   then select bonds within each bucket at the lowest acquisition cost.
+   then choose weights close to the individual benchmark bond weights.
 2. **Multi-factor construction:** choose bond weights that minimize predicted
    tracking error using Treasury key-rate and spread-factor exposures.
 
@@ -59,41 +60,40 @@ portfolio limits. The cell method additionally requires exact cell weights.
 There are no starting bond holdings, sales, or rebalancing turnover penalties.
 Every nonzero position is an initial purchase.
 
-All bond descriptions, analytics, spreads, costs, and risk estimates below are
+Assume **zero transaction costs, fees, and bid-ask frictions**. All $50 million
+is invested in bonds. Credit spreads remain market-risk inputs, not charges for
+purchasing bonds.
+
+All bond descriptions, analytics, spreads, and risk estimates below are
 **illustrative inputs**, not market observations or executable quotes. Weights
-refer to the bond sleeve after purchase costs; all amounts are in US dollars.
+are fractions of total portfolio market value; all amounts are in US dollars.
 
 ## Specify the mandate
 
 | Requirement | Limit |
 |---|---|
-| Initial cash, including acquisition costs | $50 million |
-| Portfolio positions | Long-only; bond-sleeve weights sum to 100% |
-| Maximum weight in one bond | 18% of the bond sleeve |
+| Initial cash to invest | $50 million |
+| Portfolio positions | Long-only; portfolio weights sum to 100% |
+| Maximum weight in one bond | 18% of the portfolio |
 | Minimum Treasury weight | 25% |
 | Maximum corporate weight | 50% |
 | Duration versus benchmark | Within 0.05 years |
 | Weighted yield proxy versus benchmark | At least 2 bp higher |
-| Acquisition cost | At most 6 bp of invested bond market value |
 
 The modest yield-proxy floor gives both constructors a deliberate active
 objective. It is not a forecast of excess return. No hard tracking-error limit
 is imposed: both portfolios are evaluated with the same model, and the
 multi-factor constructor minimizes that measure.
 
-### Account for purchase costs inside the cash budget
+### Allocate the full cash budget
 
-Let $B$ be initial cash, $w_i$ bond-sleeve weights, and $c_i$ each bond's purchase
-cost per dollar of market value. The amount invested in bonds is
+Let $B$ be the initial $50 million and $w_i$ the portfolio weight of bond $i$.
+Buy $Bw_i$ of that bond. Full investment requires
 
-$$Q=\frac{B}{1+\sum_i w_i c_i}.$$
+$$\sum_iw_i=1,\qquad\sum_iBw_i=B.$$
 
-Buy $Qw_i$ of each bond and pay $Qw_ic_i$ of acquisition costs. Therefore
-
-$$\sum_i Qw_i+\sum_i Qw_ic_i=B.$$
-
-No additional cash is assumed. Costs reduce the initial amount invested; they
-are a one-time wealth drag, not annual tracking-error volatility.
+There is no deduction from initial cash: the sum of the bond purchases equals
+$50 million for both construction methods.
 
 ```{python}
 #| label: setup
@@ -121,7 +121,6 @@ position_cap = .18
 treasury_minimum = .25
 corporate_cap = .50
 duration_tolerance = .05
-purchase_cost_cap = .0006
 carry_increment = .0002
 universe = pd.DataFrame({
     "Bond": ["UST 2Y", "UST 5Y", "UST 10Y", "Agency 3Y", "Agency 7Y",
@@ -133,7 +132,6 @@ universe = pd.DataFrame({
     "Coupon rate": [0.0415, 0.0435, 0.0455, 0.0442, 0.0470, 0.0505,
               0.0528, 0.0555, 0.0585, 0.0540, 0.0600, 0.0562],
     "Spread (bp)": [0, 0, 0, 38, 55, 92, 112, 138, 165, 125, 182, 148],
-    "Trading cost (bp)": [1, 2, 3, 3, 5, 6, 7, 9, 12, 8, 14, 10],
     "Benchmark weight": [0.10, 0.13, 0.10, 0.09, 0.10, 0.07,
                          0.09, 0.08, 0.07, 0.07, 0.05, 0.05],
 })
@@ -171,7 +169,6 @@ universe['Spread duration'] = np.where(universe['Sector'].eq('Treasury'), 0., un
 benchmark = universe['Benchmark weight'].to_numpy()
 yields = universe['Yield'].to_numpy()
 durations = universe['Duration'].to_numpy()
-cost_rates = universe['Trading cost (bp)'].to_numpy()/10000
 treasury = universe['Sector'].eq('Treasury').to_numpy()
 corporate = universe['Sector'].eq('Corporate').to_numpy()
 spread_beta = np.where(corporate,1.,np.where(universe['Sector'].eq('Agency'),.25,0.))
@@ -211,15 +208,15 @@ assert np.isclose(benchmark.sum(),1)
 assert np.all(benchmark>=0)
 ```
 
-### Yields, spreads, and acquisition costs
+### Yields, spreads, and prices
 
-Purchase costs are paid once on the acquired market value, beyond that market
-value. They include the assumed execution friction; no additional spread or
-fee is added elsewhere in the budget.
+Yields and zero-curve spreads describe the bonds' pricing and market exposure.
+The calculated full prices below determine how much face value a dollar
+allocation represents.
 
 ```{python}
 #| label: market-inputs
-view = universe[['Bond','Spread (bp)','Trading cost (bp)']].copy()
+view = universe[['Bond','Spread (bp)']].copy()
 view.insert(1,'Yield (%)',100*yields)
 show_table(view,2)
 price_view = universe[['Bond','Full price']].copy()
@@ -371,8 +368,7 @@ include every other bond.
 
 ### Subtract to obtain active exposures
 
-As in the lecture notes, active exposure is portfolio exposure minus benchmark
-exposure:
+Active exposure is portfolio exposure minus benchmark exposure:
 
 $$\Delta x_k=x_{p,k}-x_{b,k}
 =\sum_i(w_{p,i}-w_{b,i})x_{i,k}.$$
@@ -408,7 +404,7 @@ active weights by this matrix gives:
 $$\mathbf{a}'L=-(\Delta\mathbf{x})'.$$
 
 It is the vector of signed active return loadings. The positive-duration
-exposure convention remains $\Delta x_k=x_{p,k}-x_{b,k}$, matching the notes.
+exposure convention remains $\Delta x_k=x_{p,k}-x_{b,k}$.
 
 ### Convert active exposures into predicted tracking error
 
@@ -423,9 +419,8 @@ the identical systematic variance: the minus signs appear on both sides of
 $\Sigma_F$ and cancel. The square root is annual TE in basis points, consistent
 with the supplied annual factor and residual volatilities.
 
-This comparison measures the two normalized bond sleeves against the same
-normalized benchmark. Acquisition costs are reported separately as a known
-initial drag. The benchmark index itself has no acquisition cost.
+Portfolio and benchmark weights both sum to one and refer to the same
+$50 million capital base. Their active weights therefore sum to zero.
 
 ## Construct the two portfolios
 
@@ -446,11 +441,15 @@ For each occupied cell $g$, require
 
 $$\sum_{i\in g}w_i=\sum_{i\in g}w_{B,i}.$$
 
-Within those cell budgets, minimize $\sum_i c_iw_i$ subject to all common mandate
-limits. Duration and yield are guardrails; **the selection step does not use
-factor covariance or predicted tracking error**. A linear program makes the
-cheapest feasible selection within the exact cells. Its output is assessed with
-the shared risk model afterward.
+Within those cell budgets, keep individual bond weights as close as possible
+to their benchmark weights, subject to all common mandate limits:
+
+$$\min_w\sum_i(w_i-w_{b,i})^2.$$
+
+Duration and yield are guardrails. **This selection rule uses weight differences,
+not factor covariance or predicted tracking error.** It makes the choice within
+each cell explicit. The resulting portfolio is assessed with the shared risk
+model afterward.
 
 ### Method 2: multi-factor risk minimization
 
@@ -460,14 +459,14 @@ predicted tracking-error variance:
 $$\min_w\;TE(w)^2.$$
 
 Keep every common mandate limit, including duration, concentration, sector,
-yield-proxy floor, and acquisition-cost cap. The optimizer can shift between
+and yield-proxy floor. The optimizer can shift between
 cells when that improves the combined factor and residual risk. The benchmark
 itself has zero TE but fails the required 2 bp yield-proxy increment.
 
 Both problems use long-only weights summing to one. Dividing risk variance by
 10,000 in the calculation is only numerical scaling; it does not change the
-solution. The initial feasible point is a cheapest feasible purchase plan,
-not a set of pre-existing holdings.
+solution. A linear program first finds feasible weights; the relevant objective
+then selects the final weights. The starting point is not an existing portfolio.
 
 ```{python}
 #| label: construction-functions
@@ -475,33 +474,31 @@ def tracking_variance(weights):
     active = np.asarray(weights)-benchmark
     return active @ security_covariance_bp2 @ active
 
-def purchase_plan(weights):
-    cost_per_dollar = weights @ cost_rates
-    invested = budget/(1+cost_per_dollar)
-    values = invested*weights
-    costs = values*cost_rates
-    return values,costs,invested
+def purchase_values(weights):
+    return budget * np.asarray(weights)
 
 def construct(method, increment=carry_increment, maximize_carry=False):
     # Every inequality is written as A w <= b, in decimal yields and years.
     A = np.vstack([-treasury.astype(float),corporate.astype(float),durations,-durations,
-                   cost_rates,-yields])
+                   -yields])
     b = np.array([-treasury_minimum,corporate_cap,benchmark_duration+duration_tolerance,
-                  -benchmark_duration+duration_tolerance,purchase_cost_cap,
+                  -benchmark_duration+duration_tolerance,
                   -(benchmark_yield+increment)])
     eq = cell_matrix if method=='Cell-based' else np.ones((1,len(universe)))
     eq_target = cell_targets if method=='Cell-based' else np.array([1.])
     bounds = [(0.,position_cap)]*len(universe)
-    # Feasibility / cheapest purchases. Cell matching contains no covariance input.
-    seed = linprog(-yields if maximize_carry else cost_rates,A_ub=A,b_ub=b,A_eq=eq,b_eq=eq_target,bounds=bounds,method='highs')
+    # Feasibility first; the ceiling exercise maximizes yield instead.
+    seed = linprog(-yields if maximize_carry else np.zeros(len(universe)),A_ub=A,b_ub=b,A_eq=eq,b_eq=eq_target,bounds=bounds,method='highs')
     if not seed.success:
         raise ValueError(f'{method}: mandate infeasible: {seed.message}')
-    if method=='Cell-based':
+    if maximize_carry:
         weights=seed.x
     else:
         scale=np.maximum(np.max(np.abs(A),axis=1),1e-12)
         An=A/scale[:,None]; bn=b/scale
-        result=minimize(lambda w:tracking_variance(w)/10000,seed.x,jac=lambda w:2*security_covariance_bp2@(w-benchmark)/10000,
+        metric = np.eye(len(universe)) if method=='Cell-based' else security_covariance_bp2/10000
+        result=minimize(lambda w:(w-benchmark)@metric@(w-benchmark),seed.x,
+                        jac=lambda w:2*metric@(w-benchmark),
                         method='SLSQP',bounds=bounds,
                         constraints=[{'type':'eq','fun':lambda w:eq@w-eq_target,'jac':lambda w:eq},
                                      {'type':'ineq','fun':lambda w:bn-An@w,'jac':lambda w:-An}],
@@ -512,8 +509,7 @@ def construct(method, increment=carry_increment, maximize_carry=False):
     assert weights.min()>=-1e-8 and weights.max()<=position_cap+1e-8
     assert (A@weights<=b+1e-8).all()
     assert np.allclose(eq@weights,eq_target,atol=1e-8)
-    values,costs,invested=purchase_plan(weights)
-    assert np.isclose(values.sum()+costs.sum(),budget,atol=.01,rtol=0)
+    assert np.isclose(purchase_values(weights).sum(),budget,atol=.01,rtol=0)
     return weights
 ```
 
@@ -523,22 +519,20 @@ cell_weights=construct('Cell-based')
 factor_weights=construct('Multi-factor')
 portfolios={'Benchmark':benchmark,'Cell-based':cell_weights,'Multi-factor':factor_weights}
 
-def summary(weights, is_benchmark=False):
-    values,costs,invested=purchase_plan(weights)
-    if is_benchmark: costs=np.zeros(len(weights)); invested=budget
+def summary(weights):
     return pd.Series({'Yield proxy (%)':100*weights@yields,'Duration (years)':weights@durations,
                       'Average spread (bp)':weights@universe['Spread (bp)'],
                       'Treasury (%)':100*weights[treasury].sum(),'Corporate (%)':100*weights[corporate].sum(),
                       'Largest bond (%)':100*weights.max(),'Annual TE (bp)':np.sqrt(tracking_variance(weights)),
-                      'Bonds ($m)':invested/1e6,'Purchase cost ($)':costs.sum()})
-comparison=pd.DataFrame({name:summary(w,name=='Benchmark') for name,w in portfolios.items()}).T
+                      'Bonds ($m)':purchase_values(weights).sum()/1e6})
+comparison=pd.DataFrame({name:summary(w) for name,w in portfolios.items()}).T
 ```
 
 ## Compare the constructed portfolios
 
 ### Bond allocations
 
-All portfolio weights below are percentages of their invested bond sleeve.
+All portfolio weights below are percentages of their invested portfolio.
 A zero weight means the constructor does not buy that security.
 
 ```{python}
@@ -601,8 +595,9 @@ show_table(pd.DataFrame(risk_rows),3)
 
 ## Turn initial cash into purchase orders
 
-These are **purchases from cash**, not differences from an existing bond
-portfolio. Bond market values plus acquisition costs must equal $50 million.
+These are **initial purchases from cash**. Multiply each portfolio weight by
+$50 million to obtain the bond's market-value allocation. The purchase values
+must sum to exactly the initial capital.
 
 Market value is the full settlement value, including accrued interest.
 Converting it to face amount requires the full price per $100 face, feasible
@@ -615,20 +610,15 @@ allocation plan rather than executable face-amount tickets.
 purchase_tables={}
 for name,w in portfolios.items():
     if name=='Benchmark':continue
-    values,costs,invested=purchase_plan(w)
-    table=pd.DataFrame({'Bond':universe['Bond'],'Weight (%)':100*w,
-                        'Buy ($m)':values/1e6,'Cost ($)':costs})
+    values=purchase_values(w)
+    table=pd.DataFrame({'Bond':universe['Bond'],'Weight (%)':100*w,'Buy ($m)':values/1e6})
     purchase_tables[name]=table
     display(Markdown('**'+name+' initial purchase plan**'))
     show_table(table,3)
-    assert np.isclose(values.sum()+costs.sum(),budget,atol=.01,rtol=0)
-budget_rows=[]
-for name,w in portfolios.items():
-    if name=='Benchmark':continue
-    values,costs,invested=purchase_plan(w)
-    budget_rows.append({'Method':name,'Bonds ($)':f'{values.sum():,.2f}',
-                       'Costs ($)':f'{costs.sum():,.2f}','Cash used ($)':f'{values.sum()+costs.sum():,.2f}'})
-show_table(pd.DataFrame(budget_rows),2)
+    assert np.isclose(values.sum(),budget,atol=.01,rtol=0)
+show_table(pd.DataFrame({'Method':['Cell-based','Multi-factor'],
+                        'Total purchases ($)':[f'{purchase_values(cell_weights).sum():,.2f}',
+                                               f'{purchase_values(factor_weights).sum():,.2f}']}),2)
 ```
 
 ## Stress the completed portfolios
@@ -666,16 +656,10 @@ def scenario_return(weights,shocks):
 
 scenarios={'Parallel +50 bp':[50,50,50,0],'Bear steepener':[20,45,80,15],
            'Bull flattener':[-20,-55,-90,-10],'Spread +100 bp':[0,0,0,100]}
-# Benchmark is a costless comparison index; constructed portfolios pay for purchases.
-def stress_values(weights,shocks,is_benchmark=False):
-    ret=scenario_return(weights,shocks)
-    if is_benchmark:return budget*ret, budget*ret
-    values,costs,invested=purchase_plan(weights)
-    return invested*ret,invested*ret-costs.sum()
-stress_gross=pd.DataFrame({name:{label:stress_values(w,shocks,name=='Benchmark')[0]/1e6
-             for label,shocks in scenarios.items()} for name,w in portfolios.items()})
-stress_net=pd.DataFrame({name:{label:stress_values(w,shocks,name=='Benchmark')[1]/1e6
-             for label,shocks in scenarios.items()} for name,w in portfolios.items()})
+def scenario_pnl(weights,shocks):
+    return budget * scenario_return(weights,shocks)
+scenario_results=pd.DataFrame({name:{label:scenario_pnl(w,shocks)/1e6
+                 for label,shocks in scenarios.items()} for name,w in portfolios.items()})
 assert np.linalg.eigvalsh(factor_covariance_bp2).min()>0
 assert np.linalg.eigvalsh(security_covariance_bp2).min()>0
 assert np.allclose(universe[['KRD 2','KRD 5','KRD 10']].sum(axis=1),durations)
@@ -702,23 +686,18 @@ assert np.allclose(measured_convexity, universe['Convexity'], atol=1e-5, rtol=5e
 
 ```
 
-### Gross price changes and wealth changes after costs
+### Compare scenario profit and loss
 
-Gross price P&L applies to the actual amount invested in each bond sleeve.
-Net wealth change is terminal wealth minus initial cash: subtract the one-time
-purchase costs from that gross P&L. The benchmark is a costless reference index
-with the full $50 million invested. Neither table adds annual carry to an
-instantaneous shock.
+All three portfolios use the same $50 million capital base. Multiply the
+repriced portfolio return by that amount to obtain scenario P&L. No annual
+carry is added to the instantaneous price change.
 
 ```{python}
 #| label: scenario-tables
-display(Markdown('**Gross price P&L ($ millions)**'))
-show_table(stress_gross.reset_index(names='Scenario'),3)
-display(Markdown('**Net wealth change after purchase costs ($ millions)**'))
-show_table(stress_net.reset_index(names='Scenario'),3)
-ax=stress_net[['Cell-based','Multi-factor']].plot.barh(color=['#936724','#214b3e'])
+show_table(scenario_results.reset_index(names='Scenario'),3)
+ax=scenario_results[['Cell-based','Multi-factor']].plot.barh(color=['#936724','#214b3e'])
 ax.axvline(0,color='#333',linewidth=.8)
-ax.set(xlabel='Net wealth change ($ millions)',ylabel='',title='Initial construction: scenario wealth after acquisition costs')
+ax.set(xlabel='Scenario P&L ($ millions)',ylabel='',title='Constructed portfolios: rate and spread scenarios')
 plt.tight_layout();plt.show()
 ```
 
@@ -731,7 +710,7 @@ calculations; they do not request market data or solve a new optimization.
 ### Move between the two feasible construction plans
 
 A weighted mixture of the two plans remains feasible because all mandate
-constraints are linear in bond-sleeve weights. The risk model evaluates each
+constraints are linear in portfolio weights. The risk model evaluates each
 mixture; it need not be a linear average of the two endpoint tracking errors.
 
 ::: {.content-visible when-format="html"}
@@ -776,13 +755,13 @@ Set all three Treasury sliders to the same value for a parallel shift.
 payload={
     'budget':budget,'benchmark':benchmark.tolist(),'cell':cell_weights.tolist(),'factor':factor_weights.tolist(),
     'exposures':exposures.tolist(),'loadings':loadings.tolist(),'covariance':security_covariance_bp2.tolist(),
-    'costs':cost_rates.tolist(),'yields':yields.tolist(),'durations':durations.tolist(),
+    'yields':yields.tolist(),'durations':durations.tolist(),
     'convexity':universe['Convexity'].tolist(),'names':universe['Bond'].tolist(),
     'times':payment_times.tolist(),'cashflows':cashflows.tolist(),'baseRates':base_rates.tolist(),
     'keyBasis':key_basis.tolist(),'prices':full_prices.tolist(),'spreadBeta':spread_beta.tolist()
 }
 # Independent Python scenario values are also used in browser verification.
-expected_scenarios={name:{label:stress_values(w,shock)[1] for label,shock in scenarios.items()}
+expected_scenarios={name:{label:scenario_pnl(w,shock) for label,shock in scenarios.items()}
                     for name,w in portfolios.items() if name!='Benchmark'}
 markup='<script type="application/json" id="construction-data">'+json.dumps(payload,allow_nan=False).replace('<','\\u003c')+'</script>'
 display(HTML(markup))
@@ -800,12 +779,11 @@ display(HTML(markup))
     if(!node)return;
     const d=JSON.parse(node.textContent);
     const dot=(a,b)=>a.reduce((s,x,i)=>s+x*b[i],0);
-    const fmt=(x,n=2)=>Number(x).toLocaleString('en-US',{minimumFractionDigits:n,maximumFractionDigits:n});
+    const fmt=(x,n=2)=>Number(Math.abs(x)<.5*10**(-n)?0:x).toLocaleString('en-US',{minimumFractionDigits:n,maximumFractionDigits:n});
     function evaluate(w){
       const active=w.map((x,i)=>x-d.benchmark[i]);
       const variance=dot(active,d.covariance.map(row=>dot(row,active)));
-      const fee=dot(w,d.costs), invested=d.budget/(1+fee);
-      return {te:Math.sqrt(Math.max(0,variance)),invested,cost:invested*fee,
+      return {te:Math.sqrt(Math.max(0,variance)),invested:d.budget,
               duration:dot(w,d.durations),yield:100*dot(w,d.yields),
               active:d.exposures[0].map((_,k)=>dot(active,d.exposures.map(row=>row[k])))};
     }
@@ -842,7 +820,7 @@ display(HTML(markup))
       const p=evaluate(w);document.getElementById('mix-value').value=fmt(alpha*100,0)+'%';
       mix.setAttribute('aria-valuetext',fmt(alpha*100,0)+' percent multi-factor plan');
       report('mix-results',[['Annual TE',fmt(p.te)+' bp'],['Duration',fmt(p.duration,3)+' years'],
-        ['Yield proxy',fmt(p.yield,4)+'%'],['Bond purchases','$'+fmt(p.invested)],['Acquisition cost','$'+fmt(p.cost)]]);
+        ['Yield proxy',fmt(p.yield,4)+'%'],['Bond purchases','$'+fmt(p.invested)]]);
       chart(p.active);
     }
     mix.addEventListener('input',updateMix);window.addEventListener('resize',updateMix);
@@ -861,12 +839,12 @@ display(HTML(markup))
         },0);
         return price/d.prices[i]-1;
       });
-      const p=evaluate(w),gross=p.invested*dot(w,priceReturns),net=gross-p.cost;
-      report('shock-results',[['Gross price P&L','$'+fmt(gross)],['Net wealth change','$'+fmt(net)],
-        ['Net change / initial cash',fmt(100*net/d.budget)+'%']]);
+      const pnl=d.budget*dot(w,priceReturns);
+      report('shock-results',[['Scenario P&L','$'+fmt(pnl)],
+        ['Portfolio return',fmt(100*pnl/d.budget)+'%']]);
       document.getElementById('shock-convention').textContent=
         'Cash flows repriced using the localized zero-curve shocks. '+
-        'Agency spread change '+fmt(shocks[3]*.25,2)+' bp; corporate spread change '+fmt(shocks[3],0)+' bp. Net wealth includes acquisition costs and excludes carry.';
+        'Agency spread change '+fmt(shocks[3]*.25,2)+' bp; corporate spread change '+fmt(shocks[3],0)+' bp. P&L excludes carry.';
     }
     inputs.forEach(e=>e.addEventListener('input',updateShock));method.addEventListener('change',updateShock);
     document.getElementById('shock-reset').addEventListener('click',()=>{
@@ -887,14 +865,14 @@ The calculations compare all four analytical factor sensitivities and parallel
 convexity with numerical repricing, including zero exposure beyond a short
 bond's maturity. They also check that weights sum to one, no short positions appear,
 every common mandate limit passes, exact cells match under the cell method,
-the covariance matrices are positive definite, and acquisition budgets reconcile.
+the covariance matrices are positive definite, and purchase values reconcile to the initial cash.
 The multi-factor portfolio is also checked to have no more modeled TE than the
 feasible cell portfolio under the same common mandate.
 
-The cell method provides a transparent benchmark-bucket match and a low-cost
-selection rule. The multi-factor method explicitly accounts for co-movement
+The cell method matches benchmark buckets and minimizes individual weight
+differences within them. The multi-factor method explicitly accounts for co-movement
 and residual risk. Neither method is guaranteed to outperform. Before investing,
-verify security data, issuer relationships, executable prices, settlement costs,
+verify security data, issuer relationships, executable prices,
 and feasible lot sizes, then rerun the constraints on the rounded purchase plan.
 
 ## Mini project: raise the yield-proxy requirement
@@ -934,14 +912,13 @@ display(Markdown(f"The greatest exact-cell yield increment is **{cell_carry_ceil
 project_summary=pd.DataFrame({'Multi-factor, +5 bp floor':summary(project_factor_weights)}).T
 show_table(project_summary[['Yield proxy (%)','Duration (years)','Annual TE (bp)']].reset_index(names='Target'),3)
 show_table(project_summary[['Treasury (%)','Corporate (%)','Largest bond (%)']].reset_index(names='Target'),2)
-values,costs,invested=purchase_plan(project_factor_weights)
+values=purchase_values(project_factor_weights)
 show_table(pd.DataFrame({'Bond':universe['Bond'],'Weight (%)':100*project_factor_weights,
-                        'Initial buy ($m)':values/1e6,'Cost ($)':costs}),3)
+                        'Initial buy ($m)':values/1e6}),3)
 assert (project_factor_weights@yields-benchmark_yield)*10000 >= 5-1e-5
 assert cell_carry_ceiling_bp < 5
-assert np.isclose(values.sum()+costs.sum(),budget,atol=.01,rtol=0)
-display(Markdown(f"Bond values of **${values.sum():,.2f}** plus costs of **${costs.sum():,.2f}** "
-                 f"use exactly **${budget:,.2f}** of initial cash."))
+assert np.isclose(values.sum(),budget,atol=.01,rtol=0)
+display(Markdown(f"The initial bond purchases use exactly **${values.sum():,.2f}** of capital."))
 ```
 
 The exact-cell approach would require a lower yield floor, different cell

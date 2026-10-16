@@ -345,14 +345,83 @@ process; security terms and benchmark weights alone do not determine them.
 
 ## Map holdings into active risk
 
-Let $L$ contain the negative duration loadings in the return equation and let
-$a=w-w_B$ be active bond-sleeve weights. Predicted active-return variance is
+### Calculate portfolio and benchmark exposures
 
-$$TE^2=(a'L)\Sigma_F(L'a)+\sum_i a_i^2\sigma_{\epsilon,i}^2.$$
+Use the notation from Lecture 6: $x_{i,k}$ is bond $i$'s exposure to factor $k$;
+$w_{p,i}$ and $w_{b,i}$ are its portfolio and benchmark weights. For this demo,
+exposures are the positive duration sensitivities below, measured in years.
 
-The square root is annual TE in basis points. For example, increasing one
-bond's weight by 10 percentage points adds one tenth of its factor sensitivities
-and residual exposure, before accounting for the offsetting funding position.
+| Factor $k$ | Security exposure $x_{i,k}$ |
+|---|---|
+| 2Y Treasury yield | $KRD_{i,2}$ |
+| 5Y Treasury yield | $KRD_{i,5}$ |
+| 10Y Treasury yield | $KRD_{i,10}$ |
+| Common spread | $\beta_i SD_i$ |
+
+Multiply each bond's sensitivity by its weight, then sum across all bonds:
+
+$$x_{p,k}=\sum_i w_{p,i}x_{i,k},\qquad
+x_{b,k}=\sum_i w_{b,i}x_{i,k}.$$
+
+For example, a bond with exposure of 6 years to one factor, held at 2% in the
+portfolio, contributes $0.02(6)=0.12$ years to portfolio exposure. If its
+benchmark weight is 1.5%, its contribution to benchmark exposure is
+$0.015(6)=0.09$ years. These are one bond's contributions; total exposures also
+include every other bond.
+
+### Subtract to obtain active exposures
+
+As in the lecture notes, active exposure is portfolio exposure minus benchmark
+exposure:
+
+$$\Delta x_k=x_{p,k}-x_{b,k}
+=\sum_i(w_{p,i}-w_{b,i})x_{i,k}.$$
+
+Define active bond weights as $a_i=w_{p,i}-w_{b,i}$. In the example, the bond's
+active weight is **0.5 percentage points**, and its contribution to active
+factor exposure is $0.005(6)=0.03$ years. Other bonds' active contributions may
+reinforce or offset it.
+
+Let $X$ be the security-exposure matrix: one row per bond and one column per
+factor. With weights written as column vectors,
+
+$$\mathbf{x}_p=X'\mathbf{w}_p,\qquad
+\mathbf{x}_b=X'\mathbf{w}_b,\qquad
+\Delta\mathbf{x}=X'\mathbf{a}.$$
+
+Thus **weights create exposures, and differences in weights create active
+exposures**. Section 6 applies these calculations to the constructed portfolios.
+
+### Distinguish exposure from the signed return loading
+
+The factors here are upward changes in yields and spreads. Because price falls
+when those rates rise, their first-order active-return effect is
+
+$$\Delta R_{\mathrm{active}}\approx-\sum_k\Delta x_k F_k.$$
+
+For instance, an active duration of +0.20 years produces approximately
+$-0.20(10)=-2$ bp of active return for a +10 bp factor shock.
+
+The code therefore uses the **return-loading matrix** $L=-X$. Multiplying
+active weights by this matrix gives:
+
+$$\mathbf{a}'L=-(\Delta\mathbf{x})'.$$
+
+It is the vector of signed active return loadings. The positive-duration
+exposure convention remains $\Delta x_k=x_{p,k}-x_{b,k}$, matching the notes.
+
+### Convert active exposures into predicted tracking error
+
+Use the active-exposure vector, factor covariance, and residual active variance:
+
+$$TE=\sqrt{(\Delta\mathbf{x})'\Sigma_F(\Delta\mathbf{x})
++\sigma_\epsilon^2},\qquad
+\sigma_\epsilon^2=\sum_i a_i^2\sigma_{\epsilon,i}^2.$$
+
+The residual formula assumes independent bond residuals. Inserting $L=-X$ gives
+the identical systematic variance: the minus signs appear on both sides of
+$\Sigma_F$ and cancel. The square root is annual TE in basis points, consistent
+with the supplied annual factor and residual volatilities.
 
 This comparison measures the two normalized bond sleeves against the same
 normalized benchmark. Acquisition costs are reported separately as a known

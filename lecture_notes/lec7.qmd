@@ -88,7 +88,7 @@ Those paths can then be used to answer questions such as:
 - What is the fair value of an interest-rate option?
 - How does interest-rate volatility affect the value of a security?
 
-## What Students Should Remember
+## What you should remember
 
 A yield curve is a snapshot of current market prices. An interest-rate model is a way to generate possible future yield curves.
 
@@ -450,10 +450,11 @@ So the model generates the term structure through this chain:
 
 ```{python}
 #| label: fig-short-rate-flow
+#| fig-align: center
 #| fig-cap: "How a short‑rate model generates the term structure"
 #| echo: false
 import matplotlib.pyplot as plt
-from matplotlib.patches import FancyArrowPatch
+from matplotlib.patches import FancyArrowPatch, FancyBboxPatch
 steps = [
     "Short-rate\nprocess",
     "Future\nshort-rate paths",
@@ -464,7 +465,7 @@ steps = [
 n = len(steps)
 rows = (n + 1) // 2
 fig, ax = plt.subplots(figsize=(8, 1.12*rows))
-ax.set(xlim=(-.15, 2.15), ylim=(-.6, rows-.4))
+ax.set(xlim=(-.65, 1.65), ylim=(-.5, rows-.5))
 ax.set_axis_off()
 positions = []
 for i, label in enumerate(steps):
@@ -472,14 +473,16 @@ for i, label in enumerate(steps):
     x = col if row % 2 == 0 else 1-col
     y = rows-1-row
     positions.append((x,y))
-    ax.text(x, y, f"{i+1}. " + label, ha="center", va="center", fontsize=10,
-            bbox=dict(boxstyle="round,pad=.65", facecolor="#e7ebdf", edgecolor="#214b3e"))
+    ax.add_patch(FancyBboxPatch(
+        (x-.38, y-.28), .76, .56,
+        boxstyle="round,pad=.025", facecolor="#e7ebdf", edgecolor="#214b3e"))
+    ax.text(x, y, f"{i+1}. " + label, ha="center", va="center", fontsize=10)
 for (x1,y1),(x2,y2) in zip(positions[:-1],positions[1:]):
     if y1 == y2:
         direction = 1 if x2>x1 else -1
-        start, end = (x1+.37*direction,y1),(x2-.37*direction,y2)
+        start, end = (x1+.405*direction,y1),(x2-.405*direction,y2)
     else:
-        start,end=(x1,y1-.30),(x2,y2+.30)
+        start,end=(x1,y1-.305),(x2,y2+.305)
     ax.add_patch(FancyArrowPatch(start,end,arrowstyle="-|>",mutation_scale=13,color="#936724"))
 fig.tight_layout(pad=1)
 plt.show()
@@ -603,10 +606,11 @@ The full pricing logic for an option‑embedded bond is:
 
 ```{python}
 #| label: fig-hull-white-pricing-flow
+#| fig-align: center
 #| fig-cap: "Hull–White pricing workflow for option‑embedded bonds"
 #| echo: false
 import matplotlib.pyplot as plt
-from matplotlib.patches import FancyArrowPatch
+from matplotlib.patches import FancyArrowPatch, FancyBboxPatch
 steps = [
     "Observed curve\n$P(0,T)$",
     "Calibrate\nHull–White",
@@ -619,7 +623,7 @@ steps = [
 n = len(steps)
 rows = (n + 1) // 2
 fig, ax = plt.subplots(figsize=(8, 1.12*rows))
-ax.set(xlim=(-.15, 2.15), ylim=(-.6, rows-.4))
+ax.set(xlim=(-.65, 1.65), ylim=(-.5, rows-.5))
 ax.set_axis_off()
 positions = []
 for i, label in enumerate(steps):
@@ -627,14 +631,16 @@ for i, label in enumerate(steps):
     x = col if row % 2 == 0 else 1-col
     y = rows-1-row
     positions.append((x,y))
-    ax.text(x, y, f"{i+1}. " + label, ha="center", va="center", fontsize=10,
-            bbox=dict(boxstyle="round,pad=.65", facecolor="#e7ebdf", edgecolor="#214b3e"))
+    ax.add_patch(FancyBboxPatch(
+        (x-.38, y-.28), .76, .56,
+        boxstyle="round,pad=.025", facecolor="#e7ebdf", edgecolor="#214b3e"))
+    ax.text(x, y, f"{i+1}. " + label, ha="center", va="center", fontsize=10)
 for (x1,y1),(x2,y2) in zip(positions[:-1],positions[1:]):
     if y1 == y2:
         direction = 1 if x2>x1 else -1
-        start, end = (x1+.37*direction,y1),(x2-.37*direction,y2)
+        start, end = (x1+.405*direction,y1),(x2-.405*direction,y2)
     else:
-        start,end=(x1,y1-.30),(x2,y2+.30)
+        start,end=(x1,y1-.305),(x2,y2+.305)
     ax.add_patch(FancyArrowPatch(start,end,arrowstyle="-|>",mutation_scale=13,color="#936724"))
 fig.tight_layout(pad=1)
 plt.show()
@@ -715,10 +721,6 @@ Thus, this simplified data set implies an annual volatility of about 30.19 basi
 Implied volatility derives from market prices of option‑like instruments (caps, floors, swaptions). An option pricing model expresses the option price as a function of volatility. By inverting the model using observed prices, one obtains a model-dependent, risk-neutral volatility input. Implied volatility reflects current market conditions and forward‑looking expectations, whereas historical volatility reflects past behaviour.
 
 ---
-
-## Optional preparation for Lecture 8 {.unnumbered}
-
-See the appendix, [Introduction to Option Pricing](introduction-to-option-pricing.qmd), for risk-neutral probabilities, backward induction, and the issuer’s call decision.
 
 ## Key Points {.unnumbered}
 

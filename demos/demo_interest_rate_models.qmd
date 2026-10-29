@@ -26,7 +26,10 @@ format:
         details.demo-solution { border-left: 4px solid #936724; padding: 1rem; margin: 1rem 0; }
         details.demo-solution > summary { cursor: pointer; font-weight: 700; }
         details.code-fold { margin: .8rem 0; }
-        main table { table-layout: fixed; width: 100%; }
+        main table { table-layout: auto; width: 100%; }
+        .demo-table-scroll { overflow-x: auto; max-width: 100%; margin-block: 1rem; }
+        .demo-table-scroll table { width: max-content; min-width: 100%; }
+        .demo-table-scroll th, .demo-table-scroll td { white-space: nowrap; overflow-wrap: normal; padding: .5rem .8rem; }
         main th, main td { overflow-wrap: anywhere; }
         mjx-container[display="true"] { display: block; max-width: 100%;
           overflow-x: auto; overflow-y: hidden; padding-block: .35em; }
@@ -46,10 +49,6 @@ execute:
 This reading copy shows the calculations' results and figures. The HTML demo
 contains the full code in folded blocks and interactive scenario controls.
 :::
-
-## The desk question {.unnumbered}
-
-How can one observed curve support several future bond values without treating those scenarios as forecasts?
 
 ## Goal
 
@@ -83,9 +82,9 @@ describe *future* curves. Calibration makes those two statements consistent.
 
 ### Read the workflow in two layers
 
-**Valuation today:** observed par yields → teaching coupon bonds → discount
-factors → present value. **Uncertainty tomorrow:** supplied option premiums →
-fitted dynamics → future short-rate state → future curve → remaining bond value.
+**Valuation today:** dated Treasury par yields → constructed annual-pay par coupon bonds → bootstrapped discount factors → present value of fixed cash flows. These constructed instruments are a curve-building convention, not individual Treasury securities or their actual coupons.
+
+**Uncertainty tomorrow:** supplied synthetic option premiums → fitted mean reversion $a$ and volatility $\sigma$ → curve-consistent drift $\theta(t)$ → future short-rate state $r_t$ → future discount curve → remaining bond value. The premiums illustrate calibration; they are not observed option quotes.
 The second layer must preserve the first. A complicated model is not allowed to
 change today's price of fixed cash flows once the discount curve is fixed.
 
@@ -117,22 +116,31 @@ plt.rcParams.update({
 })
 
 
-# Keep every field, but split wide tables into readable panels for HTML and PDF.
+# Keep complete tables together and label displayed rates with their units.
 def readable_table(frame):
+    labels = {
+        "observation_date": "Observation date", "maturity_years": "Maturity (years)",
+        "observed_par_yield_pct": "Observed Treasury par yield (%)",
+        "par_yield_pct": "Annual par coupon rate (%)", "implied_par_price": "Constructed price per 100",
+        "input_status": "Input status", "discount_factor": "Discount factor P(0,T)",
+        "zero_rate_pct": "Continuous zero rate (%)", "repriced_from_curve": "Repriced per 100",
+        "pricing_error": "Pricing error per 100", "short_rate_pct": "Short rate (%)",
+        "bond_value_at_year_2": "Year-2 bond value per 100",
+        "option_expiry": "Option expiry (years)", "bond_maturity": "Bond maturity (years)",
+        "strike_per_100": "Strike per 100", "observed_option_price": "Synthetic option premium per 100", "state": "Rate state", "index": "Check",
+        "model_price": "Model premium per 100", "market_discount": "Initial P(0,T)",
+        "hw_discount": "Hull–White P(0,T)", "difference": "Difference", "maturity": "Maturity (years)",
+    }
     frame = frame.copy()
-    if len(frame.columns) and frame.iloc[:, 0].dtype == object:
-        frame = frame.set_index(frame.columns[0])
-    if len(frame.columns) > 6 and len(frame) <= 4:
-        frame = frame.T
-    panels = []
-    for start in range(0, len(frame.columns), 3):
-        part = frame.iloc[:, start:start+3]
-        markup = part.to_html(border=0, na_rep="", float_format=lambda v: f"{v:,.4f}".rstrip("0").rstrip("."))
-        widths = [40] + [60 / max(1, len(part.columns))] * len(part.columns)
-        cols = "<colgroup>" + "".join(f'<col style="width:{w}%">' for w in widths) + "</colgroup>"
-        end = markup.index(">") + 1
-        panels.append(markup[:end] + cols + markup[end:])
-    return "\n".join(panels)
+    if not isinstance(frame.index, pd.RangeIndex):
+        frame = frame.reset_index()
+    for field, label in [("short_rate", "Short rate (%)"), ("zero_rate", "Continuous zero rate (%)")]:
+        if field in frame.columns:
+            frame[field] = 100 * frame[field]
+            labels[field] = label
+    frame = frame.rename(columns=labels)
+    markup = frame.to_html(index=False, border=0, na_rep="", float_format=lambda v: f"{v:,.6f}".rstrip("0").rstrip("."))
+    return '<div class="demo-table-scroll" role="region" aria-label="Calculation table; scroll horizontally for all columns" tabindex="0">' + markup + '</div>'
 
 get_ipython().display_formatter.formatters["text/html"].for_type(pd.DataFrame, readable_table)
 
@@ -247,7 +255,7 @@ plt.rcParams.update({
 })
 ```
 
-## Step 1: Record the observed Treasury curve
+## Record the observed Treasury curve
 
 The published Treasury series contains par yields at standard maturity nodes. We
 retain the 1-, 2-, 3-, 5-, 7-, and 10-year observations and linearly interpolate
@@ -279,12 +287,12 @@ market_nodes = pd.DataFrame({
     "maturity_years": observed_maturities,
     "observed_par_yield_pct": 100 * observed_par_yields,
 })
-display(market_nodes)
+
 
 maturities = np.arange(1, 11)
 coupon_rates = np.interp(maturities, observed_maturities, observed_par_yields)
 
-# Under the annual-pay teaching convention, a par-yield quote implies price 100.
+# Under the annual-pay par-bond convention, a par-yield quote implies price 100.
 clean_prices = np.full(len(maturities), 100.0)
 
 bond_market = pd.DataFrame({
@@ -295,14 +303,20 @@ bond_market = pd.DataFrame({
                              "Observed Treasury node", "Interpolated node"),
 })
 
-display(bond_market)
+market_table = bond_market.copy()
+market_table.insert(0, "observation_date", observed_date)
+market_table.insert(2, "observed_par_yield_pct", [
+    100 * observed_par_yields[np.where(observed_maturities == t)[0][0]]
+    if t in observed_maturities else np.nan for t in maturities
+])
+display(market_table)
 ```
 
 Observed nodes are facts from the dated snapshot. Interpolated nodes and the
 annual-pay par-bond representation are assumptions. That separation matters: a
 curve can fit its inputs perfectly while still depending on construction choices.
 
-## Step 2: Bootstrap today's discount curve
+## Bootstrap today's discount curve
 
 For the one-year bond, the only cash flow is coupon plus principal, so its price
 immediately gives $P(0,1)$. For each later bond, discount factors for earlier coupons
@@ -325,7 +339,7 @@ def bootstrap_discount_factors(maturities, coupon_rates, bond_prices, face=100.0
     coupon_rates : array-like
         Annual coupon rates in decimal form.
     bond_prices : array-like
-        Observed clean prices per 100 of face value.
+        Constructed par-bond prices per 100 of face value.
 
     Output
     ------
@@ -373,7 +387,7 @@ display(curve_table.round(6))
 
 ```{python}
 #| label: fig-bootstrapped-curve
-#| fig-cap: "Today's curve recovered from observable coupon-bond prices"
+#| fig-cap: "Today's curve recovered from constructed par coupon bonds"
 fig, axes = plt.subplots(1, 2, figsize=(10.5, 4.1))
 
 axes[0].plot(maturities, bootstrapped_discounts, "o-", color=BLUE)
@@ -408,21 +422,27 @@ print(f"Largest absolute repricing error: "
       f"{np.max(np.abs(repriced_bonds - clean_prices)):.10f} per 100 face")
 ```
 
-## Step 3: Make the initial curve usable at any maturity
+## Make the initial curve usable at any maturity
 
 ::: {.callout-note}
 ## Bootstrap two maturities by hand
 
-Under the annual-pay teaching convention, the 1-year discount factor is
+Under the annual-pay par-bond convention, the 1-year discount factor is
 $P(0,1)=100/104.17$. The 2-year coupon is 4.25, so
 $P(0,2)=[100-4.25P(0,1)]/104.25$. We remove the present value of the earlier
 coupon before solving for the final payment's discount factor. Using
 $1/(1+4.25\%)^2$ instead would confuse the par yield with a zero yield.
 :::
 
-Hull–White formulas require $P(0,T)$ and the instantaneous forward rate
-$f(0,t)$. We use linear interpolation of the continuously compounded zero rate.
-This is intentionally simple; production systems use richer curve construction.
+There are two different interpolations. Before bootstrapping, we interpolate **par yields** to construct annual-pay par instruments at missing integer maturities. After bootstrapping, we have discount factors $P(0,T_i)$ and continuously compounded zero rates $y(0,T_i)=-\log P(0,T_i)/T_i$. Here we linearly interpolate those **zero rates**, not par yields or discount factors.
+
+For any nonnegative maturity $T$, this supplies
+
+$$P(0,T)=e^{-y(0,T)T},\qquad f(0,t)=-\frac{\partial\log P(0,t)}{\partial t}.$$
+
+The first zero rate is held constant between time 0 and year 1; beyond year 10, the last zero rate is held constant. These interpolation and extrapolation choices add no observed market information. Rates are stored as decimals: 0.0417 means 4.17%; displayed percent columns multiply by 100.
+
+The instantaneous forward is approximated by a finite difference of $\log P(0,t)$ with a $10^{-4}$-year step, centered except near zero. Piecewise-linear zero rates can produce forward jumps at maturity knots; differentiating those forwards for $\theta(t)$ creates sharp numerical drift changes. A smooth curve would be needed for stable continuous-time simulation.
 
 ```{python}
 #| label: curve-functions
@@ -450,7 +470,7 @@ def forward_rate_0(time, step=1e-4):
     return -(np.log(discount_0(right)) - np.log(discount_0(left))) / (right - left)
 ```
 
-## Step 4: Fit the Hull–White dynamics to option prices
+## Fit the Hull–White dynamics to option prices
 
 The lecture's calibration logic separates two jobs:
 
@@ -459,16 +479,17 @@ The lecture's calibration logic separates two jobs:
 
 In practice, $a$ and $\sigma$ are fitted to liquid caps, floors, or swaptions. To
 keep the code transparent, our artificial option market consists of European calls
-on zero-coupon bonds. Such option premiums are observable, and Hull–White has a
-short closed-form pricing formula for them.
+on zero-coupon bonds. These option premiums could be observed in a suitable market dataset; the premiums below are synthetic. Hull–White has a closed-form pricing formula for them.
 
 ### Hull–White building blocks
 
 For the one-factor model
 
-$$dr_t=[\theta(t)-a r_t]dt+\sigma dW_t,$$
+$$dr_t=[\theta(t)-a r_t]dt+\sigma dW_t^{\mathbb Q},$$
 
-define
+$t$ is the valuation time and $T>t$ is a payment maturity, both measured in years. $r_t$ is the instantaneous short rate; $a$ is mean reversion (per year), $\sigma$ is short-rate volatility (per square root of a year), and $\theta(t)$ is the time-dependent drift intercept. $W_t^{\mathbb Q}$ is Brownian motion under the risk-neutral pricing measure. Lowercase $a$ is a scalar parameter; uppercase $A(t,T)$ below is a bond-pricing coefficient, not that parameter.
+
+The maturity loading $B(t,T)$, measured in years, is
 
 $$B(t,T)=\frac{1-e^{-a(T-t)}}{a}.$$
 
@@ -522,8 +543,7 @@ def zero_bond_call_price(expiry, bond_maturity, strike,
 ### Create a synthetic option quote snapshot
 
 We create at-the-money-forward calls with expiries from six months to five years.
-The hidden values $a=0.18$ and $\sigma=1.20\%$ are used only to generate the market
-premiums. A small alternating bid/ask-like perturbation prevents a mechanically
+The hidden values $a=0.18$ per year and $\sigma=1.20\%$ per square root of a year are used only to generate the synthetic premiums. A small alternating bid/ask-like perturbation prevents a mechanically
 perfect parameter recovery.
 
 ```{python}
@@ -646,7 +666,7 @@ plt.legend()
 plt.show()
 ```
 
-## Step 5: Fit the time-dependent drift to today's curve
+## Fit the time-dependent drift to today's curve
 
 Once $a$ and $\sigma$ are known, the drift function that fits the observed initial
 curve is
@@ -656,8 +676,11 @@ $$
 +a f(0,t)+\frac{\sigma^2}{2a}\left(1-e^{-2at}\right).
 $$
 
-This is the lecture's key calibration point: $\theta(t)$ is a *function*, not one
-number. It supplies enough flexibility to match all maturities of today's curve.
+The initial curve and the option calibration do different jobs. Fixing $a$ and $\sigma$ specifies how rates revert and fluctuate; it does not give enough freedom to fit every initial maturity. The time-dependent function $\theta(t)$ supplies that freedom. It is determined from the initial forward curve once $a$ and $\sigma$ are fixed, rather than fitted as one extra constant.
+
+The forward-slope term follows the changing shape of today's curve. The $a f(0,t)$ term offsets mean reversion, and the volatility term adjusts for stochastic discounting. Together they make risk-neutral dynamics consistent with today's discount factors. In this convention the drift is $\theta(t)-a r_t$; $\theta(t)$ itself is not a long-run rate level.
+
+The code approximates the forward slope using a $10^{-3}$-year finite difference. The sharp knot behavior described above limits the smoothness of this numerical drift. The future bond-pricing formula below uses the initial discount curve directly, avoiding numerical integration of this plotted drift.
 
 ```{python}
 #| label: theta-function
@@ -695,7 +718,11 @@ That is instructive: curve construction and smoothing matter in real calibration
 
 ### Verify that Hull–White reproduces today's discount curve
 
-For future-date pricing, Hull–White gives the zero-coupon bond price
+A zero-coupon bond pays one unit at maturity. Its conditional price averages the discounted payoff over all future paths from the current information $\mathcal F_t$:
+
+$$P(t,T)=\mathbb E^{\mathbb Q}\!\left[\exp\!\left(-\int_t^T r_s\,ds\right)\mid\mathcal F_t\right].$$
+
+Hull–White evaluates this expectation in closed form:
 
 $$
 P(t,T)=A(t,T)e^{-B(t,T)r_t},
@@ -709,8 +736,13 @@ A(t,T)=\frac{P(0,T)}{P(0,t)}
 -\frac{\sigma^2}{4a}(1-e^{-2at})B(t,T)^2\right].
 $$
 
-At $t=0$, using $r_0=f(0,0)$ makes the exponential terms cancel, leaving exactly
-$P(0,T)$. This is the no-arbitrage fit.
+$A(t,T)$ incorporates the initial discount curve, model parameters, and dates. $B(t,T)$ loads the simulated short-rate state into the price. A single $r_t$ is sufficient only after the initial curve, parameters, and dates are specified. This formula integrates over subsequent rate paths; it does not assume rates stay at $r_t$ and does not require nested simulation.
+
+At $t=0$, the volatility adjustment vanishes and $P(0,0)=1$, so the model expression becomes
+
+$$P(0,T)\exp[B(0,T)f(0,0)]\exp[-B(0,T)r_0]=P(0,T)$$
+
+when $r_0=f(0,0)$. Thus every maturity of the constructed initial curve is reproduced, not just a particular bond price. The table compares the formula with bootstrapped integer-maturity inputs; the same cancellation holds between nodes under the chosen interpolation rule.
 
 ```{python}
 #| label: hw-discount-function
@@ -763,11 +795,10 @@ initial_fit = pd.DataFrame({
 display(initial_fit.round(10))
 ```
 
-## Step 6: Generate future yield curves
+## Generate future yield curves
 
 Move to year 2. In a one-factor Hull–White model, the short rate $r_2$ is the single
-state variable. Once a state is specified, `hw_discount_factor()` produces
-$P(2,T)$ for every $T>2$, and therefore the entire future zero curve:
+state variable. Hold the initial curve, $a$, and $\sigma$ fixed. For a simulated or selected $r_2$, calculate $B(2,T)$ and $A(2,T)$ at each future payment date, then obtain $P(2,T)=A(2,T)e^{-B(2,T)r_2}$. Convert each conditional bond price to its continuously compounded zero yield:
 
 $$y(2,T)=-\frac{\log P(2,T)}{T-2}.$$
 
@@ -835,10 +866,9 @@ plt.show()
 ```
 
 Notice that one factor moves the whole curve in a structured way. Mean reversion
-causes the effect of today's short-rate state to weaken at longer maturities because
-$B(t,T)$ approaches $1/a$ rather than increasing without bound.
+causes the effect of today's short-rate state to weaken at longer maturities because the zero-yield sensitivity is $B(t,T)/(T-t)$: $B(t,T)$ approaches $1/a$ while remaining maturity grows.
 
-## Step 7: Use a future curve to price a bond
+## Use a future curve to price a bond
 
 Consider the original ten-year 4.10% coupon bond at year 2, immediately after its
 year-2 coupon has been paid. Eight coupons and the principal remain. Its value in
@@ -909,7 +939,7 @@ plt.show()
 This future valuation is where a short-rate model becomes useful. Today we do not
 observe $P(2,T)$; Hull–White generates it consistently for each possible $r_2$.
 
-## Step 8: Plain-bond consistency at time 0
+## Plain-bond consistency at time 0
 
 Finally, verify the lecture's important claim: once Hull–White is calibrated to the
 observed curve, it does **not** create a different time-0 price for a vanilla bond.
@@ -1062,7 +1092,7 @@ display(pd.Series({"Mean reversion a": calibrated_a, "Volatility sigma": calibra
 assert np.all(np.diff(project_prices)<0)
 ```
 
-The initial curve pins down today's discounting; option premiums identify the model's risk-neutral dynamics. A higher year-2 short rate lowers the price of the same remaining payments. The $5 million position scales the per-100 result by 50,000. These states are not physical forecasts or investment returns: the two earlier coupons and their reinvestment are absent from this ex-coupon valuation. Calibration here uses synthetic option quotes, so the fitted parameters demonstrate recovery of teaching inputs, not a live market fit.
+The initial curve pins down today's discounting; option premiums identify the model's risk-neutral dynamics. A higher year-2 short rate lowers the price of the same remaining payments. The $5 million position scales the per-100 result by 50,000. These states are not physical forecasts or investment returns: the two earlier coupons and their reinvestment are absent from this ex-coupon valuation. Calibration here uses synthetic option quotes, so the fitted parameters demonstrate recovery of synthetic inputs, not a live market fit.
 
 ```{=html}
 </details>

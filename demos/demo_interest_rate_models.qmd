@@ -1,6 +1,5 @@
 ---
 title: "Demo: From Observed Treasury Yields to Hull–White Future Curves"
-subtitle: "A hands-on companion to Lecture 7"
 format:
   html:
     toc: true
@@ -63,11 +62,9 @@ This demo follows one complete fixed-income workflow:
 6. use those future curves to price remaining bond cash flows.
 
 The initial curve uses the U.S. Treasury's published **January 2, 2025** par-yield
-snapshot. To keep every calculation auditable, the market nodes are embedded below
-rather than downloaded during rendering. Treasury par yields are bond-equivalent
+snapshot. Treasury par yields are bond-equivalent
 quoted rates; bootstrapped zero rates are continuously compounded. The option
-premiums used later are explicitly labeled synthetic because a stable, public
-option-volatility surface is not available with the course files.
+premiums used later are synthetic.
 
 Source: [U.S. Treasury, Daily Treasury Par Yield Curve Rates](https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve&field_tdr_date_value=2025).
 
@@ -88,11 +85,8 @@ describe *future* curves. Calibration makes those two statements consistent.
 The second layer must preserve the first. A complicated model is not allowed to
 change today's price of fixed cash flows once the discount curve is fixed.
 
-Open **Show calculation** to inspect each step. The final state explorer changes
-the future state while holding the calibrated parameters and initial curve fixed.
+Open **Show calculation** to inspect each step. The final explorer lets you change the input curve, model parameters, and future short-rate state.
 
-We only need NumPy, pandas, and Matplotlib. The functions below use explicit inputs
-and return ordinary arrays or data frames so that each step is easy to inspect.
 
 
 ```{python}
@@ -343,25 +337,42 @@ print(f"Largest absolute repricing error: "
       f"{np.max(np.abs(repriced_bonds - clean_prices)):.10f} per 100 face")
 ```
 
-## Make the initial curve usable at any maturity
+## Fit the Hull–White dynamics to option prices
 
-::: {.callout-note}
-## Bootstrap two maturities by hand
+The lecture's calibration logic separates two jobs:
 
-Under the annual-pay par-bond convention, the 1-year discount factor is
-$P(0,1)=100/104.17$. The 2-year coupon is 4.25, so
-$P(0,2)=[100-4.25P(0,1)]/104.25$. We remove the present value of the earlier
-coupon before solving for the final payment's discount factor. Using
-$1/(1+4.25\%)^2$ instead would confuse the par yield with a zero yield.
-:::
+- the piecewise-constant function $\theta(t)$ fits every bootstrapped discount target; and
+- $a$ and $\sigma$ control future mean reversion and volatility.
 
-Before bootstrapping, we interpolate **par yields** to construct annual-pay par instruments at missing integer maturities. After bootstrapping, the discount factors $P^{\mathrm{boot}}(0,T_i)$ become the targets for the short-rate model. We do **not** interpolate zero rates or differentiate a forward curve to obtain the drift.
+In practice, $a$ and $\sigma$ are fitted to liquid caps, floors, or swaptions. To
+keep the code transparent, our artificial option market consists of European calls
+on zero-coupon bonds. These option premiums could be observed in a suitable market dataset; the premiums below are synthetic. Hull–White has a closed-form pricing formula for them.
 
-Instead, choose a constant drift intercept on each interval between successive bootstrap dates. For any proposed mean reversion $a$ and volatility $\sigma$, fit those constants so the model reproduces the discount targets. The same fitted model then supplies prices at fractional maturities. Between nodes, these are model-implied values, not additional market observations.
+### Hull–White building blocks
 
-We set the starting short rate to $r_0=-\log P^{\mathrm{boot}}(0,T_1)/T_1$. This is an explicit starting-state convention, not a separately observed overnight rate. Beyond the last bootstrap date, the final drift constant is held fixed. Rates are stored as decimals: 0.0417 means 4.17%; displayed percent columns multiply by 100.
+For the one-factor model
 
-The calculation below implements exact Gaussian discounting with interval integrals. The fitting process and its mathematical meaning are shown in Section 7. These helpers are also used during the option calibration, so every candidate $(a,\sigma)$ gets its own curve-fitting drift vector.
+$$dr_t=[\theta(t)-a r_t]dt+\sigma dW_t^{\mathbb Q},$$
+
+$t$ is the valuation time and $T>t$ is a payment maturity, both measured in years. $r_t$ is the instantaneous short rate; $a$ is mean reversion (per year), $\sigma$ is short-rate volatility (per square root of a year), and $\theta(t)$ is the time-dependent drift intercept. $W_t^{\mathbb Q}$ is Brownian motion under the risk-neutral pricing measure. Lowercase $a$ is a scalar parameter; uppercase $A(t,T)$ below is a bond-pricing coefficient, not that parameter.
+
+The zero-coupon bond price is
+
+$$P(t,T)=A(t,T)e^{-B(t,T)r_t},\qquad
+B(t,T)=\frac{1-e^{-a(T-t)}}{a}.$$
+
+For the piecewise-constant drift used here,
+
+$$A(t,T)=\exp\!\left[-\int_t^T\theta(u)B(u,T)\,du
++\frac{\sigma^2}{2}\int_t^T B(u,T)^2\,du\right].$$
+
+Capital $A(t,T)$ incorporates the fitted drift and volatility; lowercase $a$ controls mean reversion. The calculation evaluates the interval integrals directly. Given $r_t$ and the fitted model, this gives the price of one unit paid at $T$.
+
+Write the model option premium compactly as
+
+$$C^{\mathrm{model}}(S,T,K; a,\sigma,\boldsymbol\theta(a,\sigma),r_0).$$
+
+$S$ is the option expiry, $T>S$ is the underlying zero-coupon bond's maturity, and $K$ is the strike paid at expiry. The underlying principal and option premium are quoted per 100 of face value. For each candidate $(a,\sigma)$, the vector $\boldsymbol\theta(a,\sigma)$ is refitted to the bootstrap discount targets. The starting state is fixed at $r_0=-\log P^{\mathrm{boot}}(0,T_1)/T_1$, a convention rather than a separate overnight-rate observation.
 
 ```{python}
 #| label: curve-functions
@@ -452,34 +463,6 @@ def mean_short_rate(start, end, short_rate, mean_reversion, volatility):
             @ fitted_theta(mean_reversion, volatility))
 ```
 
-## Fit the Hull–White dynamics to option prices
-
-The lecture's calibration logic separates two jobs:
-
-- the piecewise-constant function $\theta(t)$ fits every bootstrapped discount target; and
-- $a$ and $\sigma$ control future mean reversion and volatility.
-
-In practice, $a$ and $\sigma$ are fitted to liquid caps, floors, or swaptions. To
-keep the code transparent, our artificial option market consists of European calls
-on zero-coupon bonds. These option premiums could be observed in a suitable market dataset; the premiums below are synthetic. Hull–White has a closed-form pricing formula for them.
-
-### Hull–White building blocks
-
-For the one-factor model
-
-$$dr_t=[\theta(t)-a r_t]dt+\sigma dW_t^{\mathbb Q},$$
-
-$t$ is the valuation time and $T>t$ is a payment maturity, both measured in years. $r_t$ is the instantaneous short rate; $a$ is mean reversion (per year), $\sigma$ is short-rate volatility (per square root of a year), and $\theta(t)$ is the time-dependent drift intercept. $W_t^{\mathbb Q}$ is Brownian motion under the risk-neutral pricing measure. Lowercase $a$ is a scalar parameter; uppercase $A(t,T)$ below is a bond-pricing coefficient, not that parameter.
-
-The maturity loading $B(t,T)$, measured in years, is
-
-$$B(t,T)=\frac{1-e^{-a(T-t)}}{a}.$$
-
-The volatility of a zero-coupon bond option expiring at $S$ on a bond maturing at
-$T$ is
-
-$$\sigma_P=\sigma B(S,T)\sqrt{\frac{1-e^{-2aS}}{2a}}.$$
-
 ```{python}
 #| label: hw-option-functions
 def normal_cdf(x):
@@ -557,9 +540,16 @@ display(option_market.round(5))
 
 ### Calibrate $a$ and $\sigma$ with a simple grid search
 
-The objective is the root-mean-square pricing error across the option quotes. A
-grid search is slower than a numerical optimizer, but students can see exactly what
-is tried and it needs no extra package. For each candidate pair, the drift constants are refitted to the same bootstrap targets before pricing the options. Fractional-maturity discounts therefore come from that candidate model, rather than an independent interpolated curve.
+For the supplied synthetic premiums $C_j^{\mathrm{supplied}}$, choose the parameters that minimize the root-mean-square pricing error:
+
+$$(\widehat a,\widehat\sigma)
+=\underset{a,\sigma}{\operatorname{argmin}}\;
+\sqrt{\frac{1}{M}\sum_{j=1}^{M}
+\left[C^{\mathrm{model}}(S_j,T_j,K_j;
+ a,\sigma,\boldsymbol\theta(a,\sigma),r_0)
+-C_j^{\mathrm{supplied}}\right]^2}.$$
+
+$M$ is the number of option quotes; $S_j$, $T_j$, and $K_j$ identify each contract. The grid below tries candidate values of lowercase $a$ and $\sigma$. Each candidate refits the drift constants to the same bootstrap targets before pricing the options, including discounts at fractional maturities. Capital $A(t,T)$ remains a bond-pricing coefficient, not a parameter being estimated.
 
 ```{python}
 #| label: calibrate-a-sigma
@@ -681,28 +671,11 @@ plt.show()
 
 ### Verify that Hull–White reproduces today's discount curve
 
-A zero-coupon bond pays one unit at maturity. Its conditional price averages the discounted payoff over all subsequent paths from the current information $\mathcal F_t$:
+Use the fitted model to calculate
 
-$$P(t,T)=\mathbb E^{\mathbb Q}\!\left[\exp\!\left(-\int_t^T r_s\,ds\right)\mid\mathcal F_t\right]
-=A(t,T)e^{-B(t,T)r_t}.$$
+$$P^{\mathrm{model}}(0,T_i)=A(0,T_i)e^{-B(0,T_i)r_0}$$
 
-To evaluate this using the fitted constants, define the interval weights and conditional variance
-
-$$K_i(t,T)=\int_{[t,T]\,\cap\,[T_{i-1},T_i)} B(u,T)\,du,
-\qquad V(t,T)=\sigma^2\int_t^T B(u,T)^2\,du.$$
-
-For the final interval, use its extension through $T$ if necessary. The integrals have exact exponential formulas; the code evaluates them directly. Then
-
-$$A(t,T)=\exp\!\left[-\sum_{i=1}^{N}\theta_i K_i(t,T)+\tfrac12 V(t,T)\right].$$
-
-The term $B(t,T)r_t+\sum_i\theta_iK_i(t,T)$ is the conditional mean of the integrated short rate, and $V(t,T)$ is its conditional variance. This closed-form Gaussian expectation averages future paths; it does not hold the current short rate constant or require nested simulation. Uppercase $A(t,T)$ is a pricing coefficient, distinct from scalar mean reversion $a$.
-
-At time zero, the fitted equations are simply
-
-$$\log P^{\mathrm{boot}}(0,T_i)
-=-B(0,T_i)r_0-\sum_j\theta_jK_j(0,T_i)+\tfrac12 V(0,T_i).$$
-
-The table verifies those equations using the same conditional-pricing implementation used for future curves. **The fit is exact at the bootstrap nodes.** Between them, the model supplies its own initial curve; it is not constrained to reproduce a separate zero-rate interpolation.
+and compare it with $P^{\mathrm{boot}}(0,T_i)$ at each bootstrap maturity. These are **prices of one unit paid at maturity**, not the par coupon-bond price of 100. The differences below should be zero apart from numerical rounding. Between these nodes, the same fitted model supplies the discount curve.
 
 ```{python}
 #| label: hw-discount-function
@@ -725,8 +698,6 @@ $$y(2,T)=-\frac{\log P(2,T)}{T-2}.$$
 
 We show three possible states around the model's central short-rate level. They are
 scenarios, not point forecasts.
-
-The center below is the fitted model's risk-neutral expected short rate at year 2. It is a reference state, not a physical forecast. The sample paths use exact Gaussian transitions with the fitted interval constants: their means include every drift interval crossed and their variance over $\Delta t$ is $\sigma^2(1-e^{-2a\Delta t})/(2a)$. The same constants enter the conditional bond prices.
 
 ```{python}
 #| label: future-curves
@@ -772,7 +743,7 @@ for state_name, short_rate in short_rate_states.items():
     }))
 
 future_curves = pd.concat(future_curve_rows, ignore_index=True)
-display(future_curves.groupby("state").head(3).round(5))
+display(future_curves.groupby("state").head(3).reset_index(drop=True).round(5))
 ```
 
 ```{python}

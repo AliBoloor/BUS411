@@ -84,7 +84,7 @@ At three years, expected rate = **5.2%** and standard deviation = **1.5%√3 ≈
 
 ![](lec3-11-assets/lec7-fig-drift-and-random-shocks.svg){.figure}
 
-Simulated source paths with seed 7. The bell curve at year 3 illustrates the cross-sectional distribution at a fixed date.
+The bell curve at year 3 illustrates the cross-sectional distribution at a fixed date.
 
 ## An Itô process allows state- and time-dependent dynamics
 
@@ -120,7 +120,6 @@ The initial rate’s influence decays more quickly at higher α. This conditiona
 
 ![](lec3-11-assets/lec7-fig-mean-reversion-speed.svg){.figure}
 
-Source simulation, seed 12; both panels use the same shock matrix.
 
 ## CEV specifies how volatility changes with the rate
 
@@ -201,7 +200,7 @@ $$
 P=\sum_iCF_iP(0,t_i)
 $$
 
-P(0,tᵢ) is today’s price of a unit payment at tᵢ. Bootstrap discount factors from benchmark instruments.
+$P(0,t_i)$ is today’s price of a unit payment at $t_i$. Bootstrap discount factors from benchmark instruments.
 
 A Hull–White model fitted to the same curve reproduces the same time-0 plain-bond value. That checks consistency but adds little to fixed-payment discounting.
 
@@ -282,9 +281,7 @@ Illustrative input curve, not live market data. The source plot deliberately off
 
 ## Calibration separates current prices from future dynamics
 
-<div class="flow"><span><b>1 Bootstrap</b>Infer market discount factors</span><i>→</i><span><b>2 Fit θ(t)</b>Match zero-coupon prices</span><i>→</i><span><b>3 Fit a and σ</b>Use caps, floors, swaptions</span></div>
-
-4. Price the target with a lattice, finite differences, or simulation.
+<div class="flow"><span><b>1 Bootstrap</b>Infer market discount factors</span><i>→</i><span><b>2 Fit a and σ</b>Use caps, floors, swaptions</span><i>→</i><span><b>3 Fit θ(t)</b>Match zero-coupon prices</span><i>→</i><span><b>4 Price the target</b>Lattice, finite differences, or simulation</span></div>
 
 Plain fixed cash flows often need step 1; future-rate-dependent claims need the additional steps.
 
@@ -397,30 +394,3 @@ Annualization assumes weekly changes are uncorrelated with stable variance; it d
 <div class="flow"><span><b>Observed option price</b>Cap, floor, or swaption</span><i>→</i><span><b>Chosen pricing model</b>Price as a function of volatility</span><i>→</i><span><b>Solve for σ</b>Volatility priced by that model</span></div>
 
 <div class="comparison"><div><h3>Historical</h3><p>Describes past rate changes.</p></div><div><h3>Implied</h3><p>Reflects current option pricing, expectations, and risk premiums.</p></div></div>
-
-## The existing course demo supports the distinction
-
-`demo_interest_rate_models.qmd` illustrates observed versus synthetic inputs, Vasicek estimation, Hull–White fitting, path simulation, and model comparison.
-
-Use it to separate historical estimation from market calibration. The deck’s simulations are reproducible source illustrations, not estimated forecasts.
-
-## Preparation for embedded-option valuation
-
-The appendix [Introduction to Option Pricing](../lecture_notes/introduction-to-option-pricing.html) develops risk-neutral probabilities, backward induction, and issuer exercise.
-
-Lecture 8 applies that logic to callable and putable bonds.
-
-## Keep the modeling questions in order
-
-<div class="flow"><span><b>Today</b>What does the observed curve price?</span><i>→</i><span><b>Dynamics</b>Which state variable and volatility law?</span><i>→</i><span><b>Calibration</b>Which data fit the model?</span><i>→</i><span><b>Decision</b>What payoff or exercise rule applies?</span></div>
-
-Drift, volatility, and mean reversion determine dynamics. Calibration anchors current prices; future cash-flow contingencies determine how much model complexity is useful.
-
-## Readings and official data
-
-Fabozzi, **Chapter 17**.
-
-- [Treasury daily par curves](https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve)
-- [New York Fed reference rates](https://www.newyorkfed.org/markets/reference-rates)
-- [FRED effective federal funds rate](https://fred.stlouisfed.org/series/DFF)
-- [Federal Reserve H.15](https://www.federalreserve.gov/releases/h15/)

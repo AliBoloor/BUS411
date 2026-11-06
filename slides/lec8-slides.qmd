@@ -8,13 +8,14 @@ format:
     include-in-header:
       text: |
         <script src="lec3-11-visuals.js" defer></script>
+        <style>
+        .reveal .slides section h2 { border-bottom: 3px solid #936724; padding-bottom: .22em; }
+        </style>
 ---
 
 ## From promised payments to state-dependent cash flows
 
 <div class="flow"><span><b>Option-free</b>Discount a fixed schedule</span><i>→</i><span><b>Embedded option</b>Model future rates and exercise</span><i>→</i><span><b>Price and risk</b>Value the resulting cash flows</span></div>
-
-
 
 $$
 P=\sum_t CF_tP(0,t)
@@ -56,13 +57,15 @@ $$
 
 ![](lec3-11-assets/lec8-fig-static-spread-curve.svg){.figure}
 
-The source illustration adds 80 bp at every maturity.
+This separate illustration adds 80 bp at every maturity.
 
 ## Static-spread example: set up the payments
 
 <div class="comparison"><div><h3>Bond</h3><p>5 years; face $1,000; 6% annual coupon paid semiannually.</p></div><div><h3>Market</h3><p>Price $1,020; ten dated spot rates, from 2.0% to 4.3%.</p></div></div>
 
 <div class="cash-timeline" data-times='["0", "0.5", "1", "\u2026", "4.5", "5"]' data-flows='["\u2212$1,020", "$30", "$30", "\u2026", "$30", "$1,030"]'></div>
+
+Each half-year coupon is $1000(0.06)/2=30$; the final payment is $1000+30=1030$.
 
 ## Keep the discount convention consistent
 
@@ -74,21 +77,19 @@ The source illustration adds 80 bp at every maturity.
 |---|---:|---:|---:|---:|---:|
 | Spot rate | 3.8% | 4.0% | 4.1% | 4.2% | 4.3% |
 
-The source calculation treats these as **effective annual** spot rates; fractional-year exponents discount the semiannual payments.
+Treat these as **effective annual** spot rates, as in the notes’ calculation. Payment $k$ occurs at $t_k=k/2$ years, so discount it with a fractional-year exponent.
 
 ## Solve for the spread, rather than averaging yields
 
 $$
-1020=\sum_{k=1}^{9}\frac{30}{(1+z_{k/2}+s)^{k/2}}+\frac{1030}{(1+0.043+s)^5}
+1020=\sum_{k=1}^{9}\frac{30}{(1+r_{k/2}+s)^{k/2}}+\frac{1030}{(1+0.043+s)^5}
 $$
-
-
 
 $$
 s=0.01400712\approx140.07\text{ bp}
 $$
 
-A larger trial spread lowers present value. Iterate until the price residual is zero.
+Here $s=1.400712\%$ is added to each annual spot rate: $0.01400712\times10{,}000=140.07$ bp. Substitution gives a present value of \$1,020; a larger trial spread lowers that value.
 
 ## Price is nonlinear in the static spread
 
@@ -128,15 +129,13 @@ Use the relevant permitted call dates. The minimum yield does not model the prob
 
 ![](lec3-11-assets/lec8-fig-callable-price-yield.svg){.figure}
 
-Source illustration: 10-year, 8% annual coupon; callable after year 3 at 100. This deterministic illustration is not a calibrated stochastic valuation.
+Notes illustration: 10-year, 8% annual coupon; callable after year 3 at 100. This deterministic illustration is not a calibrated stochastic valuation.
 
 ## Separate the bond from the embedded option
 
 $$
 V_{\mathrm{callable}}=V_{\mathrm{straight}}-V_{\mathrm{call}}
 $$
-
-
 
 $$
 V_{\mathrm{putable}}=V_{\mathrm{straight}}+V_{\mathrm{put}}
@@ -148,7 +147,7 @@ The issuer owns the call; the investor owns the put.
 
 ![](lec3-11-assets/lec8-fig-embedded-option-decomposition.svg){.figure}
 
-The source’s smooth option-value curve is a schematic decomposition, not a calibrated option price.
+This smooth option-value curve illustrates the decomposition; it is not a calibrated option price.
 
 ## Value the final payoff, then work backward
 
@@ -160,7 +159,7 @@ The source’s smooth option-value curve is a schematic decomposition, not a cal
 
 Exercise decisions affect the values passed back toward today.
 
-## The notes use values including the current coupon
+## Backward induction includes the current coupon
 
 $$
 H_{i,j}=\frac{pV_{i+1,j+1}+(1-p)V_{i+1,j}}{1+r_{i,j}}+CF_i
@@ -176,21 +175,22 @@ $$
 V^{\mathrm{callable}}_{i,j}=\min\{H_{i,j},K_i\}
 $$
 
-
-
 $$
 V^{\mathrm{putable}}_{i,j}=\max\{H_{i,j},K_i^{\mathrm{put}}\}
 $$
 
 Apply these rules only on eligible exercise dates. The notes compare the coupon-inclusive hold value with the stated exercise payment; contract terms determine whether a separate coupon is payable.
 
-## An ex-coupon convention is also possible
+## Coupon and exercise payments use the same timing
 
-$$
-V^{\mathrm{hold}}_{i,j}=\frac{C+pV_{i+1,j+1}+(1-p)V_{i+1,j}}{1+r_{i,j}+s}
-$$
+| Date or decision | Cash-flow convention in the worked examples |
+|---|---|
+| Maturity | Terminal value is principal plus the final coupon: $V_T=F+C$ |
+| Earlier node | Discount the next values, then add the current coupon once |
+| Exercise | Compare the coupon-inclusive hold value with the total exercise payment |
+| Time zero | The reported value includes the immediate coupon; subtract it for the ex-coupon purchase price |
 
-In this convention, terminal principal is $V_T=F$ and the final coupon enters the preceding rollback. Do not mix it with the notes’ coupon-inclusive terminal value $F+C$.
+For the three-year example, the call cap of 107 is coupon 8 plus redemption 99. It is not 107 plus another coupon.
 
 ## A two-node exercise check
 
@@ -205,8 +205,6 @@ The rate path can change the payment schedule. For the simple callable bond, a r
 ## Three-year example: contract and assumptions
 
 <div class="comparison"><div><h3>Contract</h3><p>Face 100; annual coupon 8; maturity 3 years; total coupon-inclusive call payment 107 from year 2.</p></div><div><h3>Tree</h3><p>Annual steps; risk-neutral p = 0.5; initial short rate 6%.</p></div></div>
-
-
 
 The worked example includes an immediate time-zero coupon. Its call cap 107 includes coupon 8 and redemption 99. Subtract 8 from the time-zero value for an ex-coupon purchase price.
 
@@ -262,8 +260,6 @@ $$
 V_{1,L}=\frac{0.5(108)+0.5(111.8462)}{1.05}+8=112.6886
 $$
 
-
-
 $$
 V_{1,H}=\frac{0.5(104.4286)+0.5(108)}{1.09}+8=105.4443
 $$
@@ -279,8 +275,6 @@ Use the **uncapped** year-2 values.
 $$
 V_{1,L}^{c}=\frac{0.5(107)+0.5(107)}{1.05}+8=109.9048
 $$
-
-
 
 $$
 V_{1,H}^{c}=\frac{0.5(104.4286)+0.5(107)}{1.09}+8=104.9856
@@ -298,13 +292,11 @@ $$
 V_0^{s}=\frac{0.5(112.6886)+0.5(105.4443)}{1.06}+8\approx110.8930
 $$
 
-
-
 $$
 V_0^{c}=\frac{0.5(109.9048)+0.5(104.9856)}{1.06}+8=109.3634
 $$
 
-The source rounds the straight value to 110.8930; full-precision rollback gives 110.8929 (call value 1.5295). These source values include the immediate coupon of 8; removing only that payment gives 102.8930 and 101.3634 under the same subsequent exercise convention.
+These values include the immediate coupon of 8. Rounded to cents, the straight bond is **110.89** and the callable bond is **109.36**. Their ex-coupon purchase prices are **102.89** and **101.36**, respectively.
 
 ## The final rollback brings the option cost to today
 
@@ -313,16 +305,14 @@ The source rounds the straight value to 110.8930; full-precision rollback gives 
 ## Step 7 — identify the embedded call value
 
 $$
-V_{\mathrm{call}}\approx110.8930-109.3634\approx1.5296
+V_{\mathrm{call}}=V_{\mathrm{straight}}-V_{\mathrm{callable}}\approx1.53
 $$
 
-<div class="comparison"><div><h3>Straight bond</h3><p>110.89 under the source convention.</p></div><div><h3>Callable bond</h3><p>109.36; investor gives up about 1.53 in value.</p></div></div>
+<div class="comparison"><div><h3>Straight bond</h3><p>110.89 including the current coupon.</p></div><div><h3>Callable bond</h3><p>109.36; the issuer’s call costs the investor about 1.53 per 100 face.</p></div></div>
 
 ## Put example: the investor controls exercise
 
 <div class="comparison"><div><h3>Contract</h3><p>2 years; face 100; annual coupon 5; put at 100 after year 1.</p></div><div><h3>Tree</h3><p>r₀ = 6%; year-1 rates 4% and 12%; p = 0.5.</p></div></div>
-
-
 
 $$
 V_{2,j}=100+5=105
@@ -330,21 +320,15 @@ $$
 
 ## Compare continuation with the put price
 
-$$
-H_{1,L}=105/1.04+5=105.9615
-$$
+$$H_{1,j}=\frac{105}{1+r_{1,j}}+5,\qquad
+V^{\mathrm{put}}_{1,j}=\max(H_{1,j},100).$$
 
+| Year-1 rate | Hold calculation | Hold value | Putable value | Decision |
+|---|---|---:|---:|---|
+| 4% | $105/1.04+5$ | 105.9615 | 105.9615 | Keep bond |
+| 12% | $105/1.12+5$ | 98.7500 | 100.0000 | Exercise put |
 
-
-$$
-H_{1,H}=105/1.12+5=98.7500
-$$
-
-
-
-$$
-V_{1,L}=105.9615,\qquad V_{1,H}=\max(98.75,100)=100
-$$
+The investor exercises when the total put payment exceeds the coupon-inclusive hold value.
 
 ## Roll back the protected value
 
@@ -352,7 +336,7 @@ $$
 V_0^{\mathrm{put}}=\frac{0.5(105.9615)+0.5(100)}{1.06}+5=102.1517
 $$
 
-The investor exercises in the high-rate state. The source value includes the immediate coupon of 5; excluding it gives 97.1517 under the same later exercise convention.
+The investor exercises in the high-rate state. The value includes the immediate coupon of 5. The ex-coupon purchase price is $102.1517-5=97.1517$ under the same later exercise convention.
 
 ## The put creates a floor in the adverse state
 
@@ -369,8 +353,6 @@ A plausible-looking simulation tree is not enough for valuation.
 $$
 u=e^{\sigma\sqrt{\Delta t}},\qquad d=u^{-1}
 $$
-
-
 
 $$
 r_{1,H}=r_{1,L}e^{2\sigma}=4.074\%\,e^{0.20}\approx4.976\%
@@ -391,11 +373,11 @@ $$
 | 3 years | 5.00% | 0.86384 |
 | 4 years | 5.25% | 0.81491 |
 
-The source uses annual steps and σ = 10%. Each aₜ fits one additional market discount factor.
+Use annual steps, $p=0.5$, and $\sigma=10\%$. Each $a_t$ fits one additional unit zero-coupon price: $P(0,T)=(1+z_T)^{-T}$.
 
-## Inspect the calibrated rates and discount factors
+## Calibrated node rates reproduce the zero prices
 
-| Maturity | Market DF | Calibrated level a_t | Short rates at that date | Tree DF |
+| Maturity | Market DF | Calibrated level $a_t$ | Short rates at that date | Tree DF |
 |---|---|---|---|---|
 | 1 year | 0.96154 | 4.00% | 4.00% | 0.96154 |
 | 2 years | 0.91573 | 4.98% | 4.51%, 5.50% | 0.91573 |
@@ -403,8 +385,6 @@ The source uses annual steps and σ = 10%. Each aₜ fits one additional market 
 | 4 years | 0.81491 | 5.93% | 4.40%, 5.37%, 6.56%, 8.01% | 0.81491 |
 
 Volatility sets the relative distance between states; level parameters anchor the tree to today’s zero prices.
-
-
 
 ## Credit can enter the valuation in different ways
 
@@ -452,8 +432,6 @@ $$
 \text{Option cost}\approx\text{Static spread}-\text{OAS}
 $$
 
-
-
 $$
 150\text{ bp}-100\text{ bp}=50\text{ bp}
 $$
@@ -472,7 +450,7 @@ $$
 D_e=\frac{P_- - P_+}{2P_0\Delta y}
 $$
 
-The shock Δy is a decimal rate change. Callable effective duration often shortens when falling rates make a call more likely.
+The shock $\Delta y$ is a decimal rate change. Callable effective duration often shortens when falling rates make a call more likely.
 
 ## Effective convexity measures the asymmetry
 
@@ -486,7 +464,7 @@ Capped upside can produce small or negative effective convexity.
 
 ![](lec3-11-assets/lec8-fig-effective-duration-intuition.svg){.figure}
 
-Source schematic: callable prices 103.5 / 102 / 98.5 under −50 / 0 / +50 bp shocks.
+Notes illustration: $P_-=103.5$, $P_0=102$, and $P_+=98.5$ under $-50$, $0$, and $+50$ bp curve shocks.
 
 ## Apply the effective-risk formulas to the illustration
 
@@ -494,13 +472,11 @@ $$
 D_e=\frac{103.5-98.5}{2(102)(0.005)}=4.902
 $$
 
-
-
 $$
 C_e=\frac{103.5+98.5-2(102)}{102(0.005)^2}=-784.31
 $$
 
-These are the risks of the source’s illustrative three-price set, not a calibrated market bond.
+Use $\Delta y=50$ bp $=0.005$ and hold OAS fixed. These results describe the notes’ illustrative price set; they are not estimates for a calibrated market bond.
 
 ## Interactive four-period example: assumptions
 
@@ -544,9 +520,7 @@ These are the risks of the source’s illustrative three-price set, not a calibr
 </div>
 ```
 
-
-
-This uncalibrated teaching tree includes an immediate coupon. Its OAS and node-shock risks illustrate mechanics; they are not curve-calibrated market estimates.
+This example from the notes uses an illustrative, uncalibrated tree and includes an immediate coupon. Its OAS and node-shock risks show the calculation mechanics rather than curve-calibrated market estimates.
 
 
 ```{=html}
@@ -739,23 +713,8 @@ if (document.readyState === "loading") {
 
 Change inputs on the previous slide. Node values reflect exercise and the solved spread; maturity is fixed at four periods and p = 0.5.
 
-## Connect the widget to the course demo
-
-<div class="flow"><span><b>Build tree</b>Inspect the short-rate states</span><i>→</i><span><b>Price bonds</b>Compare straight, callable and putable</span><i>→</i><span><b>Solve spread</b>Match a target market price</span><i>→</i><span><b>Stress risk</b>Reprice after rate shocks</span></div>
-
-The existing course demo `demo_callable_bond_oas.qmd` uses self-contained illustrative inputs. For market valuation, add curve calibration and verify coupon/exercise timing.
-
 ## Keep the valuation logic intact
 
 <div class="flow"><span><b>Options</b>Change future cash flows</span><i>→</i><span><b>Lattice</b>Prices state-dependent exercise</span><i>→</i><span><b>Calibration</b>Anchors rates to the market</span><i>→</i><span><b>OAS and risk</b>Remain model dependent</span></div>
 
 Calls cap upside; puts protect downside. Backward induction applies min or max only at the relevant exercise dates.
-
-## Readings and market resources
-
-Fabozzi, *Bond Markets: Analysis and Strategies*, Chapter 18.
-
-- [FINRA, Fixed Income Data](https://www.finra.org/finra-data/fixed-income): Use TRACE-based corporate and agency bond information to compare traded prices, yields, and spreads for bonds with different embedded features.
-- [FINRA, TRACE Treasury Aggregate Statistics](https://www.finra.org/finra-data/browse-catalog/trace-treasury-aggregates): Track official aggregate trading activity in U.S. Treasury securities, the benchmark market underlying spread and OAS analysis.
-- [U.S. Treasury, Daily Treasury Par Yield Curve Rates](https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve): Obtain the current benchmark curve used as the starting point for static-spread, lattice, and OAS valuation.
-- [SEC, EDGAR Company Filings](https://www.sec.gov/search-filings): Verify call schedules, redemption provisions, and other embedded-option terms in issuers' official prospectuses and filings.

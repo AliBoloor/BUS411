@@ -57,10 +57,11 @@ A bond with an embedded option asks: "What might rates be in the future, what wo
 
 ```{python}
 #| label: fig-embedded-option-roadmap
+#| fig-align: center
 #| fig-cap: "Why embedded options require a model of future rates"
 #| echo: false
 import matplotlib.pyplot as plt
-from matplotlib.patches import FancyArrowPatch
+from matplotlib.patches import FancyArrowPatch, FancyBboxPatch
 steps = [
     "Today's\ncurve",
     "Future\nrate states",
@@ -71,7 +72,7 @@ steps = [
 n = len(steps)
 rows = (n + 1) // 2
 fig, ax = plt.subplots(figsize=(8, 1.12*rows))
-ax.set(xlim=(-.15, 2.15), ylim=(-.6, rows-.4))
+ax.set(xlim=(-.65, 1.65), ylim=(-.5, rows-.5))
 ax.set_axis_off()
 positions = []
 for i, label in enumerate(steps):
@@ -79,14 +80,16 @@ for i, label in enumerate(steps):
     x = col if row % 2 == 0 else 1-col
     y = rows-1-row
     positions.append((x,y))
-    ax.text(x, y, f"{i+1}. " + label, ha="center", va="center", fontsize=10,
-            bbox=dict(boxstyle="round,pad=.65", facecolor="#e7ebdf", edgecolor="#214b3e"))
+    ax.add_patch(FancyBboxPatch(
+        (x-.38, y-.28), .76, .56,
+        boxstyle="round,pad=.025", facecolor="#e7ebdf", edgecolor="#214b3e"))
+    ax.text(x, y, f"{i+1}. " + label, ha="center", va="center", fontsize=10)
 for (x1,y1),(x2,y2) in zip(positions[:-1],positions[1:]):
     if y1 == y2:
         direction = 1 if x2>x1 else -1
-        start, end = (x1+.37*direction,y1),(x2-.37*direction,y2)
+        start, end = (x1+.405*direction,y1),(x2-.405*direction,y2)
     else:
-        start,end=(x1,y1-.30),(x2,y2+.30)
+        start,end=(x1,y1-.305),(x2,y2+.305)
     ax.add_patch(FancyArrowPatch(start,end,arrowstyle="-|>",mutation_scale=13,color="#936724"))
 fig.tight_layout(pad=1)
 plt.show()

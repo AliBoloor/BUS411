@@ -170,9 +170,9 @@ Consider this annual-pay bond:
 |---|---|
 | Face value 100; annual coupon 8; maturity 3 years | Annual steps; risk-neutral up probability $p=0.5$ |
 | First call date: year 2 | Initial short rate: 6% |
-| Total call payment: 107, including the coupon | Year-1 rates: 5% and 9%; year-2 rates: 4%, 8%, and 12% |
+| Call at par: principal 100 + coupon 8 = total payment 108 | Year-1 rates: 5% and 9%; year-2 rates: 4%, 8%, and 12% |
 
-We value the bond just before the current coupon. At a call date, 107 means coupon 8 plus redemption 99. At time zero, subtract the immediate coupon of 8 if you want the ex-coupon purchase price.
+We value the bond just before the current coupon. A call at year 2 pays principal 100 plus coupon 8. If the bond reaches year 3, maturity also pays 100 plus 8. Subtract the immediate coupon of 8 to get the ex-coupon purchase price at time zero.
 
 ## The short-rate lattice
 
@@ -238,13 +238,13 @@ $$
 ## Step 3 — impose the call price at year 2
 
 $$
-V_{2,j}^{\mathrm{callable}}=\min(H_{2,j},107)
+V_{2,j}^{\mathrm{callable}}=\min(H_{2,j},108)
 $$
 
 | Rate | Hold value | Callable value | Decision |
 |---|---:|---:|---|
-| 4% | 111.8462 | 107.0000 | Call |
-| 8% | 108.0000 | 107.0000 | Call |
+| 4% | 111.8462 | 108.0000 | Call |
+| 8% | 108.0000 | 108.0000 | Indifferent |
 | 12% | 104.4286 | 104.4286 | Continue |
 
 ## The call rule changes only the relevant states
@@ -270,14 +270,14 @@ For the option-free bond, carry back the full year-2 values; there is no call ca
 ## Step 5 — year 1, callable bond
 
 $$
-V_{1,L}^{c}=\frac{0.5(107)+0.5(107)}{1.05}+8=109.9048
+V_{1,L}^{c}=\frac{0.5(108)+0.5(108)}{1.05}+8=110.8571
 $$
 
 $$
-V_{1,H}^{c}=\frac{0.5(104.4286)+0.5(107)}{1.09}+8=104.9856
+V_{1,H}^{c}=\frac{0.5(104.4286)+0.5(108)}{1.09}+8=105.4443
 $$
 
-Carry back 107 in the two called states and 104.4286 in the remaining state. There is no call at year 1.
+Carry back 108 from the 4% state (call) and the 8% state (indifferent), and 104.4286 from the 12% state (continue). There is no call at year 1.
 
 ## Exercise affects values before the first call date
 
@@ -286,14 +286,14 @@ Carry back 107 in the two called states and 104.4286 in the remaining state. The
 ## Step 6 — return to time zero
 
 $$
-V_0^{s}=\frac{0.5(112.6886)+0.5(105.4443)}{1.06}+8\approx110.8930
+V_0^{s}=\frac{0.5(112.6886)+0.5(105.4443)}{1.06}+8\approx110.8929
 $$
 
 $$
-V_0^{c}=\frac{0.5(109.9048)+0.5(104.9856)}{1.06}+8=109.3634
+V_0^{c}=\frac{0.5(110.8571)+0.5(105.4443)}{1.06}+8=110.0290
 $$
 
-We obtain **110.89** for the straight bond and **109.36** for the callable bond. Subtract the immediate coupon of 8 to get ex-coupon prices of **102.89** and **101.36**.
+We obtain **110.89** for the straight bond and **110.03** for the callable bond. Subtract the immediate coupon of 8 to get ex-coupon prices of **102.89** and **102.03**.
 
 ## The final rollback brings the option cost to today
 
@@ -302,10 +302,10 @@ We obtain **110.89** for the straight bond and **109.36** for the callable bond.
 ## Step 7 — identify the embedded call value
 
 $$
-V_{\mathrm{call}}=V_{\mathrm{straight}}-V_{\mathrm{callable}}\approx1.53
+V_{\mathrm{call}}=V_{\mathrm{straight}}-V_{\mathrm{callable}}\approx0.86
 $$
 
-<div class="comparison"><div><h3>Straight bond</h3><p>110.89 including the current coupon.</p></div><div><h3>Callable bond</h3><p>109.36; the issuer’s call costs the investor about 1.53 per 100 face.</p></div></div>
+<div class="comparison"><div><h3>Straight bond</h3><p>110.89 including the current coupon.</p></div><div><h3>Callable bond</h3><p>110.03; the issuer’s call costs the investor about 0.86 per 100 face.</p></div></div>
 
 ## Put example: the investor controls exercise
 

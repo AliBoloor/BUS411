@@ -893,11 +893,11 @@ V_{i,j}^{\text{putable}} = \max\left\{ \frac{p\, V_{i+1,j+1} + (1-p)\, V_{i+1,j}
 <ul>
 <li>face value = 100</li>
 <li>annual coupon = 8</li>
-<li>callable at 107</li>
+<li>callable at par: redemption of 100 plus the coupon of 8, for a total payment of 108</li>
 <li>first callable date = year 2</li>
 <li>risk-neutral probability <span class="math inline">\(p=0.5\)</span></li>
 </ul>
-<p><strong>Cash-flow convention.</strong> The following numerical example reports values immediately before the coupon, including the coupon at each node and at time zero. Its exercise cap of 107 is a total coupon-inclusive payment (8 coupon plus 99 redemption), not a clean call price of 107 plus another coupon. Subtract 8 from the time-zero value for the ex-coupon purchase price. The <a href="../demos/demo_callable_bond_oas.html">Lecture 8 demo</a> instead uses ex-coupon node values and call prices; either convention works when coupons are counted exactly once.</p>
+<p><strong>Cash-flow convention.</strong> Values in this example are measured immediately before the coupon and include that coupon at every node, including time zero. If the bond is called at year 2, the investor receives principal of 100 plus coupon of 8, so the total exercise payment is 108. If it reaches maturity at year 3, the investor also receives principal of 100 plus the final coupon of 8. The payment date differs even though both totals are 108. Subtract the immediate coupon of 8 from the time-zero value to obtain the ex-coupon purchase price.</p>
 <p>This table puts time horizontally and states vertically. At each date, the node value is computed from the two adjacent nodes one year ahead.</p>
 <div id="cell-fig-simple-rate-lattice" class="cell" data-execution_count="9">
 <div class="cell-output cell-output-display">
@@ -1031,10 +1031,10 @@ Figure&nbsp;11: Step 2: each year-2 value is computed from the two adjacent term
 </section>
 <section id="step-3-apply-the-call-feature-at-year-2" class="level3">
 <h3 class="anchored" data-anchor-id="step-3-apply-the-call-feature-at-year-2">Step 3: Apply the call feature at year 2</h3>
-<p>Because the bond is callable at 107 from year 2 onward, the issuer compares the hold value with the call price. The issuer calls only if calling is cheaper than leaving the bond outstanding.</p>
+<p>At year 2, the issuer compares the coupon-inclusive hold value with the total call payment of <span class="math inline">\(100+8=108\)</span>. Call only if paying 108 costs less than continuing. When the two values are equal, the issuer is indifferent; either choice gives the same node value.</p>
 <p>For the callable bond:</p>
 <p><span class="math display">\[
-V^{\text{callable}} = \min\{\text{Hold Value},\ 107\}
+V^{\text{callable}} = \min\{\text{Hold Value},\ 108\}
 \]</span></p>
 <p>Thus:</p>
 <table class="caption-top table">
@@ -1043,27 +1043,31 @@ V^{\text{callable}} = \min\{\text{Hold Value},\ 107\}
 <th>Node at Year 2</th>
 <th style="text-align: right;">Hold Value</th>
 <th style="text-align: right;">Callable Value</th>
+<th>Decision</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td>4% state</td>
 <td style="text-align: right;">111.85</td>
-<td style="text-align: right;">107.00</td>
+<td style="text-align: right;">108.00</td>
+<td>Call</td>
 </tr>
 <tr class="even">
 <td>8% state</td>
 <td style="text-align: right;">108.00</td>
-<td style="text-align: right;">107.00</td>
+<td style="text-align: right;">108.00</td>
+<td>Indifferent</td>
 </tr>
 <tr class="odd">
 <td>12% state</td>
 <td style="text-align: right;">104.43</td>
 <td style="text-align: right;">104.43</td>
+<td>Continue</td>
 </tr>
 </tbody>
 </table>
-<p>This is the key economic point: the issuer calls in the low-rate states but not in the high-rate state. The option exercise decision is state-dependent.</p>
+<p>At 4%, the issuer calls and pays 108 instead of leaving a bond worth 111.85 outstanding. At 8%, the hold value and the call payment are both 108, so calling provides no saving. At 12%, the issuer continues because the hold value is only 104.43.</p>
 <div id="cell-fig-call-rule-sublattice" class="cell" data-execution_count="12">
 <div class="cell-output cell-output-display">
 <div id="fig-call-rule-sublattice" class="quarto-float quarto-figure quarto-figure-center anchored">
@@ -1072,7 +1076,7 @@ V^{\text{callable}} = \min\{\text{Hold Value},\ 107\}
 <img src="lec8_files/figure-html/fig-call-rule-sublattice-output-1.png" width="662" height="354" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-call-rule-sublattice-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;12: Step 3: the call rule caps year-2 values above the call price
+Figure&nbsp;12: Step 3: the call rule caps year-2 values at the total call payment
 </figcaption>
 </figure>
 </div>
@@ -1140,19 +1144,19 @@ Figure&nbsp;13: Step 4: option-free year-1 values are rolled back from option-fr
 <section id="year-1-rate-5" class="level4">
 <h4 class="anchored" data-anchor-id="year-1-rate-5">Year 1, rate = 5%</h4>
 <p><span class="math display">\[
-V = \frac{0.5(107.0000) + 0.5(107.0000)}{1.05} + 8
-= \frac{107}{1.05} + 8
-= 101.9048 + 8
-= 109.9048
+V = \frac{0.5(108.0000) + 0.5(108.0000)}{1.05} + 8
+= \frac{108}{1.05} + 8
+= 102.8571 + 8
+= 110.8571
 \]</span></p>
 </section>
 <section id="year-1-rate-9" class="level4">
 <h4 class="anchored" data-anchor-id="year-1-rate-9">Year 1, rate = 9%</h4>
 <p><span class="math display">\[
-V = \frac{0.5(104.4286) + 0.5(107.0000)}{1.09} + 8
-= \frac{105.7143}{1.09} + 8
-= 96.9856 + 8
-= 104.9856
+V = \frac{0.5(104.4286) + 0.5(108.0000)}{1.09} + 8
+= \frac{106.2143}{1.09} + 8
+= 97.4443 + 8
+= 105.4443
 \]</span></p>
 <p>So:</p>
 <table class="caption-top table">
@@ -1165,11 +1169,11 @@ V = \frac{0.5(104.4286) + 0.5(107.0000)}{1.09} + 8
 <tbody>
 <tr class="odd">
 <td>5% state</td>
-<td style="text-align: right;">109.90</td>
+<td style="text-align: right;">110.86</td>
 </tr>
 <tr class="even">
 <td>9% state</td>
-<td style="text-align: right;">104.99</td>
+<td style="text-align: right;">105.44</td>
 </tr>
 </tbody>
 </table>
@@ -1200,21 +1204,21 @@ V_0^{\text{straight}} =
 <p><span class="math display">\[
 V_0^{\text{straight}} =
 \frac{109.0665}{1.06} + 8
-= 102.8930 + 8
-= 110.8930
+= 102.8929 + 8
+= 110.8929
 \]</span></p>
 </section>
 <section id="callable-bond-at-time-0" class="level4">
 <h4 class="anchored" data-anchor-id="callable-bond-at-time-0">Callable bond at time 0</h4>
 <p><span class="math display">\[
 V_0^{\text{callable}} =
-\frac{0.5(109.9048) + 0.5(104.9856)}{1.06} + 8
+\frac{0.5(110.8571) + 0.5(105.4443)}{1.06} + 8
 \]</span></p>
 <p><span class="math display">\[
 V_0^{\text{callable}} =
-\frac{107.4452}{1.06} + 8
-= 101.3634 + 8
-= 109.3634
+\frac{108.1507}{1.06} + 8
+= 102.0290 + 8
+= 110.0290
 \]</span></p>
 <div id="cell-fig-time0-sublattice" class="cell" data-execution_count="15">
 <div class="cell-output cell-output-display">
@@ -1239,8 +1243,9 @@ Figure&nbsp;15: Step 6: final rollback gives today’s option-free and callable 
 V_{\text{call option}} = V_{\text{straight}} - V_{\text{callable}}
 \]</span></p>
 <p><span class="math display">\[
-V_{\text{call option}} = 110.8930 - 109.3634 = 1.5296
+V_{\text{call option}} = 110.8929 - 110.0290 = 0.8639
 \]</span></p>
+<p>The time-zero values include the immediate coupon of 8. The ex-coupon purchase prices are <span class="math inline">\(110.8929-8=102.8929\)</span> for the straight bond and <span class="math inline">\(110.0290-8=102.0290\)</span> for the callable bond; subtracting the same coupon leaves the call option value unchanged.</p>
 <p>So in this example:</p>
 <table class="caption-top table">
 <thead>
@@ -1256,11 +1261,11 @@ V_{\text{call option}} = 110.8930 - 109.3634 = 1.5296
 </tr>
 <tr class="even">
 <td>Callable bond price</td>
-<td style="text-align: right;">109.36</td>
+<td style="text-align: right;">110.03</td>
 </tr>
 <tr class="odd">
 <td>Embedded call option value</td>
-<td style="text-align: right;">1.53</td>
+<td style="text-align: right;">0.86</td>
 </tr>
 </tbody>
 </table>
@@ -1276,7 +1281,7 @@ V_{\text{call option}} = 110.8930 - 109.3634 = 1.5296
 <div class="callout-body-container callout-body">
 <ul>
 <li><p>The callable bond is worth less than the straight bond because the issuer owns the call option.</p></li>
-<li><p>The option matters most in low-rate states. At year 2, the issuer calls in the 4% and 8% states because the hold value is above the call price of 107. At 12%, the issuer does not call because the bond is worth only 104.43 if left outstanding.</p></li>
+<li><p>The option matters in the 4% state, where the hold value of 111.85 exceeds the total call payment of 108. At 8%, the issuer is indifferent because both values are 108. At 12%, the issuer does not call because the hold value is only 104.43.</p></li>
 <li><p>The lattice makes the exercise decision explicit at each node. That is the real advantage of the method: the model does not assume one call date mechanically; it checks whether exercise is economically optimal in each state.</p></li>
 </ul>
 </div>
@@ -1476,7 +1481,7 @@ r_{t,j}=a_t e^{(2j-t)\sigma},
 \]</span></p>
 <p>where <span class="math inline">\(a_t\)</span> is the level parameter for year <span class="math inline">\(t\)</span>, <span class="math inline">\(j\)</span> indexes the state, and <span class="math inline">\(\sigma\)</span> controls the spacing between states. The volatility fixes the relative distance between rates at the same date; calibration chooses <span class="math inline">\(a_t\)</span> so the tree matches the market zero price for that maturity.</p>
 <p>With annual steps, <span class="math inline">\(\sigma=10\%\)</span>, and equal risk-neutral probabilities, one calibrated set of short rates is:</p>
-<div id="d274898d" class="cell" data-execution_count="17">
+<div id="d50f6104" class="cell" data-execution_count="17">
 <div class="cell-output cell-output-display" data-execution_count="17">
 <div>
 

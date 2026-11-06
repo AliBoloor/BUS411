@@ -417,18 +417,18 @@ draw_lattice(
 CURRENT_FIG="lec8-fig-call-rule-sublattice"
 
 #| label: fig-call-rule-sublattice
-#| fig-cap: "Step 3: the call rule caps year-2 values above the call price"
+#| fig-cap: "Step 3: the call rule caps year-2 values at the total call payment"
 #| echo: false
 call_rule_nodes = {
-    "2L": (0, 2, "H=111.85\nC=107.00"),
-    "2M": (0, 0, "H=108.00\nC=107.00"),
+    "2L": (0, 2, "H=111.85\nCall=108.00"),
+    "2M": (0, 0, "H=108.00\nV=108.00\nIndifferent"),
     "2H": (0, -2, "H=104.43\nNo call\nV=104.43"),
 }
 
 draw_lattice(
     call_rule_nodes,
     [],
-    "Callable value at year 2 is min(hold value, 107)",
+    "Callable value at year 2 is min(hold value, 108)",
     xticks=[0],
     xticklabels=["Year 2"],
     xlim=(-0.75, 0.75),
@@ -472,10 +472,10 @@ CURRENT_FIG="lec8-fig-year1-callable-sublattice"
 #| fig-cap: "Step 5: callable year-1 values use the call-adjusted year-2 values"
 #| echo: false
 year1_callable_nodes = {
-    "1L": (0, 1, "Year 1\nr=5%\nV=109.90"),
-    "1H": (0, -1, "Year 1\nr=9%\nV=104.99"),
-    "2L": (1.4, 2, "107.00"),
-    "2M": (1.4, 0, "107.00"),
+    "1L": (0, 1, "Year 1\nr=5%\nV=110.86"),
+    "1H": (0, -1, "Year 1\nr=9%\nV=105.44"),
+    "2L": (1.4, 2, "108.00"),
+    "2M": (1.4, 0, "108.00"),
     "2H": (1.4, -2, "104.43"),
 }
 
@@ -497,9 +497,9 @@ CURRENT_FIG="lec8-fig-time0-sublattice"
 #| fig-cap: "Step 6: final rollback gives today's option-free and callable values"
 #| echo: false
 time0_nodes = {
-    "0": (0, 0, "Today\nr=6%\nS=110.89\nC=109.36"),
-    "1L": (1.55, 1, "Year 1\nS=112.69\nC=109.90"),
-    "1H": (1.55, -1, "Year 1\nS=105.44\nC=104.99"),
+    "0": (0, 0, "Today\nr=6%\nS=110.89\nC=110.03"),
+    "1L": (1.55, 1, "Year 1\nS=112.69\nC=110.86"),
+    "1H": (1.55, -1, "Year 1\nS=105.44\nC=105.44"),
 }
 time0_edges = [("0", "1L"), ("0", "1H")]
 

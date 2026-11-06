@@ -298,37 +298,69 @@ $$
 
 <div class="comparison"><div><h3>Straight bond</h3><p>110.89 including the current coupon.</p></div><div><h3>Callable bond</h3><p>110.03; the issuer’s call costs the investor about 0.86 per 100 face.</p></div></div>
 
-## Put example: the investor controls exercise
+## Put example — contract and rate lattice {.rollback}
 
-<div class="comparison"><div><h3>Contract</h3><p>2 years; face 100; annual coupon 5; put at 100 after year 1.</p></div><div><h3>Tree</h3><p>r₀ = 6%; year-1 rates 4% and 12%; p = 0.5.</p></div></div>
+<div class="rollback-step">Set up the problem before valuing any nodes</div>
 
-$$
-V_{2,j}=100+5=105
-$$
+![](lec3-11-assets/lec8-rollback-put-setup.svg){.rollback-figure}
 
-## Compare continuation with the put price
+**Bond:** 2 years; face 100; annual coupon 5; maturity payment 105.
 
-$$H_{1,j}=\frac{105}{1+r_{1,j}}+5,\qquad
-V^{\mathrm{put}}_{1,j}=\max(H_{1,j},100).$$
+**Put:** at year 1, the holder may take a total payment of 100 instead of keeping the bond. This is the complete exercise receipt in this example.
 
-| Year-1 rate | Hold calculation | Hold value | Putable value | Decision |
-|---|---|---:|---:|---|
-| 4% | $105/1.04+5$ | 105.9615 | 105.9615 | Keep bond |
-| 12% | $105/1.12+5$ | 98.7500 | 100.0000 | Exercise put |
+Use annual steps and risk-neutral probability **0.5 on each branch**. Node values include the coupon due at that date.
 
-Put the bond in the 12% state: receiving 100 is better than keeping a bond worth 98.75.
+## Put example — start with the final payment {.rollback}
 
-## Roll back the protected value
+<div class="rollback-step">Year 2: set the terminal values · gold nodes = values set now</div>
 
-$$
-V_0^{\mathrm{put}}=\frac{0.5(105.9615)+0.5(100)}{1.06}+5=102.1517
-$$
+![](lec3-11-assets/lec8-rollback-put-terminal.svg){.rollback-figure}
 
-The protected year-1 values give **102.1517** today. Subtract the immediate coupon of 5 for an ex-coupon price of **97.1517**.
+$$V_{2,j}=100+5=105\qquad\text{in every state}$$
 
-## The put creates a floor in the adverse state
+**Inputs:** 2 years; face 100; annual coupon 5; today’s rate 6%; year-1 rates 4% and 12%; risk-neutral probability 0.5 on each branch.
 
-![](lec3-11-assets/lec8-fig-putable-worked-example.svg){.figure}
+The year-1 put receipt is **100 total** in this example. Compare it with a hold value that includes the year-1 coupon; do not add another coupon on exercise.
+
+## Put example — calculate the year-1 hold values {.rollback}
+
+<div class="rollback-step">Year 2 → year 1 · gold nodes = continuation values before exercise</div>
+
+![](lec3-11-assets/lec8-rollback-put-hold.svg){.rollback-figure}
+
+$$H_{1,j}=\frac{0.5(105)+0.5(105)}{1+r_{1,j}}+5$$
+
+| Year-1 rate | Discount next payment | Add current coupon | Hold value |
+|---|---:|---:|---:|
+| 4% | $105/1.04=100.9615$ | 5 | 105.9615 |
+| 12% | $105/1.12=93.7500$ | 5 | 98.7500 |
+
+## Put example — let the holder choose {.rollback}
+
+<div class="rollback-step">Stay at year 1 · gold nodes = values after the put decision</div>
+
+![](lec3-11-assets/lec8-rollback-put-decision.svg){.rollback-figure}
+
+$$V_{1,j}^{\mathrm{put}}=\max(H_{1,j},100)$$
+
+| Year-1 rate | Hold value | Total put receipt | Holder’s choice | Value |
+|---|---:|---:|---|---:|
+| 4% | 105.9615 | 100 | Keep bond | 105.9615 |
+| 12% | 98.7500 | 100 | Exercise put | 100.0000 |
+
+At 12%, the holder takes 100 instead of keeping a bond worth 98.75.
+
+## Put example — bring the protected values to today {.rollback}
+
+<div class="rollback-step">Year 1 → today · gold node = today’s putable value</div>
+
+![](lec3-11-assets/lec8-rollback-put-today.svg){.rollback-figure}
+
+$$V_0^{\mathrm{put}}=\frac{0.5(105.9615)+0.5(100)}{1.06}+5=102.1517$$
+
+Use the year-1 values **after** the holder’s decision. Discount their average at 6%, then add today’s coupon of 5.
+
+The value is **102.1517** including the immediate coupon; the ex-coupon price is **97.1517**.
 
 ## A valuation tree must fit observed prices
 

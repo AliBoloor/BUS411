@@ -10,6 +10,11 @@ format:
         <script src="lec3-11-visuals.js" defer></script>
         <style>
         .reveal .slides section h2 { border-bottom: 3px solid #936724; padding-bottom: .22em; }
+        .reveal .rollback-figure { width: 100%; height: 280px; object-fit: contain; margin: 0; }
+        .reveal .rollback-step { color: #936724; font-weight: 700; margin: .2em 0; }
+        .reveal .rollback table { font-size: .78em; margin: .3em auto; }
+        .reveal .rollback .math.display { font-size: .82em; margin: .35em 0; }
+        .reveal .rollback p { margin: .3em 0; }
         </style>
 ---
 
@@ -211,93 +216,79 @@ Compare the hold value and the exercise payment on the same coupon-inclusive bas
 
 Check the contract’s exercise dates before applying either rule. On other dates, keep the hold value.
 
-## Step 1 — set the terminal payoff
+## Step 1 — set the terminal payoff {.rollback}
 
-$$
-V_{3,j}=100+8=108\quad\text{in every state}
-$$
+<div class="rollback-step">Year 3: start at maturity · gold nodes = values set now</div>
 
-![](lec3-11-assets/lec8-fig-terminal-payoff-lattice.svg){.figure}
+![](lec3-11-assets/lec8-rollback-terminal.svg){.rollback-figure}
 
-## Step 2 — roll back to year 2
+$$V_{3,j}=100+8=108\qquad\text{in every state}$$
 
-$$
-H_{2,j}=\frac{0.5(108)+0.5(108)}{1+r_{2,j}}+8
-$$
+Both bonds pay principal **100** plus coupon **8** at maturity. Set these final values before moving one year to the left.
 
-| Rate | Discounted terminal payoff | Current coupon | Hold value |
+## Step 2 — roll back to year 2 {.rollback}
+
+<div class="rollback-step">Year 3 → year 2 · gold nodes = hold values calculated now</div>
+
+![](lec3-11-assets/lec8-rollback-year2.svg){.rollback-figure}
+
+$$H_{2,j}=\frac{0.5(108)+0.5(108)}{1+r_{2,j}}+8$$
+
+| Year-2 rate | Discounted next payment | Coupon now | Hold value |
 |---|---:|---:|---:|
 | 4% | 103.8462 | 8 | 111.8462 |
 | 8% | 100.0000 | 8 | 108.0000 |
 | 12% | 96.4286 | 8 | 104.4286 |
 
-## Year 2 values connect adjacent future states
+## Step 3 — apply the year-2 call right {.rollback}
 
-![](lec3-11-assets/lec8-fig-year2-sublattice.svg){.figure}
+<div class="rollback-step">Stay at year 2 · compare each hold value with the total call payment 108</div>
 
-## Step 3 — impose the call price at year 2
+![](lec3-11-assets/lec8-rollback-call.svg){.rollback-figure}
 
-$$
-V_{2,j}^{\mathrm{callable}}=\min(H_{2,j},108)
-$$
+$$V_{2,j}^{c}=\min(H_{2,j},108),\qquad108=100\text{ principal}+8\text{ coupon}$$
 
-| Rate | Hold value | Callable value | Decision |
+| Rate | Hold value | Callable value | Issuer’s decision |
 |---|---:|---:|---|
 | 4% | 111.8462 | 108.0000 | Call |
 | 8% | 108.0000 | 108.0000 | Indifferent |
 | 12% | 104.4286 | 104.4286 | Continue |
 
-## The call rule changes only the relevant states
+## Step 4 — year 1, option-free bond {.rollback}
 
-![](lec3-11-assets/lec8-fig-call-rule-sublattice.svg){.figure}
+<div class="rollback-step">Year 2 → year 1 · use the full hold values, without a call cap</div>
 
-## Step 4 — year 1, option-free bond
+![](lec3-11-assets/lec8-rollback-straight.svg){.rollback-figure}
 
-$$
-V_{1,L}=\frac{0.5(108)+0.5(111.8462)}{1.05}+8=112.6886
-$$
+$$V_{1,L}^{s}=\frac{0.5(111.8462)+0.5(108)}{1.05}+8=112.6886$$
 
-$$
-V_{1,H}=\frac{0.5(104.4286)+0.5(108)}{1.09}+8=105.4443
-$$
+$$V_{1,H}^{s}=\frac{0.5(108)+0.5(104.4286)}{1.09}+8=105.4443$$
 
-For the option-free bond, carry back the full year-2 values; there is no call cap.
+Average the two connected year-2 values, discount at the highlighted node’s rate, then add its coupon.
 
-## Option-free values roll back through the tree
+## Step 5 — year 1, callable bond {.rollback}
 
-![](lec3-11-assets/lec8-fig-year1-straight-sublattice.svg){.figure}
+<div class="rollback-step">Year 2 → year 1 · carry back the values after the call decision</div>
 
-## Step 5 — year 1, callable bond
+![](lec3-11-assets/lec8-rollback-callable.svg){.rollback-figure}
 
-$$
-V_{1,L}^{c}=\frac{0.5(108)+0.5(108)}{1.05}+8=110.8571
-$$
+$$V_{1,L}^{c}=\frac{0.5(108)+0.5(108)}{1.05}+8=110.8571$$
 
-$$
-V_{1,H}^{c}=\frac{0.5(104.4286)+0.5(108)}{1.09}+8=105.4443
-$$
+$$V_{1,H}^{c}=\frac{0.5(108)+0.5(104.4286)}{1.09}+8=105.4443$$
 
-Carry back 108 from the 4% state (call) and the 8% state (indifferent), and 104.4286 from the 12% state (continue). There is no call at year 1.
+There is no call at year 1. The low-rate value is smaller because the issuer can call in the following year.
 
-## Exercise affects values before the first call date
+## Step 6 — return to time zero {.rollback}
 
-![](lec3-11-assets/lec8-fig-year1-callable-sublattice.svg){.figure}
+<div class="rollback-step">Year 1 → today · gold node = today’s values</div>
 
-## Step 6 — return to time zero
+![](lec3-11-assets/lec8-rollback-today.svg){.rollback-figure}
 
-$$
-V_0^{s}=\frac{0.5(112.6886)+0.5(105.4443)}{1.06}+8\approx110.8929
-$$
+$$V_0^{s}=\frac{0.5(112.6886)+0.5(105.4443)}{1.06}+8\approx110.8929$$
 
-$$
-V_0^{c}=\frac{0.5(110.8571)+0.5(105.4443)}{1.06}+8=110.0290
-$$
+$$V_0^{c}=\frac{0.5(110.8571)+0.5(105.4443)}{1.06}+8=110.0290$$
 
-We obtain **110.89** for the straight bond and **110.03** for the callable bond. Subtract the immediate coupon of 8 to get ex-coupon prices of **102.89** and **102.03**.
-
-## The final rollback brings the option cost to today
-
-![](lec3-11-assets/lec8-fig-time0-sublattice.svg){.figure}
+These include the immediate coupon of 8. Ex-coupon prices are **102.8929** (straight) and **102.0290** (callable).
 
 ## Step 7 — identify the embedded call value
 

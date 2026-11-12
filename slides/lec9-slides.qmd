@@ -365,22 +365,53 @@ Coupon receipts belong to the cash-bond owner. A short seller must compensate th
 
 Trading costs, funding restrictions and delivery choices can limit arbitrage.
 
-## Carry example: both arbitrage directions {.worked}
+## Cash-and-carry: sell the expensive future {.worked}
 
-<div class="example-inputs">Per $100 par: cash P = 100; annual coupon yield c = 12%; borrowing/lending r = 8%; delivery t = 0.25 years; one deliverable and CF = 1.</div>
+<div class="example-inputs">Per $100 par: bond price P = 100; futures F = 107; annual coupon yield c = 12%; borrowing r = 8%; delivery in 0.25 years; CF = 1.</div>
+
+**Position:** buy the bond with borrowed money and sell futures. Positive cash flows are receipts; negative cash flows are payments.
+
+| Trade or payment | Today | At delivery (3 months) |
+|---|---:|---:|
+| Buy the cash bond | −100 | — |
+| Short futures: deliver the bond | 0 | +107 |
+| Receive coupon income: 100 × 12% × 0.25 | — | +3 |
+| Borrow 100; repay 100 + 100 × 8% × 0.25 | +100 | −102 |
+| **Net cash flow** | **0** | **+8** |
 
 $$
-\text{Coupon income}=100(0.12)(0.25)=3,\qquad
-\text{Interest}=100(0.08)(0.25)=2
+\text{Profit}=\underbrace{(107-100)}_{\text{bond price gain }+7}
++\underbrace{3}_{\text{coupon income}}
+-\underbrace{2}_{\text{financing cost}}=8
 $$
 
-| | Cash-and-carry: F = 107 | Reverse cash-and-carry: F = 92 |
-|---|---|---|
-| Today | Buy bond −100; borrow +100; sell futures | Short bond +100; invest −100; buy futures |
-| At delivery | Receive 107 + coupon 3; repay 102 | Receive investment 102; pay 92 + coupon 3 |
-| Profit per $100 par | $(107+3)-102=8$ | $102-(92+3)=7$ |
+**Locked-in profit: $8 per $100 par.** The bond is delivered and the borrowing is repaid, leaving no open position.
 
-Assume simple coupon accrual paid separately from the delivery price. Ignore daily-margin funding, transaction costs and delivery options.
+Simple coupon accrual is paid separately from delivery. Ignore margin cash flows, transaction costs and delivery options.
+
+## Reverse cash-and-carry: buy the cheap future {.worked}
+
+<div class="example-inputs">Per $100 par: bond price P = 100; futures F = 92; annual coupon yield c = 12%; lending r = 8%; delivery in 0.25 years; CF = 1.</div>
+
+**Position:** short the bond, invest the sale proceeds and buy futures. Positive cash flows are receipts; negative cash flows are payments.
+
+| Trade or payment | Today | At delivery (3 months) |
+|---|---:|---:|
+| Short-sell the cash bond | +100 | — |
+| Long futures: acquire bond and return it to lender | 0 | −92 |
+| Compensate bond lender for coupon: 100 × 12% × 0.25 | — | −3 |
+| Invest 100; collect 100 + 100 × 8% × 0.25 | −100 | +102 |
+| **Net cash flow** | **0** | **+7** |
+
+$$
+\text{Profit}=\underbrace{(100-92)}_{\text{short-sale gain }+8}
++\underbrace{2}_{\text{investment income}}
+-\underbrace{3}_{\text{coupon payment}}=7
+$$
+
+**Locked-in profit: $7 per $100 par.** Return the acquired bond to close the short; the investment has matured.
+
+Simple coupon accrual is paid separately from delivery. Assume shorting is available; ignore margin cash flows, costs and delivery options.
 
 ## Fair futures price from the same carry example {.worked}
 

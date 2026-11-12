@@ -1,4 +1,4 @@
-"""Lecture 9 charts use the lecture notes numerical inputs."""
+"""Lecture 9 charts use the numerical inputs in the notes and slide examples."""
 
 from build_figures import *
 
@@ -203,30 +203,49 @@ save(plt.gcf(),"lec9-fig-duration-adjustment")
 
 
 #| label: fig-hedged-vs-unhedged
-#| fig-cap: "A short futures hedge reduces the sensitivity of sale proceeds to interest-rate moves"
+#| fig-cap: "The 116-contract hedge offsets the prior slide's bond DV01"
+# Exact slide-32 inputs. Plot P&L: the $10m input is par, not market value.
 import numpy as np
 import matplotlib.pyplot as plt
 
-rate_move_bp = np.linspace(-100, 100, 81)
-initial_value = 10_000_000
-bond_dollar_duration_100bp = 1_363_000
-hedge_effectiveness = 0.96
+bond_par = 10_000_000
+contract_par = 100_000
+bond_dv01_per_100 = 0.1363
+ctd_dv01_per_100 = 0.1207
+conversion_factor = 1.0246
+contracts_short = 116
+bond_dv01 = bond_dv01_per_100 * bond_par / 100
+futures_dv01 = ctd_dv01_per_100 * contract_par / 100 / conversion_factor
+hedge_dv01 = contracts_short * futures_dv01
+residual_dv01 = bond_dv01 - hedge_dv01
+rate_move_bp = np.linspace(-50, 50, 101)
+bond_pnl = -bond_dv01 * rate_move_bp
+futures_pnl = hedge_dv01 * rate_move_bp
+net_pnl = bond_pnl + futures_pnl
 
-unhedged_value = initial_value - bond_dollar_duration_100bp * (rate_move_bp / 100)
-futures_gain = hedge_effectiveness * bond_dollar_duration_100bp * (rate_move_bp / 100)
-hedged_value = unhedged_value + futures_gain
+assert np.isclose(bond_dv01, 13_630)
+assert np.isclose(futures_dv01, 117.80206910013665)
+assert np.isclose(residual_dv01, -35.0400156158521)
+assert np.allclose(net_pnl, -residual_dv01 * rate_move_bp)
+assert np.isclose(net_pnl[75], 876.0003903963)  # +25 bp
+assert np.isclose(net_pnl[25], -876.0003903963)  # -25 bp
 
-plt.figure(figsize=(13,5.4))
-plt.plot(rate_move_bp, unhedged_value / 1_000_000, label="Unhedged bond value", linewidth=2)
-plt.plot(rate_move_bp, hedged_value / 1_000_000, label="Hedged value", linewidth=2)
-plt.axvline(0, color="gray", linestyle="--", linewidth=1)
-plt.xlabel("Interest-rate change (bp)")
-plt.ylabel("Value ($ millions)")
-plt.title("Short futures hedge offsets most rate-driven price change")
-plt.grid(True, alpha=0.3)
-plt.legend()
-plt.tight_layout()
-save(plt.gcf(),"lec9-fig-hedged-vs-unhedged")
+fig, ax = plt.subplots(figsize=(11, 5.4))
+ax.plot(rate_move_bp, bond_pnl / 1000, color=BLUE, label="Long bonds", linewidth=3)
+ax.plot(rate_move_bp, futures_pnl / 1000, color=GOLD, label="Short 116 futures", linewidth=3, linestyle="--")
+ax.plot(rate_move_bp, net_pnl / 1000, color=GREEN, label="Combined", linewidth=3.5)
+ax.axvline(0, color="#809586", linewidth=0.8)
+ax.set_xlabel("Common yield change (bp)")
+ax.set_ylabel("P&L ($ thousands)")
+ax.set_xticks([-50, -25, 0, 25, 50])
+ax.set_yticks([-600, -300, 0, 300, 600])
+ax.grid(alpha=0.2)
+ax.legend(loc="upper center", bbox_to_anchor=(0.5, 1.18), ncol=3, frameon=False)
+fig.tight_layout()
+save(fig,"lec9-fig-hedged-vs-unhedged")
+# Normalize SVG line endings for clean version-control diffs.
+chart_path = OUT / "lec9-fig-hedged-vs-unhedged.svg"
+chart_path.write_text("\n".join(line.rstrip() for line in chart_path.read_text().splitlines()) + "\n")
 
 
 #| label: fig-allocation-shift

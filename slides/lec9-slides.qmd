@@ -14,6 +14,9 @@ format:
         .reveal .slides .worked .column { min-width: 0; }
         .reveal .slides .worked .figure { width: 100%; height: auto; max-height: 380px; object-fit: contain; }
         .reveal .slides .worked table { font-size: .82em; }
+        .reveal .slides .hedge-result .figure { max-height: 310px; }
+        .reveal .slides .hedge-result table { width: 95%; margin-left: 0; margin-right: auto; }
+        .reveal .slides .hedge-result .column math[display="block"] { font-size: .87em; }
         .reveal .slides .worked p { margin: .4em 0; }
         .reveal .slides .worked math[display="block"] { margin: .45em 0; }
         </style>
@@ -650,25 +653,51 @@ $$
 :::
 :::
 
-## A hedge reduces rate risk but leaves other exposures {.worked}
+## The 116-contract hedge: P&L and rounding {.worked .hedge-result}
+
+<div class="example-inputs">Same example: $10m bond par; $100,000 contract face; bond/CTD DV01 = 0.1363/0.1207 per $100 par; CF = 1.0246; short 116 futures.</div>
 
 ::: {.columns}
-::: {.column width="52%"}
+::: {.column width="56%"}
 ![](lec3-11-assets/lec9-fig-hedged-vs-unhedged.svg){.figure}
 
-Schematic: $10m initial value; DD $1,363,000 per 100 bp; futures offset 96% of rate-driven P&L. Residual DD is $54,520 per 100 bp. This is not the 116-contract calculation.
-:::
-::: {.column width="48%"}
-### Why the offset can change
+P&L in dollars:
 
-- **Basis and credit spreads:** cash and futures need not move together.
-- **Curve shape and convexity:** duration matches only first-order exposure.
-- **CTD switches:** a different deliverable changes futures sensitivity.
-- **Implementation:** rounding, repo financing and margin liquidity affect the result.
+| Yield move | Long bonds | Short futures | Net |
+|---:|---:|---:|---:|
+| −25 bp | +340,750 | −341,626 | **−876** |
+| +25 bp | −340,750 | +341,626 | **+876** |
+:::
+::: {.column width="44%"}
+### Dollar sensitivity per bp
 
-Cross-hedging uses a futures underlying different from the cash bond. Evaluate the combined position and rebalance when its risk mapping changes.
+$$
+DV01_{bond}=0.1363\times\frac{10{,}000{,}000}{100}=13{,}630
+$$
+
+$$
+DV01_f=\frac{0.1207}{1.0246}\times\frac{100{,}000}{100}=117.8021
+$$
+
+$$
+116\,DV01_f=13{,}665.04
+$$
+
+For a common yield change $\Delta y_{bp}$:
+
+$$
+\Delta V_{net}=(-13{,}630+13{,}665.04)\Delta y_{bp}
+$$
+
+$$
+=35.04\,\Delta y_{bp}
+$$
+
+Rounding to 116 slightly **overhedges**. The combined position gains about \$35.04 per bp when yields rise and loses it when yields fall.
 :::
 :::
+
+First-order P&L only: equal bond/CTD yield moves, fixed CTD and constant DV01. Ignore spread/basis changes, convexity, carry, costs and margin funding. Values use unrounded sensitivities.
 
 ## Futures-hedge implementation
 

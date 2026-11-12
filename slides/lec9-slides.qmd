@@ -8,6 +8,11 @@ format:
     include-in-header:
       text: |
         <script src="lec3-11-visuals.js" defer></script>
+        <style>
+        .reveal .slides section h2 { border-bottom: 3px solid #936724; padding-bottom: .22em; }
+        .reveal .slides .example-inputs { font-size: .86em; color: #41694e; margin: .45em 0; }
+        .reveal .slides .example-figure .figure { max-height: 420px; }
+        </style>
 ---
 
 ## Separate interest-rate exposure from cash ownership
@@ -27,8 +32,6 @@ The futures price is the agreed price; settlement or delivery occurs at a specif
 ## Notional measures exposure, not the initial cash outlay
 
 <div class="comparison"><div><h3>Treasury example</h3><p>$100,000 deliverable par gives exposure to that face amount.</p></div><div><h3>Short-rate example</h3><p>$1 million for a three-month interest period produces about $25 per basis point.</p></div></div>
-
-
 
 $$
 1{,}000{,}000(0.0001)\frac{90}{360}=25
@@ -54,7 +57,7 @@ Counterparty risk is reduced through the clearing and margin system; it is not e
 
 <div class="comparison"><div><h3>Initial and maintenance</h3><p>Initial margin opens the position; maintenance is the minimum account balance before a top-up is required.</p></div><div><h3>Daily settlement and top-ups</h3><p>Daily gains/losses are variation margin flows. Losses below maintenance trigger a margin call under the account’s rules.</p></div></div>
 
-The notes use “variation margin” for restoring the account. Unlike securities margin, futures margin is not a loan financing a purchase.
+Variation margin transfers daily gains and losses. A margin call restores required collateral. Futures margin is performance collateral, not a loan financing a purchase.
 
 ## Example 1 — Treasury daily marking to market
 
@@ -71,11 +74,11 @@ $$
 375-500+375=250
 $$
 
-## The cumulative gain equals the total price change
+## The cumulative gain equals the total price change {.example-figure}
+
+<div class="example-inputs">Example 1: long one $100,000 Treasury contract at 100-00, ending at 100-08. One point = $1,000; settlements: 100-12, 99-28, 100-08.</div>
 
 ![](lec3-11-assets/lec9-fig-margin-account.svg){.figure}
-
-
 
 $$
 (100.25-100.00)\times1000=250
@@ -102,7 +105,9 @@ $$
 
 These are gains per unit before costs and the financing/reinvestment effects of daily settlement. Multiply by the contract’s price multiplier.
 
-## Futures payoff profiles are symmetric
+## Futures payoff profiles are symmetric {.example-figure}
+
+<div class="example-inputs">Entry quote = 100-00. The graph shows gain in quote points; multiply by $1,000 for one $100,000 Treasury contract. Long dollar gain = (exit quote − 100) × $1,000.</div>
 
 ![](lec3-11-assets/lec9-fig-futures-payoff.svg){.figure}
 
@@ -123,7 +128,7 @@ $$
 | Treasury bonds | Long-end Treasury prices |
 | Ultra Treasury bonds | Very long-end Treasury prices |
 
-Each contract specifies grades, quotes, tick size, months, last trading/delivery dates and settlement method. Contract descriptions here follow the notes.
+Each contract specifies grades, quotes, tick size, months, last trading/delivery dates and settlement method.
 
 ## Eurodollar futures explain the historical convention
 
@@ -132,8 +137,6 @@ A Eurodollar time deposit is a dollar-denominated deposit issued outside the Uni
 $$
 \text{Index}=100-\text{annualized 3-month LIBOR}
 $$
-
-
 
 $$
 100-94.52=5.48\%
@@ -145,13 +148,11 @@ $$
 0.01\text{ index point}=1\text{ bp of implied rate}
 $$
 
-
-
 $$
 1{,}000{,}000\times0.0001\times\frac{90}{360}=25
 $$
 
-The notes call 1 bp “one tick”; actual exchange minimum price increments depend on the contract. The $25 calculation is per basis point. These rate contracts are cash-settled.
+For a three-month rate contract, the sensitivity is $25 per basis point. A minimum tick may be smaller than 1 bp; its size depends on the contract. These contracts settle in cash.
 
 ## From LIBOR to SOFR
 
@@ -165,21 +166,21 @@ The index-price convention and the direction of rate exposure carry over; the re
 
 ## Example 2 — short Eurodollar futures
 
+<div class="example-inputs">Historical three-month contract: one short position; $1 million notional; $25 per basis point ($2,500 per index point).</div>
+
 <div class="comparison"><div><h3>Entry</h3><p>Sell at 94.52; implied rate 5.48%.</p></div><div><h3>Settlement</h3><p>Index 94.00; implied rate 6.00%.</p></div></div>
-
-
 
 $$
 94.52-94.00=0.52=52\text{ bp}
 $$
 
-
-
 $$
 52\times25=\$1{,}300\text{ gain}
 $$
 
-## Price and implied reference rate move in opposite directions
+## Price and implied reference rate move in opposite directions {.example-figure}
+
+<div class="example-inputs">Historical Eurodollar contract: index = 100 − annualized 3-month LIBOR (%); $1 million notional and $25 per basis point.</div>
 
 ![](lec3-11-assets/lec9-fig-short-rate-futures.svg){.figure}
 
@@ -195,17 +196,15 @@ $$
 
 ## Translate an index level into the contract settlement unit
 
+<div class="example-inputs">Three-Month SOFR futures: $1 million notional; index multiplier $2,500 per point. Example final implied rate: 5.00%.</div>
+
 $$
 \text{Contract unit}=2500\times\text{contract-grade IMM Index}
 $$
 
-
-
 $$
 \text{Final index}=100-\text{contract-grade 3-month rate}
 $$
-
-
 
 $$
 2500\times95.00=237{,}500
@@ -215,11 +214,11 @@ This quotation unit is not an upfront investment of $237,500; futures positions 
 
 ## Translate an index change into a dollar gain
 
+<div class="example-inputs">One Three-Month SOFR contract; multiplier $2,500 per index point; long gains when the index rises.</div>
+
 $$
 1\text{ index point}=\$2500
 $$
-
-
 
 $$
 1\text{ bp}=\frac{2500}{100}=\$25
@@ -229,9 +228,9 @@ An index increase of 1 bp means the implied rate falls 1 bp; the long gains $25.
 
 ## Example 3 — a long SOFR position receives daily cash
 
+<div class="example-inputs">Long one Three-Month SOFR contract; $1 million notional; $25 per basis point. Compare the entry price with the next daily settlement.</div>
+
 <div class="comparison"><div><h3>Buy at 95.20</h3><p>Implied rate = 100 − 95.20 = 4.80%.</p></div><div><h3>Settle at 95.24</h3><p>Implied rate = 100 − 95.24 = 4.76%.</p></div></div>
-
-
 
 $$
 \Delta F=0.04=4\text{ bp},\qquad\Pi_{\mathrm{long}}=4(25)=\$100
@@ -239,13 +238,11 @@ $$
 
 ## A second SOFR quote check
 
-Retained from the existing deck: price moves from 95.25 to 95.40.
+Long one Three-Month SOFR contract. The index rises from 95.25 to 95.40; each basis point is worth $25.
 
 $$
 4.75\%\longrightarrow4.60\%
 $$
-
-
 
 $$
 \Pi_{\mathrm{long}}=15(25)=\$375
@@ -256,8 +253,6 @@ $$
 $$
 F=100-\text{average monthly effective federal funds rate}
 $$
-
-
 
 $$
 100-95.625=4.375\%
@@ -281,27 +276,25 @@ $$
 97\text{-}16=97+16/32=97.50\%\text{ of par}
 $$
 
-
-
 $$
 0.9750(100{,}000)=\$97{,}500
 $$
-
-
 
 $$
 \frac{1}{32}\%\times100{,}000=\$31.25
 $$
 
-Existing-deck check: 107-16 = 107.50%, or $107,500 per $100,000 par. Minimum tick increments differ across Treasury contract families.
+Similarly, 107-16 = 107.50%, or $107,500 per $100,000 par. Minimum tick increments differ across Treasury contract families.
 
 ## The bond future uses a hypothetical reference bond
 
-The notes describe a $100,000-par hypothetical 20-year Treasury bond with a 6% coupon. Actual delivery comes from eligible securities.
+Our reference bond has $100,000 par, a 20-year maturity and a 6% coupon. Actual delivery comes from the contract’s eligible securities.
 
 **Conversion factors** normalize different coupons and maturities to the contract’s standard; they do not equalize every bond’s delivery economics.
 
 ## Calculate the delivery invoice with explicit quote units
+
+<div class="example-inputs">One Treasury contract: face Q = $100,000; futures quote F = 94-08; conversion factor CF = 1.20. Accrued interest is added separately.</div>
 
 $$
 \text{Invoice}=Q\frac{F}{100}CF+AI
@@ -312,8 +305,6 @@ Q is face amount, F is the futures quote per 100 par, CF is conversion factor, a
 $$
 F=94\text{-}08=94.25,\quad CF=1.20
 $$
-
-
 
 $$
 100{,}000(0.9425)(1.20)=\$113{,}100\quad\text{before AI}
@@ -335,11 +326,13 @@ This simplified break-even financing return omits coupon and accrued-interest de
 
 ## Example 4 — find the cheapest delivery
 
+<div class="example-inputs">Futures quote F = 94.00. Cash prices, invoice amounts and delivery costs are per $100 par; ignore financing and accrued interest.</div>
+
 $$
 \text{Net delivery cost}=P_{\mathrm{cash}}-F\times CF
 $$
 
-| Bond | Cash price | Conversion factor | Invoice amount before accrued interest | Net delivery cost |
+| Bond | Cash price | Conversion factor | Invoice before AI | Net cost |
 |---|---:|---:|---:|---:|
 | A | 103.20 | 1.0800 | 101.52 | 1.68 |
 | B | 98.40 | 1.0300 | 96.82 | 1.58 |
@@ -347,13 +340,15 @@ $$
 
 Futures quote = 94.00. Bond C has the lowest simplified delivery cost; full implementation includes financing, accrued interest and timing.
 
-## Compare adjusted delivery costs, not raw bond prices
+## Compare adjusted delivery costs, not raw bond prices {.example-figure}
+
+<div class="example-inputs">Example 4: F = 94.00. A: cash 103.20, CF 1.0800; B: cash 98.40, CF 1.0300; C: cash 91.10, CF 0.9550. Net cost = cash − F × CF, per $100 par.</div>
 
 ![](lec3-11-assets/lec9-fig-ctd-cost.svg){.figure}
 
 ## A second CTD comparison
 
-Retained existing-deck example with futures quote 100.
+Futures quote $F=100.00$. All prices and costs below are per $100 par; ignore accrued interest and financing.
 
 | Bond | Cash price | CF | Invoice per 100 | Net cost |
 |---|---:|---:|---:|---:|
@@ -370,19 +365,19 @@ These rights benefit the short and reduce futures value to the long.
 
 ## Ultra bonds target very long-end exposure
 
-The source specifies deliverable bonds with at least **25 years to maturity**.
+Ultra Treasury bond futures accept eligible bonds with at least **25 years remaining to maturity** at the specified delivery reference date.
 
 This isolates very long-end exposure from regular Treasury bond futures and helps manage long-duration assets and liabilities.
 
 ## Treasury note futures cover shorter sectors
 
-| Contract | Face amount in the notes | Maturity description in the notes |
+| Contract | Contract face amount | Delivery sector |
 |---|---:|---|
 | 10-year note | $100,000 | Hypothetical 6% note; eligible 6.5–10 years |
 | 5-year note | $100,000 | Eligible notes in the 5-year sector |
 | 2-year note | $200,000 | Eligible notes in the 2-year sector |
 
-These descriptions follow the source. Verify live deliverable grades and tick conventions before an actual trade.
+These are sector summaries. Exact maturity windows, deliverable grades and tick sizes depend on the contract specifications.
 
 ## The law of one price links cash and futures
 
@@ -400,23 +395,23 @@ Equivalent future cash flows should have equivalent values; deviations create ar
 
 ## Example 5 — cash-and-carry setup
 
+Prices are per $100 par. Assume one deliverable, CF = 1, and simple coupon accrual paid separately from the delivery price.
+
 <div class="comparison"><div><h3>Inputs</h3><p>Cash price 100; coupon yield 12%; financing 8%; delivery in 0.25 years.</p></div><div><h3>Mispricing</h3><p>Futures price 107; buy the bond, borrow 100 and sell futures.</p></div></div>
 
 <div class="cash-timeline" data-times='["Today", "Three months"]' data-flows='["Buy \u2212100; borrow +100", "Receive delivery + coupon; repay loan"]'></div>
 
 ## Example 5 — calculate each cash flow
 
+<div class="example-inputs">Cash-and-carry per $100 par, CF = 1: P = 100; futures F = 107; coupon yield c = 12%; financing r = 8%; delivery t = 0.25 years.</div>
+
 $$
 \text{Coupon accrual}=100(0.12)(0.25)=3
 $$
 
-
-
 $$
 \text{Financing cost}=100(0.08)(0.25)=2
 $$
-
-
 
 $$
 \text{Profit}=(107+3)-(100+2)=8
@@ -426,9 +421,9 @@ The simplified example starts on a coupon date, uses linear accrual and ignores 
 
 ## Example 6 — reverse the trade when futures are cheap
 
+<div class="example-inputs">Reverse cash-and-carry per $100 par, CF = 1: P = 100; futures F = 92; coupon yield c = 12%; lending r = 8%; t = 0.25 years. Use simple accrual.</div>
+
 <div class="comparison"><div><h3>Today</h3><p>Short the bond for 100; invest proceeds at 8%; buy futures at 92.</p></div><div><h3>After three months</h3><p>Investment becomes 102. Acquire the bond for 92 and cover coupon accrual of 3.</p></div></div>
-
-
 
 $$
 \text{Profit}=102-(92+3)=7
@@ -440,21 +435,19 @@ $$
 \text{Profit}=F+ctP-(P+rtP)
 $$
 
-
-
 $$
 0=F+ctP-P-rtP
 $$
-
-
 
 $$
 F=P[1+t(r-c)]
 $$
 
-P is cash price; c is annual coupon divided by cash price; r is financing rate; t is years to delivery.
+P and F are prices per $100 par; c is annual coupon divided by P; r is the annual financing rate; t is years to delivery. This simple-carry model assumes one deliverable and ignores conversion factors and daily margin funding.
 
 ## The difference between coupon income and financing matters
+
+<div class="example-inputs">Simple carry per $100 par: P = 100; annual coupon yield c = 12%; financing r = 8%; delivery t = 0.25 years.</div>
 
 | Relationship | Carry earned by the bond holder | Fair futures versus cash |
 |---|---|---|
@@ -466,13 +459,15 @@ $$
 F=100[1+0.25(0.08-0.12)]=99
 $$
 
-## Both arbitrage profits are zero at the fair price
+## Both arbitrage profits are zero at the fair price {.example-figure}
+
+<div class="example-inputs">P = 100 per $100 par; c = 12%; r = 8%; t = 0.25 years. Fair F = 99; cash-and-carry profit = F − 99; reverse profit = 99 − F.</div>
 
 ![](lec3-11-assets/lec9-fig-arbitrage-profit.svg){.figure}
 
 ## A second cost-of-carry check
 
-Existing-deck inputs: P = 100, r = 7%, c = 5%, t = 0.5.
+Cash price $P=100$ per $100 par; financing $r=7\%$; coupon yield $c=5\%$; delivery in $t=0.5$ years. Use simple carry with no delivery options.
 
 $$
 F=100[1+0.5(0.07-0.05)]=101
@@ -492,13 +487,11 @@ $$
 F_{\mathrm{upper}}=P[1+t(r_B-c)]
 $$
 
-
-
 $$
 F_{\mathrm{lower}}=P[1+t(r_L-c)]
 $$
 
-Usually rB exceeds rL. Trading costs widen the range in which neither arbitrage direction is profitable.
+The borrowing rate $r_B$ usually exceeds the lending rate $r_L$. Trading costs widen the range in which neither arbitrage direction is profitable.
 
 ## Example 7 — calculate the no-arbitrage boundaries
 
@@ -506,15 +499,15 @@ $$
 F_{\mathrm{upper}}=100[1+0.25(0.08-0.12)]=99.00
 $$
 
-
-
 $$
 F_{\mathrm{lower}}=100[1+0.25(0.06-0.12)]=98.50
 $$
 
 P = 100; c = 12%; t = 0.25; borrowing 8%; lending 6%.
 
-## Arbitrage pressure is clearest outside the band
+## Arbitrage pressure is clearest outside the band {.example-figure}
+
+<div class="example-inputs">Example 7: P = 100 per $100 par; c = 12%; t = 0.25 years; borrowing rB = 8%; lending rL = 6%. Lower bound 98.50; upper bound 99.00.</div>
 
 ![](lec3-11-assets/lec9-fig-no-arbitrage-band.svg){.figure}
 
@@ -546,7 +539,7 @@ Use the same rate-shock unit in every dollar-duration measure.
 
 ## Duration adjustment: inputs and calculation
 
-Market value $48,109,810; duration 2.97 → target 3.68; futures dollar duration $5,022 per 100 bp.
+Market value $48,109,810; modified duration 2.97 → target 3.68; futures dollar duration $5,022 per 100 bp.
 
 | Measure | Calculation | Result |
 |---|---|---:|
@@ -558,29 +551,9 @@ $$
 N=341{,}579.651/5022\approx68\quad\text{buy}
 $$
 
-## Dollar-duration calculation
+## Visualize the duration added by the futures position {.example-figure}
 
-$$
-DD_{\mathrm{current}}=1{,}428{,}861.357
-$$
-
-
-
-$$
-DD_{\mathrm{target}}=1{,}770{,}441.008
-$$
-
-
-
-$$
-N=341{,}579.651/5022=68.0167
-$$
-
-
-
-
-
-## Visualize the duration added by the futures position
+<div class="example-inputs">Portfolio $48,109,810; modified duration 2.97, target 3.68; contract DD $5,022 per 100 bp. Exact DD gap $341,579.65; 68 contracts add $341,496 after rounding.</div>
 
 ![](lec3-11-assets/lec9-fig-duration-adjustment.svg){.figure}
 
@@ -596,33 +569,27 @@ $$
 DV01_{CTD}=D_{mod,CTD}P_{CTD}(0.0001)
 $$
 
-
-
 $$
-P_{CTD}\approx F\times CF
+P_{CTD,\mathrm{quote}}\approx F\times CF
 $$
-
-
 
 $$
 DV01_{futures}\approx\frac{DV01_{CTD}}{CF}
 $$
 
-DV01 is quoted positive. Keep quote and dollar units consistent; smaller CF magnifies the futures sensitivity associated with a given CTD movement.
+In the DV01 formula, $P_{CTD}$ is the dollar value of one contract’s deliverable face amount. The quote relation ignores basis and accrued interest. DV01 is positive dollars per basis point.
 
 ## CTD example: from price to contract DV01
+
+<div class="example-inputs">CTD price 102.40 per $100 par; modified duration 7.2; contract face $100,000; CF = 0.9350. Ignore accrued interest; keep the CTD fixed.</div>
 
 $$
 P_{CTD}=1.0240(100{,}000)=102{,}400
 $$
 
-
-
 $$
 DV01_{CTD}=7.2(102{,}400)(0.0001)=73.728\approx73.73
 $$
-
-
 
 $$
 DV01_f=73.728/0.9350\approx78.85
@@ -632,6 +599,8 @@ A 1 bp yield decline produces about $78.85 of gain per contract; a rise produces
 
 ## A direct DV01 hedge is an exposure match
 
+<div class="example-inputs">Exposure magnitude: portfolio DV01 $22,500/bp; one futures contract DV01 $75/bp; target remaining rate DV01 = 0.</div>
+
 $$
 N=\frac{DV01_{portfolio}}{DV01_f}=\frac{22{,}500}{75}=300
 $$
@@ -640,21 +609,17 @@ $$
 
 A partial hedge scales N by the desired hedge fraction.
 
-## Retained DV01 sizing example
+## DV01 hedge with a different CTD bond
 
-Existing-deck inputs: portfolio DV01 $27,840; CTD duration 6.5, price 98.50, face $100,000, CF 0.9200.
+Long-portfolio DV01 $27,840/bp; CTD modified duration 6.5; price 98.50 per $100 par; contract face $100,000; CF 0.9200. Ignore accrued interest.
 
 $$
 DV01_{CTD}=6.5(98{,}500)(0.0001)=64.025
 $$
 
-
-
 $$
 DV01_f=64.025/.9200=69.5924
 $$
-
-
 
 $$
 N=27{,}840/69.5924\approx400\quad\text{short}
@@ -681,30 +646,26 @@ Credit spreads, curve shape and deliverable changes can keep cash and futures fr
 ## The hedge ratio matches dollar sensitivity
 
 $$
-h=\frac{\text{bond volatility}}{\text{hedging-instrument volatility}}
+h=\frac{\text{bond PVBP per 100 par}}{\text{futures PVBP per 100 par}}
 $$
-
-
 
 $$
 h=\frac{PVBP_{\mathrm{bond}}}{PVBP_{CTD}}CF_{CTD}
 $$
 
-
-
 $$
 N=h\frac{\text{par to hedge}}{\text{contract par}}
 $$
 
-For the PVBP formula, quote both bond PVBPs on the same par basis.
+Quote both cash-bond PVBPs on the same par basis. This sensitivity hedge assumes equal yield changes; correlation and yield-beta adjustments require an additional model.
 
 ## Hedge-ratio example: calculate, scale, round
+
+<div class="example-inputs">Bond PVBP = 0.1363; CTD PVBP = 0.1207, both dollars per bp per $100 par. CF = 1.0246; long bonds $10 million par; contract face $100,000.</div>
 
 $$
 h=\frac{0.1363}{0.1207}(1.0246)=1.1570
 $$
-
-
 
 $$
 N=1.157\frac{10{,}000{,}000}{100{,}000}=115.7
@@ -712,19 +673,19 @@ $$
 
 Short **116 contracts** against $10 million of bonds. The conversion factor converts CTD sensitivity into futures sensitivity.
 
-## A hedge flattens the combined response
+## A hedge flattens the combined response {.example-figure}
+
+<div class="example-inputs">Illustration: starting bond value $10 million; DD $1,363,000 per 100 bp; futures offset 96% of rate-driven P&amp;L. Remaining DD = $54,520 per 100 bp.</div>
 
 ![](lec3-11-assets/lec9-fig-hedged-vs-unhedged.svg){.figure}
 
-Source schematic assumes 96% hedge effectiveness; it illustrates remaining basis risk rather than predicting a realized hedge result.
+Illustration: the hedge offsets 96% of the unhedged rate-driven P&L, leaving 4%. This is a schematic, not the result of the 116-contract example.
 
 ## Optional — allow the bond and CTD yields to move differently
 
 $$
 \Delta y_{bond}=a+b\Delta y_{CTD}+\varepsilon
 $$
-
-
 
 $$
 h_{\beta}=\frac{PVBP_{bond}}{PVBP_{CTD}}CF\times b
@@ -734,11 +695,11 @@ b is the regression yield beta. The basic hedge implicitly assumes the spread is
 
 ## Optional — yield-beta adjustment example
 
+<div class="example-inputs">Bond/CTD PVBPs 0.1363/0.1207 per $100 par; CF 1.0246; unadjusted h = 1.157; yield beta b = 0.90. Hedge $10 million with $100,000 contracts.</div>
+
 $$
 h_{\beta}=1.157(0.90)=1.0413\approx1.041
 $$
-
-
 
 $$
 N=1.041(100)=104.1\quad\Rightarrow\quad104\text{ contracts}
@@ -760,8 +721,6 @@ $$
 \text{Short-term riskless position}=\text{cash bond}-\text{bond future}
 $$
 
-
-
 $$
 \text{Cash bond}=\text{short-term riskless position}+\text{bond future}
 $$
@@ -770,21 +729,19 @@ Locking in delivery can replicate a short-term investment under matched-delivery
 
 ## Example 8 — construct the synthetic cash flows
 
+<div class="example-inputs">Per $100 par, CF = 1: buy the bond for 100; sell futures at 99; coupon yield 12%; delivery in 0.25 years. Simple coupon income = 100 × 12% × 0.25 = 3.</div>
+
 <div class="cash-timeline" data-times='["Today", "Three months"]' data-flows='["Buy bond \u2212100; sell futures", "Delivery 99 + coupon 3 = 102"]'></div>
-
-
 
 $$
 R_{3m}=\frac{102-100}{100}=2\%
 $$
 
-
-
 $$
 R_{annual,\ simple}=2\%\times4=8\%
 $$
 
-The source ignores margin reinvestment, trading costs and delivery-option effects; those assumptions are needed for the “riskless” description.
+Assume matched delivery, known coupon income, and no margin funding, trading costs or delivery-option effects. Those assumptions make the locked-in return possible.
 
 ## Optional — shift exposure from equities to bonds
 
@@ -794,11 +751,11 @@ A $200 million shift can reduce immediate transaction costs and market impact wh
 
 ## Example 9 — size the new bond allocation
 
+<div class="example-inputs">Add $200 million of bond exposure with modified duration 5.0. Current bond DD for this allocation = 0; futures DD = $5,000 per 100 bp per contract.</div>
+
 $$
 \Delta DD=0.05(200{,}000{,}000)=10{,}000{,}000
 $$
-
-
 
 $$
 N=\frac{10{,}000{,}000}{5{,}000}=2{,}000\quad\text{buy}
@@ -806,11 +763,13 @@ $$
 
 Target bond duration 5.0; futures DD $5,000 per 100 bp. More generally divide the target-minus-current dollar-duration gap by contract DD.
 
-## The overlay changes exposure before cash holdings
+## The overlay changes exposure before cash holdings {.example-figure}
+
+<div class="example-inputs">Example 9: $500m equities + $500m bonds becomes $300m + $700m. Add $200m bond exposure at duration 5.0; contract DD $5,000 per 100 bp; buy 2,000 Treasury futures.</div>
 
 ![](lec3-11-assets/lec9-fig-allocation-shift.svg){.figure}
 
-## Retained application — locate a rate view on the curve
+## Rate views and futures positions
 
 | View | Possible futures structure |
 |---|---|
@@ -830,9 +789,9 @@ DV01 weighting helps isolate slope rather than adding an unintended level exposu
 
 ## Readings and market resources
 
-- Fabozzi, *Bond Markets, Analysis, and Strategies*, **Chapter 29: Interest-Rate Futures Contracts**.
-- [CME Group, U.S. Treasury Futures and Options](https://www.cmegroup.com/markets/interest-rates/us-treasury.html): Review current contract specifications, deliverable grades, quotes, and volume for Treasury futures used in duration hedging.
-- [CME Group, Three-Month SOFR Futures](https://www.cmegroup.com/markets/interest-rates/stirs/three-month-sofr.html): Connect the lecture's short-rate futures mechanics to the principal exchange-traded U.S. SOFR contract.
-- [CFTC, Commitments of Traders](https://www.cftc.gov/MarketReports/CommitmentsofTraders/index.htm): Examine weekly positioning by trader category in Treasury and short-term interest-rate futures markets.
-- [U.S. Treasury, TreasuryDirect Auction Results](https://www.treasurydirect.gov/auctions/announcements-data-results/): Access official auction results and security details that help identify the cash instruments underlying Treasury-futures basis trades.
-- [Federal Reserve Bank of New York, SOFR](https://www.newyorkfed.org/markets/reference-rates/sofr): Compare SOFR futures pricing with the official published overnight secured financing rate and its methodology.
+- Fabozzi, *Bond Markets, Analysis, and Strategies*, Chapter 29: Interest-Rate Futures Contracts.
+- [CME Treasury futures](https://www.cmegroup.com/markets/interest-rates/us-treasury.html): contract specifications and deliverable grades.
+- [CME Three-Month SOFR futures](https://www.cmegroup.com/markets/interest-rates/stirs/three-month-sofr.html): reference periods and settlement rules.
+- [CFTC Commitments of Traders](https://www.cftc.gov/MarketReports/CommitmentsofTraders/index.htm): futures positioning by trader category.
+- [TreasuryDirect auction results](https://www.treasurydirect.gov/auctions/announcements-data-results/): cash-security details.
+- [New York Fed SOFR](https://www.newyorkfed.org/markets/reference-rates/sofr): published rates and methodology.

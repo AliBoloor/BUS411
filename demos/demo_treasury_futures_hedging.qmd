@@ -322,6 +322,8 @@ pd.Series({
 }).round(2)
 ```
 
+Here $P_{CTD}$ is the **dollar market value of the deliverable face amount**, not the clean quote per $100 par. We use $101.75/100 \times 100{,}000 = 101{,}750$ and ignore accrued interest. Both DV01 measures are dollars per basis point; futures DV01 is per contract.
+
 The futures contract does not have a true bond duration. Its practical sensitivity is inherited from the current CTD bond and scaled by the conversion factor.
 
 ## Size and Round the Hedge
@@ -364,7 +366,13 @@ Rounding creates a small residual exposure. A negative residual means the rounde
 
 ## Before-and-After Scenario P&L
 
-Suppose Treasury yields rise by 35 basis points. Corporate spreads also widen by the amounts in the portfolio table. The first-order bond P&L is separated into Treasury and spread components:
+Suppose Treasury yields rise by 35 basis points. Corporate spreads also widen by the amounts in the portfolio table.
+
+The separate spread shock here is the **residual** spread move beyond any
+co-movement already represented by the assumed yield beta; otherwise the scenario
+could count that co-movement twice.
+
+The first-order bond P&L is separated into Treasury and spread components:
 
 $$
 \Delta V_{portfolio}
@@ -525,9 +533,7 @@ The hedge is successful here because it neutralizes the stated parallel Treasury
 explains CTD-based sensitivity matching. For a live case, record the exact delivery
 month, eligible basket, CTD assumption, conversion factor, and observation time.
 The embedded positions and CTD are a complete illustrative fallback, not downloaded
-quotes. The separate spread shock here is the **residual** spread move beyond any
-co-movement already represented by the assumed yield beta; otherwise the scenario
-could count that co-movement twice.
+quotes.
 
 **Your deliverable:** a hedge ticket stating direction, integer contracts,
 residual DV01, stress P&L, and the unhedged risk that matters most.

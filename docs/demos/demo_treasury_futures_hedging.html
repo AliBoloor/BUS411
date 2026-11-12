@@ -736,6 +736,7 @@ Futures DV01 ($/bp)                                          80.63
 dtype: float64</code></pre>
 </div>
 </div>
+<p>Here <span class="math inline">\(P_{CTD}\)</span> is the <strong>dollar market value of the deliverable face amount</strong>, not the clean quote per $100 par. We use <span class="math inline">\(101.75/100 \times 100{,}000 = 101{,}750\)</span> and ignore accrued interest. Both DV01 measures are dollars per basis point; futures DV01 is per contract.</p>
 <p>The futures contract does not have a true bond duration. Its practical sensitivity is inherited from the current CTD bond and scaled by the conversion factor.</p>
 </section>
 <section id="size-and-round-the-hedge" class="level2" data-number="4">
@@ -788,7 +789,9 @@ dtype: float64</code></pre>
 </section>
 <section id="before-and-after-scenario-pl" class="level2" data-number="5">
 <h2 data-number="5" class="anchored" data-anchor-id="before-and-after-scenario-pl"><span class="header-section-number">5</span> Before-and-After Scenario P&amp;L</h2>
-<p>Suppose Treasury yields rise by 35 basis points. Corporate spreads also widen by the amounts in the portfolio table. The first-order bond P&amp;L is separated into Treasury and spread components:</p>
+<p>Suppose Treasury yields rise by 35 basis points. Corporate spreads also widen by the amounts in the portfolio table.</p>
+<p>The separate spread shock here is the <strong>residual</strong> spread move beyond any co-movement already represented by the assumed yield beta; otherwise the scenario could count that co-movement twice.</p>
+<p>The first-order bond P&amp;L is separated into Treasury and spread components:</p>
 <p><span class="math display">\[
 \Delta V_{portfolio}
 \approx
@@ -1038,7 +1041,7 @@ dtype: bool</code></pre>
 <p>The hedge is successful here because it neutralizes the stated parallel Treasury-rate exposure. The remaining loss is economically meaningful: it is primarily credit spread risk, which was never within the hedge’s scope.</p>
 <section id="market-handoff" class="level3" data-number="8.1">
 <h3 data-number="8.1" class="anchored" data-anchor-id="market-handoff"><span class="header-section-number">8.1</span> Market handoff</h3>
-<p><a href="https://www.cmegroup.com/education/courses/introduction-to-treasuries/treasuries-hedging-and-risk-management">CME’s Treasury hedging guide</a> explains CTD-based sensitivity matching. For a live case, record the exact delivery month, eligible basket, CTD assumption, conversion factor, and observation time. The embedded positions and CTD are a complete illustrative fallback, not downloaded quotes. The separate spread shock here is the <strong>residual</strong> spread move beyond any co-movement already represented by the assumed yield beta; otherwise the scenario could count that co-movement twice.</p>
+<p><a href="https://www.cmegroup.com/education/courses/introduction-to-treasuries/treasuries-hedging-and-risk-management">CME’s Treasury hedging guide</a> explains CTD-based sensitivity matching. For a live case, record the exact delivery month, eligible basket, CTD assumption, conversion factor, and observation time. The embedded positions and CTD are a complete illustrative fallback, not downloaded quotes.</p>
 <p><strong>Your deliverable:</strong> a hedge ticket stating direction, integer contracts, residual DV01, stress P&amp;L, and the unhedged risk that matters most.</p>
 </section>
 </section>
@@ -2027,277 +2030,283 @@ dtype: float64</code></pre>
 <span id="cb18-330"><a href="#cb18-330" aria-hidden="true" tabindex="-1"></a>}).<span class="bu">round</span>(<span class="dv">2</span>)</span>
 <span id="cb18-331"><a href="#cb18-331" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb18-332"><a href="#cb18-332" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-333"><a href="#cb18-333" aria-hidden="true" tabindex="-1"></a>The futures contract does not have a true bond duration. Its practical sensitivity is inherited from the current CTD bond and scaled by the conversion factor.</span>
+<span id="cb18-333"><a href="#cb18-333" aria-hidden="true" tabindex="-1"></a>Here $P_{CTD}$ is the **dollar market value of the deliverable face amount**, not the clean quote per $100 par. We use $101.75/100 \times 100{,}000 = 101{,}750$ and ignore accrued interest. Both DV01 measures are dollars per basis point; futures DV01 is per contract.</span>
 <span id="cb18-334"><a href="#cb18-334" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-335"><a href="#cb18-335" aria-hidden="true" tabindex="-1"></a><span class="fu">## Size and Round the Hedge</span></span>
+<span id="cb18-335"><a href="#cb18-335" aria-hidden="true" tabindex="-1"></a>The futures contract does not have a true bond duration. Its practical sensitivity is inherited from the current CTD bond and scaled by the conversion factor.</span>
 <span id="cb18-336"><a href="#cb18-336" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-337"><a href="#cb18-337" aria-hidden="true" tabindex="-1"></a>::: {.callout-note}</span>
-<span id="cb18-338"><a href="#cb18-338" aria-hidden="true" tabindex="-1"></a><span class="fu">## One contract, with units</span></span>
-<span id="cb18-339"><a href="#cb18-339" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-340"><a href="#cb18-340" aria-hidden="true" tabindex="-1"></a>The CTD's market value is $100,000 × 101.75 / 100 = $101,750.</span>
-<span id="cb18-341"><a href="#cb18-341" aria-hidden="true" tabindex="-1"></a>Multiplying by 7.35 years and 0.0001 gives about **$74.79 per bp**.</span>
-<span id="cb18-342"><a href="#cb18-342" aria-hidden="true" tabindex="-1"></a>Dividing by the 0.9275 conversion factor gives about **$80.63 per bp per</span>
-<span id="cb18-343"><a href="#cb18-343" aria-hidden="true" tabindex="-1"></a>futures contract**. Portfolio dollars per bp divided by contract dollars per bp</span>
-<span id="cb18-344"><a href="#cb18-344" aria-hidden="true" tabindex="-1"></a>therefore gives a number of contracts—not a dollar notional.</span>
-<span id="cb18-345"><a href="#cb18-345" aria-hidden="true" tabindex="-1"></a>:::</span>
-<span id="cb18-346"><a href="#cb18-346" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-347"><a href="#cb18-347" aria-hidden="true" tabindex="-1"></a>The portfolio is long bonds and loses when rates rise, so the hedge shorts Treasury futures. The exact contract count is</span>
+<span id="cb18-337"><a href="#cb18-337" aria-hidden="true" tabindex="-1"></a><span class="fu">## Size and Round the Hedge</span></span>
+<span id="cb18-338"><a href="#cb18-338" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-339"><a href="#cb18-339" aria-hidden="true" tabindex="-1"></a>::: {.callout-note}</span>
+<span id="cb18-340"><a href="#cb18-340" aria-hidden="true" tabindex="-1"></a><span class="fu">## One contract, with units</span></span>
+<span id="cb18-341"><a href="#cb18-341" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-342"><a href="#cb18-342" aria-hidden="true" tabindex="-1"></a>The CTD's market value is $100,000 × 101.75 / 100 = $101,750.</span>
+<span id="cb18-343"><a href="#cb18-343" aria-hidden="true" tabindex="-1"></a>Multiplying by 7.35 years and 0.0001 gives about **$74.79 per bp**.</span>
+<span id="cb18-344"><a href="#cb18-344" aria-hidden="true" tabindex="-1"></a>Dividing by the 0.9275 conversion factor gives about **$80.63 per bp per</span>
+<span id="cb18-345"><a href="#cb18-345" aria-hidden="true" tabindex="-1"></a>futures contract**. Portfolio dollars per bp divided by contract dollars per bp</span>
+<span id="cb18-346"><a href="#cb18-346" aria-hidden="true" tabindex="-1"></a>therefore gives a number of contracts—not a dollar notional.</span>
+<span id="cb18-347"><a href="#cb18-347" aria-hidden="true" tabindex="-1"></a>:::</span>
 <span id="cb18-348"><a href="#cb18-348" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-349"><a href="#cb18-349" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb18-350"><a href="#cb18-350" aria-hidden="true" tabindex="-1"></a>N^*</span>
-<span id="cb18-351"><a href="#cb18-351" aria-hidden="true" tabindex="-1"></a>=\frac{DV01_{portfolio}^{\text{Treasury}}}{DV01_{futures}}.</span>
-<span id="cb18-352"><a href="#cb18-352" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb18-353"><a href="#cb18-353" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-356"><a href="#cb18-356" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb18-357"><a href="#cb18-357" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: hedge-size</span></span>
-<span id="cb18-358"><a href="#cb18-358" aria-hidden="true" tabindex="-1"></a>exact_contracts <span class="op">=</span> treasury_dv01 <span class="op">/</span> futures_dv01</span>
-<span id="cb18-359"><a href="#cb18-359" aria-hidden="true" tabindex="-1"></a>rounded_contracts <span class="op">=</span> <span class="bu">int</span>(np.rint(exact_contracts))</span>
-<span id="cb18-360"><a href="#cb18-360" aria-hidden="true" tabindex="-1"></a>hedge_dv01 <span class="op">=</span> rounded_contracts <span class="op">*</span> futures_dv01</span>
-<span id="cb18-361"><a href="#cb18-361" aria-hidden="true" tabindex="-1"></a>residual_treasury_dv01 <span class="op">=</span> treasury_dv01 <span class="op">-</span> hedge_dv01</span>
-<span id="cb18-362"><a href="#cb18-362" aria-hidden="true" tabindex="-1"></a>hedge_ratio <span class="op">=</span> hedge_dv01 <span class="op">/</span> treasury_dv01</span>
-<span id="cb18-363"><a href="#cb18-363" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-364"><a href="#cb18-364" aria-hidden="true" tabindex="-1"></a>pd.Series({</span>
-<span id="cb18-365"><a href="#cb18-365" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Exact contracts to short"</span>: exact_contracts,</span>
-<span id="cb18-366"><a href="#cb18-366" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Rounded contracts to short"</span>: rounded_contracts,</span>
-<span id="cb18-367"><a href="#cb18-367" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Hedge DV01 ($/bp)"</span>: hedge_dv01,</span>
-<span id="cb18-368"><a href="#cb18-368" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Residual Treasury DV01 ($/bp)"</span>: residual_treasury_dv01,</span>
-<span id="cb18-369"><a href="#cb18-369" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Hedge ratio"</span>: hedge_ratio,</span>
-<span id="cb18-370"><a href="#cb18-370" aria-hidden="true" tabindex="-1"></a>}).<span class="bu">round</span>(<span class="dv">4</span>)</span>
-<span id="cb18-371"><a href="#cb18-371" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb18-372"><a href="#cb18-372" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-373"><a href="#cb18-373" aria-hidden="true" tabindex="-1"></a>Rounding creates a small residual exposure. A negative residual means the rounded hedge is slightly too large; a positive residual means it is slightly too small.</span>
+<span id="cb18-349"><a href="#cb18-349" aria-hidden="true" tabindex="-1"></a>The portfolio is long bonds and loses when rates rise, so the hedge shorts Treasury futures. The exact contract count is</span>
+<span id="cb18-350"><a href="#cb18-350" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-351"><a href="#cb18-351" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb18-352"><a href="#cb18-352" aria-hidden="true" tabindex="-1"></a>N^*</span>
+<span id="cb18-353"><a href="#cb18-353" aria-hidden="true" tabindex="-1"></a>=\frac{DV01_{portfolio}^{\text{Treasury}}}{DV01_{futures}}.</span>
+<span id="cb18-354"><a href="#cb18-354" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb18-355"><a href="#cb18-355" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-358"><a href="#cb18-358" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb18-359"><a href="#cb18-359" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: hedge-size</span></span>
+<span id="cb18-360"><a href="#cb18-360" aria-hidden="true" tabindex="-1"></a>exact_contracts <span class="op">=</span> treasury_dv01 <span class="op">/</span> futures_dv01</span>
+<span id="cb18-361"><a href="#cb18-361" aria-hidden="true" tabindex="-1"></a>rounded_contracts <span class="op">=</span> <span class="bu">int</span>(np.rint(exact_contracts))</span>
+<span id="cb18-362"><a href="#cb18-362" aria-hidden="true" tabindex="-1"></a>hedge_dv01 <span class="op">=</span> rounded_contracts <span class="op">*</span> futures_dv01</span>
+<span id="cb18-363"><a href="#cb18-363" aria-hidden="true" tabindex="-1"></a>residual_treasury_dv01 <span class="op">=</span> treasury_dv01 <span class="op">-</span> hedge_dv01</span>
+<span id="cb18-364"><a href="#cb18-364" aria-hidden="true" tabindex="-1"></a>hedge_ratio <span class="op">=</span> hedge_dv01 <span class="op">/</span> treasury_dv01</span>
+<span id="cb18-365"><a href="#cb18-365" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-366"><a href="#cb18-366" aria-hidden="true" tabindex="-1"></a>pd.Series({</span>
+<span id="cb18-367"><a href="#cb18-367" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Exact contracts to short"</span>: exact_contracts,</span>
+<span id="cb18-368"><a href="#cb18-368" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Rounded contracts to short"</span>: rounded_contracts,</span>
+<span id="cb18-369"><a href="#cb18-369" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Hedge DV01 ($/bp)"</span>: hedge_dv01,</span>
+<span id="cb18-370"><a href="#cb18-370" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Residual Treasury DV01 ($/bp)"</span>: residual_treasury_dv01,</span>
+<span id="cb18-371"><a href="#cb18-371" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Hedge ratio"</span>: hedge_ratio,</span>
+<span id="cb18-372"><a href="#cb18-372" aria-hidden="true" tabindex="-1"></a>}).<span class="bu">round</span>(<span class="dv">4</span>)</span>
+<span id="cb18-373"><a href="#cb18-373" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb18-374"><a href="#cb18-374" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-375"><a href="#cb18-375" aria-hidden="true" tabindex="-1"></a><span class="fu">## Before-and-After Scenario P&amp;L</span></span>
+<span id="cb18-375"><a href="#cb18-375" aria-hidden="true" tabindex="-1"></a>Rounding creates a small residual exposure. A negative residual means the rounded hedge is slightly too large; a positive residual means it is slightly too small.</span>
 <span id="cb18-376"><a href="#cb18-376" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-377"><a href="#cb18-377" aria-hidden="true" tabindex="-1"></a>Suppose Treasury yields rise by 35 basis points. Corporate spreads also widen by the amounts in the portfolio table. The first-order bond P&amp;L is separated into Treasury and spread components:</span>
+<span id="cb18-377"><a href="#cb18-377" aria-hidden="true" tabindex="-1"></a><span class="fu">## Before-and-After Scenario P&amp;L</span></span>
 <span id="cb18-378"><a href="#cb18-378" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-379"><a href="#cb18-379" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb18-380"><a href="#cb18-380" aria-hidden="true" tabindex="-1"></a>\Delta V_{portfolio}</span>
-<span id="cb18-381"><a href="#cb18-381" aria-hidden="true" tabindex="-1"></a>\approx</span>
-<span id="cb18-382"><a href="#cb18-382" aria-hidden="true" tabindex="-1"></a>-DV01^{\text{Treasury}}\Delta y_{Treasury}</span>
-<span id="cb18-383"><a href="#cb18-383" aria-hidden="true" tabindex="-1"></a>-DV01^{\text{spread}}\Delta s.</span>
-<span id="cb18-384"><a href="#cb18-384" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb18-385"><a href="#cb18-385" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-386"><a href="#cb18-386" aria-hidden="true" tabindex="-1"></a>Because the hedge is short futures, its approximate gain when Treasury yields rise is</span>
-<span id="cb18-387"><a href="#cb18-387" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-388"><a href="#cb18-388" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb18-389"><a href="#cb18-389" aria-hidden="true" tabindex="-1"></a>\Delta V_{futures}</span>
-<span id="cb18-390"><a href="#cb18-390" aria-hidden="true" tabindex="-1"></a>\approx</span>
-<span id="cb18-391"><a href="#cb18-391" aria-hidden="true" tabindex="-1"></a>N\times DV01_{futures}\times\Delta y_{Treasury}.</span>
+<span id="cb18-379"><a href="#cb18-379" aria-hidden="true" tabindex="-1"></a>Suppose Treasury yields rise by 35 basis points. Corporate spreads also widen by the amounts in the portfolio table.</span>
+<span id="cb18-380"><a href="#cb18-380" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-381"><a href="#cb18-381" aria-hidden="true" tabindex="-1"></a>The separate spread shock here is the **residual** spread move beyond any</span>
+<span id="cb18-382"><a href="#cb18-382" aria-hidden="true" tabindex="-1"></a>co-movement already represented by the assumed yield beta; otherwise the scenario</span>
+<span id="cb18-383"><a href="#cb18-383" aria-hidden="true" tabindex="-1"></a>could count that co-movement twice.</span>
+<span id="cb18-384"><a href="#cb18-384" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-385"><a href="#cb18-385" aria-hidden="true" tabindex="-1"></a>The first-order bond P&amp;L is separated into Treasury and spread components:</span>
+<span id="cb18-386"><a href="#cb18-386" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-387"><a href="#cb18-387" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb18-388"><a href="#cb18-388" aria-hidden="true" tabindex="-1"></a>\Delta V_{portfolio}</span>
+<span id="cb18-389"><a href="#cb18-389" aria-hidden="true" tabindex="-1"></a>\approx</span>
+<span id="cb18-390"><a href="#cb18-390" aria-hidden="true" tabindex="-1"></a>-DV01^{\text{Treasury}}\Delta y_{Treasury}</span>
+<span id="cb18-391"><a href="#cb18-391" aria-hidden="true" tabindex="-1"></a>-DV01^{\text{spread}}\Delta s.</span>
 <span id="cb18-392"><a href="#cb18-392" aria-hidden="true" tabindex="-1"></a>$$</span>
 <span id="cb18-393"><a href="#cb18-393" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-396"><a href="#cb18-396" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb18-397"><a href="#cb18-397" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: scenario-pnl</span></span>
-<span id="cb18-398"><a href="#cb18-398" aria-hidden="true" tabindex="-1"></a>treasury_shock_bp <span class="op">=</span> <span class="fl">35.0</span></span>
-<span id="cb18-399"><a href="#cb18-399" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-400"><a href="#cb18-400" aria-hidden="true" tabindex="-1"></a>portfolio[<span class="st">"Treasury P&amp;L ($)"</span>] <span class="op">=</span> <span class="op">-</span>portfolio[<span class="st">"Treasury DV01 ($/bp)"</span>] <span class="op">*</span> treasury_shock_bp</span>
-<span id="cb18-401"><a href="#cb18-401" aria-hidden="true" tabindex="-1"></a>portfolio[<span class="st">"Spread P&amp;L ($)"</span>] <span class="op">=</span> (</span>
-<span id="cb18-402"><a href="#cb18-402" aria-hidden="true" tabindex="-1"></a>    <span class="op">-</span>portfolio[<span class="st">"Spread DV01 ($/bp)"</span>]</span>
-<span id="cb18-403"><a href="#cb18-403" aria-hidden="true" tabindex="-1"></a>    <span class="op">*</span> portfolio[<span class="st">"Spread shock in scenario (bp)"</span>]</span>
-<span id="cb18-404"><a href="#cb18-404" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb18-405"><a href="#cb18-405" aria-hidden="true" tabindex="-1"></a>portfolio[<span class="st">"Total unhedged P&amp;L ($)"</span>] <span class="op">=</span> (</span>
-<span id="cb18-406"><a href="#cb18-406" aria-hidden="true" tabindex="-1"></a>    portfolio[<span class="st">"Treasury P&amp;L ($)"</span>] <span class="op">+</span> portfolio[<span class="st">"Spread P&amp;L ($)"</span>]</span>
-<span id="cb18-407"><a href="#cb18-407" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb18-408"><a href="#cb18-408" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-409"><a href="#cb18-409" aria-hidden="true" tabindex="-1"></a>futures_pnl <span class="op">=</span> rounded_contracts <span class="op">*</span> futures_dv01 <span class="op">*</span> treasury_shock_bp</span>
-<span id="cb18-410"><a href="#cb18-410" aria-hidden="true" tabindex="-1"></a>unhedged_pnl <span class="op">=</span> portfolio[<span class="st">"Total unhedged P&amp;L ($)"</span>].<span class="bu">sum</span>()</span>
-<span id="cb18-411"><a href="#cb18-411" aria-hidden="true" tabindex="-1"></a>hedged_pnl <span class="op">=</span> unhedged_pnl <span class="op">+</span> futures_pnl</span>
-<span id="cb18-412"><a href="#cb18-412" aria-hidden="true" tabindex="-1"></a>residual_rate_pnl <span class="op">=</span> <span class="op">-</span>residual_treasury_dv01 <span class="op">*</span> treasury_shock_bp</span>
-<span id="cb18-413"><a href="#cb18-413" aria-hidden="true" tabindex="-1"></a>spread_pnl <span class="op">=</span> portfolio[<span class="st">"Spread P&amp;L ($)"</span>].<span class="bu">sum</span>()</span>
-<span id="cb18-414"><a href="#cb18-414" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-415"><a href="#cb18-415" aria-hidden="true" tabindex="-1"></a>portfolio[[</span>
-<span id="cb18-416"><a href="#cb18-416" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Position"</span>, <span class="st">"Treasury P&amp;L ($)"</span>, <span class="st">"Spread P&amp;L ($)"</span>, <span class="st">"Total unhedged P&amp;L ($)"</span></span>
-<span id="cb18-417"><a href="#cb18-417" aria-hidden="true" tabindex="-1"></a>]].<span class="bu">round</span>(<span class="dv">0</span>)</span>
-<span id="cb18-418"><a href="#cb18-418" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb18-419"><a href="#cb18-419" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-422"><a href="#cb18-422" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb18-423"><a href="#cb18-423" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: scenario-summary</span></span>
-<span id="cb18-424"><a href="#cb18-424" aria-hidden="true" tabindex="-1"></a>pd.Series({</span>
-<span id="cb18-425"><a href="#cb18-425" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Unhedged portfolio P&amp;L ($)"</span>: unhedged_pnl,</span>
-<span id="cb18-426"><a href="#cb18-426" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Short futures P&amp;L ($)"</span>: futures_pnl,</span>
-<span id="cb18-427"><a href="#cb18-427" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Hedged portfolio P&amp;L ($)"</span>: hedged_pnl,</span>
-<span id="cb18-428"><a href="#cb18-428" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Residual rate P&amp;L from rounding ($)"</span>: residual_rate_pnl,</span>
-<span id="cb18-429"><a href="#cb18-429" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Unhedged spread P&amp;L ($)"</span>: spread_pnl,</span>
-<span id="cb18-430"><a href="#cb18-430" aria-hidden="true" tabindex="-1"></a>}).<span class="bu">round</span>(<span class="dv">0</span>)</span>
-<span id="cb18-431"><a href="#cb18-431" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb18-432"><a href="#cb18-432" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-433"><a href="#cb18-433" aria-hidden="true" tabindex="-1"></a>The futures hedge removes almost all of the modeled Treasury-rate loss. It does not hedge the corporate spread widening, which remains the dominant loss after the hedge.</span>
-<span id="cb18-434"><a href="#cb18-434" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-437"><a href="#cb18-437" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb18-438"><a href="#cb18-438" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-hedge-scenarios</span></span>
-<span id="cb18-439"><a href="#cb18-439" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "The futures hedge offsets parallel Treasury-rate risk but not spread risk"</span></span>
-<span id="cb18-440"><a href="#cb18-440" aria-hidden="true" tabindex="-1"></a>treasury_scenarios <span class="op">=</span> np.arange(<span class="op">-</span><span class="dv">75</span>, <span class="dv">76</span>, <span class="dv">5</span>)</span>
-<span id="cb18-441"><a href="#cb18-441" aria-hidden="true" tabindex="-1"></a>unhedged_rate_pnl <span class="op">=</span> <span class="op">-</span>treasury_dv01 <span class="op">*</span> treasury_scenarios</span>
-<span id="cb18-442"><a href="#cb18-442" aria-hidden="true" tabindex="-1"></a>hedged_rate_pnl <span class="op">=</span> unhedged_rate_pnl <span class="op">+</span> hedge_dv01 <span class="op">*</span> treasury_scenarios</span>
-<span id="cb18-443"><a href="#cb18-443" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-444"><a href="#cb18-444" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">7.5</span>, <span class="fl">4.1</span>))</span>
-<span id="cb18-445"><a href="#cb18-445" aria-hidden="true" tabindex="-1"></a>ax.plot(treasury_scenarios, unhedged_rate_pnl <span class="op">/</span> <span class="dv">1_000</span>, linewidth<span class="op">=</span><span class="fl">2.1</span>,</span>
-<span id="cb18-446"><a href="#cb18-446" aria-hidden="true" tabindex="-1"></a>        label<span class="op">=</span><span class="st">"Unhedged Treasury-rate P&amp;L"</span>)</span>
-<span id="cb18-447"><a href="#cb18-447" aria-hidden="true" tabindex="-1"></a>ax.plot(treasury_scenarios, hedged_rate_pnl <span class="op">/</span> <span class="dv">1_000</span>, linewidth<span class="op">=</span><span class="fl">2.1</span>,</span>
-<span id="cb18-448"><a href="#cb18-448" aria-hidden="true" tabindex="-1"></a>        label<span class="op">=</span><span class="st">"After rounded futures hedge"</span>)</span>
-<span id="cb18-449"><a href="#cb18-449" aria-hidden="true" tabindex="-1"></a>ax.axhline(<span class="dv">0</span>, color<span class="op">=</span><span class="st">"black"</span>, linewidth<span class="op">=</span><span class="fl">0.8</span>)</span>
-<span id="cb18-450"><a href="#cb18-450" aria-hidden="true" tabindex="-1"></a>ax.axvline(<span class="dv">0</span>, color<span class="op">=</span><span class="st">"gray"</span>, linestyle<span class="op">=</span><span class="st">"--"</span>, linewidth<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb18-451"><a href="#cb18-451" aria-hidden="true" tabindex="-1"></a>ax.<span class="bu">set</span>(xlabel<span class="op">=</span><span class="st">"Parallel Treasury yield shock (bp)"</span>, ylabel<span class="op">=</span><span class="st">"Rate-driven P&amp;L ($ thousands)"</span>,</span>
-<span id="cb18-452"><a href="#cb18-452" aria-hidden="true" tabindex="-1"></a>       title<span class="op">=</span><span class="st">"First-order Treasury-rate hedge"</span>)</span>
-<span id="cb18-453"><a href="#cb18-453" aria-hidden="true" tabindex="-1"></a>ax.grid(alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
-<span id="cb18-454"><a href="#cb18-454" aria-hidden="true" tabindex="-1"></a>ax.legend()</span>
-<span id="cb18-455"><a href="#cb18-455" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
-<span id="cb18-456"><a href="#cb18-456" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
-<span id="cb18-457"><a href="#cb18-457" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb18-458"><a href="#cb18-458" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-459"><a href="#cb18-459" aria-hidden="true" tabindex="-1"></a><span class="fu">## Validation Checks</span></span>
-<span id="cb18-460"><a href="#cb18-460" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-461"><a href="#cb18-461" aria-hidden="true" tabindex="-1"></a><span class="fu">### Reconcile what the hedge actually removed</span></span>
-<span id="cb18-462"><a href="#cb18-462" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-465"><a href="#cb18-465" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb18-466"><a href="#cb18-466" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-hedge-reconciliation</span></span>
-<span id="cb18-467"><a href="#cb18-467" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "The rate loss and futures gain largely offset; the corporate-spread loss remains."</span></span>
-<span id="cb18-468"><a href="#cb18-468" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Bars display the Treasury loss, futures gain, spread loss and combined hedged P&amp;L in thousands of dollars."</span></span>
-<span id="cb18-469"><a href="#cb18-469" aria-hidden="true" tabindex="-1"></a>components <span class="op">=</span> pd.Series({</span>
-<span id="cb18-470"><a href="#cb18-470" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Treasury loss"</span>: portfolio[<span class="st">"Treasury P&amp;L ($)"</span>].<span class="bu">sum</span>(),</span>
-<span id="cb18-471"><a href="#cb18-471" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Futures gain"</span>: futures_pnl,</span>
-<span id="cb18-472"><a href="#cb18-472" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Spread loss"</span>: spread_pnl,</span>
-<span id="cb18-473"><a href="#cb18-473" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Combined P&amp;L"</span>: hedged_pnl,</span>
-<span id="cb18-474"><a href="#cb18-474" aria-hidden="true" tabindex="-1"></a>}) <span class="op">/</span> <span class="dv">1000</span></span>
-<span id="cb18-475"><a href="#cb18-475" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">4</span>))</span>
-<span id="cb18-476"><a href="#cb18-476" aria-hidden="true" tabindex="-1"></a>bars <span class="op">=</span> ax.barh(components.index, components.values,</span>
-<span id="cb18-477"><a href="#cb18-477" aria-hidden="true" tabindex="-1"></a>               color<span class="op">=</span>[<span class="st">"#214b3e"</span>, <span class="st">"#936724"</span>, <span class="st">"#214b3e"</span>, <span class="st">"#444444"</span>])</span>
-<span id="cb18-478"><a href="#cb18-478" aria-hidden="true" tabindex="-1"></a>ax.bar_label(bars, fmt<span class="op">=</span><span class="st">"</span><span class="sc">%.1f</span><span class="st">"</span>, padding<span class="op">=</span><span class="dv">4</span>)</span>
-<span id="cb18-479"><a href="#cb18-479" aria-hidden="true" tabindex="-1"></a>ax.axvline(<span class="dv">0</span>, color<span class="op">=</span><span class="st">"#333333"</span>, linewidth<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb18-480"><a href="#cb18-480" aria-hidden="true" tabindex="-1"></a>ax.margins(x<span class="op">=</span><span class="fl">0.20</span>)</span>
-<span id="cb18-481"><a href="#cb18-481" aria-hidden="true" tabindex="-1"></a>ax.<span class="bu">set</span>(xlabel<span class="op">=</span><span class="st">"P&amp;L ($ thousands)"</span>)</span>
-<span id="cb18-482"><a href="#cb18-482" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
-<span id="cb18-483"><a href="#cb18-483" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
-<span id="cb18-484"><a href="#cb18-484" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb18-485"><a href="#cb18-485" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-486"><a href="#cb18-486" aria-hidden="true" tabindex="-1"></a>::: {.callout-tip}</span>
-<span id="cb18-487"><a href="#cb18-487" aria-hidden="true" tabindex="-1"></a><span class="fu">## Change the hedge objective</span></span>
-<span id="cb18-488"><a href="#cb18-488" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-489"><a href="#cb18-489" aria-hidden="true" tabindex="-1"></a>Before rerunning, predict the result of hedging only 50% of Treasury DV01.</span>
-<span id="cb18-490"><a href="#cb18-490" aria-hidden="true" tabindex="-1"></a>Replace the numerator of the contract-count calculation with half the exposure.</span>
-<span id="cb18-491"><a href="#cb18-491" aria-hidden="true" tabindex="-1"></a>The spread loss should stay unchanged; the rate loss should be roughly halved.</span>
-<span id="cb18-492"><a href="#cb18-492" aria-hidden="true" tabindex="-1"></a>Then increase the assumed futures DV01 by 10% to represent a different CTD</span>
-<span id="cb18-493"><a href="#cb18-493" aria-hidden="true" tabindex="-1"></a>mapping. Keeping the old contract count would overhedge.</span>
-<span id="cb18-494"><a href="#cb18-494" aria-hidden="true" tabindex="-1"></a>:::</span>
-<span id="cb18-495"><a href="#cb18-495" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-498"><a href="#cb18-498" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb18-499"><a href="#cb18-499" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: hedge-validation</span></span>
-<span id="cb18-500"><a href="#cb18-500" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> ctd_dv01 <span class="op">&gt;</span> <span class="dv">0</span> <span class="kw">and</span> futures_dv01 <span class="op">&gt;</span> <span class="dv">0</span></span>
-<span id="cb18-501"><a href="#cb18-501" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> rounded_contracts <span class="op">&gt;</span> <span class="dv">0</span></span>
-<span id="cb18-502"><a href="#cb18-502" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="bu">abs</span>(treasury_dv01 <span class="op">-</span> hedge_dv01 <span class="op">-</span> residual_treasury_dv01) <span class="op">&lt;</span> <span class="fl">1e-8</span></span>
-<span id="cb18-503"><a href="#cb18-503" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="bu">abs</span>(hedged_pnl <span class="op">-</span> (spread_pnl <span class="op">+</span> residual_rate_pnl)) <span class="op">&lt;</span> <span class="fl">1e-8</span></span>
-<span id="cb18-504"><a href="#cb18-504" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="bu">abs</span>(residual_treasury_dv01) <span class="op">&lt;=</span> <span class="fl">0.5</span> <span class="op">*</span> futures_dv01 <span class="op">+</span> <span class="fl">1e-10</span></span>
-<span id="cb18-505"><a href="#cb18-505" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-506"><a href="#cb18-506" aria-hidden="true" tabindex="-1"></a>checks <span class="op">=</span> pd.Series({</span>
-<span id="cb18-507"><a href="#cb18-507" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Futures DV01 is positive"</span>: futures_dv01 <span class="op">&gt;</span> <span class="dv">0</span>,</span>
-<span id="cb18-508"><a href="#cb18-508" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Long-bond hedge requires short futures"</span>: rounded_contracts <span class="op">&gt;</span> <span class="dv">0</span>,</span>
-<span id="cb18-509"><a href="#cb18-509" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Rounded residual is no more than half one contract DV01"</span>: (</span>
-<span id="cb18-510"><a href="#cb18-510" aria-hidden="true" tabindex="-1"></a>        <span class="bu">abs</span>(residual_treasury_dv01) <span class="op">&lt;=</span> <span class="fl">0.5</span> <span class="op">*</span> futures_dv01</span>
-<span id="cb18-511"><a href="#cb18-511" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb18-512"><a href="#cb18-512" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Hedged P&amp;L reconciles to spread plus residual-rate P&amp;L"</span>: (</span>
-<span id="cb18-513"><a href="#cb18-513" aria-hidden="true" tabindex="-1"></a>        <span class="bu">abs</span>(hedged_pnl <span class="op">-</span> spread_pnl <span class="op">-</span> residual_rate_pnl) <span class="op">&lt;</span> <span class="fl">1e-8</span></span>
-<span id="cb18-514"><a href="#cb18-514" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb18-515"><a href="#cb18-515" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb18-516"><a href="#cb18-516" aria-hidden="true" tabindex="-1"></a>checks</span>
-<span id="cb18-517"><a href="#cb18-517" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb18-518"><a href="#cb18-518" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-519"><a href="#cb18-519" aria-hidden="true" tabindex="-1"></a><span class="fu">## What Can Break the Hedge?</span></span>
-<span id="cb18-520"><a href="#cb18-520" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-521"><a href="#cb18-521" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Basis risk:** cash bonds and the futures contract may not move together.</span>
-<span id="cb18-522"><a href="#cb18-522" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Curve risk:** one CTD-based DV01 cannot hedge every key-rate exposure.</span>
-<span id="cb18-523"><a href="#cb18-523" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Spread risk:** Treasury futures do not directly hedge corporate credit spreads.</span>
-<span id="cb18-524"><a href="#cb18-524" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Yield-beta error:** historical betas can change in stress periods.</span>
-<span id="cb18-525"><a href="#cb18-525" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**CTD switching:** a different deliverable bond can become cheapest to deliver.</span>
-<span id="cb18-526"><a href="#cb18-526" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Conversion-factor and delivery-option effects:** the simple DV01 scaling is approximate.</span>
-<span id="cb18-527"><a href="#cb18-527" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Convexity:** large yield moves make a first-order DV01 hedge less accurate.</span>
-<span id="cb18-528"><a href="#cb18-528" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Rounding, liquidity, margin, and roll:** implementation affects realized results.</span>
-<span id="cb18-529"><a href="#cb18-529" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-530"><a href="#cb18-530" aria-hidden="true" tabindex="-1"></a><span class="fu">## Financial Interpretation</span></span>
-<span id="cb18-531"><a href="#cb18-531" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-532"><a href="#cb18-532" aria-hidden="true" tabindex="-1"></a>A Treasury futures hedge is a risk-matching exercise, not a notional-matching exercise. The correct sequence is:</span>
-<span id="cb18-533"><a href="#cb18-533" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-534"><a href="#cb18-534" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>identify the portfolio risk to hedge;</span>
-<span id="cb18-535"><a href="#cb18-535" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>map that risk into Treasury DV01;</span>
-<span id="cb18-536"><a href="#cb18-536" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>estimate futures DV01 from the current CTD and conversion factor;</span>
-<span id="cb18-537"><a href="#cb18-537" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>choose and round the contract count; and</span>
-<span id="cb18-538"><a href="#cb18-538" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span>test the combined position under rate, spread, curve, and basis scenarios.</span>
+<span id="cb18-394"><a href="#cb18-394" aria-hidden="true" tabindex="-1"></a>Because the hedge is short futures, its approximate gain when Treasury yields rise is</span>
+<span id="cb18-395"><a href="#cb18-395" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-396"><a href="#cb18-396" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb18-397"><a href="#cb18-397" aria-hidden="true" tabindex="-1"></a>\Delta V_{futures}</span>
+<span id="cb18-398"><a href="#cb18-398" aria-hidden="true" tabindex="-1"></a>\approx</span>
+<span id="cb18-399"><a href="#cb18-399" aria-hidden="true" tabindex="-1"></a>N\times DV01_{futures}\times\Delta y_{Treasury}.</span>
+<span id="cb18-400"><a href="#cb18-400" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb18-401"><a href="#cb18-401" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-404"><a href="#cb18-404" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb18-405"><a href="#cb18-405" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: scenario-pnl</span></span>
+<span id="cb18-406"><a href="#cb18-406" aria-hidden="true" tabindex="-1"></a>treasury_shock_bp <span class="op">=</span> <span class="fl">35.0</span></span>
+<span id="cb18-407"><a href="#cb18-407" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-408"><a href="#cb18-408" aria-hidden="true" tabindex="-1"></a>portfolio[<span class="st">"Treasury P&amp;L ($)"</span>] <span class="op">=</span> <span class="op">-</span>portfolio[<span class="st">"Treasury DV01 ($/bp)"</span>] <span class="op">*</span> treasury_shock_bp</span>
+<span id="cb18-409"><a href="#cb18-409" aria-hidden="true" tabindex="-1"></a>portfolio[<span class="st">"Spread P&amp;L ($)"</span>] <span class="op">=</span> (</span>
+<span id="cb18-410"><a href="#cb18-410" aria-hidden="true" tabindex="-1"></a>    <span class="op">-</span>portfolio[<span class="st">"Spread DV01 ($/bp)"</span>]</span>
+<span id="cb18-411"><a href="#cb18-411" aria-hidden="true" tabindex="-1"></a>    <span class="op">*</span> portfolio[<span class="st">"Spread shock in scenario (bp)"</span>]</span>
+<span id="cb18-412"><a href="#cb18-412" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb18-413"><a href="#cb18-413" aria-hidden="true" tabindex="-1"></a>portfolio[<span class="st">"Total unhedged P&amp;L ($)"</span>] <span class="op">=</span> (</span>
+<span id="cb18-414"><a href="#cb18-414" aria-hidden="true" tabindex="-1"></a>    portfolio[<span class="st">"Treasury P&amp;L ($)"</span>] <span class="op">+</span> portfolio[<span class="st">"Spread P&amp;L ($)"</span>]</span>
+<span id="cb18-415"><a href="#cb18-415" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb18-416"><a href="#cb18-416" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-417"><a href="#cb18-417" aria-hidden="true" tabindex="-1"></a>futures_pnl <span class="op">=</span> rounded_contracts <span class="op">*</span> futures_dv01 <span class="op">*</span> treasury_shock_bp</span>
+<span id="cb18-418"><a href="#cb18-418" aria-hidden="true" tabindex="-1"></a>unhedged_pnl <span class="op">=</span> portfolio[<span class="st">"Total unhedged P&amp;L ($)"</span>].<span class="bu">sum</span>()</span>
+<span id="cb18-419"><a href="#cb18-419" aria-hidden="true" tabindex="-1"></a>hedged_pnl <span class="op">=</span> unhedged_pnl <span class="op">+</span> futures_pnl</span>
+<span id="cb18-420"><a href="#cb18-420" aria-hidden="true" tabindex="-1"></a>residual_rate_pnl <span class="op">=</span> <span class="op">-</span>residual_treasury_dv01 <span class="op">*</span> treasury_shock_bp</span>
+<span id="cb18-421"><a href="#cb18-421" aria-hidden="true" tabindex="-1"></a>spread_pnl <span class="op">=</span> portfolio[<span class="st">"Spread P&amp;L ($)"</span>].<span class="bu">sum</span>()</span>
+<span id="cb18-422"><a href="#cb18-422" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-423"><a href="#cb18-423" aria-hidden="true" tabindex="-1"></a>portfolio[[</span>
+<span id="cb18-424"><a href="#cb18-424" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Position"</span>, <span class="st">"Treasury P&amp;L ($)"</span>, <span class="st">"Spread P&amp;L ($)"</span>, <span class="st">"Total unhedged P&amp;L ($)"</span></span>
+<span id="cb18-425"><a href="#cb18-425" aria-hidden="true" tabindex="-1"></a>]].<span class="bu">round</span>(<span class="dv">0</span>)</span>
+<span id="cb18-426"><a href="#cb18-426" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb18-427"><a href="#cb18-427" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-430"><a href="#cb18-430" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb18-431"><a href="#cb18-431" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: scenario-summary</span></span>
+<span id="cb18-432"><a href="#cb18-432" aria-hidden="true" tabindex="-1"></a>pd.Series({</span>
+<span id="cb18-433"><a href="#cb18-433" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Unhedged portfolio P&amp;L ($)"</span>: unhedged_pnl,</span>
+<span id="cb18-434"><a href="#cb18-434" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Short futures P&amp;L ($)"</span>: futures_pnl,</span>
+<span id="cb18-435"><a href="#cb18-435" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Hedged portfolio P&amp;L ($)"</span>: hedged_pnl,</span>
+<span id="cb18-436"><a href="#cb18-436" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Residual rate P&amp;L from rounding ($)"</span>: residual_rate_pnl,</span>
+<span id="cb18-437"><a href="#cb18-437" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Unhedged spread P&amp;L ($)"</span>: spread_pnl,</span>
+<span id="cb18-438"><a href="#cb18-438" aria-hidden="true" tabindex="-1"></a>}).<span class="bu">round</span>(<span class="dv">0</span>)</span>
+<span id="cb18-439"><a href="#cb18-439" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb18-440"><a href="#cb18-440" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-441"><a href="#cb18-441" aria-hidden="true" tabindex="-1"></a>The futures hedge removes almost all of the modeled Treasury-rate loss. It does not hedge the corporate spread widening, which remains the dominant loss after the hedge.</span>
+<span id="cb18-442"><a href="#cb18-442" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-445"><a href="#cb18-445" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb18-446"><a href="#cb18-446" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-hedge-scenarios</span></span>
+<span id="cb18-447"><a href="#cb18-447" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "The futures hedge offsets parallel Treasury-rate risk but not spread risk"</span></span>
+<span id="cb18-448"><a href="#cb18-448" aria-hidden="true" tabindex="-1"></a>treasury_scenarios <span class="op">=</span> np.arange(<span class="op">-</span><span class="dv">75</span>, <span class="dv">76</span>, <span class="dv">5</span>)</span>
+<span id="cb18-449"><a href="#cb18-449" aria-hidden="true" tabindex="-1"></a>unhedged_rate_pnl <span class="op">=</span> <span class="op">-</span>treasury_dv01 <span class="op">*</span> treasury_scenarios</span>
+<span id="cb18-450"><a href="#cb18-450" aria-hidden="true" tabindex="-1"></a>hedged_rate_pnl <span class="op">=</span> unhedged_rate_pnl <span class="op">+</span> hedge_dv01 <span class="op">*</span> treasury_scenarios</span>
+<span id="cb18-451"><a href="#cb18-451" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-452"><a href="#cb18-452" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">7.5</span>, <span class="fl">4.1</span>))</span>
+<span id="cb18-453"><a href="#cb18-453" aria-hidden="true" tabindex="-1"></a>ax.plot(treasury_scenarios, unhedged_rate_pnl <span class="op">/</span> <span class="dv">1_000</span>, linewidth<span class="op">=</span><span class="fl">2.1</span>,</span>
+<span id="cb18-454"><a href="#cb18-454" aria-hidden="true" tabindex="-1"></a>        label<span class="op">=</span><span class="st">"Unhedged Treasury-rate P&amp;L"</span>)</span>
+<span id="cb18-455"><a href="#cb18-455" aria-hidden="true" tabindex="-1"></a>ax.plot(treasury_scenarios, hedged_rate_pnl <span class="op">/</span> <span class="dv">1_000</span>, linewidth<span class="op">=</span><span class="fl">2.1</span>,</span>
+<span id="cb18-456"><a href="#cb18-456" aria-hidden="true" tabindex="-1"></a>        label<span class="op">=</span><span class="st">"After rounded futures hedge"</span>)</span>
+<span id="cb18-457"><a href="#cb18-457" aria-hidden="true" tabindex="-1"></a>ax.axhline(<span class="dv">0</span>, color<span class="op">=</span><span class="st">"black"</span>, linewidth<span class="op">=</span><span class="fl">0.8</span>)</span>
+<span id="cb18-458"><a href="#cb18-458" aria-hidden="true" tabindex="-1"></a>ax.axvline(<span class="dv">0</span>, color<span class="op">=</span><span class="st">"gray"</span>, linestyle<span class="op">=</span><span class="st">"--"</span>, linewidth<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb18-459"><a href="#cb18-459" aria-hidden="true" tabindex="-1"></a>ax.<span class="bu">set</span>(xlabel<span class="op">=</span><span class="st">"Parallel Treasury yield shock (bp)"</span>, ylabel<span class="op">=</span><span class="st">"Rate-driven P&amp;L ($ thousands)"</span>,</span>
+<span id="cb18-460"><a href="#cb18-460" aria-hidden="true" tabindex="-1"></a>       title<span class="op">=</span><span class="st">"First-order Treasury-rate hedge"</span>)</span>
+<span id="cb18-461"><a href="#cb18-461" aria-hidden="true" tabindex="-1"></a>ax.grid(alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb18-462"><a href="#cb18-462" aria-hidden="true" tabindex="-1"></a>ax.legend()</span>
+<span id="cb18-463"><a href="#cb18-463" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb18-464"><a href="#cb18-464" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb18-465"><a href="#cb18-465" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb18-466"><a href="#cb18-466" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-467"><a href="#cb18-467" aria-hidden="true" tabindex="-1"></a><span class="fu">## Validation Checks</span></span>
+<span id="cb18-468"><a href="#cb18-468" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-469"><a href="#cb18-469" aria-hidden="true" tabindex="-1"></a><span class="fu">### Reconcile what the hedge actually removed</span></span>
+<span id="cb18-470"><a href="#cb18-470" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-473"><a href="#cb18-473" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb18-474"><a href="#cb18-474" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-hedge-reconciliation</span></span>
+<span id="cb18-475"><a href="#cb18-475" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "The rate loss and futures gain largely offset; the corporate-spread loss remains."</span></span>
+<span id="cb18-476"><a href="#cb18-476" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Bars display the Treasury loss, futures gain, spread loss and combined hedged P&amp;L in thousands of dollars."</span></span>
+<span id="cb18-477"><a href="#cb18-477" aria-hidden="true" tabindex="-1"></a>components <span class="op">=</span> pd.Series({</span>
+<span id="cb18-478"><a href="#cb18-478" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Treasury loss"</span>: portfolio[<span class="st">"Treasury P&amp;L ($)"</span>].<span class="bu">sum</span>(),</span>
+<span id="cb18-479"><a href="#cb18-479" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Futures gain"</span>: futures_pnl,</span>
+<span id="cb18-480"><a href="#cb18-480" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Spread loss"</span>: spread_pnl,</span>
+<span id="cb18-481"><a href="#cb18-481" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Combined P&amp;L"</span>: hedged_pnl,</span>
+<span id="cb18-482"><a href="#cb18-482" aria-hidden="true" tabindex="-1"></a>}) <span class="op">/</span> <span class="dv">1000</span></span>
+<span id="cb18-483"><a href="#cb18-483" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">4</span>))</span>
+<span id="cb18-484"><a href="#cb18-484" aria-hidden="true" tabindex="-1"></a>bars <span class="op">=</span> ax.barh(components.index, components.values,</span>
+<span id="cb18-485"><a href="#cb18-485" aria-hidden="true" tabindex="-1"></a>               color<span class="op">=</span>[<span class="st">"#214b3e"</span>, <span class="st">"#936724"</span>, <span class="st">"#214b3e"</span>, <span class="st">"#444444"</span>])</span>
+<span id="cb18-486"><a href="#cb18-486" aria-hidden="true" tabindex="-1"></a>ax.bar_label(bars, fmt<span class="op">=</span><span class="st">"</span><span class="sc">%.1f</span><span class="st">"</span>, padding<span class="op">=</span><span class="dv">4</span>)</span>
+<span id="cb18-487"><a href="#cb18-487" aria-hidden="true" tabindex="-1"></a>ax.axvline(<span class="dv">0</span>, color<span class="op">=</span><span class="st">"#333333"</span>, linewidth<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb18-488"><a href="#cb18-488" aria-hidden="true" tabindex="-1"></a>ax.margins(x<span class="op">=</span><span class="fl">0.20</span>)</span>
+<span id="cb18-489"><a href="#cb18-489" aria-hidden="true" tabindex="-1"></a>ax.<span class="bu">set</span>(xlabel<span class="op">=</span><span class="st">"P&amp;L ($ thousands)"</span>)</span>
+<span id="cb18-490"><a href="#cb18-490" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb18-491"><a href="#cb18-491" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb18-492"><a href="#cb18-492" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb18-493"><a href="#cb18-493" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-494"><a href="#cb18-494" aria-hidden="true" tabindex="-1"></a>::: {.callout-tip}</span>
+<span id="cb18-495"><a href="#cb18-495" aria-hidden="true" tabindex="-1"></a><span class="fu">## Change the hedge objective</span></span>
+<span id="cb18-496"><a href="#cb18-496" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-497"><a href="#cb18-497" aria-hidden="true" tabindex="-1"></a>Before rerunning, predict the result of hedging only 50% of Treasury DV01.</span>
+<span id="cb18-498"><a href="#cb18-498" aria-hidden="true" tabindex="-1"></a>Replace the numerator of the contract-count calculation with half the exposure.</span>
+<span id="cb18-499"><a href="#cb18-499" aria-hidden="true" tabindex="-1"></a>The spread loss should stay unchanged; the rate loss should be roughly halved.</span>
+<span id="cb18-500"><a href="#cb18-500" aria-hidden="true" tabindex="-1"></a>Then increase the assumed futures DV01 by 10% to represent a different CTD</span>
+<span id="cb18-501"><a href="#cb18-501" aria-hidden="true" tabindex="-1"></a>mapping. Keeping the old contract count would overhedge.</span>
+<span id="cb18-502"><a href="#cb18-502" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb18-503"><a href="#cb18-503" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-506"><a href="#cb18-506" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb18-507"><a href="#cb18-507" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: hedge-validation</span></span>
+<span id="cb18-508"><a href="#cb18-508" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> ctd_dv01 <span class="op">&gt;</span> <span class="dv">0</span> <span class="kw">and</span> futures_dv01 <span class="op">&gt;</span> <span class="dv">0</span></span>
+<span id="cb18-509"><a href="#cb18-509" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> rounded_contracts <span class="op">&gt;</span> <span class="dv">0</span></span>
+<span id="cb18-510"><a href="#cb18-510" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="bu">abs</span>(treasury_dv01 <span class="op">-</span> hedge_dv01 <span class="op">-</span> residual_treasury_dv01) <span class="op">&lt;</span> <span class="fl">1e-8</span></span>
+<span id="cb18-511"><a href="#cb18-511" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="bu">abs</span>(hedged_pnl <span class="op">-</span> (spread_pnl <span class="op">+</span> residual_rate_pnl)) <span class="op">&lt;</span> <span class="fl">1e-8</span></span>
+<span id="cb18-512"><a href="#cb18-512" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="bu">abs</span>(residual_treasury_dv01) <span class="op">&lt;=</span> <span class="fl">0.5</span> <span class="op">*</span> futures_dv01 <span class="op">+</span> <span class="fl">1e-10</span></span>
+<span id="cb18-513"><a href="#cb18-513" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-514"><a href="#cb18-514" aria-hidden="true" tabindex="-1"></a>checks <span class="op">=</span> pd.Series({</span>
+<span id="cb18-515"><a href="#cb18-515" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Futures DV01 is positive"</span>: futures_dv01 <span class="op">&gt;</span> <span class="dv">0</span>,</span>
+<span id="cb18-516"><a href="#cb18-516" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Long-bond hedge requires short futures"</span>: rounded_contracts <span class="op">&gt;</span> <span class="dv">0</span>,</span>
+<span id="cb18-517"><a href="#cb18-517" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Rounded residual is no more than half one contract DV01"</span>: (</span>
+<span id="cb18-518"><a href="#cb18-518" aria-hidden="true" tabindex="-1"></a>        <span class="bu">abs</span>(residual_treasury_dv01) <span class="op">&lt;=</span> <span class="fl">0.5</span> <span class="op">*</span> futures_dv01</span>
+<span id="cb18-519"><a href="#cb18-519" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb18-520"><a href="#cb18-520" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Hedged P&amp;L reconciles to spread plus residual-rate P&amp;L"</span>: (</span>
+<span id="cb18-521"><a href="#cb18-521" aria-hidden="true" tabindex="-1"></a>        <span class="bu">abs</span>(hedged_pnl <span class="op">-</span> spread_pnl <span class="op">-</span> residual_rate_pnl) <span class="op">&lt;</span> <span class="fl">1e-8</span></span>
+<span id="cb18-522"><a href="#cb18-522" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb18-523"><a href="#cb18-523" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb18-524"><a href="#cb18-524" aria-hidden="true" tabindex="-1"></a>checks</span>
+<span id="cb18-525"><a href="#cb18-525" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb18-526"><a href="#cb18-526" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-527"><a href="#cb18-527" aria-hidden="true" tabindex="-1"></a><span class="fu">## What Can Break the Hedge?</span></span>
+<span id="cb18-528"><a href="#cb18-528" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-529"><a href="#cb18-529" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Basis risk:** cash bonds and the futures contract may not move together.</span>
+<span id="cb18-530"><a href="#cb18-530" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Curve risk:** one CTD-based DV01 cannot hedge every key-rate exposure.</span>
+<span id="cb18-531"><a href="#cb18-531" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Spread risk:** Treasury futures do not directly hedge corporate credit spreads.</span>
+<span id="cb18-532"><a href="#cb18-532" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Yield-beta error:** historical betas can change in stress periods.</span>
+<span id="cb18-533"><a href="#cb18-533" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**CTD switching:** a different deliverable bond can become cheapest to deliver.</span>
+<span id="cb18-534"><a href="#cb18-534" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Conversion-factor and delivery-option effects:** the simple DV01 scaling is approximate.</span>
+<span id="cb18-535"><a href="#cb18-535" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Convexity:** large yield moves make a first-order DV01 hedge less accurate.</span>
+<span id="cb18-536"><a href="#cb18-536" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Rounding, liquidity, margin, and roll:** implementation affects realized results.</span>
+<span id="cb18-537"><a href="#cb18-537" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-538"><a href="#cb18-538" aria-hidden="true" tabindex="-1"></a><span class="fu">## Financial Interpretation</span></span>
 <span id="cb18-539"><a href="#cb18-539" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-540"><a href="#cb18-540" aria-hidden="true" tabindex="-1"></a>The hedge is successful here because it neutralizes the stated parallel Treasury-rate exposure. The remaining loss is economically meaningful: it is primarily credit spread risk, which was never within the hedge's scope.</span>
+<span id="cb18-540"><a href="#cb18-540" aria-hidden="true" tabindex="-1"></a>A Treasury futures hedge is a risk-matching exercise, not a notional-matching exercise. The correct sequence is:</span>
 <span id="cb18-541"><a href="#cb18-541" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-542"><a href="#cb18-542" aria-hidden="true" tabindex="-1"></a><span class="fu">### Market handoff</span></span>
-<span id="cb18-543"><a href="#cb18-543" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-544"><a href="#cb18-544" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">CME's Treasury hedging guide</span><span class="co">](https://www.cmegroup.com/education/courses/introduction-to-treasuries/treasuries-hedging-and-risk-management)</span></span>
-<span id="cb18-545"><a href="#cb18-545" aria-hidden="true" tabindex="-1"></a>explains CTD-based sensitivity matching. For a live case, record the exact delivery</span>
-<span id="cb18-546"><a href="#cb18-546" aria-hidden="true" tabindex="-1"></a>month, eligible basket, CTD assumption, conversion factor, and observation time.</span>
-<span id="cb18-547"><a href="#cb18-547" aria-hidden="true" tabindex="-1"></a>The embedded positions and CTD are a complete illustrative fallback, not downloaded</span>
-<span id="cb18-548"><a href="#cb18-548" aria-hidden="true" tabindex="-1"></a>quotes. The separate spread shock here is the **residual** spread move beyond any</span>
-<span id="cb18-549"><a href="#cb18-549" aria-hidden="true" tabindex="-1"></a>co-movement already represented by the assumed yield beta; otherwise the scenario</span>
-<span id="cb18-550"><a href="#cb18-550" aria-hidden="true" tabindex="-1"></a>could count that co-movement twice.</span>
+<span id="cb18-542"><a href="#cb18-542" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>identify the portfolio risk to hedge;</span>
+<span id="cb18-543"><a href="#cb18-543" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>map that risk into Treasury DV01;</span>
+<span id="cb18-544"><a href="#cb18-544" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>estimate futures DV01 from the current CTD and conversion factor;</span>
+<span id="cb18-545"><a href="#cb18-545" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>choose and round the contract count; and</span>
+<span id="cb18-546"><a href="#cb18-546" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span>test the combined position under rate, spread, curve, and basis scenarios.</span>
+<span id="cb18-547"><a href="#cb18-547" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-548"><a href="#cb18-548" aria-hidden="true" tabindex="-1"></a>The hedge is successful here because it neutralizes the stated parallel Treasury-rate exposure. The remaining loss is economically meaningful: it is primarily credit spread risk, which was never within the hedge's scope.</span>
+<span id="cb18-549"><a href="#cb18-549" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-550"><a href="#cb18-550" aria-hidden="true" tabindex="-1"></a><span class="fu">### Market handoff</span></span>
 <span id="cb18-551"><a href="#cb18-551" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-552"><a href="#cb18-552" aria-hidden="true" tabindex="-1"></a>**Your deliverable:** a hedge ticket stating direction, integer contracts,</span>
-<span id="cb18-553"><a href="#cb18-553" aria-hidden="true" tabindex="-1"></a>residual DV01, stress P&amp;L, and the unhedged risk that matters most.</span>
-<span id="cb18-554"><a href="#cb18-554" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-555"><a href="#cb18-555" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-556"><a href="#cb18-556" aria-hidden="true" tabindex="-1"></a><span class="fu">## Interactive explorer</span></span>
+<span id="cb18-552"><a href="#cb18-552" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">CME's Treasury hedging guide</span><span class="co">](https://www.cmegroup.com/education/courses/introduction-to-treasuries/treasuries-hedging-and-risk-management)</span></span>
+<span id="cb18-553"><a href="#cb18-553" aria-hidden="true" tabindex="-1"></a>explains CTD-based sensitivity matching. For a live case, record the exact delivery</span>
+<span id="cb18-554"><a href="#cb18-554" aria-hidden="true" tabindex="-1"></a>month, eligible basket, CTD assumption, conversion factor, and observation time.</span>
+<span id="cb18-555"><a href="#cb18-555" aria-hidden="true" tabindex="-1"></a>The embedded positions and CTD are a complete illustrative fallback, not downloaded</span>
+<span id="cb18-556"><a href="#cb18-556" aria-hidden="true" tabindex="-1"></a>quotes.</span>
 <span id="cb18-557"><a href="#cb18-557" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-558"><a href="#cb18-558" aria-hidden="true" tabindex="-1"></a>Choose how much of Treasury DV01 to hedge in the +35 bp scenario. Contract counts are rounded at every setting. At 100%, spread losses remain. Above 100%, the position becomes net short the modeled Treasury exposure; it is no longer simply reducing that exposure.</span>
-<span id="cb18-559"><a href="#cb18-559" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-560"><a href="#cb18-560" aria-hidden="true" tabindex="-1"></a>The HTML control selects a precomputed scenario. In the PDF, use the preceding</span>
-<span id="cb18-561"><a href="#cb18-561" aria-hidden="true" tabindex="-1"></a>figures and tables and rerun the displayed notebook inputs to explore other values.</span>
-<span id="cb18-562"><a href="#cb18-562" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-563"><a href="#cb18-563" aria-hidden="true" tabindex="-1"></a>::: {.content-visible when-format="html"}</span>
-<span id="cb18-566"><a href="#cb18-566" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb18-567"><a href="#cb18-567" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: guided-explorer</span></span>
-<span id="cb18-568"><a href="#cb18-568" aria-hidden="true" tabindex="-1"></a>hedge_targets <span class="op">=</span> np.arange(<span class="dv">0</span>, <span class="dv">126</span>, <span class="dv">5</span>)</span>
-<span id="cb18-569"><a href="#cb18-569" aria-hidden="true" tabindex="-1"></a>contract_grid <span class="op">=</span> np.rint(treasury_dv01<span class="op">*</span>hedge_targets<span class="op">/</span><span class="dv">100</span><span class="op">/</span>futures_dv01).astype(<span class="bu">int</span>)</span>
-<span id="cb18-570"><a href="#cb18-570" aria-hidden="true" tabindex="-1"></a>remaining_rate_pnl <span class="op">=</span> (<span class="op">-</span>treasury_dv01 <span class="op">+</span> contract_grid<span class="op">*</span>futures_dv01)<span class="op">*</span>treasury_shock_bp</span>
-<span id="cb18-571"><a href="#cb18-571" aria-hidden="true" tabindex="-1"></a>display(demo_explorer(hedge_targets, {</span>
-<span id="cb18-572"><a href="#cb18-572" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Rate P&amp;L after hedge"</span>: remaining_rate_pnl<span class="op">/</span><span class="dv">1000</span>,</span>
-<span id="cb18-573"><a href="#cb18-573" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Combined P&amp;L including spread"</span>: (remaining_rate_pnl<span class="op">+</span>spread_pnl)<span class="op">/</span><span class="dv">1000</span>,</span>
-<span id="cb18-574"><a href="#cb18-574" aria-hidden="true" tabindex="-1"></a>}, <span class="st">"Target Treasury DV01 hedged (%)"</span>, <span class="st">"Scenario P&amp;L ($ thousands)"</span>, <span class="dv">20</span>))</span>
-<span id="cb18-575"><a href="#cb18-575" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb18-576"><a href="#cb18-576" aria-hidden="true" tabindex="-1"></a>:::</span>
-<span id="cb18-577"><a href="#cb18-577" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-578"><a href="#cb18-578" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-579"><a href="#cb18-579" aria-hidden="true" tabindex="-1"></a><span class="fu">## Mini Project</span></span>
-<span id="cb18-580"><a href="#cb18-580" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-581"><a href="#cb18-581" aria-hidden="true" tabindex="-1"></a>**Project brief.** Reduce the portfolio's beta-adjusted Treasury DV01 by 60%, leaving 40% in place. Report the exact and rounded short-futures count, residual Treasury DV01, and P&amp;L under +25 and -25 bp Treasury moves combined with +40 bp corporate spread widening. Use the demo's unchanged CTD and conversion factor. Explain whether the hedge meets its objective and what a CTD switch could change.</span>
-<span id="cb18-582"><a href="#cb18-582" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-583"><a href="#cb18-583" aria-hidden="true" tabindex="-1"></a>**Deliverable:** a one-page decision memo with a conventions statement, reproducible calculations, a scenario table, and a limitation that could change the decision.</span>
+<span id="cb18-558"><a href="#cb18-558" aria-hidden="true" tabindex="-1"></a>**Your deliverable:** a hedge ticket stating direction, integer contracts,</span>
+<span id="cb18-559"><a href="#cb18-559" aria-hidden="true" tabindex="-1"></a>residual DV01, stress P&amp;L, and the unhedged risk that matters most.</span>
+<span id="cb18-560"><a href="#cb18-560" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-561"><a href="#cb18-561" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-562"><a href="#cb18-562" aria-hidden="true" tabindex="-1"></a><span class="fu">## Interactive explorer</span></span>
+<span id="cb18-563"><a href="#cb18-563" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-564"><a href="#cb18-564" aria-hidden="true" tabindex="-1"></a>Choose how much of Treasury DV01 to hedge in the +35 bp scenario. Contract counts are rounded at every setting. At 100%, spread losses remain. Above 100%, the position becomes net short the modeled Treasury exposure; it is no longer simply reducing that exposure.</span>
+<span id="cb18-565"><a href="#cb18-565" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-566"><a href="#cb18-566" aria-hidden="true" tabindex="-1"></a>The HTML control selects a precomputed scenario. In the PDF, use the preceding</span>
+<span id="cb18-567"><a href="#cb18-567" aria-hidden="true" tabindex="-1"></a>figures and tables and rerun the displayed notebook inputs to explore other values.</span>
+<span id="cb18-568"><a href="#cb18-568" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-569"><a href="#cb18-569" aria-hidden="true" tabindex="-1"></a>::: {.content-visible when-format="html"}</span>
+<span id="cb18-572"><a href="#cb18-572" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb18-573"><a href="#cb18-573" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: guided-explorer</span></span>
+<span id="cb18-574"><a href="#cb18-574" aria-hidden="true" tabindex="-1"></a>hedge_targets <span class="op">=</span> np.arange(<span class="dv">0</span>, <span class="dv">126</span>, <span class="dv">5</span>)</span>
+<span id="cb18-575"><a href="#cb18-575" aria-hidden="true" tabindex="-1"></a>contract_grid <span class="op">=</span> np.rint(treasury_dv01<span class="op">*</span>hedge_targets<span class="op">/</span><span class="dv">100</span><span class="op">/</span>futures_dv01).astype(<span class="bu">int</span>)</span>
+<span id="cb18-576"><a href="#cb18-576" aria-hidden="true" tabindex="-1"></a>remaining_rate_pnl <span class="op">=</span> (<span class="op">-</span>treasury_dv01 <span class="op">+</span> contract_grid<span class="op">*</span>futures_dv01)<span class="op">*</span>treasury_shock_bp</span>
+<span id="cb18-577"><a href="#cb18-577" aria-hidden="true" tabindex="-1"></a>display(demo_explorer(hedge_targets, {</span>
+<span id="cb18-578"><a href="#cb18-578" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Rate P&amp;L after hedge"</span>: remaining_rate_pnl<span class="op">/</span><span class="dv">1000</span>,</span>
+<span id="cb18-579"><a href="#cb18-579" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Combined P&amp;L including spread"</span>: (remaining_rate_pnl<span class="op">+</span>spread_pnl)<span class="op">/</span><span class="dv">1000</span>,</span>
+<span id="cb18-580"><a href="#cb18-580" aria-hidden="true" tabindex="-1"></a>}, <span class="st">"Target Treasury DV01 hedged (%)"</span>, <span class="st">"Scenario P&amp;L ($ thousands)"</span>, <span class="dv">20</span>))</span>
+<span id="cb18-581"><a href="#cb18-581" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb18-582"><a href="#cb18-582" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb18-583"><a href="#cb18-583" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb18-584"><a href="#cb18-584" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-585"><a href="#cb18-585" aria-hidden="true" tabindex="-1"></a><span class="in">```{=html}</span></span>
-<span id="cb18-586"><a href="#cb18-586" aria-hidden="true" tabindex="-1"></a><span class="in">&lt;details class="demo-solution"&gt;&lt;summary&gt;Worked solution: calculations and decision memo&lt;/summary&gt;</span></span>
-<span id="cb18-587"><a href="#cb18-587" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb18-585"><a href="#cb18-585" aria-hidden="true" tabindex="-1"></a><span class="fu">## Mini Project</span></span>
+<span id="cb18-586"><a href="#cb18-586" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-587"><a href="#cb18-587" aria-hidden="true" tabindex="-1"></a>**Project brief.** Reduce the portfolio's beta-adjusted Treasury DV01 by 60%, leaving 40% in place. Report the exact and rounded short-futures count, residual Treasury DV01, and P&amp;L under +25 and -25 bp Treasury moves combined with +40 bp corporate spread widening. Use the demo's unchanged CTD and conversion factor. Explain whether the hedge meets its objective and what a CTD switch could change.</span>
 <span id="cb18-588"><a href="#cb18-588" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-589"><a href="#cb18-589" aria-hidden="true" tabindex="-1"></a>::: {.content-visible when-format="pdf"}</span>
-<span id="cb18-590"><a href="#cb18-590" aria-hidden="true" tabindex="-1"></a>**Worked solution: calculations and decision memo**</span>
-<span id="cb18-591"><a href="#cb18-591" aria-hidden="true" tabindex="-1"></a>:::</span>
-<span id="cb18-592"><a href="#cb18-592" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-595"><a href="#cb18-595" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb18-596"><a href="#cb18-596" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: mini-project-solution</span></span>
-<span id="cb18-597"><a href="#cb18-597" aria-hidden="true" tabindex="-1"></a>target_fraction<span class="op">=</span><span class="fl">.60</span></span>
-<span id="cb18-598"><a href="#cb18-598" aria-hidden="true" tabindex="-1"></a>n_exact<span class="op">=</span>target_fraction<span class="op">*</span>treasury_dv01<span class="op">/</span>futures_dv01</span>
-<span id="cb18-599"><a href="#cb18-599" aria-hidden="true" tabindex="-1"></a>n_short<span class="op">=</span><span class="bu">int</span>(np.rint(n_exact))</span>
-<span id="cb18-600"><a href="#cb18-600" aria-hidden="true" tabindex="-1"></a>remaining<span class="op">=</span>treasury_dv01<span class="op">-</span>n_short<span class="op">*</span>futures_dv01</span>
-<span id="cb18-601"><a href="#cb18-601" aria-hidden="true" tabindex="-1"></a>shocks<span class="op">=</span>np.array([<span class="op">-</span><span class="fl">25.</span>,<span class="fl">25.</span>])</span>
-<span id="cb18-602"><a href="#cb18-602" aria-hidden="true" tabindex="-1"></a>rate_pnl<span class="op">=-</span>treasury_dv01<span class="op">*</span>shocks</span>
-<span id="cb18-603"><a href="#cb18-603" aria-hidden="true" tabindex="-1"></a>hedge_pnl<span class="op">=</span>n_short<span class="op">*</span>futures_dv01<span class="op">*</span>shocks</span>
-<span id="cb18-604"><a href="#cb18-604" aria-hidden="true" tabindex="-1"></a>credit_pnl<span class="op">=-</span>spread_dv01<span class="op">*</span><span class="dv">40</span></span>
-<span id="cb18-605"><a href="#cb18-605" aria-hidden="true" tabindex="-1"></a>project<span class="op">=</span>pd.DataFrame({<span class="st">"Treasury shock (bp)"</span>:shocks,<span class="st">"Cash rate P&amp;L"</span>:rate_pnl,</span>
-<span id="cb18-606"><a href="#cb18-606" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Futures P&amp;L"</span>:hedge_pnl,<span class="st">"Spread P&amp;L"</span>:credit_pnl,</span>
-<span id="cb18-607"><a href="#cb18-607" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Net P&amp;L"</span>:rate_pnl<span class="op">+</span>hedge_pnl<span class="op">+</span>credit_pnl})</span>
-<span id="cb18-608"><a href="#cb18-608" aria-hidden="true" tabindex="-1"></a>display(pd.Series({<span class="st">"Exact short contracts"</span>:n_exact,<span class="st">"Rounded short contracts"</span>:n_short,</span>
-<span id="cb18-609"><a href="#cb18-609" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Residual Treasury DV01"</span>:remaining,<span class="st">"Residual fraction"</span>:remaining<span class="op">/</span>treasury_dv01}).<span class="bu">round</span>(<span class="dv">4</span>))</span>
-<span id="cb18-610"><a href="#cb18-610" aria-hidden="true" tabindex="-1"></a>display(project.<span class="bu">round</span>(<span class="dv">2</span>))</span>
-<span id="cb18-611"><a href="#cb18-611" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="bu">abs</span>(remaining<span class="op">-</span><span class="fl">.4</span><span class="op">*</span>treasury_dv01)<span class="op">&lt;=</span>futures_dv01<span class="op">/</span><span class="dv">2</span><span class="op">+</span><span class="fl">1e-8</span></span>
-<span id="cb18-612"><a href="#cb18-612" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> np.allclose(project[<span class="st">"Net P&amp;L"</span>],<span class="op">-</span>remaining<span class="op">*</span>shocks<span class="op">+</span>credit_pnl)</span>
-<span id="cb18-613"><a href="#cb18-613" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb18-614"><a href="#cb18-614" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-615"><a href="#cb18-615" aria-hidden="true" tabindex="-1"></a>Short futures offset Treasury-rate losses but also give up part of the gain in a rally. The remaining rate exposure is 40% of the original, up to half a contract's DV01 from rounding. Corporate spread widening remains unhedged in both scenarios. A CTD switch or a change in yield beta changes effective futures or portfolio DV01 and requires resizing. Basis, convexity, daily margin cash flows, and transaction costs are omitted.</span>
-<span id="cb18-616"><a href="#cb18-616" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-617"><a href="#cb18-617" aria-hidden="true" tabindex="-1"></a><span class="in">```{=html}</span></span>
-<span id="cb18-618"><a href="#cb18-618" aria-hidden="true" tabindex="-1"></a><span class="in">&lt;/details&gt;</span></span>
+<span id="cb18-589"><a href="#cb18-589" aria-hidden="true" tabindex="-1"></a>**Deliverable:** a one-page decision memo with a conventions statement, reproducible calculations, a scenario table, and a limitation that could change the decision.</span>
+<span id="cb18-590"><a href="#cb18-590" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-591"><a href="#cb18-591" aria-hidden="true" tabindex="-1"></a><span class="in">```{=html}</span></span>
+<span id="cb18-592"><a href="#cb18-592" aria-hidden="true" tabindex="-1"></a><span class="in">&lt;details class="demo-solution"&gt;&lt;summary&gt;Worked solution: calculations and decision memo&lt;/summary&gt;</span></span>
+<span id="cb18-593"><a href="#cb18-593" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb18-594"><a href="#cb18-594" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-595"><a href="#cb18-595" aria-hidden="true" tabindex="-1"></a>::: {.content-visible when-format="pdf"}</span>
+<span id="cb18-596"><a href="#cb18-596" aria-hidden="true" tabindex="-1"></a>**Worked solution: calculations and decision memo**</span>
+<span id="cb18-597"><a href="#cb18-597" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb18-598"><a href="#cb18-598" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-601"><a href="#cb18-601" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb18-602"><a href="#cb18-602" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: mini-project-solution</span></span>
+<span id="cb18-603"><a href="#cb18-603" aria-hidden="true" tabindex="-1"></a>target_fraction<span class="op">=</span><span class="fl">.60</span></span>
+<span id="cb18-604"><a href="#cb18-604" aria-hidden="true" tabindex="-1"></a>n_exact<span class="op">=</span>target_fraction<span class="op">*</span>treasury_dv01<span class="op">/</span>futures_dv01</span>
+<span id="cb18-605"><a href="#cb18-605" aria-hidden="true" tabindex="-1"></a>n_short<span class="op">=</span><span class="bu">int</span>(np.rint(n_exact))</span>
+<span id="cb18-606"><a href="#cb18-606" aria-hidden="true" tabindex="-1"></a>remaining<span class="op">=</span>treasury_dv01<span class="op">-</span>n_short<span class="op">*</span>futures_dv01</span>
+<span id="cb18-607"><a href="#cb18-607" aria-hidden="true" tabindex="-1"></a>shocks<span class="op">=</span>np.array([<span class="op">-</span><span class="fl">25.</span>,<span class="fl">25.</span>])</span>
+<span id="cb18-608"><a href="#cb18-608" aria-hidden="true" tabindex="-1"></a>rate_pnl<span class="op">=-</span>treasury_dv01<span class="op">*</span>shocks</span>
+<span id="cb18-609"><a href="#cb18-609" aria-hidden="true" tabindex="-1"></a>hedge_pnl<span class="op">=</span>n_short<span class="op">*</span>futures_dv01<span class="op">*</span>shocks</span>
+<span id="cb18-610"><a href="#cb18-610" aria-hidden="true" tabindex="-1"></a>credit_pnl<span class="op">=-</span>spread_dv01<span class="op">*</span><span class="dv">40</span></span>
+<span id="cb18-611"><a href="#cb18-611" aria-hidden="true" tabindex="-1"></a>project<span class="op">=</span>pd.DataFrame({<span class="st">"Treasury shock (bp)"</span>:shocks,<span class="st">"Cash rate P&amp;L"</span>:rate_pnl,</span>
+<span id="cb18-612"><a href="#cb18-612" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Futures P&amp;L"</span>:hedge_pnl,<span class="st">"Spread P&amp;L"</span>:credit_pnl,</span>
+<span id="cb18-613"><a href="#cb18-613" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Net P&amp;L"</span>:rate_pnl<span class="op">+</span>hedge_pnl<span class="op">+</span>credit_pnl})</span>
+<span id="cb18-614"><a href="#cb18-614" aria-hidden="true" tabindex="-1"></a>display(pd.Series({<span class="st">"Exact short contracts"</span>:n_exact,<span class="st">"Rounded short contracts"</span>:n_short,</span>
+<span id="cb18-615"><a href="#cb18-615" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Residual Treasury DV01"</span>:remaining,<span class="st">"Residual fraction"</span>:remaining<span class="op">/</span>treasury_dv01}).<span class="bu">round</span>(<span class="dv">4</span>))</span>
+<span id="cb18-616"><a href="#cb18-616" aria-hidden="true" tabindex="-1"></a>display(project.<span class="bu">round</span>(<span class="dv">2</span>))</span>
+<span id="cb18-617"><a href="#cb18-617" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="bu">abs</span>(remaining<span class="op">-</span><span class="fl">.4</span><span class="op">*</span>treasury_dv01)<span class="op">&lt;=</span>futures_dv01<span class="op">/</span><span class="dv">2</span><span class="op">+</span><span class="fl">1e-8</span></span>
+<span id="cb18-618"><a href="#cb18-618" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> np.allclose(project[<span class="st">"Net P&amp;L"</span>],<span class="op">-</span>remaining<span class="op">*</span>shocks<span class="op">+</span>credit_pnl)</span>
 <span id="cb18-619"><a href="#cb18-619" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb18-620"><a href="#cb18-620" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-621"><a href="#cb18-621" aria-hidden="true" tabindex="-1"></a>Short futures offset Treasury-rate losses but also give up part of the gain in a rally. The remaining rate exposure is 40% of the original, up to half a contract's DV01 from rounding. Corporate spread widening remains unhedged in both scenarios. A CTD switch or a change in yield beta changes effective futures or portfolio DV01 and requires resizing. Basis, convexity, daily margin cash flows, and transaction costs are omitted.</span>
+<span id="cb18-622"><a href="#cb18-622" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-623"><a href="#cb18-623" aria-hidden="true" tabindex="-1"></a><span class="in">```{=html}</span></span>
+<span id="cb18-624"><a href="#cb18-624" aria-hidden="true" tabindex="-1"></a><span class="in">&lt;/details&gt;</span></span>
+<span id="cb18-625"><a href="#cb18-625" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 </code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
 </div></div></div></div></div>
 </div> <!-- /content -->

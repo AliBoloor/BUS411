@@ -152,43 +152,51 @@ $$
 
 ![](lec3-11-assets/lec10-fig-empirical-duration-regression.svg){.figure}
 
-## Why the two-factor model uses the same duration
-
-**Simplifying assumption:** fixed cash flows and a single discount yield $z=y+s$, where $y$ is the Treasury yield and $s$ the spread. Let $D=-P^{-1}dP/dz$ be modified duration.
+## Two-factor price approximation
 
 $$
-\frac{\Delta P}{P}\approx -D\Delta y-D\Delta s
-=-D\Delta y-(Ds)\frac{\Delta s}{s}.
+\frac{\Delta P}{P}\approx -D\Delta y-Ds\frac{\Delta s}{s},
+\qquad \mathrm{DTS}=Ds.
 $$
 
-A 1 bp increase in either input, holding the other fixed, increases $z$ by 1 bp. Both partial derivatives therefore give duration $D$. The spread bump estimate converges to $D$ as the bump shrinks, if this same single-yield model is used for repricing.
+- **Treasury effect:** $-D\Delta y$, where $\Delta y$ is the change in Treasury yield.
+- **Spread effect:** $-\mathrm{DTS}\,\Delta s/s$, where $s$ is the starting spread and $\Delta s/s$ is its relative change.
 
-**Do not assume equality in general.** A parallel spread bump over a fixed spot curve need not equal a quoted-YTM bump or a nonparallel Treasury shock. But shifting every Treasury spot rate by the same amount matches the spread bump if both enter identically at each tenor.
+**Why the same $D$?** With fixed cash flows discounted at one yield $y+s$, a 1 bp change in either component raises the total yield by 1 bp, holding the other fixed. Here $D$ is modified duration with respect to that total yield. This equality is model-specific.
 
-## Estimate the spread response with a regression slope
+## Divide by the Treasury yield change
 
-Regress the **relative spread change** on the Treasury yield change. The slope estimates the average spread response per unit Treasury move:
+For a nonzero Treasury yield move, divide by $\Delta y$ and factor out $-D$:
 
 $$
-\beta=\frac{\operatorname{Cov}(\Delta y,\Delta s/s)}{\operatorname{Var}(\Delta y)}
+\frac{1}{P}\frac{\Delta P}{\Delta y}
+\approx -D-Ds\frac{\Delta s/s}{\Delta y}
+= -D\left[1+s\frac{\Delta s/s}{\Delta y}\right].
+$$
+
+Estimate the typical relative spread response by regressing $\Delta s/s$ on $\Delta y$:
+
+$$
+\beta=\frac{\operatorname{cov}(\Delta y,\Delta s/s)}{\operatorname{var}(\Delta y)}
+=\frac{\rho_{y,s}\sigma_y\sigma_s}{\sigma_y^2}
 =\rho_{y,s}\frac{\sigma_s}{\sigma_y}.
 $$
 
-In the two-factor price equation, the historical spread response contributes $-Ds\beta\,\Delta y$ to the predicted return. Use the same horizon and decimal units; $\sigma_s$ is the volatility of **relative** spread changes.
+Use the **regression slope**, not an average of individual ratios. $\sigma_s$ measures relative spread changes; $\sigma_y$ measures Treasury yield changes.
 
 ## Spread co-movement changes empirical duration
 
+Substitute the estimated spread response. Empirical duration is the negative of the estimated price response to Treasury yields:
+
 $$
-D_{emp}\approx D(1+s\beta)
-=D\left(1+s\,\rho_{y,s}\frac{\sigma_s}{\sigma_y}\right).
+\frac{1}{P}\frac{\Delta P}{\Delta y}
+\approx -D\left[1+s\rho_{y,s}\frac{\sigma_s}{\sigma_y}\right]
+\qquad\Rightarrow\qquad
+D_{\mathrm{emp}}\approx D\left[1+s\rho_{y,s}\frac{\sigma_s}{\sigma_y}\right].
 $$
 
-- **Negative co-movement:** spreads tend to tighten as Treasury yields rise. Spread gains offset some rate loss.
-- **Positive co-movement:** spreads tend to widen as Treasury yields rise. Price losses reinforce each other.
-
-With separate rate and spread durations, the rate-only regression instead gives
-$D_{emp}\approx D_T+D_s\,\operatorname{Cov}(\Delta y,\Delta s)/\operatorname{Var}(\Delta y)$,
-assuming constant local sensitivities and no rate-correlated residual. Here $\Delta s$ is **absolute**.
+- **Negative correlation:** spreads tend to tighten as Treasury yields rise. The spread gain offsets some of the rate loss, and the multiplier is below 1.
+- **Positive correlation:** spreads tend to widen as Treasury yields rise. The two losses reinforce each other, and the multiplier is above 1.
 
 ## Example 5 — calculate the multiplier
 

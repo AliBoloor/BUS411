@@ -7,14 +7,15 @@ format:
     html-math-method: mathml
     include-in-header:
       text: |
+        <style>
+        .reveal .slides section h2 { border-bottom: 3px solid #936724; padding-bottom: .22em; }
+        </style>
         <script src="lec3-11-visuals.js" defer></script>
 ---
 
 ## Two credit questions: price changes and payment failures
 
 <div class="comparison"><div><h3>Spread exposure</h3><p>How much does price change when the market demands different credit compensation? A bond can lose value without defaulting.</p></div><div><h3>Default exposure</h3><p>How likely is default, what will recovery be, and how do defaults cluster across a portfolio?</p></div></div>
-
-
 
 $$
 y_{corp}\approx y_{Treasury}+s
@@ -32,7 +33,7 @@ $$
 
 <div class="comparison"><div><h3>Absolute shock</h3><p>Δs: how many basis points does the spread move?</p></div><div><h3>Relative shock</h3><p>Δs / s: how large is the move compared with the starting spread?</p></div></div>
 
-Existing-deck check: 100 → 150 bp is +50 bp and +50%.
+A move from 100 to 150 bp is +50 bp and +50%.
 
 ## Example 1 — the same 25 bp move has different meaning
 
@@ -47,136 +48,55 @@ A’s required credit compensation increases by half. B’s proportional shock i
 
 ![](lec3-11-assets/lec10-fig-absolute-relative-spreads.svg){.figure}
 
-The notes’ empirical motivation: wider-spread bonds tend to experience larger basis-point moves, supporting proportional spread-risk measures.
+Wider-spread bonds tend to experience larger basis-point moves, supporting proportional spread-risk measures.
 
 ## Spread duration holds Treasury rates constant
 
+Hold the Treasury spot curve $\{r_t\}$ and promised payments $CF_t$ fixed. Shift the same spread $s$ at every maturity:
 $$
-D_{spread}=\frac{P_- - P_+}{2P_0\Delta s}
-$$
-
-
-
-$$
-\frac{\Delta P_{spread}}P\approx-D_{spread}\Delta s
+P(s)=\sum_t\frac{CF_t}{(1+r_t+s)^t},\qquad
+D_s=-\frac1{P_0}\frac{\partial P}{\partial s}
+\approx\frac{P_--P_+}{2P_0h}.
 $$
 
-P₋ and P₊ are prices after equal spread decreases and increases. Use decimal Δs; a 100 bp widening produces approximately −Dspread percent.
-
-## Connect spread duration to bond valuation
-
-$$
-P=\sum_t\frac{CF_t}{(1+r_t+s)^t}
-$$
-
-
-
-$$
-D_s=-\frac1P\frac{\partial P}{\partial s}
-$$
-
-A wider spread raises discount rates and lowers present value. Match the shock to the spread convention used in valuation.
+- $P_-=P(s-h)$, $P_+=P(s+h)$, and $P_0=P(s)$. Use a small bump $h$ in decimal units.
+- For a spread move $\Delta s$, the first-order return is $\Delta P/P\approx-D_s\Delta s$ **with Treasury rates held fixed**.
 
 ## Example 2 — convert a spread shock into a price change
 
-$$
-\Delta s=40\text{ bp}=0.0040
-$$
+| Position | Spread widening | Price change | Result |
+|---|---:|---:|---:|
+| Price 98, $D_s=6.5$ | 40 bp | $-6.5(0.0040)=-2.60\%$ | $98(1-0.026)=95.45$ |
+| Value $4 million, $D_s=4.5$ | 35 bp | $-4.5(0.0035)=-1.575\%$ | Loss of $63,000 |
 
-
-
-$$
-\Delta P/P\approx-6.5(0.0040)=-2.6\%
-$$
-
-
-
-$$
-\Delta P\approx-98(0.026)=-2.548
-$$
-
-Starting price 98 becomes approximately **95.45**. This is a local approximation with benchmark rates held fixed.
-
-## Retained spread-duration dollar example
-
-Spread duration 4.5; widening 35 bp; market value $4 million.
-
-$$
-\Delta P/P\approx-4.5(0.0035)=-1.575\%
-$$
-
-
-
-$$
-\Delta P\approx-0.01575(4{,}000{,}000)=-\$63{,}000
-$$
+The dollar loss is $4{,}000{,}000(0.01575)=63{,}000$ dollars. Both estimates hold Treasury rates fixed.
 
 ## DTS combines spread level and sensitivity
 
 $$
-DTS=D_{spread}\times s
+\frac{\Delta P_{spread}}P\approx -D_s\Delta s
+=-(D_s s)\frac{\Delta s}{s}
+=-DTS\frac{\Delta s}{s}.
 $$
 
+A bond with $D_s=4$ and $s=90$ bp has $DTS=4(0.0090)=0.036$.
 
-
-$$
-4(0.0090)=0.036=3.6\%
-$$
-
-A spread duration of 4 with a 90 bp spread gives DTS of 3.6% when spreads are in decimals.
-
-## Derive the proportional-shock interpretation
-
-$$
-\frac{\Delta P_{spread}}P\approx-D_{spread}\Delta s
-$$
-
-
-
-$$
-\frac{\Delta P_{spread}}P\approx-(D_{spread}s)\frac{\Delta s}{s}
-$$
-
-
-
-$$
-\frac{\Delta P_{spread}}P\approx-DTS\frac{\Delta s}{s}
-$$
-
-## Spread duration and DTS use different common shocks
-
-<div class="comparison"><div><h3>Spread duration</h3><p>Give every bond the same basis-point spread move.</p></div><div><h3>DTS</h3><p>Give every bond the same percentage change in its starting spread.</p></div></div>
-
-The proportional view helps distinguish tight-spread bonds from distressed or high-yield bonds.
+<div class="comparison"><div><h3>Spread duration</h3><p>Compare bonds using the same basis-point widening.</p></div><div><h3>DTS</h3><p>Compare bonds using the same percentage widening from each bond’s starting spread.</p></div></div>
 
 ## Example 3 — shorter duration can still mean more spread risk
 
-| Bond | Spread duration | Spread | DTS |
-|---|---:|---:|---:|
-| A | 7.0 | 100 bp = .0100 | .0700 |
-| B | 3.5 | 400 bp = .0400 | .1400 |
+Apply the same **20% relative widening** to both bonds.
 
-$$
-\Delta s/s=20\%=0.20
-$$
+| Bond | Spread duration | Starting spread | DTS | Absolute widening | Estimated return |
+|---|---:|---:|---:|---:|---:|
+| A | 7.0 | 100 bp | .0700 | 20 bp | $-0.0700(0.20)=-1.40\%$ |
+| B | 3.5 | 400 bp | .1400 | 80 bp | $-0.1400(0.20)=-2.80\%$ |
 
-## Apply the same relative widening to both bonds
-
-$$
-\Delta P_A/P_A\approx-0.0700(0.20)=-1.40\%
-$$
-
-
-
-$$
-\Delta P_B/P_B\approx-0.1400(0.20)=-2.80\%
-$$
-
-A widens by 20 bp; B widens by 80 bp. B’s shorter spread duration is outweighed by its larger spread level.
+B’s starting spread more than offsets its shorter spread duration.
 
 ## Keep DTS quote units explicit
 
-Retained examples from the existing deck:
+Worked examples:
 
 | Spread duration | Spread | DTS in bp units | DTS in decimals |
 |---:|---:|---:|---:|
@@ -218,13 +138,11 @@ $$
 5\times0.25=1.25
 $$
 
-The notes’ rule of thumb reduces a high-yield duration of 5 by 75%. A historical empirical estimate is more explicit, but remains sample dependent.
+A 75% haircut brings an analytical duration of 5 down to 1.25. A historical empirical estimate is more explicit, but remains sample dependent.
 
 ## Analytical versus empirical duration
 
 <div class="comparison"><div><h3>Analytical</h3><p>Compute sensitivity from promised cash flows, price, yield and maturity.</p></div><div><h3>Empirical</h3><p>Estimate actual bond-price behavior against Treasury yield changes.</p></div></div>
-
-
 
 $$
 \frac{\Delta P_t}{P_t}=\alpha-D_{emp}\Delta y_t+\epsilon_t
@@ -236,111 +154,70 @@ $$
 
 Illustrative seeded data, not an empirical market sample. With returns in percent and Treasury changes in bp, Demp = −100 × plotted slope.
 
-## Start the theoretical comparison with two risk factors
+## Why the two-factor model uses the same duration
+
+**Simplifying assumption:** fixed cash flows and a single discount yield $z=y+s$, where $y$ is the Treasury yield and $s$ the spread. Let $D=-P^{-1}dP/dz$ be modified duration.
 
 $$
-\frac{\Delta P}{P}\approx-D\Delta y-Ds\frac{\Delta s}{s}
+\frac{\Delta P}{P}\approx -D\Delta y-D\Delta s
+=-D\Delta y-(Ds)\frac{\Delta s}{s}.
 $$
 
-<div class="comparison"><div><h3>Treasury term</h3><p>−D Δy: higher risk-free yields lower price.</p></div><div><h3>Credit term</h3><p>−DTS × (Δs / s): spread widening lowers price.</p></div></div>
+A 1 bp increase in either input, holding the other fixed, increases $z$ by 1 bp. Both partial derivatives therefore give duration $D$. The spread bump estimate converges to $D$ as the bump shrinks, if this same single-yield model is used for repricing.
 
-This simple derivation uses the same D for rate and spread sensitivity.
-
-## Divide by the Treasury yield change
-
-$$
-\frac1P\frac{\Delta P}{\Delta y}\approx-D-Ds\frac{\Delta s/s}{\Delta y}
-$$
-
-
-
-$$
-\frac1P\frac{\Delta P}{\Delta y}\approx-D\left[1+s\frac{\Delta s/s}{\Delta y}\right]
-$$
-
-The spread response per unit Treasury move is estimated statistically, rather than assumed to be known for every observation.
+**Do not assume equality in general.** A parallel spread bump over a fixed spot curve need not equal a quoted-YTM bump or a nonparallel Treasury shock. But shifting every Treasury spot rate by the same amount matches the spread bump if both enter identically at each tenor.
 
 ## Estimate the spread response with a regression slope
 
-$$
-\beta=\frac{\operatorname{cov}(\Delta y,\Delta s/s)}{\operatorname{var}(\Delta y)}
-$$
-
-
+Regress the **relative spread change** on the Treasury yield change. The slope estimates the average spread response per unit Treasury move:
 
 $$
-\operatorname{cov}(\Delta y,\Delta s/s)=\rho_{y,s}\sigma_y\sigma_s
+\beta=\frac{\operatorname{Cov}(\Delta y,\Delta s/s)}{\operatorname{Var}(\Delta y)}
+=\rho_{y,s}\frac{\sigma_s}{\sigma_y}.
 $$
 
+In the two-factor price equation, the historical spread response contributes $-Ds\beta\,\Delta y$ to the predicted return. Use the same horizon and decimal units; $\sigma_s$ is the volatility of **relative** spread changes.
 
-
-$$
-\beta=\frac{\rho_{y,s}\sigma_y\sigma_s}{\sigma_y^2}=\rho_{y,s}\frac{\sigma_s}{\sigma_y}
-$$
-
-## The bracket becomes the duration adjustment
+## Spread co-movement changes empirical duration
 
 $$
-D_{emp}\approx D\left[1+s\rho_{y,s}\frac{\sigma_s}{\sigma_y}\right]
+D_{emp}\approx D(1+s\beta)
+=D\left(1+s\,\rho_{y,s}\frac{\sigma_s}{\sigma_y}\right).
 $$
 
-σs is volatility of **relative spread changes**; σy is volatility of Treasury yield changes. Use consistent horizons and decimal rate units.<div class="comparison"><div><h3>Negative correlation</h3><p>Spread tightening offsets Treasury-rate losses; multiplier below 1.</p></div><div><h3>Positive correlation</h3><p>Spread and Treasury losses reinforce each other; multiplier above 1.</p></div></div>
+- **Negative co-movement:** spreads tend to tighten as Treasury yields rise. Spread gains offset some rate loss.
+- **Positive co-movement:** spreads tend to widen as Treasury yields rise. Price losses reinforce each other.
+
+With separate rate and spread durations, the rate-only regression instead gives
+$D_{emp}\approx D_T+D_s\,\operatorname{Cov}(\Delta y,\Delta s)/\operatorname{Var}(\Delta y)$,
+assuming constant local sensitivities and no rate-correlated residual. Here $\Delta s$ is **absolute**.
 
 ## Example 5 — calculate the multiplier
 
-D = 6; s = .0300; ρ = −.50; σs = .0200; σy = .0020.
+$D=6$, $s=3\%$, $\rho=-0.50$, $\sigma_s=2\%$ (relative spread changes), $\sigma_y=0.20\%$ (Treasury yield changes).
 
 $$
-\sigma_s/\sigma_y=0.0200/0.0020=10
+M=1+0.0300(-0.50)(0.0200/0.0020)=0.85,\qquad D_{emp}=6(0.85)=5.10.
 $$
 
+| For a 50 bp Treasury rise | Predicted bond price change |
+|---|---:|
+| Spread held fixed | $-6(0.0050)=-3.00\%$ |
+| With estimated spread response | $-5.10(0.0050)=-2.55\%$ |
 
-
-$$
-M=1+(0.0300)(-0.50)(10)=0.8500
-$$
-
-
-
-$$
-D_{emp}=6(0.85)=5.10
-$$
-
-## Example 5 — interpret a 50 bp Treasury rise
-
-$$
-\Delta P/P\approx-5.10(0.0050)=-2.55\%
-$$
-
-<div class="comparison"><div><h3>Analytical estimate</h3><p>−6 × .005 = −3.00%.</p></div><div><h3>Empirical adjustment</h3><p>Predicted loss is 2.55%, allowing for the historical spread response.</p></div></div>
+The estimated tightening offsets 0.45 percentage points of the rate loss.
 
 ## Example 6 — see the offset directly
 
-$$
-\text{Treasury effect}=-6(0.0050)=-3.0\%
-$$
+Analytical duration $D=6$. Treasury yields rise **50 bp** while spreads tighten **30 bp**.
 
+| Component | Estimated price change |
+|---|---:|
+| Treasury move | $-6(0.0050)=-3.0\%$ |
+| Spread move | $-6(-0.0030)=+1.8\%$ |
+| Combined | $-3.0\%+1.8\%=-1.2\%$ |
 
-
-$$
-\text{Spread effect}=-6(-0.0030)=+1.8\%
-$$
-
-
-
-$$
-\text{Combined}=-3.0\%+1.8\%=-1.2\%
-$$
-
-Analytical duration 6; starting spread 3%; Treasury yield rises 50 bp while spread tightens 30 bp.
-
-## A flatter observed response does not mean shorter maturity
-
-$$
-D_{observed}=\frac{1.2\%}{0.50\%}=2.4
-$$
-
-The cash-flow maturity did not change. The offsetting spread movement changed the observed Treasury-rate response.
+The implied sensitivity in **this scenario** is $1.2\%/0.50\%=2.4$. It is not a regression estimate, and the bond’s maturity has not changed.
 
 ## Duration multipliers summarize the empirical adjustment
 
@@ -350,13 +227,11 @@ $$
 
 Rating and spread help explain multipliers. Wider-spread and lower-rated bonds often have smaller M; strong offsets can produce zero or negative empirical sensitivity.
 
-Existing-deck check: M = .65 and D = 6 imply Demp = 3.9.
+With $M=0.65$ and $D=6$, adjusted duration is $0.65(6)=3.9$.
 
 ## Estimate multipliers in three stages
 
 <div class="flow"><span><b>Time series</b>Estimate Demp for each bond</span><i>→</i><span><b>Bond ratio</b>Compute Mᵢ = Demp,ᵢ / Danalytical,ᵢ</span><i>→</i><span><b>Cross section</b>Regress Mᵢ on spread within rating groups</span></div>
-
-
 
 $$
 M_i=a+bs_i+u_i
@@ -366,7 +241,7 @@ $$
 
 ![](lec3-11-assets/lec10-fig-estimating-duration-multiplier-1.svg){.figure}
 
-Source illustrative data: repeat the return/yield regression separately for each bond.
+In this illustration, repeat the return/yield regression separately for each bond.
 
 ## Stage 2 — form one duration ratio per bond
 
@@ -378,7 +253,7 @@ Eighteen separate bond-level ratios, ordered by spread.
 
 ![](lec3-11-assets/lec10-fig-estimating-duration-multiplier-3.svg){.figure}
 
-The intercept is the rating-group baseline; the slope describes how the multiplier changes with spread. The source expects b < 0 in the usual pattern.
+The intercept is the rating-group baseline; the slope describes how the multiplier changes with spread. A negative slope means lower multipliers at wider spreads.
 
 ## Example 7 — size adjusted Treasury exposure
 
@@ -393,11 +268,7 @@ $$
 | Analytical | −5(.0075) = −3.75% | $375,000 |
 | Adjusted | −1.25(.0075) = −.9375% | $93,750 |
 
-## Use the adjusted exposure when sizing a Treasury hedge
-
-The change from $375,000 to $93,750 reflects the estimated Treasury–spread offset, before additional issuer-specific credit movement.
-
-An unadjusted analytical-duration hedge can unintentionally add a rate bet.
+Using unadjusted duration to size the hedge could overhedge Treasury risk. Issuer-specific spread risk remains.
 
 ## Example 8 — the apparent portfolio position can reverse
 
@@ -407,19 +278,17 @@ $$
 D_{analytical,p}=0.85(5.8)+0.15(5.0)=5.68
 $$
 
-
-
 $$
 D_{adjusted,p}=0.85(5.8)+0.15(1.25)=5.1175\approx5.12
 $$
 
-With a .25 high-yield multiplier, the adjusted portfolio is below target rather than above it. The source’s “true” duration is an estimate, not an immutable property.
+With a .25 high-yield multiplier, the adjusted portfolio is below target rather than above it. Adjusted duration is estimated and can change.
 
 ## The rating pattern is illustrative, not universal
 
 ![](lec3-11-assets/lec10-fig-duration-multipliers.svg){.figure}
 
-These source multipliers are separate illustrative assumptions, not the .25 B-rated input used in Examples 7–8. Estimates depend on rating, sector, maturity and market regime.
+These multipliers are separate illustrative assumptions, not the .25 B-rated input used in Examples 7–8. Estimates depend on rating, sector, maturity and market regime.
 
 ## Why credit risk is harder to model
 
@@ -460,12 +329,6 @@ $$
 | Strength | Stable, widely understood benchmark | Timely, granular, useful for pricing and risk |
 | Weakness | Slow-moving and coarse | Model risk and calibration risk |
 
-## Combine ratings with model evidence
-
-Ratings matter for mandates, indexes, regulations and communication. Models can react more quickly and produce maturity-specific probabilities.
-
-Ratings are stable labels; models are explicit measurement systems with calibration and specification risk.
-
 ## Structural default starts with the firm’s balance sheet
 
 <div class="flow"><span><b>Firm assets</b>Market value and volatility</span><i>→</i><span><b>Debt obligations</b>Amount and maturity</span><i>→</i><span><b>Default threshold</b>Assets insufficient to meet the obligation</span></div>
@@ -480,8 +343,6 @@ $$
 \text{Default at }T\quad\Longleftrightarrow\quad A(T)<K
 $$
 
-
-
 $$
 PD=\Pr[A(T)<K]
 $$
@@ -492,15 +353,13 @@ A lognormal asset process places some probability mass below the debt threshold.
 
 ![](lec3-11-assets/lec10-fig-bsm-asset-paths.svg){.figure}
 
-Seeded source simulation: A₀ = 110, K = 100, μ = 4%, σ = 28%, T = 1. Basic BSM allows default only at maturity.
+Illustrative simulation: A₀ = 110, K = 100, μ = 4%, σ = 28%, T = 1. Basic BSM allows default only at maturity.
 
 ## Equity is a call option on firm assets
 
 $$
 E(T)=\max[A(T)-K,0]
 $$
-
-
 
 $$
 B(T)=A(T)-\max[A(T)-K,0]
@@ -544,7 +403,7 @@ For the solvent-firm setting emphasized in the notes, higher asset volatility ge
 
 <div class="comparison"><div><h3>Economic strengths</h3><p>Connect credit to leverage, assets and volatility; analyze borrowing, equity issuance and risk shifting.</p></div><div><h3>Practical weaknesses</h3><p>Assets and volatility are inferred; complex debt, uncertain barriers and unstable calibration complicate implementation.</p></div></div>
 
-Maturity-only default can understate short-horizon risk. The objective mentions structural extensions; the notes develop the basic BSM case and later introduce an uncertain first-passage barrier.
+Maturity-only default can understate short-horizon risk. An uncertain first-passage barrier is one way to allow default before maturity.
 
 ## Reduced-form models specify default arrival directly
 
@@ -558,21 +417,17 @@ $$
 \Pr(N_{t+dt}-N_t=1)=\lambda dt+o(dt)
 $$
 
-
-
 $$
 \Pr(N_{t+dt}-N_t=0)=1-\lambda dt+o(dt)
 $$
 
-λ is conditional default intensity given survival. The notes’ λdt expressions are first-order small-interval approximations. τ denotes the first default time.
+λ is conditional default intensity given survival. The approximation λdt applies only over a short interval. τ denotes the first default time.
 
 ## Intensity determines survival and cumulative default
 
 $$
 \Pr(\tau>T)=e^{-\lambda T}
 $$
-
-
 
 $$
 \Pr(\tau\le T)=1-e^{-\lambda T}
@@ -598,13 +453,11 @@ $$
 S(5)=e^{-0.02(5)}=e^{-0.10}=90.48\%
 $$
 
-
-
 $$
 PD(5)=1-90.48\%=9.52\%
 $$
 
-This is not exactly 2% × 5 = 10%. Retained one-year check: survival e⁻⁰·⁰² = 98.02%; intensity is not exactly one-year PD.
+This is not exactly 2% × 5 = 10%. At one year: survival e⁻⁰·⁰² = 98.02%; intensity is not exactly one-year PD.
 
 ## Compare survival curves across hazard rates
 
@@ -612,7 +465,7 @@ This is not exactly 2% × 5 = 10%. Retained one-year check: survival e⁻⁰·�
 
 ## Jarrow–Turnbull: default, recovery and migration
 
-The notes’ simple version pays recovery at maturity, simplifying recovery-timing dependence. Extensions allow migration among rating states such as A, BBB, BB and default.
+This simple version pays recovery at maturity, simplifying recovery-timing dependence. Extensions allow migration among rating states such as A, BBB, BB and default.
 
 Transition matrices add credit-migration risk; recovery at maturity is unrealistic for many actual defaults.
 
@@ -635,7 +488,7 @@ Reduced-form calibration can infer credit/default curves from risky zeros, bonds
 
 ## Recovery conventions change valuation
 
-Retained existing-deck comparison: recovery may be specified as a fraction of face value, pre-default market value, or a default-free equivalent claim.
+Recovery may be specified as a fraction of face value, pre-default market value, or a default-free equivalent claim.
 
 Seniority, collateral, industry and the cycle affect realized recovery. A default probability alone does not determine price.
 
@@ -643,7 +496,7 @@ Seniority, collateral, industry and the cycle affect realized recovery. A defaul
 
 Common macro, industry, funding and liquidity shocks make defaults cluster. A linear correlation coefficient may not describe asymmetric tail outcomes.
 
-The notes’ supplier–automaker example illustrates asymmetric economic exposure; correlation itself is symmetric and does not establish causal direction.
+A supplier’s reliance on an automaker illustrates asymmetric economic exposure; correlation itself is symmetric and does not establish causal direction.
 
 ## Copulas join marginal distributions into joint behavior
 
@@ -659,8 +512,6 @@ $$
 E[\text{defaults}]=100(0.02)=2
 $$
 
-
-
 $$
 EL=2(0.60)(0.01)=1.2\%
 $$
@@ -671,13 +522,15 @@ Ten defaults are unlikely under independence but can become plausible under a sh
 
 ![](lec3-11-assets/lec10-default-dependence.svg){.figure}
 
-Clarifying illustration: 90% calm state with PD 0%; 10% stress state with conditional PD 20%. Unconditional PD remains 2%; expected defaults remain 2.
+Two-state example: 90% calm state with PD 0%; 10% stress state with conditional PD 20%. Unconditional PD remains 2%; expected defaults remain 2.
+
+Defaults are independent conditional on the state. The chance of losing at least 6% is **0.0034%** with independent defaults versus **9.98%** with the common stress state; expected loss is 1.2% in both.
 
 ## Read empirical model comparisons with care
 
 <div class="comparison"><div><h3>Ratings and structural models</h3><p>Ratings contain information but are coarse. Structural leverage, value and volatility help explain distress.</p></div><div><h3>Reduced-form models</h3><p>Timely market/accounting inputs can improve prediction and pricing, conditional on specification, calibration and data.</p></div></div>
 
-The notes summarize general evidence without naming studies. No model family is always best; combine complementary signals.
+Compare out-of-sample results before choosing a model.
 
 ## Relative value asks what spread compensates for
 
@@ -694,13 +547,13 @@ Higher values mean more spread per unit of modeled default probability, all else
 | Bond A | 120 bps | 2.0% | 60 |
 | Bond B | 180 bps | 6.0% | 30 |
 
-The source quotes **bp of spread per percentage point of PD**: 120 / 2 = 60 and 180 / 6 = 30. With both inputs in decimals, the ratios are .60 and .30; rankings are unchanged.
+The ratio is quoted in **bp of spread per percentage point of PD**: 120 / 2 = 60 and 180 / 6 = 30. With both inputs in decimals, the ratios are .60 and .30; rankings are unchanged.
 
 ## Compare compensation consistently across bonds
 
 ![](lec3-11-assets/lec10-fig-spread-pd-ratio.svg){.figure}
 
-Source chart adds C: 90 bp / 1.5% and D: 250 bp / 10%. Liquidity, recovery, covenants, seniority, tax treatment and model error still matter.
+The chart also shows C: 90 bp / 1.5% and D: 250 bp / 10%. Liquidity, recovery, covenants, seniority, tax treatment and model error still matter.
 
 ## Incomplete information can hide proximity to default
 
@@ -732,13 +585,11 @@ $$
 s\approx\lambda\times LGD
 $$
 
-
-
 $$
 0.02(1-0.40)=0.012=120\text{ bp}
 $$
 
-Retained existing-deck approximation. Pricing intensities are calibrated risk-neutral quantities; raw market spreads can also contain liquidity and other effects.
+Pricing intensities are calibrated risk-neutral quantities; raw market spreads can also contain liquidity and other effects.
 
 ## Factor-driven hazard rates use issuer and macro information
 
@@ -753,8 +604,6 @@ X can contain leverage, equity volatility, spreads, rating, unemployment and sec
 $$
 \lambda=\beta_0+\beta^\top X_t\quad\text{can be negative}
 $$
-
-
 
 $$
 \lambda=\exp(\beta_0+\beta^\top X_t)>0
@@ -791,8 +640,6 @@ $$
 PD_{physical}=1\%,\qquad R=40\%
 $$
 
-
-
 $$
 EL=1\%(1-40\%)=0.60\%=60\text{ bp}
 $$
@@ -804,13 +651,3 @@ The observed spread may be 150 bp. Risk premiums, liquidity, recovery uncertaint
 <div class="flow"><span><b>Position</b>Instrument, seniority and spread measure</span><i>→</i><span><b>Exposure</b>Spread duration, DTS and rate scenarios</span><i>→</i><span><b>Credit</b>PD, recovery and dependence</span><i>→</i><span><b>Decision</b>Limit, hedge or relative value</span></div>
 
 Model outputs organize judgment. Check liquidity, optionality, covenants, technical pressure and model risk before treating a wide spread as attractive.
-
-## Readings and source resources
-
-Fabozzi, *Bond Markets: Analysis and Strategies*, Chapters 21 and 23.
-
-- [FRED, ICE BofA U.S. Corporate Option-Adjusted Spread](https://fred.stlouisfed.org/series/BAMLC0A0CM): Track the broad investment-grade corporate OAS through expansions and periods of market stress.
-- [FRED, ICE BofA U.S. High Yield Option-Adjusted Spread](https://fred.stlouisfed.org/series/BAMLH0A0HYM2): Compare speculative-grade spread levels and volatility with investment-grade credit conditions.
-- [FINRA, Fixed Income Data](https://www.finra.org/finra-data/fixed-income): Use TRACE-based transaction information to examine actual corporate-bond prices, yields, and trading activity.
-- [SEC, EDGAR Company Filings](https://www.sec.gov/search-filings): Retrieve issuer financial statements and debt disclosures used to assess leverage, coverage, structural credit risk, and recovery prospects.
-- [Federal Reserve, Senior Loan Officer Opinion Survey](https://www.federalreserve.gov/data/sloos.htm): Relate bank lending standards and loan demand to the credit cycle and changes in default risk.

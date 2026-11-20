@@ -145,7 +145,7 @@ A 75% haircut brings an analytical duration of 5 down to 1.25. A historical empi
 <div class="comparison"><div><h3>Analytical</h3><p>Compute sensitivity from promised cash flows, price, yield and maturity.</p></div><div><h3>Empirical</h3><p>Estimate actual bond-price behavior against Treasury yield changes.</p></div></div>
 
 $$
-\frac{\Delta P_t}{P_t}=\alpha-D_{emp}\Delta y_t+\epsilon_t
+\frac{\Delta P_t}{P_t}=\alpha-D_{\mathrm{emp}}\Delta y_t+\epsilon_t
 $$
 
 ## The regression can be much flatter for high yield
@@ -200,16 +200,15 @@ $$
 
 ## Example 5 — calculate the multiplier
 
-$D=6$, $s=3\%$, $\rho=-0.50$, $\sigma_s=2\%$ (relative spread changes), $\sigma_y=0.20\%$ (Treasury yield changes).
+$D=6.0$, $s=3.00\%=0.0300$, $\rho_{y,s}=-0.50$, $\sigma_s=2.00\%=0.0200$ (relative spread changes), $\sigma_y=0.20\%=0.0020$ (Treasury yield changes).
 
-$$
-M=1+0.0300(-0.50)(0.0200/0.0020)=0.85,\qquad D_{emp}=6(0.85)=5.10.
-$$
+1. **Estimate the spread response:** $\beta=\rho_{y,s}(\sigma_s/\sigma_y)=(-0.50)(0.0200/0.0020)=-5$.
+2. **Adjust the duration:** $M=1+s\beta=1+0.0300(-5)=0.85$; $D_{\mathrm{emp}}=DM=6.0(0.85)=5.10$.
 
 | For a 50 bp Treasury rise | Predicted bond price change |
 |---|---:|
-| Spread held fixed | $-6(0.0050)=-3.00\%$ |
-| With estimated spread response | $-5.10(0.0050)=-2.55\%$ |
+| Spread held fixed | $\Delta P/P\approx-6.0(0.0050)=-3.00\%$ |
+| With estimated spread response | $\Delta P/P\approx-5.10(0.0050)=-2.55\%$ |
 
 The estimated tightening offsets 0.45 percentage points of the rate loss.
 
@@ -228,7 +227,7 @@ The implied sensitivity in **this scenario** is $1.2\%/0.50\%=2.4$. It is not a 
 ## Duration multipliers summarize the empirical adjustment
 
 $$
-D_{emp}\approx MD_{analytical},\qquad M=a+bs
+D_{\mathrm{emp}}\approx MD_{analytical},\qquad M=a+bs
 $$
 
 Rating and spread help explain multipliers. Wider-spread and lower-rated bonds often have smaller M; strong offsets can produce zero or negative empirical sensitivity.
@@ -237,29 +236,35 @@ With $M=0.65$ and $D=6$, adjusted duration is $0.65(6)=3.9$.
 
 ## Estimate multipliers in three stages
 
-<div class="flow"><span><b>Time series</b>Estimate Demp for each bond</span><i>→</i><span><b>Bond ratio</b>Compute Mᵢ = Demp,ᵢ / Danalytical,ᵢ</span><i>→</i><span><b>Cross section</b>Regress Mᵢ on spread within rating groups</span></div>
+1. **Time series:** Estimate $D_{\mathrm{emp},i}$ for each bond from its price response to Treasury yield changes.
+2. **Bond ratio:** Divide empirical by analytical duration, $M_i=D_{\mathrm{emp},i}/D_{\mathrm{analytical},i}$.
+3. **Cross section:** Within a rating group, regress the bond-level multipliers on spreads, $M_i=a+bs_i+u_i$.
 
-$$
-M_i=a+bs_i+u_i
-$$
+## Estimate duration multipliers: three plots
 
-## Stage 1 — estimate each bond’s Treasury sensitivity
+:::: {style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0.45em;align-items:start;font-size:0.84em;"}
 
-![](lec3-11-assets/lec10-fig-estimating-duration-multiplier-1.svg){.figure}
+::: {style="min-width:0;"}
+**1. Estimate each bond’s Treasury sensitivity**
 
-In this illustration, repeat the return/yield regression separately for each bond.
+![Estimate each bond’s Treasury sensitivity](lec3-11-assets/lec10-fig-estimating-duration-multiplier-1.svg){style="width:100%;height:auto;"}
+:::
 
-## Stage 2 — form one duration ratio per bond
+::: {style="min-width:0;"}
+**2. Form a duration ratio for each bond**
 
-![](lec3-11-assets/lec10-fig-estimating-duration-multiplier-2.svg){.figure}
+![Form a duration ratio for each bond](lec3-11-assets/lec10-fig-estimating-duration-multiplier-2.svg){style="width:100%;height:auto;"}
+:::
 
-Eighteen separate bond-level ratios, ordered by spread.
+::: {style="min-width:0;"}
+**3. Relate the ratios to credit spreads**
 
-## Stage 3 — relate those ratios to spread
+![Relate the ratios to credit spreads](lec3-11-assets/lec10-fig-estimating-duration-multiplier-3.svg){style="width:100%;height:auto;"}
+:::
 
-![](lec3-11-assets/lec10-fig-estimating-duration-multiplier-3.svg){.figure}
+::::
 
-The intercept is the rating-group baseline; the slope describes how the multiplier changes with spread. A negative slope means lower multipliers at wider spreads.
+A negative slope in step 3 means smaller multipliers at wider spreads.
 
 ## Example 7 — size adjusted Treasury exposure
 
@@ -278,7 +283,7 @@ Using unadjusted duration to size the hedge could overhedge Treasury risk. Issue
 
 ## Example 8 — the apparent portfolio position can reverse
 
-Target duration 5.5. Hold 85% at duration 5.8 and 15% high yield at analytical duration 5.0.
+Target duration 5.5. Hold 85% at duration 5.8 and 15% high yield at analytical duration 5.0. With a high-yield multiplier of $0.25$, the adjusted high-yield duration is $5.0\times0.25=1.25$.
 
 $$
 D_{analytical,p}=0.85(5.8)+0.15(5.0)=5.68
@@ -288,7 +293,7 @@ $$
 D_{adjusted,p}=0.85(5.8)+0.15(1.25)=5.1175\approx5.12
 $$
 
-With a .25 high-yield multiplier, the adjusted portfolio is below target rather than above it. Adjusted duration is estimated and can change.
+The adjusted portfolio is below target rather than above it. Adjusted duration is estimated and can change.
 
 ## The rating pattern is illustrative, not universal
 

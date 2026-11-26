@@ -5,51 +5,37 @@ format:
   revealjs:
     css: [lec3-11-slides.css, lec5-11-layout.css]
     html-math-method: mathml
+    auto-stretch: false
     include-in-header:
       text: |
+        <style>
+        .reveal .slides section h2 { border-bottom: 3px solid #936724; padding-bottom: .22em; }
+        .reveal .slides section img.figure { display: block; width: auto; max-width: 100%; height: auto; max-height: 510px; margin-inline: auto; }
+        .reveal .slides .board-figure { display: block; width: 100%; height: 360px; object-fit: contain; margin: .25em auto; }
+        .reveal .slides .two-figures { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+        .reveal .slides .two-figures img { width: 100%; height: 340px; object-fit: contain; }
+        .reveal .slides .worked table { font-size: .80em; }
+        .reveal .slides .worked math[display="block"] { font-size: .88em; margin: .45em 0; }
+        </style>
         <script src="lec3-11-visuals.js" defer></script>
 ---
-
-## Learning objectives
-
-<div class="flow"><span><b>Contracts</b>Rights, obligations, exercise, assignment and margin</span><i>→</i><span><b>Payoffs</b>Intrinsic/time value, profit, break-even and parity</span><i>→</i><span><b>Valuation</b>Inputs, Black–Scholes, trees, implied volatility and Black</span><i>→</i><span><b>Hedging</b>Protective puts and covered calls sized with DV01 and delta</span></div>
-
-## The big picture: buy a choice
+## Options buy a choice about interest-rate exposure
 
 <div class="flow"><span><b>Interest-rate exposure</b>Bond, yield or futures-price risk</span><i>→</i><span><b>Option contract</b>Pay premium; choose whether to exercise</span><i>→</i><span><b>Desired payoff</b>Protection, upside or premium income</span></div>
 
 The buyer has a right without an obligation. The seller receives premium and accepts the corresponding obligation. A futures contract locks in an outcome; an option buys a choice.
 
-## Translate the yield view before choosing the option
+## From a yield shock to a protective put
 
-<div class="flow"><span><b>Yield move</b>Yields rise</span><i>→</i><span><b>Price move</b>Ordinary fixed-rate bond and Treasury futures prices fall</span><i>→</i><span><b>Option payoff</b>A put benefits</span></div>
+A yield rise usually lowers ordinary fixed-rate bond and Treasury futures prices. A **put** gains from that price decline; a **call** gains when the underlying price rises.
 
-| Market view or risk | Expected price move | Option position that benefits |
-|---|---|---|
-| Yields will fall | Bond/futures price rises | Long call |
-| Yields will rise | Bond/futures price falls | Long put |
-| Protect against rising yields | Insure against a price decline | Buy put |
-| Protect against falling yields | Insure against a price increase | Buy call |
+$$\Delta P\approx-PD_{\mathrm{mod}}\Delta y$$
 
-## Quantify the exposure that needs protection
+For a $10 million portfolio with modified duration 8 and a +25 bp shock:
 
-$$
-\Delta P\approx-PD_{\mathrm{mod}}\Delta y
-$$
+$$\Delta P\approx-\$10{,}000{,}000(8)(0.0025)=-\$200{,}000.$$
 
-A $10 million portfolio has modified duration 8. For a +25 bp yield shock:
-
-$$
-\Delta P\approx-\$10{,}000{,}000(8)(0.0025)=-\$200{,}000
-$$
-
-A put supplies the desired payoff shape. Risk sensitivity still determines the contract count.
-
-## Follow the shock through the hedge
-
-<div class="flow"><span><b>Yield shock</b>Rates rise 25 bp</span><i>→</i><span><b>Price response</b>Bond and Treasury futures prices fall</span><i>→</i><span><b>Option response</b>Put moves toward or further into the money</span><i>→</i><span><b>Portfolio result</b>Put payoff offsets part of the bond loss</span></div>
-
-Identify the quoted underlying: cash bond, futures price or rate.
+Choose the payoff shape first. Then size the hedge using its sensitivity to the portfolio’s risk.
 
 ## Calls and puts allocate rights and obligations
 
@@ -62,17 +48,16 @@ Identify the quoted underlying: cash bond, futures price or rate.
 
 Strike **K** is the exercise price. Expiration is the final date the right exists. The buyer is long and pays premium; the writer is short and receives it.
 
-## A futures option delivers a futures position
+## Exercise, assignment and the underlying futures
 
-<div class="comparison"><div><h3>Exercise a call</h3><p>Holder becomes long the specified futures at K.</p></div><div><h3>Exercise a put</h3><p>Holder becomes short the specified futures at K.</p></div></div>
+| Option exercised | Holder receives | Assigned writer receives |
+|---|---|---|
+| Call | Long futures at K | Short futures at K |
+| Put | Short futures at K | Long futures at K |
 
-The underlying is the futures contract, not the cash Treasury security.
+New futures positions are marked to market. Clearing handles assignment. Traders often close an option with an offsetting trade instead of exercising early.
 
-## Exercise style determines when the choice exists
-
-<div class="comparison"><div><h3>American</h3><p>Exercise on any eligible trading day through expiration.</p></div><div><h3>European</h3><p>Exercise only at expiration.</p></div></div>
-
-The names describe rules, not geography. The notes identify Treasury and SOFR options as American-style families; exact contract specifications govern. American flexibility cannot reduce value, but early exercise is not always optimal.
+American exercise is available on eligible days through expiration; European exercise occurs at expiration. Contract specifications determine the exact rules. The option delivers a **futures position**, which then has its own margin requirements.
 
 ## Options versus futures: commitment and cash
 
@@ -85,85 +70,53 @@ The names describe rules, not geography. The notes identify Treasury and SOFR op
 | Time value | No option time value | Premium normally includes time value |
 | Main use | Lock in or linearly change exposure | Protect, retain upside, or sell contingent exposure |
 
-## Symmetric futures exposure versus a call payoff
+## Example 1: lock the outcome or buy protection
 
-![](lec3-11-assets/lec11-fig-option-versus-futures.svg){.figure}
-
-At 110, a long futures position gains one point at 111 and loses one at 109. A 110 call can expire unexercised below 110. The plotted call payoff excludes premium.
-
-## Example 1 — lock or insure a long portfolio
+![](lec3-11-assets/lec11-fig-option-versus-futures.svg){.board-figure}
 
 <div class="comparison"><div><h3>Sell futures</h3><p>A price decline creates gains; a price rise creates losses. Linear hedging gives up both sides of the mapped exposure.</p></div><div><h3>Buy puts</h3><p>Pay premium for protection below the strike. If prices rise, let puts expire and retain portfolio gains less premium.</p></div></div>
 
 Both respond to fear of falling Treasury prices over the next three months; they serve different payoff objectives.
 
-## Options on cash bonds
+## Cash bonds, rates and futures have different option contracts
 
-<div class="flow"><span><b>Underlying</b>A specific bond</span><i>→</i><span><b>Value drivers</b>Coupon, maturity, yield, duration and price volatility</span><i>→</i><span><b>OTC terms</b>Customization, counterparty, liquidity and documentation</span></div>
+| Underlying | Contract and use |
+|---|---|
+| Specific cash bond | Call or put on its price; coupon, maturity and duration affect value |
+| Interest rate | Cap protects borrowers above a rate strike; floor protects investors below it |
+| Swap | Swaption gives the right to enter a swap |
+| Futures | Option on a specified Treasury or short-rate futures contract |
 
-Retained connection: embedded calls and puts in bonds allocate similar rights within the bond contract.
+Cash-bond and rate options can have customized OTC terms. Exchange-traded futures options use standardized contracts and central clearing.
 
-## Options on interest rates
-
-<div class="comparison"><div><h3>Cap and floor</h3><p>A cap protects a borrower from rates above a strike. A floor protects an investor from rates below a strike.</p></div><div><h3>Swaption</h3><p>An option to enter an interest-rate swap.</p></div></div>
-
-These OTC instruments are often quoted using implied volatility, not just dollar premium.
-
-## Exchange-traded futures option families
-
-Treasury families include 2Y, 3Y, 5Y, 10Y, Ultra 10Y, bond and Ultra bond futures options. SOFR options include standard, weekly and mid-curve expirations; other listed short-rate options may also be available.
-
-Standardization, transparent prices, central clearing and offsetting trades support exchange trading.
-
-## Read the complete trade instruction
+## A complete futures-option instruction
 
 <div class="flow"><span><b>Buy one</b>Long option; pay premium</span><i>→</i><span><b>September 10-year Treasury futures</b>Identify the exact underlying contract</span><i>→</i><span><b>110 call</b>Right to become long futures at strike 110</span></div>
 
 Also identify option expiration, exercise style, contract unit, quotation, premium and margin convention. The option date need not be inferred from the futures month.
 
-## Exercise and assignment are paired
-
-| Option exercised | Holder receives | Assigned writer receives |
-|---|---|---|
-| Call | Long futures at K | Short futures at K |
-| Put | Short futures at K | Long futures at K |
-
-New futures positions are marked to market. Clearing handles assignment. Traders often close an option with an offsetting trade instead of exercising early.
-
-## Follow one trade — buy the December 110 put
-
-Premium quote **0-40** means 40/64 of one price point for this example.
-
-$$
-\frac{40}{64}\times\$1{,}000=\$625
-$$
-
-Strike 110 is an index price equal to 110% of the $100,000 face unit; it is not $110. One point is $1,000; one 1/64 is $15.625.
-
-## Follow one trade — expiration outcomes
-
-| Futures price | Status | Payoff | Profit after $625 |
-|---:|---|---:|---:|
-| 114 | Out of money | $0 | −$625 |
-| 110 | At money | $0 | −$625 |
-| 109.375 | In money by 0.625 | $625 | $0 |
-| 107 | In money by 3 points | $3,000 | $2,375 |
-
-At 107, exercise creates a short futures at 110, worth three points. Selling the valuable option or exercising and offsetting gives intrinsic value at expiration, apart from fees and execution.
 
 
+## A December 110 put: quote, payoff and profit {.worked}
 
-## Keep three units separate
+Premium **0-40** means $40/64=0.625$ price point in this example. With $1,000 per point, the premium is **$625**.
 
-<div class="comparison"><div><h3>Option premium fractions</h3><p>1-16 = 1 + 16/64 = 1.25 points = $1,250 in the example convention.</p></div><div><h3>Futures-price fractions</h3><p>109.375 = 109 + 12/32 = 109-12 in 32nds notation.</p></div></div>
+| Futures at expiry | Put payoff | Profit after premium |
+|---:|---:|---:|
+| 114 | $0 | −$625 |
+| 110 | $0 | −$625 |
+| 109.375 | $625 | $0 |
+| 107 | $3,000 | $2,375 |
 
-Price points, dollars and yield basis points are different quantities. A quote convention must be specified before converting.
+At 107, exercise creates short futures at 110, worth $(110-107)\times\$1{,}000=\$3{,}000$ before premium. Strike 110 is an index price, not $110.
 
-## Example 2 — exercise the 110 call at 112
+## Example 2: exercise a 110 call at 112
 
 <div class="flow"><span><b>Exercise</b>Long futures at 110</span><i>→</i><span><b>Immediate value</b>(112 − 110) × $1,000 = $2,000</span><i>→</i><span><b>Premium</b>0-48 = 48/64 × $1,000 = $750</span><i>→</i><span><b>Net profit</b>$2,000 − $750 = $1,250</span></div>
 
 The example ignores fees and cash-flow timing.
+
+**Units:** premium 1-16 means $1+16/64=1.25$ points = $1,250. Futures 109.375 means $109+12/32$, written 109-12. Price points, dollars and yield basis points are distinct.
 
 ## Margin conventions change the cash-flow mechanics
 
@@ -171,77 +124,47 @@ The example ignores fees and cash-flow timing.
 
 Portfolio offsets affect clearing margin. Exercise creates futures positions with their own margin requirements.
 
-## Why futures options are popular
+## Contract units and quote conventions {.worked}
 
-<div class="flow"><span><b>Trading</b>Liquidity and transparent prices</span><i>→</i><span><b>Risk</b>Asymmetric protection and flexible payoff design</span><i>→</i><span><b>Infrastructure</b>Standardized terms, central clearing and offsetting trades</span><i>→</i><span><b>Capital</b>Capital efficiency with margin obligations</span></div>
+| Option family | Underlying unit | Quote intuition |
+|---|---:|---|
+| 2Y / 3Y Treasury note futures | $200,000 face | Price points and fractions |
+| Other Treasury note/bond futures shown | $100,000 face | Price points and fractions |
+| Three-Month SOFR futures | $1 million reference notional | One futures bp is $25 |
 
-Quarterly, serial, weekly and mid-curve listings target horizons and events. Product codes, strike intervals, hours and expiration rules vary; the notes’ specification table is a teaching summary.
+Contract size, expiration, exercise, tick and margin rules depend on the exact product. The worked Treasury examples use **$1,000 per point** and explicitly stated premium fractions.
 
-## Contract specifications: the source teaching summary
+## Intrinsic value, time value and Example 3 {.worked}
 
-| Option family | Underlying futures | Typical underlying unit | Quotation intuition | Exercise |
-|---|---|---:|---|---|
-| Treasury note options | 2Y, 3Y, 5Y, 10Y, Ultra 10Y | $200,000 (2Y/3Y); $100,000 (others) | Points and fractions of a point | American style |
-| Treasury bond options | T-Bond and Ultra T-Bond | $100,000 face | Points and fractions of a point | American style |
-| Three-Month SOFR options | One specified SR3 futures contract | $1,000,000 reference notional | Index points; 1 bp in futures is $25 | American style |
+$$\text{Premium}=\text{intrinsic value}+\text{time value}$$
 
-Treasury units: [CME contract comparison](https://www.cmegroup.com/content/dam/cmegroup/markets/interest-rates/files/20-year-us-treasury-bond-futures-product-overview.pdf).
+$$\text{Call intrinsic}=\max(S-K,0),\qquad\text{put intrinsic}=\max(K-S,0)$$
 
+**Example 3:** call strike 110, current futures 112, premium 2.75 points.
 
+| Component | Calculation | At $1,000 per point |
+|---|---|---:|
+| Intrinsic | $\max(112-110,0)=2.00$ | $2,000 |
+| Time value | $2.75-2.00=0.75$ | $750 |
+| Total | $2.00+0.75=2.75$ | $2,750 |
 
-Underlying face value is $200,000 for 2Y and 3Y note futures and $100,000 for the other Treasury futures shown.
+A call is in the money when price exceeds strike; a put is in the money when price is below strike.
 
-## Decompose the option premium
+## Time value reflects the remaining choice
 
-$$
-\text{Premium}=\text{intrinsic value}+\text{time value}
-$$
+![](lec3-11-assets/lec11-fig-intrinsic-time-value.svg){.board-figure}
 
-<div class="comparison"><div><h3>Intrinsic value</h3><p>What exercise would be worth if the option expired now; never negative.</p></div><div><h3>Time value</h3><p>Premium above intrinsic value; value from favorable movement before expiry.</p></div></div>
+Time value tends to zero at expiration and is usually greatest near the strike. This illustration sets $r=0$ so European option value and immediate-exercise intrinsic use the same value basis.
 
-## Call and put moneyness
-
-$$
-\text{Call intrinsic}=\max(S-K,0),\qquad\text{Put intrinsic}=\max(K-S,0)
-$$
-
-| Price relative to strike | Call | Put |
-|---|---|---|
-| S > K | In the money | Out of the money |
-| S = K | At the money | At the money |
-| S < K | Out of the money | In the money |
-
-## Time value sits above intrinsic value
-
-![](lec3-11-assets/lec11-fig-intrinsic-time-value.svg){.figure}
-
-Time value is usually greatest near the strike and tends to zero at expiry. This source illustration sets r = 0 so European value and immediate-exercise intrinsic share the same value basis.
-
-## Example 3 — decompose a 2.75-point premium
-
-Call strike 110; current futures 112; premium 2.75 points.
-
-$$
-\text{Intrinsic}=\max(112-110,0)=2.00
-$$
-
-
-
-$$
-\text{Time value}=2.75-2.00=0.75
-$$
-
-<div class="flow"><span><b>Total premium</b>$2,750</span><i>→</i><span><b>Intrinsic portion</b>$2,000</span><i>→</i><span><b>Time-value portion</b>$750</span></div>
-
-All dollar amounts use $1,000 per price point.
-
-## Payoff and profit answer different questions
+## Expiration payoff versus profit
 
 <div class="comparison"><div><h3>Payoff</h3><p>Exercise value at expiration, before the initial premium.</p></div><div><h3>Profit</h3><p>Payoff less premium for a buyer; premium less payoff for a writer.</p></div></div>
 
 Let c and p be call and put premiums and Sₜ the expiration price. The following profit diagrams use K = 110, c = 3.00 and p = 2.50, ignoring financing and fees.
 
-## Long call — formula and exposure
+## Long call: expiration profit
+
+![](lec3-11-assets/lec11-fig-four-option-profits-1.svg){.board-figure}
 
 $$
 \Pi=\max(S_T-K,0)-c
@@ -249,11 +172,9 @@ $$
 
 Maximum loss c; break-even K + c = 113. Benefits from higher prices, usually falling yields. Potential upside is large; the ordinary-asset model has no upper bound.
 
-## Long call — expiration profit
+## Short call: expiration profit
 
-![](lec3-11-assets/lec11-fig-four-option-profits-1.svg){.figure}
-
-## Short call — formula and exposure
+![](lec3-11-assets/lec11-fig-four-option-profits-2.svg){.board-figure}
 
 $$
 \Pi=c-\max(S_T-K,0)
@@ -261,11 +182,9 @@ $$
 
 Maximum gain c; break-even K + c = 113. A naked writer accepts potentially very large losses if prices rise.
 
-## Short call — expiration profit
+## Long put: expiration profit
 
-![](lec3-11-assets/lec11-fig-four-option-profits-2.svg){.figure}
-
-## Long put — formula and exposure
+![](lec3-11-assets/lec11-fig-four-option-profits-3.svg){.board-figure}
 
 $$
 \Pi=\max(K-S_T,0)-p
@@ -273,11 +192,9 @@ $$
 
 Maximum loss p; break-even K − p = 107.5. Maximum gain K − p if price can fall to zero. Usually benefits from rising yields.
 
-## Long put — expiration profit
+## Short put: expiration profit
 
-![](lec3-11-assets/lec11-fig-four-option-profits-3.svg){.figure}
-
-## Short put — formula and exposure
+![](lec3-11-assets/lec11-fig-four-option-profits-4.svg){.board-figure}
 
 $$
 \Pi=p-\max(K-S_T,0)
@@ -285,15 +202,7 @@ $$
 
 Maximum gain p; break-even K − p = 107.5. Loss can be large if the underlying falls sharply.
 
-## Short put — expiration profit
-
-![](lec3-11-assets/lec11-fig-four-option-profits-4.svg){.figure}
-
-## Naked writing exchanges tail risk for premium
-
-Receiving a premium is not a safe return. The maximum gain is known and small relative to possible losses. Margin protects the clearing system; it does not remove the writer’s market risk.
-
-## Example 4 — a 110 put costing 1.50
+## Example 4: profit on a 110 put costing 1.50
 
 | Futures price at expiration | Put payoff | Profit after premium |
 |---:|---:|---:|
@@ -308,68 +217,43 @@ $$
 
 At 105, payoff is 5.00 points and profit is 3.50 points. Above 110, the loss is the 1.50-point premium.
 
-## Put-call parity equates two expiration packages
+## Put-call parity: equal terminal payoffs
 
-$$
-C-P=S_0-Ke^{-rT}
-$$
+$$C+Ke^{-rT}=P+S_0,\qquad C-P=S_0-Ke^{-rT}$$
 
+![](lec3-11-assets/lec11-fig-put-call-parity.svg){.board-figure}
 
+For European options on a non-coupon-paying asset, **call + strike cash** and **underlying + put** both pay $\max(S_T,K)$ at expiration.
 
-$$
-C+Ke^{-rT}=P+S_0
-$$
+## Parity with coupons, futures and synthetic positions {.worked}
 
-<div class="comparison"><div><h3>Fiduciary call</h3><p>Call + risk-free investment paying K at expiry.</p></div><div><h3>Protective put</h3><p>Underlying + put.</p></div></div>
+$$C-P=(B_0-I)-Ke^{-rT},\qquad c-p=e^{-rT}(F_0-K)$$
 
-European options on a non-coupon-paying asset. Both packages end at max(Sₜ, K), so no arbitrage requires the same price today.
+$I$ is the PV of coupons before expiry. The futures relation assumes European exercise and premium paid upfront.
 
-## The two packages trace the same payoff
-
-![](lec3-11-assets/lec11-fig-put-call-parity.svg){.figure}
-
-## Adjust parity for coupons or futures
-
-<div class="comparison"><div><h3>Coupon bond</h3><p>Subtract I, the present value of coupons paid before option expiry.</p></div><div><h3>Futures option</h3><p>With European exercise and premium paid upfront, discount the futures–strike difference.</p></div></div>
-
-
-
-$$
-C-P=(B_0-I)-Ke^{-rT}
-$$
-
-
-
-$$
-c-p=e^{-rT}(F_0-K)
-$$
-
-## Parity creates synthetic positions
-
-| Desired position | Equivalent position |
+| Desired position | Equivalent for the non-coupon asset |
 |---|---|
-| Long call | Long put + long underlying - risk-free bond paying $K$ |
-| Long put | Long call - long underlying + risk-free bond paying $K$ |
-| Long underlying | Long call - long put + risk-free bond paying $K$ |
-| Protective put | Fiduciary call |
+| Long call | Long put + underlying − risk-free bond paying $K$ |
+| Long put | Long call − underlying + risk-free bond paying $K$ |
+| Long underlying | Long call − long put + risk-free bond paying $K$ |
 
-These equivalents use the same European maturity and strike and the non-coupon asset setup; adapt the income term when coupons intervene.
+Use identical maturity and strike; adjust for interim income.
 
-## Example 5 — calculate the parity-consistent put
+## Example 5: parity and the arbitrage trade {.worked}
 
-S₀ = 98, K = 100, T = 0.5, r = 4%, C = 3.80.
+**Inputs:** $S_0=98$, $K=100$, $T=0.5$, $r=4\%$, $C=3.80$.
 
-$$
-P=C-S_0+Ke^{-rT}=3.80-98+100e^{-0.04(0.5)}\approx3.82
-$$
+$$P=C-S_0+Ke^{-rT}=3.80-98+100e^{-0.02}=3.8199.$$
 
-If the identical put trades at 4.50, asset + put is expensive relative to call + strike cash.
+If the identical put trades at **4.50**:
 
-## Example 5 — trade the price gap
+| Trade | Initial cash flow |
+|---|---:|
+| Short underlying and put | $98+4.50=102.50$ received |
+| Buy call and strike cash | $3.80+98.0199=101.8199$ paid |
+| Net receipt | **0.6801** |
 
-<div class="flow"><span><b>Sell expensive</b>Short asset and put: receive 98 + 4.50 = 102.50</span><i>→</i><span><b>Buy cheap</b>Buy call and strike cash: pay 3.80 + 98.0199 = 101.8199</span><i>→</i><span><b>Initial difference</b>Receive about 0.6801; expiration packages offset</span></div>
-
-The arbitrage comparison assumes matching contracts, borrowing/shorting access and negligible transaction costs.
+The terminal packages offset. This comparison assumes borrowing/shorting access and negligible transaction costs.
 
 ## Six inputs shape option value
 
@@ -384,57 +268,31 @@ The arbitrage comparison assumes matching contracts, borrowing/shorting access a
 
 Hold other inputs fixed. American time flexibility helps; European discounting and coupon timing can complicate the time effect. Futures-model rate effects differ.
 
-## Underlying price and strike work in opposite directions
+## Bond price, coupons and the rate input
 
-<div class="comparison"><div><h3>Current price rises</h3><p>Buying at fixed K is more attractive; selling at fixed K is less attractive.</p></div><div><h3>Strike rises</h3><p>Buying at higher K is less attractive; selling at higher K is more attractive.</p></div></div>
+| Change | Pricing effect, other inputs fixed |
+|---|---|
+| Higher cash-asset price | Call rises, put falls |
+| Higher risk-free rate | Discounted strike falls; cash-asset call usually rises, put falls |
+| Larger interim coupon PV $I$ | Adjusted underlying $S_0-I$ falls; call falls, put rises |
 
-## More time gives more opportunities — with qualifications
+A market rate rise can simultaneously **lower the bond price**. Include that movement as well as the direct discount-rate effect.
 
-American calls and puts gain exercise opportunities with more time. European options can behave differently because discounting and coupon timing matter. A deep in-the-money call behaves more like the underlying; a deep out-of-the-money call has little exercise probability.
+$$\Delta P/P\approx-D_{\mathrm{mod}}\Delta y$$
 
-## Separate the rate input from the bond-price response
+Distinguish percentage price volatility from yield volatility in basis points.
 
-<div class="comparison"><div><h3>Ordinary call pricing input</h3><p>Higher r reduces the present value of paying K, tending to raise a cash-asset call and lower a put.</p></div><div><h3>Bond-market movement</h3><p>A rate rise can also lower the underlying bond price. That simultaneous effect must be included in an actual rate scenario.</p></div></div>
+## Price and strike sensitivities
 
-## Interim coupons leave before the option is exercised
+<div class="two-figures"><img src="lec3-11-assets/lec11-fig-option-input-sensitivities-1.svg" alt="Price and strike sensitivities, input 1"><img src="lec3-11-assets/lec11-fig-option-input-sensitivities-2.svg" alt="Price and strike sensitivities, input 2"></div>
 
-<div class="flow"><span><b>Current bond price</b>Includes the value of interim coupons</span><i>→</i><span><b>Subtract coupon PV</b>Adjusted underlying = S₀ − I</span><i>→</i><span><b>Option value</b>Larger I tends to reduce the call and increase the put</span></div>
+Benchmark: $F_0=K=110$, $T=0.5$, $r=4\%$, $\sigma=8\%$. Change only the plotted input. More dispersion makes the buyer’s choice more valuable; European time effects also depend on discounting.
 
-The option holder does not receive coupons paid before exercise.
+## Time and volatility sensitivities
 
-## Volatility makes the choice more valuable
+<div class="two-figures"><img src="lec3-11-assets/lec11-fig-option-input-sensitivities-3.svg" alt="Time and volatility sensitivities, input 3"><img src="lec3-11-assets/lec11-fig-option-input-sensitivities-4.svg" alt="Time and volatility sensitivities, input 4"></div>
 
-The buyer keeps favorable outcomes and declines unfavorable exercise. More dispersion can increase call and put values even if the expected underlying price is unchanged; the writer demands compensation.
-
-$$
-\frac{\Delta P}{P}\approx-D_{\mathrm{mod}}\Delta y
-$$
-
-Distinguish percentage price volatility, yield volatility in bp, and normal versus lognormal quote conventions. Longer duration maps a given yield shock into greater price movement.
-
-## Current futures price — isolate one pricing input
-
-![](lec3-11-assets/lec11-fig-option-input-sensitivities-1.svg){.figure}
-
-Source benchmark: F₀ = K = 110, T = 0.5, r = 4%, σ = 8%; change only the plotted input.
-
-## Strike — isolate one pricing input
-
-![](lec3-11-assets/lec11-fig-option-input-sensitivities-2.svg){.figure}
-
-Source benchmark: F₀ = K = 110, T = 0.5, r = 4%, σ = 8%; change only the plotted input.
-
-## Time to expiration — isolate one pricing input
-
-![](lec3-11-assets/lec11-fig-option-input-sensitivities-3.svg){.figure}
-
-Source benchmark: F₀ = K = 110, T = 0.5, r = 4%, σ = 8%; change only the plotted input.
-
-## Price volatility — isolate one pricing input
-
-![](lec3-11-assets/lec11-fig-option-input-sensitivities-4.svg){.figure}
-
-Source benchmark: F₀ = K = 110, T = 0.5, r = 4%, σ = 8%; change only the plotted input.
+Benchmark: $F_0=K=110$, $T=0.5$, $r=4\%$, $\sigma=8\%$. Change only the plotted input. More dispersion makes the buyer’s choice more valuable; European time effects also depend on discounting.
 
 ## Moneyness, time and volatility interact
 
@@ -442,9 +300,11 @@ Source benchmark: F₀ = K = 110, T = 0.5, r = 4%, σ = 8%; change only the plot
 
 Near the strike, uncertainty most visibly changes exercise prospects. With positive discounting, a European futures option can lie below immediate-exercise intrinsic far in the money; the right cannot be exercised early.
 
-## Every model applies the same valuation logic
+## Valuation models: replicate and discount
 
 <div class="flow"><span><b>States</b>Describe future underlying prices</span><i>→</i><span><b>Payoffs</b>Apply the exercise rule in each state</span><i>→</i><span><b>No arbitrage</b>Replicate or use pricing probabilities</span><i>→</i><span><b>Value today</b>Discount at the appropriate risk-free rate</span></div>
+
+A model specifies future prices and exercise opportunities. Its assumptions must fit the underlying and contract.
 
 ## Black–Scholes for a non-coupon-paying asset
 
@@ -464,295 +324,108 @@ $$
 P=Ke^{-rT}N(-d_2)-S_0N(-d_1)
 $$
 
-N(·) is the standard normal CDF. For a coupon bond, the simple adjustment replaces S₀ with S₀ − I.
+$S_0$ is the underlying price, $K$ the strike, $T$ years to expiry, $r$ the continuously compounded rate and $\sigma$ annualized price volatility. $N$ is the standard normal CDF. For interim coupon PV $I$, replace $S_0$ with $S_0-I$.
 
-## Interpret the formula and its assumptions
+## Example 6: zero-coupon option inputs and probabilities {.worked}
 
-<div class="flow"><span><b>Underlying component</b>S₀N(d₁)</span><i>→</i><span><b>Strike component</b>Discount K, then weight by N(d₂)</span><i>→</i><span><b>Call value</b>Underlying component − strike component</span></div>
+**European option:** $S_0=92$, $K=90$, $T=0.5$ years, continuously compounded $r=4\%$, annualized price volatility $\sigma=10\%$. No interim coupon.
 
-Assumptions: lognormal price, constant volatility and risk-free rate, frictionless trading and continuous hedging. For bonds these are approximations; term-structure models can better represent joint rate and bond dynamics.
+$$d_1=\frac{\ln(92/90)+[0.04+0.10^2/2](0.5)}{0.10\sqrt{0.5}}=0.6290$$
 
-## Example 6 — zero-coupon bond call setup
+$$d_2=d_1-0.10\sqrt{0.5}=0.5583$$
 
-| Input | Value |
-|---|---:|
-| Current bond price S₀ | 92 |
-| Strike K | 90 |
-| Option maturity T | 0.5 years |
-| Continuously compounded r | 4% |
-| Annualized bond-price σ | 10% |
+| Probability | $N(d_1)$ | $N(d_2)$ | $N(-d_1)$ | $N(-d_2)$ |
+|---|---:|---:|---:|---:|
+| Rounded value | 0.7353 | 0.7117 | 0.2647 | 0.2883 |
 
-No interim coupon. Calculate call and put, then check parity.
+$N$ is the standard normal CDF. Use full precision internally.
 
-## Example 6 — standardize the exercise threshold
+## Example 6: call, put and parity {.worked}
 
-$$
-d_1=\frac{\ln(92/90)+[0.04+(0.10)^2/2](0.5)}{0.10\sqrt{0.5}}=0.6290
-$$
+**Same inputs:** $S_0=92$, $K=90$, $T=0.5$, $r=4\%$, $\sigma=10\%$.
 
+$$C=92N(0.6290)-90e^{-0.02}N(0.5583)=4.8673$$
 
+$$P=90e^{-0.02}N(-0.5583)-92N(-0.6290)=1.0852$$
 
-$$
-d_2=0.6290-0.10\sqrt{0.5}=0.5583
-$$
+| Check | Calculation |
+|---|---|
+| Intrinsic and time value | $2.0000+2.8673=4.8673$ |
+| Call minus put | $4.8673-1.0852=3.7821$ |
+| Underlying minus strike PV | $92-90e^{-0.02}=3.7821$ |
 
+Final values use unrounded $d$ and CDF values. Black–Scholes assumes lognormal price, constant volatility/rate and frictionless continuous hedging.
 
+## Example 6 extension: an interim coupon {.worked}
 
-$$
-N(d_1)=0.7353,\qquad N(d_2)=0.7117
-$$
+The bond pays a coupon of **2.00** before expiry, with PV **1.96**. Keep $K=90$, $T=0.5$, $r=4\%$, $\sigma=10\%$.
 
-Keep full precision internally; displayed probabilities are rounded.
+$$S_0-I=92-1.96=90.04$$
 
-## Example 6 — calculate the call
+$$d_1=\frac{\ln(90.04/90)+[0.04+0.10^2/2](0.5)}{0.10\sqrt{0.5}}=0.3245,\quad d_2=0.2538$$
 
-$$
-\begin{aligned}C&=92N(d_1)-90e^{-0.04(0.5)}N(d_2)\\&\approx92(0.7353)-90e^{-0.02}(0.7117)\\&=4.8673\quad\text{using unrounded CDF values.}\end{aligned}
-$$
+$$C_{\mathrm{coupon}}=90.04N(d_1)-90e^{-0.02}N(d_2)=3.5291$$
 
+The call falls by $4.8673-3.5291=1.3382$, less than the coupon PV of 1.96 because call delta is below one. The option holder misses the interim coupon.
 
+## CRR: volatility sets branches, no arbitrage sets weights {.worked}
 
-$$
-\text{Intrinsic}=\max(92-90,0)=2;\qquad\text{time value}=2.8673
-$$
+$$\Delta t=T/N,\quad u=e^{\sigma\sqrt{\Delta t}},\quad d=1/u,\quad q=\frac{e^{r\Delta t}-d}{u-d}$$
 
-The strike payment is discounted; the current underlying price is not.
+**Example 6 with 100 steps:** $S_0=92$, $T=0.5$, $r=4\%$, $\sigma=10\%$.
 
-## Example 6 — calculate the put
+| Quantity | Substitution and result |
+|---|---|
+| Time step | $\Delta t=0.5/100=0.005$ |
+| Up / down factors | $u=1.007096$, $d=0.992954$ |
+| First prices | $92u=92.6528$, $92d=91.3518$ |
+| Pricing weights | $q=0.512376$, $1-q=0.487624$ |
 
-$$
-N(-d_1)=0.2647,\qquad N(-d_2)=0.2883
-$$
+Require $d<e^{r\Delta t}<u$. With income yield $y$, use $r-y$ in the carry term. $q$ is a pricing weight, not a forecast.
 
+## One-period tree: replication on the same diagram {.worked}
 
+![](lec3-11-assets/lec11-one-period-tree.svg){.board-figure}
 
-$$
-\begin{aligned}P&=90e^{-0.04(0.5)}N(-d_2)-92N(-d_1)\\&\approx90e^{-0.02}(0.2883)-92(0.2647)\\&=1.0852\quad\text{using unrounded CDF values.}\end{aligned}
-$$
+Strike 100; one-year risk-free gross return 1.05. Match both terminal payoffs:
 
-## Example 6 — verify parity
+$$110\Delta+1.05B=10,\quad90\Delta+1.05B=0$$
 
-$$
-C-P=4.8673-1.0852=3.7821
-$$
+$$\Delta=0.5,\quad B=-42.857,\quad C_0=0.5(100)-42.857=7.143.$$
 
+Equivalently, $q=(1.05-0.90)/(1.10-0.90)=0.75$ and $C_0=[0.75(10)+0.25(0)]/1.05=7.143$.
 
+## Backward induction and convergence {.worked}
 
-$$
-S_0-Ke^{-rT}=92-90e^{-0.04(0.5)}=3.7821
-$$
+$$V_t=e^{-r\Delta t}[qV^u_{t+\Delta t}+(1-q)V^d_{t+\Delta t}]$$
 
-The two sides agree: call and put values are internally consistent.
+![](lec3-11-assets/lec11-fig-binomial-convergence.svg){.board-figure}
 
-## Retained worked example — a second zero-coupon call
+Start with terminal payoffs. For American options, take the larger of continuation and immediate exercise at each node.
 
-Existing-deck example: S₀ = 95, K = 94, T = 0.75, r = 3%, σ = 12%.
+For Example 6: **100-step call 4.8723**, Black–Scholes **4.8673**, difference **0.0050**. Strike placement causes the narrowing saw-tooth pattern.
 
-$$
-d_1=0.3703,\quad d_2=0.2664,\quad N(d_1)=0.6444,\quad N(d_2)=0.6050
-$$
+## Implied volatility: solve the price equation {.worked}
 
+For the Example 6 call ($S_0=92$, $K=90$, $T=0.5$, $r=4\%$), observe a price of **4.25** and solve $C(\sigma)=4.25$.
 
-
-$$
-C=95N(d_1)-94e^{-0.03(0.75)}N(d_2)=5.6129\approx5.61
-$$
-
-Same pricing logic with a different set of inputs.
-
-## Example 6 extension — remove the interim coupon
-
-Coupon of 2.00 is paid before option expiry; its PV is 1.96.
-
-$$
-S_0-I=92.00-1.96=90.04
-$$
-
-
-
-$$
-d_1=\frac{\ln(90.04/90)+[0.04+(0.10)^2/2](0.5)}{0.10\sqrt{0.5}}=0.3245
-$$
-
-
-
-$$
-d_2=0.2538;\qquad N(d_1)=0.6272,\quad N(d_2)=0.6002
-$$
-
-## Example 6 extension — value and interpretation
-
-$$
-C_{\mathrm{coupon}}=90.04N(d_1)-90e^{-0.02}N(d_2)=3.5291
-$$
-
-
-
-$$
-4.8673-3.5291=1.3382
-$$
-
-Full-precision probabilities produce these values. The call-value reduction is smaller than the coupon PV of 1.96 because call delta is below one: reducing the adjusted bond price does not reduce the call one-for-one.
-
-## A binomial tree matches volatility through its branches
-
-$$
-\Delta t=T/N,\qquad u=e^{\sigma\sqrt{\Delta t}},\qquad d=e^{-\sigma\sqrt{\Delta t}}=1/u
-$$
-
-One-step log returns are ±σ√Δt. Higher volatility and longer steps widen the branches. A finer CRR tree converges toward the corresponding lognormal distribution; expected growth is not inserted into u and d.
-
-## No arbitrage determines the pricing probability
-
-$$
-q=\frac{e^{r\Delta t}-d}{u-d},\qquad 1-q=\text{down probability}
-$$
-
-
-
-$$
-d<e^{r\Delta t}<u\quad\Longrightarrow\quad0<q<1
-$$
-
-For continuous income yield y, use r − y in the probability’s carry term. The volatility-based u and d remain unchanged. q is a pricing weight, not a forecast frequency.
-
-## CRR parameters — 100 steps for Example 6
-
-$$
-\Delta t=0.5/100=0.005
-$$
-
-
-
-$$
-u=e^{0.10\sqrt{0.005}}=1.007096,\qquad d=e^{-0.10\sqrt{0.005}}=0.992954
-$$
-
-
-
-$$
-S_u=92u=92.6528,\qquad S_d=92d=91.3518
-$$
-
-One step raises price about 0.7096% or lowers it about 0.7046%.
-
-## CRR parameters — probabilities and backward induction
-
-$$
-q=\frac{e^{0.04(0.005)}-0.992954}{1.007096-0.992954}\approx0.512376,\quad1-q=0.487624
-$$
-
-
-
-$$
-V_t=e^{-r\Delta t}\left[qV^u_{t+\Delta t}+(1-q)V^d_{t+\Delta t}\right]
-$$
-
-Calculate terminal call/put payoffs first, then repeat this recursion to time zero. For American exercise, take the larger of continuation and immediate exercise at every node.
-
-## One-period tree — start with the terminal states
-
-![](lec3-11-assets/lec11-one-period-tree.svg){.figure}
-
-One-year call: strike 100; risk-free gross return 1.05. Build a portfolio of Δ bonds and B dollars in the risk-free asset that matches both terminal call payoffs.
-
-## One-period tree — solve the replicating portfolio
-
-$$
-110\Delta+1.05B=10,\qquad90\Delta+1.05B=0
-$$
-
-
-
-$$
-\Delta=\frac{10-0}{110-90}=0.5,\qquad B=-\frac{90(0.5)}{1.05}=-42.857
-$$
-
-
-
-$$
-C_0=0.5(100)-42.857=7.143
-$$
-
-Buy half a bond and borrow 42.857. Replication determines the call’s value without guessing real-world probabilities.
-
-## One-period tree — the same price from risk-neutral weights
-
-$$
-q=\frac{1.05-0.90}{1.10-0.90}=0.75
-$$
-
-
-
-$$
-C_0=\frac{0.75(10)+0.25(0)}{1.05}=7.143
-$$
-
-The 75% makes the underlying earn the risk-free return inside the pricing calculation. A many-period tree repeats this same logic at every node.
-
-## A finer tree approaches the closed-form price
-
-$$
-C_{100\mathrm{-step}}=4.8723,\qquad C_{\mathrm{BS}}=4.8673
-$$
-
-
-
-$$
-\text{Difference}=4.8723-4.8673=0.0050
-$$
-
-The economics is unchanged. Each step discounts a risk-neutral expectation over Δt = 0.005 years.
-
-## Inspect convergence rather than expecting a straight line
-
-![](lec3-11-assets/lec11-fig-binomial-convergence.svg){.figure}
-
-The saw-tooth pattern reflects whether the strike falls near an up or down node. The oscillation narrows as the tree becomes finer.
-
-## Implied volatility reverses the pricing question
-
-<div class="flow"><span><b>Observe</b>Market option price</span><i>→</i><span><b>Hold fixed</b>Other model inputs</span><i>→</i><span><b>Solve</b>Volatility that reproduces the price</span></div>
-
-
-
-$$
-\text{Market price}=\text{Model price}(\sigma_{\mathrm{implied}})
-$$
-
-It is not necessarily a realized-volatility forecast; risk premiums, supply/demand, liquidity and model assumptions also affect it.
-
-## Recover implied volatility — set up the root search
-
-The Example 6 call trades at 4.25, below its 4.8673 value at 10% volatility.
-
-$$
-4.25=92N(d_1)-90e^{-0.04(0.5)}N(d_2)
-$$
-
-Both d₁ and d₂ depend on unknown σ. It cannot be isolated algebraically. If model price is too low, raise σ; if too high, lower σ.
-
-## Recover implied volatility — converge on the quote
-
-| Trial volatility | Black-Scholes call value | Direction for next trial |
+| Trial volatility | Call price | Next move |
 |---:|---:|---|
-| 5.000% | 3.9655 | Price too low; raise $\sigma$ |
-| 6.500% | 4.1878 | Price too low; raise $\sigma$ |
-| 7.000% | 4.2741 | Price too high; lower $\sigma$ |
-| 6.800% | 4.2390 | Price too low; raise $\sigma$ |
-| 6.863% | 4.2500 | Matches the market price |
+| 5.000% | 3.9655 | Raise volatility |
+| 6.500% | 4.1878 | Raise volatility |
+| 7.000% | 4.2741 | Lower volatility |
+| 6.800% | 4.2390 | Raise volatility |
+| 6.863% | 4.2500 | Match |
 
-$$
-\sigma_{\mathrm{implied}}\approx6.863\%
-$$
+$$\sigma_{\mathrm{implied}}\approx6.863\%$$
 
-Continue trial values or a numerical root search until the pricing error is sufficiently small.
+Implied volatility reproduces the quote under the model. Risk premiums, liquidity and model assumptions affect it as well as expected realized volatility.
 
-## A smile shows why one volatility is not enough
+## A volatility smile reveals the constant-volatility limitation
 
 ![](lec3-11-assets/lec11-fig-implied-volatility-smile.svg){.figure}
 
-Stylized source curve, not observed market data. A smile or skew means a single constant lognormal volatility does not fully describe prices across strikes.
+Stylized illustration; no observed market quotes. A smile or skew means a single constant lognormal volatility does not fully describe prices across strikes.
 
 ## Black’s model values European futures options
 
@@ -774,64 +447,36 @@ $$
 
 Both terms are inside the discount factor. No separate carry term enters d₁: F₀ already reflects carry under the model.
 
-## Example 7 — Treasury futures option inputs
+## Example 7: futures-option inputs and probabilities {.worked}
 
-| Input | Value |
+**Treasury futures:** $F_0=111$, $K=110$, $T=0.25$ years, $r=4.5\%$, $\sigma=8\%$. One point is **$1,000**.
+
+$$d_1=\frac{\ln(111/110)+\tfrac12(0.08)^2(0.25)}{0.08\sqrt{0.25}}=0.2462$$
+
+$$d_2=d_1-0.04=0.2062,\qquad e^{-rT}=e^{-0.01125}=0.9888$$
+
+| $N(d_1)$ | $N(d_2)$ | $N(-d_1)$ | $N(-d_2)$ |
+|---:|---:|---:|---:|
+| 0.5973 | 0.5817 | 0.4027 | 0.4183 |
+
+Use full precision for the premiums. Both futures-price and strike terms receive the discount factor.
+
+## Example 7: premiums and the parity check {.worked}
+
+**Same inputs:** $F_0=111$, $K=110$, $T=0.25$, $r=4.5\%$, $\sigma=8\%$.
+
+$$c=e^{-0.01125}[111N(d_1)-110N(d_2)]=2.2823\text{ points}$$
+
+$$p=e^{-0.01125}[110N(-d_2)-111N(-d_1)]=1.2935\text{ points}$$
+
+| Result | Dollar premium at $1,000 per point |
 |---|---:|
-| Futures F₀ | 111 |
-| Strike K | 110 |
-| Time T | 0.25 years |
-| Rate r | 4.5% |
-| Futures-price σ | 8% |
-| Contract point value | $1,000 |
+| Call | $2,282.32 |
+| Put | $1,293.50 |
 
-Calculate call and put in points, convert to dollars, then check parity.
+$$c-p=0.9888=e^{-0.01125}(111-110)$$
 
-## Example 7 — calculate d₁, d₂ and discounting
-
-$$
-d_1=\frac{\ln(111/110)+\tfrac12(0.08)^2(0.25)}{0.08\sqrt{0.25}}=0.2462
-$$
-
-
-
-$$
-d_2=0.2462-0.04=0.2062
-$$
-
-
-
-$$
-N(d_1)=0.5973,\quad N(d_2)=0.5817,\quad e^{-0.045(0.25)}=0.9888
-$$
-
-Displayed probabilities and discount factor are rounded; use full precision for final premiums.
-
-## Example 7 — price the call
-
-$$
-\begin{aligned}c&=e^{-rT}[111N(d_1)-110N(d_2)]\\&\approx0.9888[111(0.5973)-110(0.5817)]\\&=2.2823\ \text{points}\quad\text{(full precision)}\end{aligned}
-$$
-
-
-
-$$
-\text{Dollar premium}=c\times\$1{,}000=\$2{,}282.32
-$$
-
-## Example 7 — price the put and check parity
-
-$$
-\begin{aligned}p&=e^{-rT}[110N(-d_2)-111N(-d_1)]\\&\approx0.9888[110(0.4183)-111(0.4027)]\\&=1.2935\ \text{points}=\$1{,}293.50\end{aligned}
-$$
-
-
-
-$$
-c-p=2.2823-1.2935=0.9888=e^{-rT}(111-110)
-$$
-
-Full-precision inputs produce the reported values. The equality checks consistency.
+Use unrounded probabilities and premiums for the dollar conversion and equality.
 
 ## Choose a model that matches the problem
 
@@ -843,27 +488,15 @@ Full-precision inputs produce the reported values. The equality checks consisten
 
 Black does not explain how all maturities move together. Models such as Hull–White can generate internally consistent future curves.
 
-## Hedge a long bond portfolio with futures puts
+## Protective puts: exposure and delta determine the count
 
-<div class="flow"><span><b>Long bonds</b>Lose value when yields rise</span><i>→</i><span><b>Treasury futures</b>Price usually falls with bonds</span><i>→</i><span><b>Long puts</b>Gain as futures prices fall</span></div>
+$$\mathrm{DV01}_P\approx PD_{\mathrm{mod}}(0.0001),\quad N_{\mathrm{fut\text{-}eq}}\approx\frac{\mathrm{DV01}_P}{\mathrm{DV01}_{\mathrm{futures}}}$$
 
+$$\Delta=\frac{\partial V}{\partial F},\qquad N_{\mathrm{puts}}\approx\frac{\mathrm{DV01}_P}{|\Delta_{\mathrm{put}}|\,\mathrm{DV01}_{\mathrm{futures}}}$$
 
+A put with delta −0.40 supplies 0.40 short futures equivalents initially. Delta changes with price, time and volatility, so a local hedge requires rebalancing. Adjust for yield beta or key-rate differences when exposures differ.
 
-$$
-N_{\mathrm{fut\text{-}eq}}\approx\frac{\text{Portfolio DV01}}{\text{Futures DV01 per contract}}
-$$
-
-First map exposure into futures-equivalent contracts. A put then supplies only a fraction of a contract’s sensitivity before expiration.
-
-## Option delta changes the initial hedge count
-
-$$
-\Delta=\frac{\partial V}{\partial F},\qquad N_{\mathrm{puts}}\approx\frac{\text{Portfolio DV01}}{|\Delta_{\mathrm{put}}|\times\text{Futures DV01}}
-$$
-
-A put has negative delta. At −0.40, each put supplies 0.40 short futures equivalents; 100 / 0.40 = 250 puts hedge 100 equivalents locally. Rebalance as delta changes. Add yield-beta or key-rate adjustments if responses differ.
-
-## Example 8 — define the protective-put position
+## Example 8: inputs and portfolio exposure {.worked}
 
 | Input | Value |
 |---|---:|
@@ -873,111 +506,57 @@ A put has negative delta. At −0.40, each put supplies 0.40 short futures equiv
 | Put premium / current delta | 1.25 points / −0.40 |
 | Dollar value of one price point | $1,000 |
 
-## Example 8 — measure the rate exposure
+$$\mathrm{DV01}_P=10{,}000{,}000(8)(0.0001)=\$8{,}000,\quad N_{\mathrm{fut\text{-}eq}}=8{,}000/80=100.$$
 
-$$
-\mathrm{DV01}_P=10{,}000{,}000(8.0)(0.0001)=\$8{,}000
-$$
+A 1 bp yield rise costs about $8,000. The simplified mapping treats the portfolio as **100 long futures equivalents**.
 
+## Example 8: a local hedge versus an expiration floor {.worked}
 
+**Inputs:** 100 long futures equivalents; put $K=110$, premium 1.25 points, delta −0.40; $1,000 per point.
 
-$$
-N_{\mathrm{fut\text{-}eq}}=8{,}000/80=100
-$$
+| Design | Put count | Initial net exposure | Premium |
+|---|---:|---:|---:|
+| Local delta hedge | $100/0.40=250$ | $100-250(0.40)=0$ | $312,500 |
+| Static expiration overlay | 100 | $100-100(0.40)=60$ long | $125,000 |
 
-A 1 bp yield rise costs approximately $8,000. Under the simplified mapping, a one-point futures decline costs 100 × $1,000 = $100,000.
+For a small one-point decline, 250 puts gain about $250(0.40)(\$1{,}000)=\$100{,}000$, offsetting the mapped loss.
 
-## Example 8 — 250 puts hedge a small move today
+The **100-put static overlay** instead offsets losses one-for-one below strike at expiry. Use that design in the following scenarios.
 
-$$
-N_{\mathrm{delta\ hedge}}=100/0.40=250\ \text{puts}
-$$
+## Example 8: build the protected result {.worked}
 
-<div class="flow"><span><b>Mapped bond loss</b>One-point decline: −$100,000</span><i>→</i><span><b>Gain per put</b>Approximately 0.40 × $1,000 = $400</span><i>→</i><span><b>250 puts</b>250 × $400 = $100,000</span></div>
+**Static design:** 100 puts, $F_0=K=110$, premium cost $125,000.
 
+$$\Delta V_{\mathrm{bond,mapped}}=100(\$1{,}000)(F_T-110)$$
 
+$$\text{Put payoff}=100(\$1{,}000)\max(110-F_T,0)$$
 
-$$
-\text{Premium}=250(1.25)(\$1{,}000)=\$312{,}500
-$$
+$$\Delta V_{\mathrm{protected}}=\Delta V_{\mathrm{bond,mapped}}+\text{put payoff}-\$125{,}000$$
 
-This is an initial local hedge. Large moves, time and volatility alter delta; the fixed count will cease to offset exactly.
+At $F_T=107$: $-\$300{,}000+\$300{,}000-\$125{,}000=-\$125{,}000$.
 
-## Example 8 — 100 puts target a static expiration floor
+Assume the DV01 mapping holds and ignore basis and convexity differences. These are changes relative to the initial bond value, including premium.
 
-<div class="comparison"><div><h3>250-put delta hedge</h3><p>Initial option exposure −100 futures equivalents. Targets zero local net sensitivity and needs rebalancing.</p></div><div><h3>100-put static overlay</h3><p>Initial option exposure −40 equivalents; retains +60 net. Below K at expiration, put payoff slope becomes −1.</p></div></div>
+## Example 8: the static protective floor {.worked}
 
+100 puts, $K=110$, premium cost **\$125,000**. All table amounts are **thousands of dollars**.
 
-
-$$
-\text{Static premium}=100(1.25)(\$1{,}000)=\$125{,}000
-$$
-
-The remaining scenario analysis uses the 100-put static design.
-
-## Example 8 — map the bond change to futures
-
-$$
-\Delta V_{\mathrm{bond,mapped}}=100(\$1{,}000)(F_T-110)
-$$
-
-
-
-$$
-F_T=107\quad\Longrightarrow\quad\Delta V_{\mathrm{bond,mapped}}=-\$300{,}000
-$$
-
-Assume the DV01 match remains valid and ignore basis and convexity effects. This mapping is an illustrative exposure, not an exact cash-bond payoff.
-
-## Example 8 — build the protected payoff
-
-$$
-\text{Put payoff}=100(\$1{,}000)\max(110-F_T,0)
-$$
-
-
-
-$$
-\Delta V_{\mathrm{protected}}=\Delta V_{\mathrm{bond,mapped}}+\text{Put payoff}-\$125{,}000
-$$
-
-Measure the change relative to the initial bond-portfolio value, including the option premium.
-
-## Example 8 — expiration scenarios
-
-| $F_T$ | Mapped bond change | Put payoff | Net change after premium |
+::::: {.columns}
+:::: {.column width="52%"}
+![](lec3-11-assets/lec11-fig-protective-put-hedge.svg){.board-figure}
+::::
+:::: {.column width="48%"}
+| $F_T$ | Bond change | Put payoff | Net |
 |---:|---:|---:|---:|
-| 104 | -$600,000 | $600,000 | -$125,000 |
-| 107 | -$300,000 | $300,000 | -$125,000 |
-| 110 | $0 | $0 | -$125,000 |
-| 113 | $300,000 | $0 | $175,000 |
-| 116 | $600,000 | $0 | $475,000 |
+| 104 | −600 | 600 | −125 |
+| 107 | −300 | 300 | −125 |
+| 110 | 0 | 0 | −125 |
+| 113 | 300 | 0 | 175 |
+| 116 | 600 | 0 | 475 |
+::::
+:::::
 
-Below K, additional mapped losses are offset one-for-one by put payoff. Above K, the mapped bond gains are retained less premium.
-
-## Example 8 — work the 107 scenario
-
-$$
-\begin{aligned}\Delta V&=100(\$1{,}000)(107-110)\\&\quad+100(\$1{,}000)(110-107)-\$125{,}000\\&=-\$125{,}000\end{aligned}
-$$
-
-The $300,000 mapped bond loss and $300,000 put payoff cancel. The remaining loss is the insurance premium.
-
-## Visualize the static protective floor
-
-![](lec3-11-assets/lec11-fig-protective-put-hedge.svg){.figure}
-
-A floor for the mapped exposure at expiration, subject in practice to basis, curve and convexity differences. It is distinct from the 250-put initial delta hedge.
-
-## Retained hedge-sizing example — delta matters
-
-Portfolio DV01 = $9,000; put delta = −0.45; futures DV01 = $75.
-
-$$
-N_p=\frac{9{,}000}{0.45(75)}=266.67\approx267\ \text{puts}
-$$
-
-This existing-deck example is also a local initial hedge. Monitor changing delta, DV01 and the portfolio–futures relationship.
+Below 110, the put payoff offsets each additional mapped loss. Above 110, mapped gains remain less premium. Basis, curve and convexity differences affect the actual cash-bond hedge.
 
 ## Practical hedge risks remain after sizing
 
@@ -990,13 +569,7 @@ This existing-deck example is also a local initial hedge. Monitor changing delta
 | Expiration | Hedge ends before exposure ends |
 | Liquidity and costs | Rolling and rebalancing are costly |
 
-## Covered calls exchange favorable outcomes for premium
-
-<div class="flow"><span><b>Long bond exposure</b>Map into futures equivalents with DV01</span><i>→</i><span><b>Short calls</b>Receive premium; owe payoff above K</span><i>→</i><span><b>Combined result</b>Limited downside cushion and capped upside</span></div>
-
-Useful for a range-bound view; it is not downside insurance. Choose between matching current delta and overwriting one-for-one at expiration.
-
-## Covered-call expiration economics
+## Covered calls: premium income in exchange for upside
 
 $$
 \Pi_{\mathrm{covered\ call}}=(F_T-F_0)+c-\max(F_T-K,0)
@@ -1006,84 +579,55 @@ $$
 
 Formula is per futures-equivalent unit and one written call; actual cash bonds introduce basis risk.
 
-## Example 9 — same portfolio, different payoff objective
+A one-for-one overwrite caps gains above the strike while providing only the fixed premium as a downside cushion.
 
-| Input | Value |
-|---|---:|
-| Portfolio DV01 / futures DV01 | $8,000 / $80 |
-| Long futures-equivalent exposure | 100 contracts |
-| Current futures F₀ / call strike K | 110 / 113 |
-| Call premium / delta | 1.00 point / +0.40 |
-| Point value | $1,000 |
+## Example 9: inputs and overwrite counts {.worked}
 
-## Example 9 — compare overwrite counts
+**Same portfolio:** $10 million, DV01 $8,000; futures DV01 **\$80 per contract**, hence **100 long equivalents**. $F_0=110$, call $K=113$, premium 1.00 point, delta +0.40; $1,000 per point.
 
-<div class="comparison"><div><h3>250 short calls</h3><p>100 / 0.40 = 250; initial net delta = 100 − 250(0.40) = 0. As call delta approaches one, the position can become overhedged.</p></div><div><h3>100 short calls</h3><p>Initial net delta = 100 − 100(0.40) = +60. Above K at expiration, short-call slope −1 offsets the mapped long exposure.</p></div></div>
+| Design | Short calls | Initial net exposure | Consequence |
+|---|---:|---:|---|
+| Local delta hedge | $100/0.40=250$ | 0 | Can become overhedged as delta rises |
+| Static one-for-one overwrite | 100 | $100-100(0.40)=60$ long | Caps the mapped gain at expiration |
 
-The following scenarios use the standard one-for-one static overlay of 100 short calls. A 250-call local hedge requires rebalancing and is not fully covered one-for-one.
+Use **100 short calls** below. Premium income is $100(1.00)(\$1{,}000)=\$100{,}000$. A 250-call position needs rebalancing and is not fully covered one-for-one.
 
-## Example 9 — premium and component payoffs
+## Example 9: components and two worked outcomes {.worked}
 
-$$
-\text{Premium income}=100(1.00)(\$1{,}000)=\$100{,}000
-$$
+**Static design:** 100 short calls, $K=113$, premium 1 point; $F_0=110$.
 
+$$\Delta V_{\mathrm{bond,mapped}}=100(\$1{,}000)(F_T-110)$$
 
+$$\Pi_{\mathrm{short\ calls}}=100(\$1{,}000)[1-\max(F_T-113,0)]$$
 
-$$
-\Delta V_{\mathrm{bond,mapped}}=100(\$1{,}000)(F_T-110)
-$$
-
-
-
-$$
-\Pi_{\mathrm{short\ calls}}=100(\$1{,}000)[1-\max(F_T-113,0)]
-$$
-
-Covered-call net change = mapped bond change + short-call profit.
-
-## Example 9 — expiration scenarios
-
-| $F_T$ | Mapped bond change | Short-call profit | Covered-call net change |
+| $F_T$ | Mapped bond change | Short-call profit | Combined |
 |---:|---:|---:|---:|
-| 104 | -$600,000 | $100,000 | -$500,000 |
-| 107 | -$300,000 | $100,000 | -$200,000 |
-| 110 | $0 | $100,000 | $100,000 |
-| 113 | $300,000 | $100,000 | $400,000 |
-| 116 | $600,000 | -$200,000 | $400,000 |
-| 119 | $900,000 | -$500,000 | $400,000 |
+| 107 | −$300,000 | $100,000 | −$200,000 |
+| 119 | $900,000 | $100,000 − $600,000 | $400,000 |
 
-## Example 9 — down-market cushion at 107
+Above 113, additional mapped gains offset written-call losses. Maximum net gain is $100(\$1{,}000)[(113-110)+1]=\$400{,}000$.
 
-<div class="flow"><span><b>Mapped bond</b>100 × $1,000 × (107 − 110) = −$300,000</span><i>→</i><span><b>Short calls</b>Expire worthless; retain $100,000</span><i>→</i><span><b>Combined</b>−$300,000 + $100,000 = −$200,000</span></div>
+## Example 9: the static covered-call cap {.worked}
 
-The premium reduces the loss, but does not create a floor.
+100 short calls, $K=113$, premium received **\$100,000**. All table amounts are **thousands of dollars**.
 
-## Example 9 — up-market cap at 119
+::::: {.columns}
+:::: {.column width="52%"}
+![](lec3-11-assets/lec11-fig-covered-call.svg){.board-figure}
+::::
+:::: {.column width="48%"}
+| $F_T$ | Bond change | Call profit | Net |
+|---:|---:|---:|---:|
+| 104 | −600 | 100 | −500 |
+| 107 | −300 | 100 | −200 |
+| 110 | 0 | 100 | 100 |
+| 113 | 300 | 100 | 400 |
+| 116 | 600 | −200 | 400 |
+| 119 | 900 | −500 | 400 |
+::::
+:::::
 
-$$
-\Pi_{\mathrm{short\ calls}}=100(\$1{,}000)[1-(119-113)]=-\$500{,}000
-$$
-
-
-
-$$
-\Delta V_{\mathrm{combined}}=\$900{,}000-\$500{,}000=\$400{,}000
-$$
-
-
-
-$$
-\text{Maximum net gain}=100(\$1{,}000)[(113-110)+1]=\$400{,}000
-$$
-
-Above 113, each additional mapped gain is offset by a written-call loss. The manager keeps only the strike gain plus premium.
-
-## Visualize the covered-call cap
-
-![](lec3-11-assets/lec11-fig-covered-call.svg){.figure}
-
-The downside cushion is fixed at $100,000. Actual results can differ because cash bonds are not futures and the DV01 mapping can change.
+The premium gives a fixed $100,000 cushion. Above 113, mapped gains cap at $400,000. The portfolio–futures basis and DV01 mapping can change.
 
 ## Protective puts and covered calls serve different objectives
 
@@ -1094,64 +638,33 @@ The downside cushion is fixed at $100,000. Actual results can differ because cas
 
 Protective puts buy convexity; covered calls sell it. Choose using objectives, constraints, valuation and tail-risk tolerance, not premium alone.
 
-## A complete option decision starts with the risk
+## From the risk to the hedge
 
-<div class="flow"><span><b>Risk</b>Parallel move, curve point, volatility or event date</span><i>→</i><span><b>Payoff shape</b>Lock, floor, cap or premium income</span><i>→</i><span><b>Contract</b>Cash-bond option, futures option, cap, floor or swaption</span></div>
+![](lec3-11-assets/lec11-option-decision-tree.svg){.board-figure}
 
-Then size with DV01, key-rate duration, beta and option delta. Stress basis, volatility, time decay, exercise, liquidity, margin and model risk. Compare with no hedge and a futures hedge.
+Choose the payoff, then size with DV01, key-rate exposure, beta and delta. Stress basis, volatility, time decay, exercise, liquidity, margin and model risk. Compare with an unhedged position and a futures hedge.
 
-## Choose the instrument from the desired payoff
+## Check understanding: direction, units and hedge count
 
-![](lec3-11-assets/lec11-option-decision-tree.svg){.figure}
+1. If 10-year yields rise sharply, which option on Treasury futures protects a long bond portfolio? Trace the price effect.
+2. A 110 put costs 0-32 under the example’s 64ths convention. What are its dollar premium and expiry break-even?
+3. Why does a −0.25-delta put require more contracts than portfolio DV01 divided by futures DV01?
+4. Does risk-neutral probability or implied volatility give an exact real-world forecast?
 
-Identify the underlying price and existing position before translating a rate view into an instrument.
+## Answers: trace the exposure and the units
 
-## Check understanding — direction and quote units
+1. **Buy puts:** higher yields usually lower Treasury futures prices, increasing put payoffs.
+2. $32/64=0.5$ point = **$500**; break-even $110-0.5=109.5$.
+3. Each put supplies 0.25 short futures equivalents initially, so the local hedge needs about four puts per equivalent unit.
+4. **No.** Risk-neutral weights enforce no-arbitrage pricing. Implied volatility matches a quote under a model and also reflects risk premiums, liquidity and model limitations.
 
-1. A manager expects the 10-year yield to rise sharply. Call or put on Treasury futures? Explain both links.
-2. A 110 put costs 0-32. What is its dollar premium and expiration break-even, ignoring fees?
+## Contracts, valuation and hedge objectives
 
-## Check understanding — pricing, sizing and volatility
+| Decision | What to check |
+|---|---|
+| Contract | Underlying, strike, expiration, exercise, quote and margin units |
+| Value | Intrinsic/time value, parity, appropriate model and volatility |
+| Hedge | DV01 and delta; local rebalanced hedge versus static expiry overlay |
+| Objective | Puts buy a floor and retain upside; covered calls sell upside for premium |
 
-3. Why is a binomial risk-neutral probability not necessarily a forecast?
-4. Why does a −0.25-delta put require more contracts than portfolio DV01 / futures DV01 alone suggests?
-5. Does implied volatility prove traders expect exactly that realized volatility?
-
-## Answers — trace the chain and convert the quote
-
-1. Buy a put: rising yields usually lower Treasury futures prices; the put benefits from falling prices.
-2. Premium = 32/64 = 0.5 point = $500. Break-even = 110 − 0.5 = 109.5.
-
-
-
-## Answers — distinguish pricing weights from forecasts
-
-3. q enforces no-arbitrage pricing and risk-free expected growth; it is not estimated from real-world frequencies.
-4. Each put supplies 0.25 futures-equivalent sensitivity, so roughly four puts are needed per equivalent unit initially.
-5. No: implied volatility is model-consistent with price and reflects risk premiums, supply/demand, liquidity and model limitations.
-
-## Key points — contracts and valuation
-
-<div class="flow"><span><b>Rights</b>Buyer chooses; writer performs if assigned</span><i>→</i><span><b>Asymmetry</b>Calls benefit from higher prices; puts from lower prices</span><i>→</i><span><b>Premium</b>Intrinsic + time value; writing retains tail risk</span><i>→</i><span><b>Pricing</b>Parity, model inputs, Black–Scholes, trees and Black</span></div>
-
-Exercise a futures call into long futures and a put into short futures. Implied volatility reconciles model and market price; it is not a promise about realized volatility.
-
-## Key points — match the hedge to its objective
-
-<div class="comparison"><div><h3>Protective put</h3><p>Pay for an expiration floor and retain upside under the mapping.</p></div><div><h3>Covered call</h3><p>Receive premium, cap gains and accept most downside.</p></div></div>
-
-Use DV01, delta, curve exposure and basis relationships rather than notional alone. Separate local delta hedges from static expiration overlays; stress assumptions and implementation.
-
-## Suggested readings
-
-- Fabozzi, *Bond Markets, Analysis, and Strategies*, **Chapter 30: Interest-Rate Options**.
-- [CME Group, Fundamentals of Options on Futures](https://www.cmegroup.com/education/whitepapers/fundamentals-of-options-on-futures).
-- [CME Group, Trading SOFR Options](https://www.cmegroup.com/education/articles-and-reports/trading-sofr-options).
-- [CME Group, Primer on Margining Styles for Options](https://www.cmegroup.com/education/articles-and-reports/a-primer-on-margining-styles-for-options).
-
-## Source data and resources
-
-- [OCC, Quarterly Report on Bank Trading and Derivatives Activities](https://www.occ.treas.gov/topics/supervision-and-examination/capital-markets/financial-markets/derivatives/derivatives-quarterly-report.html): See how interest-rate derivatives exposures are distributed across U.S. commercial banks.
-- [Federal Reserve, Selected Interest Rates (H.15)](https://www.federalreserve.gov/releases/h15/): Obtain the official underlying rate and Treasury-yield history needed to compare option-implied and subsequently realized rate movements.
-
-These links are retained from the notes; no live market data or contract specifications were refreshed for this deck.
+The buyer chooses whether to exercise. The assigned writer must perform. Premium income leaves tail risk; a hedge’s payoff objective determines its design.
